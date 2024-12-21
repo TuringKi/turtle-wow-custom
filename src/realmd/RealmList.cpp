@@ -35,7 +35,7 @@ RealmList sRealmList;
 
 // list sorted from high to low build and first build used as low bound for accepted by default range (any > it will accepted by realmd at least)
 static RealmBuildInfo ExpectedRealmdClientBuilds[] = {
-    {7199, 1, 17, 2, ' ', {{}}, {{}}}, {0, 0, 0, 0, ' ', {{}}, {{}}} // terminator
+    {7100, 1, 17, 1, ' ', {{}}, {{}}}, {0, 0, 0, 0, ' ', {{}}, {{}}} // terminator
 };
 
 RealmBuildInfo const* FindBuildInfo(uint16 _build)
