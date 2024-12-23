@@ -124,6 +124,36 @@ enum class ShopRegion : uint32
     China = 2
 };
 
+struct PlayerPremadeSpecTemplate
+{
+    uint32 entry = 0;
+    uint8 level = 0;
+    uint8 requiredClass = 0;
+    CombatBotRoles role = ROLE_INVALID;
+    std::string name;
+    std::vector<uint32> spells;
+};
+
+struct PlayerPremadeItem
+{
+    PlayerPremadeItem(uint32 item, uint32 enchant, uint32 team) : itemId(item), enchantId(enchant), requiredTeam(team){};
+    uint32 itemId = 0;
+    uint32 enchantId = 0;
+    uint32 requiredTeam = 0;
+};
+struct PlayerPremadeGearTemplate
+{
+    uint32 entry = 0;
+    uint8 level = 0;
+    uint8 requiredClass = 0;
+    CombatBotRoles role = ROLE_INVALID;
+    std::string name;
+    std::vector<PlayerPremadeItem> items;
+};
+typedef std::unordered_map<uint32, PlayerPremadeGearTemplate> PlayerPremadeGearMap;
+typedef std::unordered_map<uint32, PlayerPremadeSpecTemplate> PlayerPremadeSpecMap;
+
+
 struct BattlegroundEntranceTrigger
 {
     Team team;
@@ -1390,6 +1420,13 @@ public:
         return &iter->second;
     }
 
+    PlayerPremadeGearMap const& GetPlayerPremadeGearTemplates() const { return m_playerPremadeGearMap; }
+    PlayerPremadeSpecMap const& GetPlayerPremadeSpecTemplates() const { return m_playerPremadeSpecMap; }
+    void LoadPlayerPremadeTemplates();
+    void ApplyPremadeGearTemplateToPlayer(uint32 entry, Player* pPlayer) const;
+    void ApplyPremadeSpecTemplateToPlayer(uint32 entry, Player* pPlayer) const;
+
+
     ShopEntriesMap const& GetShopEntriesList() const { return m_ShopEntriesMap; }
 
     const ShopCategoriesMap& GetShopCategoriesList() const { return m_ShopCategoriesMap; }
@@ -1657,6 +1694,9 @@ protected:
     QuestRelationsMap m_CreatureQuestInvolvedRelations;
     QuestRelationsMap m_GOQuestRelations;
     QuestRelationsMap m_GOQuestInvolvedRelations;
+
+    PlayerPremadeGearMap m_playerPremadeGearMap;
+    PlayerPremadeSpecMap m_playerPremadeSpecMap;
 
     TaxiPathTransitionsMap m_TaxiPathTransitions;
     TaxiNodesStore m_TaxiNodes;

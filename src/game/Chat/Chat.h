@@ -159,6 +159,15 @@ public:
      **/
     static void BuildChatPacket(WorldPacket& data, ChatMsg msgtype, const std::string& message, Language language = LANG_UNIVERSAL, uint32 chatTag = CHAT_TAG_NONE, ObjectGuid const& senderGuid = ObjectGuid(), char const* senderName = nullptr, ObjectGuid const& targetGuid = ObjectGuid(), char const* targetName = nullptr, char const* channelName = nullptr, uint8 playerRank = 0);
 
+    bool HandleGonameCommand(char* args);
+
+    bool HandleGoWarsongCommand(char*);
+    bool HandleGoArathiCommand(char*);
+    bool HandleGoAlteracCommand(char*);
+    bool HandleLearnAllTrainerCommand(char* args);
+    bool HandleLearnAllItemsCommand(char* args);
+
+
 protected:
     explicit ChatHandler() : m_session(nullptr), sentErrorMessage(false) {} // for CLI subclass
 
@@ -218,6 +227,44 @@ protected:
     bool HandleWarEffortSetStageCommand(char* args);
     bool HandleCharacterInactivityDataCommand(char* args);
     bool HandleUnitStatInfoCommand(char* args);
+
+    bool HandleBotAddAllCommand(char*);
+    bool HandleBotAddRandomCommand(char* args);
+    bool HandleBotAddCommand(char* args);
+    bool HandleBotDeleteCommand(char* args);
+    bool HandleBotInfoCommand(char* args);
+    bool HandleBotReloadCommand(char* args);
+    bool HandleBotStopCommand(char* args);
+    bool HandleBotStartCommand(char* args);
+    bool PartyBotAddRequirementCheck(Player const* pPlayer, Player const* pTarget);
+    bool HandlePartyBotAddCommand(char* args);
+    bool HandlePartyBotCloneCommand(char* args);
+    bool HandlePartyBotLoadCommand(char* args);
+    bool HandlePartyBotSetRoleCommand(char* args);
+    bool HandlePartyBotAttackStartCommand(char* args);
+    bool HandlePartyBotAttackStopCommand(char* args);
+    bool HandlePartyBotPullCommand(char* args);
+    bool HandlePartyBotAoECommand(char* args);
+    bool HandlePartyBotControlMarkCommand(char* args);
+    bool HandlePartyBotFocusMarkCommand(char* args);
+    bool HandlePartyBotClearMarksCommand(char* args);
+    bool HandlePartyBotComeToMeCommand(char* args);
+    bool HandlePartyBotUseGObjectCommand(char* args);
+    bool HandlePartyBotPauseCommand(char* args);
+    bool HandlePartyBotUnpauseCommand(char* args);
+    bool HandlePartyBotUnequipCommand(char* args);
+    bool HandlePartyBotRemoveCommand(char* args);
+    bool HandleBattleBotAddCommand(char* args, uint8 bg);
+    bool HandleBattleBotAddAlteracCommand(char* args);
+    bool HandleBattleBotAddArathiCommand(char* args);
+    bool HandleBattleBotAddWarsongCommand(char* args);
+    bool HandleBattleBotRemoveCommand(char* args);
+    bool HandleBattleBotRemoveAllCommand(char* args);
+    bool HandleBattleBotShowPathCommand(char* args);
+    bool HandleBattleBotShowAllPathsCommand(char* args);
+
+
+    bool HandlePartyBotPauseHelper(char* args, bool pause);
 
     Object* GetObjectHelper(CommandStream& stream, uint32& lowGuid, uint32& index);
 
@@ -500,9 +547,6 @@ protected:
     bool HandleLearnCommand(char* args);
     bool HandleLearnAllMySpellsCommand(char* args);
     bool HandleLearnAllRecipesCommand(char* args);
-    bool HandleLearnAllTrainerCommand(char* args);
-    bool HandleLearnAllItemsCommand(char* args);
-
     bool HandleLookupCreatureCommand(char* args);
     bool HandleLookupFactionCommand(char* args);
     bool HandleLookupItemCommand(char* args);
@@ -664,7 +708,6 @@ protected:
     bool HandleSaveCommand(char* args);
 
     bool HandleSummonCommand(char* args);
-    bool HandleGonameCommand(char* args);
     bool HandleGroupgoCommand(char* args);
     bool HandleRecallCommand(char* args);
     bool HandleAnnounceCommand(char* args);

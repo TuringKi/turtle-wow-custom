@@ -911,6 +911,10 @@ public:
         return false;
     }
 
+    uint32 GetRank() const;
+
+    bool IsIgnoringCasterAndTargetRestrictions() const { return HasAttribute(SPELL_ATTR_EX_UNK23) || HasAttribute(SPELL_ATTR_EX3_IGNORE_CASTER_AND_TARGET_RESTRICTIONS); }
+
     inline bool IsNeedFaceTarget() const { return ((Custom & SPELL_CUSTOM_FACE_TARGET) || (rangeIndex == SPELL_RANGE_IDX_COMBAT)); }
 
     inline bool IsNeedCastSpellAtFormApply(ShapeshiftForm form) const

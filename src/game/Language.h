@@ -185,7 +185,15 @@ enum MangosStrings
     //                                    174               // used in master
     LANG_LIQUID_STATUS = 175,
     LANG_APPEARING_AT_OFFLINE = 176,
-    // Room for more level 1              176-199 not used
+    LANG_XP_RATE_MIN = 177,
+    LANG_XP_RATE_MAX = 178,
+    LANG_XP_RATE_SET = 179,
+    LANG_ALLIANCE_BATTLEBOT_ADDED = 180,
+    LANG_HORDE_BATTLEBOT_ADDED = 181,
+    LANG_CAN_ONLY_WHISPER_FRIENDS = 182,
+    LANG_CANT_USE_PUBLIC_CHANNELS = 183,
+    LANG_RESTRICTED_ACCOUNT = 184,
+    // Room for more level 1              182-199 not used
 
     // level 2 chat
     LANG_NO_SELECTION = 200,
@@ -765,11 +773,11 @@ enum MangosStrings
     LANG_BATTLEGROUND_PREMATURE_FINISH_WARNING_SECS = 751, // "Not enough players. This game will close in %u seconds."
     LANG_BATTLEGROUND_ONLY_ALLIANCE_USE = 752, // "Only The Alliance can use that portal"
     LANG_BATTLEGROUND_ONLY_HORDE_USE = 753, // "Only The Horde can use that portal"
-    //                                      = 754, not used
-    //                                      = 755, not used
-    //                                      = 756, not used
-    //                                      = 757, not used
-    //                                      = 758, not used
+                                            //                                      = 754, not used
+                                            //                                      = 755, not used
+                                            //                                      = 756, not used
+                                            //                                      = 757, not used
+                                            //                                      = 758, not used
     LANG_BG_AV_TOWER_TAKEN = 759,
     LANG_BG_AV_TOWER_ASSAULTED = 760,
     LANG_BG_AV_TOWER_DEFENDED = 761,

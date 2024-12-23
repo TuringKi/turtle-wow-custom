@@ -440,6 +440,8 @@ public:
     void UpdateActiveObjectVisibility(Player* player, ObjectGuidSet& visibleGuids);
     void UpdateActiveObjectVisibility(Player* player, ObjectGuidSet& visibleGuids, UpdateData& data, std::set<WorldObject*>& visibleNow);
 
+    bool HaveRealPlayers() const; // no bots
+
     void resetMarkedCells() { marked_cells.reset(); }
     bool isCellMarked(uint32 pCellId) { return marked_cells.test(pCellId); }
     void markCell(uint32 pCellId) { marked_cells.set(pCellId); }

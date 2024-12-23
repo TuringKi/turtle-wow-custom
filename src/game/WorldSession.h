@@ -537,8 +537,8 @@ public:
 
     // Bot system
     std::stringstream _chatBotHistory;
-    PlayerBotEntry* GetBot() { return m_bot; }
-    void SetBot(PlayerBotEntry* b) { m_bot = b; }
+    PlayerBotEntry* GetBot() { return m_bot.get(); }
+    void SetBot(std::shared_ptr<PlayerBotEntry> b) { m_bot = b; }
 
     // Player online / socket offline system
     void SetDisconnectedSession(); // Remove from World::m_session. Used when an account gets disconnected.
@@ -1024,7 +1024,7 @@ private:
     uint32 _floodPacketsCount[FLOOD_MAX_OPCODES_TYPE];
 
     std::unordered_map<uint32, std::pair<uint32, uint32>> m_requeuePacketCount;
-    PlayerBotEntry* m_bot;
+    std::shared_ptr<PlayerBotEntry> m_bot;
     uint32 m_lastReceivedPacketTime;
     ClientIdentifiersMap _clientIdentifiers;
     std::string _clientHash;

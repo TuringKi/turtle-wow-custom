@@ -197,7 +197,11 @@ void WorldSession::SendPacket(WorldPacket const* packet)
 #endif
 
     if (m_Socket == nullptr)
+    {
+        if (GetBot() && GetBot()->ai)
+            GetBot()->ai->OnPacketReceived(packet);
         return;
+    }
 
     if (m_Socket->SendPacket(*packet) == -1)
         m_Socket->CloseSocket();

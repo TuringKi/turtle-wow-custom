@@ -136,6 +136,9 @@ float World::m_VisibleObjectGreyDistance = 0;
 float World::m_relocation_lower_limit_sq = 10.f * 10.f;
 uint32 World::m_relocation_ai_notify_delay = 1000u;
 
+TimePoint World::m_currentTime = TimePoint();
+
+
 using namespace std::literals::chrono_literals;
 
 void LoadGameObjectModelList();
@@ -181,6 +184,7 @@ World::~World() {}
 
 void World::Shutdown()
 {
+    sPlayerBotMgr.DeleteAll();
     sGuildMgr.SaveGuildBanks();
     sWorld.KickAll(); // save and kick all players
     sWorld.UpdateSessions(1); // real players unload required UpdateSessions call
@@ -1259,6 +1263,14 @@ void World::LoadConfigSettingsFromFile(bool reload)
     setConfigMinMax(CONFIG_UINT32_MAX_POINTS_PER_MVT_PACKET, "Movement.MaxPointsPerPacket", 80, 5, 10000);
     setConfigMinMax(CONFIG_UINT32_RELOCATION_VMAP_CHECK_TIMER, "Movement.RelocationVmapsCheckDelay", 0, 0, 2000);
 
+    setConfig(CONFIG_BOOL_PLAYER_BOT_SHOW_IN_WHO_LIST, "PlayerBot.ShowInWhoList", false);
+    setConfig(CONFIG_UINT32_PARTY_BOT_MAX_BOTS, "PartyBot.MaxBots", 0);
+    setConfig(CONFIG_BOOL_PARTY_BOT_SKIP_CHECKS, "PartyBot.SkipChecks", false);
+    setConfigMinMax(CONFIG_UINT32_PARTY_BOT_AUTO_EQUIP, "PartyBot.AutoEquip", PLAYER_BOT_AUTO_EQUIP_RANDOM_GEAR, PLAYER_BOT_AUTO_EQUIP_STARTING_GEAR, PLAYER_BOT_AUTO_EQUIP_PREMADE_GEAR);
+    setConfigMinMax(CONFIG_UINT32_BATTLE_BOT_AUTO_EQUIP, "BattleBot.AutoEquip", PLAYER_BOT_AUTO_EQUIP_RANDOM_GEAR, PLAYER_BOT_AUTO_EQUIP_STARTING_GEAR, PLAYER_BOT_AUTO_EQUIP_PREMADE_GEAR);
+    setConfig(CONFIG_UINT32_PARTY_BOT_RANDOM_GEAR_LEVEL_DIFFERENCE, "PartyBot.RandomGearLevelDifference", 10);
+
+
     setConfigMinMax(CONFIG_UINT32_SPELLS_CCDELAY, "Spells.CCDelay", 200, 0, 20000);
     setConfigMinMax(CONFIG_UINT32_DEBUFF_LIMIT, "DebuffLimit", 16, 1, 40);
 
@@ -2178,6 +2190,12 @@ void World::SetInitialWorldSettings()
     sLog.outString("Loading dynamic visibility templates...");
     sDynamicVisMgr.LoadFromDB(false);
 
+    sLog.outString("Loading PlayerBot ..."); // Requires Players cache
+    sPlayerBotMgr.Load();
+
+    sObjectMgr.LoadPlayerPremadeTemplates();
+
+
     sLog.outString("Loading cached Account data...");
     LoadAccountData();
 
@@ -2416,11 +2434,13 @@ void TotalMoneyCallback(QueryResult* result, uint32 money)
     delete result;
 }
 
+typedef std::chrono::system_clock Clock;
 
 /// Update the World !
 void World::Update(uint32 diff)
 {
     XScopeStatTimer ScopeStatTimer(sPerfMonitor.WorldTick);
+    m_currentTime = std::chrono::time_point_cast<std::chrono::milliseconds>(Clock::now());
     ///- Update the different timers
     for (auto& timer : m_timers)
     {
@@ -2730,6 +2750,48 @@ void World::SendWorldText(int32 string_id, ...)
 
     va_end(ap);
 }
+
+
+// Send a System Message to all players in the same battleground or queue (except self if mentioned)
+void World::SendWorldTextToBGAndQueue(int32 string_id, uint32 queuedPlayerLevel, uint32 queueType, ...)
+{
+    auto queueTypeId = static_cast<BattleGroundQueueTypeId>(queueType);
+    BattleGroundTypeId bgTypeId = BattleGroundMgr::BGTemplateId(queueTypeId);
+    BattleGroundBracketId queuedPlayerBracket = Player::GetBattleGroundBracketIdFromLevel(bgTypeId, queuedPlayerLevel);
+
+    va_list ap;
+    va_start(ap, queueType);
+
+    MaNGOS::WorldWorldTextBuilder wt_builder(string_id, &ap);
+    LocalizedPacketListDo<MaNGOS::WorldWorldTextBuilder> wt_do(wt_builder);
+    for (const auto& itr : m_sessions)
+    {
+        if (WorldSession* session = itr.second)
+        {
+            Player* player = session->GetPlayer();
+            if (player && player->IsInWorld())
+            {
+                // Always announce it to all GMs.
+                if (session->GetSecurity() > SEC_PLAYER)
+                {
+                    wt_do(player);
+                    continue;
+                }
+
+                // If player is queued or already inside a BG matching the BG type.
+                if (player->InBattleGroundQueueForBattleGroundQueueType(queueTypeId) || (player->InBattleGround() && player->GetBattleGroundTypeId() == bgTypeId))
+                {
+                    // If player bracket matches the queued player bracket.
+                    if (player->GetBattleGroundBracketIdFromLevel(bgTypeId) == queuedPlayerBracket)
+                        wt_do(player);
+                }
+            }
+        }
+    }
+
+    va_end(ap);
+}
+
 
 void World::SendGMTicketText(const char* text)
 {

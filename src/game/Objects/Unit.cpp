@@ -7253,7 +7253,7 @@ bool Unit::IsMovedByPlayer() const
         if (pPossessor->GetCharmGuid() == GetObjectGuid())
             return true;
 
-    return IsPlayer() && static_cast<Player const*>(this)->IsControlledByOwnClient();
+    return IsPlayer() && static_cast<Player const*>(this)->IsControlledByOwnClient() && !static_cast<Player const*>(this)->IsBot();
 }
 
 PlayerMovementPendingChange::PlayerMovementPendingChange() { time = WorldTimer::getMSTime(); }
@@ -10140,7 +10140,8 @@ void Unit::KnockBack(float angle, float horizontalSpeed, float verticalSpeed)
 
         if (Player* pPlayer = ToPlayer())
         {
-            ToPlayer()->GetSession()->GetAntiCheat()->KnockBack(horizontalSpeed, verticalSpeed, vcos, vsin);
+            if (!pPlayer->IsBot())
+                ToPlayer()->GetSession()->GetAntiCheat()->KnockBack(horizontalSpeed, verticalSpeed, vcos, vsin);
         }
     }
 }
@@ -11378,6 +11379,7 @@ void Unit::AddSpellCooldown(uint32 spellid, uint32 itemid, time_t endTime, time_
     sc.itemid = itemid;
     sc.cat = cat;
     m_spellCooldowns[spellid] = sc;
+    //   assert(spellid != 15473);
 }
 
 void Unit::WritePetSpellsCooldown(WorldPacket& data) const
@@ -11422,4 +11424,189 @@ float Unit::GetScaleForDisplayId(uint32 displayId)
     }
 
     return DEFAULT_OBJECT_SCALE;
+}
+
+
+void Unit::GetEnemyListInRadiusAround(Unit const* pTarget, float radius, std::list<Unit*>& targets) const
+{
+    MaNGOS::AnyUnfriendlyUnitInObjectRangeCheck u_check(pTarget, this, radius);
+    MaNGOS::UnitListSearcher<MaNGOS::AnyUnfriendlyUnitInObjectRangeCheck> searcher(targets, u_check);
+    Cell::VisitAllObjects(pTarget, searcher, radius);
+}
+
+
+bool Unit::IsNoWeaponShapeShift() const
+{
+
+    // Mirroring clientside gameplay logic
+    if (ShapeshiftForm form = GetShapeshiftForm())
+        if (SpellShapeshiftFormEntry const* entry = sSpellShapeshiftFormStore.LookupEntry(form))
+            return entry->flags1 & SHAPESHIFT_FLAG_DONT_USE_WEAPON;
+
+    return false;
+}
+
+
+void Unit::ProcSkillsAndReactives(bool isVictim, Unit* pTarget, uint32 procFlag, uint32 procExtra, WeaponAttackType attType, SpellEntry const* procSpell)
+{
+    // For melee/ranged based attack need update skills and set some Aura states
+    if (procFlag & MELEE_BASED_TRIGGER_MASK && pTarget)
+    {
+        // Update skills here for players
+        // Bloodthirst and Hammer of Wrath do not increase weapon skills
+        if (IsPlayer() && (!procSpell || procSpell->EquippedItemClass == ITEM_CLASS_WEAPON))
+        {
+            // On melee based hit/miss/resist/parry/dodge/block need update skill
+            if (procExtra & (PROC_EX_NORMAL_HIT | PROC_EX_CRITICAL_HIT | PROC_EX_MISS | PROC_EX_DODGE | PROC_EX_PARRY | PROC_EX_BLOCK | PROC_EX_RESIST))
+                ((Player*)this)->UpdateCombatSkills(pTarget, attType, isVictim); // (isVictim -> defence, !isVictim -> weapon)
+        }
+        // If exist crit/parry/dodge/block need update aura state (for victim and attacker)
+        if (procExtra & (PROC_EX_CRITICAL_HIT | PROC_EX_PARRY | PROC_EX_DODGE | PROC_EX_BLOCK))
+        {
+            // for victim
+            if (isVictim)
+            {
+#if SUPPORTED_CLIENT_BUILD <= CLIENT_BUILD_1_8_4
+                // if victim and got critted
+                if (procExtra & PROC_EX_CRITICAL_HIT)
+                {
+                    ModifyAuraState(AURA_STATE_BERSERKING, true);
+                    StartReactiveTimer(REACTIVE_CRIT, GetObjectGuid());
+                }
+#endif
+                // if victim and dodged attack
+                if (procExtra & PROC_EX_DODGE)
+                {
+                    // Update AURA_STATE on dodge
+                    if (GetClass() != CLASS_ROGUE) // skip Rogue Riposte
+                    {
+                        ModifyAuraState(AURA_STATE_DEFENSE, true);
+                        StartReactiveTimer(REACTIVE_DEFENSE, pTarget->GetObjectGuid());
+                    }
+                }
+                // if victim and parried attack
+                if (procExtra & PROC_EX_PARRY)
+                {
+                    // For Hunters only Counterattack (skip Mongoose bite)
+                    if (GetClass() == CLASS_HUNTER)
+                    {
+                        ModifyAuraState(AURA_STATE_HUNTER_PARRY, true);
+                        StartReactiveTimer(REACTIVE_HUNTER_PARRY, pTarget->GetObjectGuid());
+
+                        if (Player* me = ToPlayer())
+                            me->AddComboPoints(pTarget, 1);
+                    }
+
+                    // World of Warcraft Client Patch 1.7.0 (2005-09-13)
+                    // - Riposte - Fixed a bug where the ability was not usable when a special
+                    //   attack(e.g.Gouge) is parried.
+#if SUPPORTED_CLIENT_BUILD > CLIENT_BUILD_1_6_1
+                    else
+#else
+                    else if (!(GetClass() == CLASS_ROGUE && procSpell))
+#endif
+                    {
+                        ModifyAuraState(AURA_STATE_DEFENSE, true);
+                        StartReactiveTimer(REACTIVE_DEFENSE, pTarget->GetObjectGuid());
+                    }
+                }
+                // if victim and blocked attack
+                if (procExtra & PROC_EX_BLOCK)
+                {
+                    ModifyAuraState(AURA_STATE_DEFENSE, true);
+                    StartReactiveTimer(REACTIVE_DEFENSE, pTarget->GetObjectGuid());
+                }
+            }
+            else // For attacker
+            {
+                // Overpower on victim dodge
+                if (procExtra & PROC_EX_DODGE && IsPlayer() && GetClass() == CLASS_WARRIOR)
+                {
+                    static_cast<Player*>(this)->AddComboPoints(pTarget, 1);
+                    StartReactiveTimer(REACTIVE_OVERPOWER, pTarget->GetObjectGuid());
+                }
+            }
+        }
+    }
+}
+
+
+bool Unit::IsTargetableBy(WorldObject const* pCaster, bool forAoE, bool checkAlive, bool helpful) const
+{
+    // applies to both harmful and helpful
+    if (HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE_2))
+        return false;
+
+    if (checkAlive && !IsAlive())
+        return false;
+
+    if (!helpful)
+    {
+        if (HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_SPAWNING | UNIT_FLAG_TAXI_FLIGHT | UNIT_FLAG_NOT_ATTACKABLE_1 | UNIT_FLAG_NOT_SELECTABLE))
+            return false;
+
+        if (Player const* pPlayer = ToPlayer())
+        {
+            if (pPlayer->IsGameMaster())
+                return false;
+
+            if (pPlayer->GetCurrentCinematicEntry() != 0)
+                return false;
+
+            if (IsTaxiFlying())
+                return false;
+        }
+
+        if (!forAoE && !CanBeDetected())
+            return false;
+    }
+
+    if (pCaster)
+    {
+        if (pCaster->IsCharmerOrOwnerPlayerOrPlayerItself())
+        {
+            // applies to both harmful and helpful
+            if (HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PLAYER))
+                return false;
+        }
+        else if (!helpful) // non player attacker
+        {
+            if (HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_NPC))
+                return false;
+
+            if (!forAoE && HasUnitState(UNIT_STAT_FEIGN_DEATH))
+                return false;
+        }
+
+        // attacker flags prevent attacking victim too
+        if (!helpful && pCaster->IsUnit())
+        {
+            if (IsCharmerOrOwnerPlayerOrPlayerItself())
+            {
+                if (pCaster->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PLAYER))
+                    return false;
+            }
+            else // non player victim
+            {
+                if (pCaster->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_NPC))
+                    return false;
+            }
+        }
+    }
+
+    return IsInWorld();
+}
+
+
+bool Unit::IsTotalImmune() const
+{
+    AuraList const& immune = GetAurasByType(SPELL_AURA_SCHOOL_IMMUNITY);
+
+    uint32 immuneMask = 0;
+    for (const auto itr : immune)
+    {
+        immuneMask |= itr->GetModifier()->m_miscvalue;
+    }
+
+    return (immuneMask == SPELL_SCHOOL_MASK_ALL);
 }

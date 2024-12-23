@@ -3586,3 +3586,12 @@ Creature* Map::LoadCreatureSpawnWithGroup(uint32 leaderDbGuid, bool delaySpawn)
 
     return pLeader;
 }
+
+
+bool Map::HaveRealPlayers() const
+{
+    for (const auto& itr : m_mapRefManager)
+        if (!itr.getSource()->IsBot())
+            return true;
+    return false;
+}

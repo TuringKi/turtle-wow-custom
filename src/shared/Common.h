@@ -231,6 +231,9 @@ enum DBLocaleConstant : int
     DB_LOCALE_ruRU = 7
 };
 
+typedef std::chrono::time_point<std::chrono::system_clock, std::chrono::milliseconds> TimePoint;
+
+
 constexpr uint32 MAX_DBC_LOCALE = 8;
 constexpr uint32 MAX_LOCALE = 9;
 

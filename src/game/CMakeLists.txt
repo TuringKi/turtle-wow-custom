@@ -183,12 +183,17 @@ set (game_SRCS
     Objects/TemporarySummon.cpp
     Objects/Totem.cpp
     Objects/Unit.cpp
+    Objects/SpellCaster.cpp
     Objects/UpdateData.cpp
     OutdoorPvP/OutdoorPvPEP.cpp
     OutdoorPvP/OutdoorPvPSI.cpp
     OutdoorPvP/Register.cpp
     PacketBroadcast/MovementBroadcaster.cpp
     PacketBroadcast/PlayerBroadcaster.cpp
+    PlayerBots/PartyBotAI.cpp
+    PlayerBots/CombatBotBaseAI.cpp
+    PlayerBots/BattleBotAI.cpp
+    PlayerBots/BattleBotWaypoints.cpp
     PlayerBots/PlayerBotAI.cpp
     PlayerBots/PlayerBotMgr.cpp
     Protocol/Opcodes.cpp

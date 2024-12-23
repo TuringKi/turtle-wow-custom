@@ -31,6 +31,7 @@
 #include "Nostalrius.h"
 #include "ObjectGuid.h"
 #include "Opcodes.h"
+#include "Player.h"
 #include "Policies/Singleton.h"
 #include "SharedDefines.h"
 #include "Timer.h"
@@ -420,6 +421,13 @@ enum eConfigUInt32Values
     CONFIG_UINT32_MAX_GOLD_TRANSFERRED,
     CONFIG_UINT32_MAX_ITEM_STACK_TRANSFERRED,
     CONFIG_UINT32_DYNAMIC_SCALING_POP,
+    CONFIG_BOOL_PLAYER_BOT_SHOW_IN_WHO_LIST,
+    CONFIG_BOOL_PARTY_BOT_SKIP_CHECKS,
+    CONFIG_UINT32_PARTY_BOT_MAX_BOTS,
+    CONFIG_UINT32_PARTY_BOT_AUTO_EQUIP,
+    CONFIG_UINT32_BATTLE_BOT_AUTO_EQUIP,
+    CONFIG_UINT32_PARTY_BOT_RANDOM_GEAR_LEVEL_DIFFERENCE,
+    CONFIG_UINT32_SPELL_PROC_DELAY,
     CONFIG_UINT32_VALUE_COUNT
 };
 
@@ -883,6 +891,8 @@ public:
     World();
     ~World();
 
+    static TimePoint GetCurrentClockTime() { return m_currentTime; }
+
     // basically a destructor
     void InternalShutdown();
 
@@ -1033,6 +1043,8 @@ public:
     };
 
     void SendWorldText(int32 string_id, ...);
+
+    void SendWorldTextToBGAndQueue(int32 string_id, uint32 queuedPlayerLevel, uint32 queueType, ...);
 
     template <typename F>
     void SendWorldTextChecked(int32 string_id, F checker, ...)
@@ -1319,6 +1331,8 @@ private:
     int32 m_configInt32Values[CONFIG_INT32_VALUE_COUNT];
     float m_configFloatValues[CONFIG_FLOAT_VALUE_COUNT];
     bool m_configBoolValues[CONFIG_BOOL_VALUE_COUNT];
+
+    static TimePoint m_currentTime;
 
     int32 m_playerLimit;
 

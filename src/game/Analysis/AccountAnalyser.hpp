@@ -1,14 +1,15 @@
 #pragma once
-#include "Common.h"
-#include "SharedDefines.h"
 #include <atomic>
+#include <type_traits>
 #include <unordered_map>
 #include <unordered_set>
 #include <vector>
-#include <type_traits>
+#include "Common.h"
+#include "SharedDefines.h"
 
 
 class WorldSession;
+class QueryResult;
 
 enum class AnalysisAttribute
 {
@@ -28,8 +29,7 @@ enum class AnalysisAttribute
 
 static uint32 AnalysisAttributeWeight(AnalysisAttribute attr)
 {
-    static std::unordered_map<AnalysisAttribute, uint32> lookup =
-    {
+    static std::unordered_map<AnalysisAttribute, uint32> lookup = {
         {AnalysisAttribute::ActiveCpus, 40}, // Idem
         {AnalysisAttribute::TotalCpus, 40}, // Idem
         {AnalysisAttribute::PageSize, 50}, // All sim
@@ -46,11 +46,10 @@ static uint32 AnalysisAttributeWeight(AnalysisAttribute attr)
 }
 
 
-
 template <typename T, typename... Rest>
 void hash_combine(std::size_t& seed, const T& v, const Rest&... rest)
 {
-    seed ^= std::hash<T>{}(v)+0x9e3779b9 + (seed << 6) + (seed >> 2);
+    seed ^= std::hash<T>{}(v) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
     (hash_combine(seed, rest), ...);
 }
 
@@ -81,8 +80,7 @@ struct AnalysisInfo
             return 0;
 
         size_t seed = 0;
-        return hash_combine(seed, activeCpus, totalCpus, pageSize, timeZoneBias, suiteMask, mitPolicies, numPhysicalPages, sharedDataFlags
-            , unparkedCpuCount, enclaveMask, qpcData), seed;
+        return hash_combine(seed, activeCpus, totalCpus, pageSize, timeZoneBias, suiteMask, mitPolicies, numPhysicalPages, sharedDataFlags, unparkedCpuCount, enclaveMask, qpcData), seed;
     }
 
     bool UseExtendedData() const { return useExtendedData; }

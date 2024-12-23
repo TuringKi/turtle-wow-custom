@@ -114,6 +114,17 @@ enum Stats
     STAT_SPIRIT = 4
 };
 
+
+enum CombatBotRoles
+{
+    ROLE_INVALID,
+    ROLE_MELEE_DPS,
+    ROLE_RANGE_DPS,
+    ROLE_TANK,
+    ROLE_HEALER,
+};
+
+
 #define MAX_STATS 5
 
 enum Powers
@@ -1579,6 +1590,56 @@ enum SummonType
     SUMMON_TYPE_POSESSED2 = 428
 };
 
+
+enum Maps
+{
+    MAP_EASTERN_KINGDOMS = 0,
+    MAP_KALIMDOR = 1,
+    MAX_CONTINENT_ID = 1,
+    MAP_TESTING = 13,
+    MAP_SCOTT_TEST = 25,
+    MAP_CASH_TEST = 29,
+    MAP_ALTERAC_VALLEY = 30,
+    MAP_SHADOWFANG_KEEP = 33,
+    MAP_STORMWIND_STOCKADE = 34,
+    MAP_STORMWIND_PRISON = 35,
+    MAP_DEADMINES = 36,
+    MAP_AZSHARA_CRATER = 37,
+    MAP_COLLIN_TEST = 42,
+    MAP_WAILING_CAVERNS = 43,
+    MAP_MONASTERY = 44,
+    MAP_RAZORFEN_KRAUL = 47,
+    MAP_BLACKFATHOM_DEEPS = 48,
+    MAP_ULDAMAN = 70,
+    MAP_GNOMEREGAN = 90,
+    MAP_SUNKEN_TEMLE = 109,
+    MAP_RAZORFEN_DOWNS = 129,
+    MAP_EMERALD_DREAM = 169,
+    MAP_SCARLET_MONASTERY = 189,
+    MAP_ZUL_FARRAK = 209,
+    MAP_BLACKROCK_SPIRE = 229,
+    MAP_BLACKROCK_DEPTHS = 230,
+    MAP_ONYXIAS_LAIR = 249,
+    MAP_CAVERNS_OF_TIME = 269,
+    MAP_SCHOLOMANCE = 289,
+    MAP_ZUL_GURUB = 309,
+    MAP_STRATHOLME = 329,
+    MAP_MARAUDON = 349,
+    MAP_DEEPRUN_TRAM = 369,
+    MAP_RAGEFIRE_CHASM = 389,
+    MAP_MOLTEN_CORE = 409,
+    MAP_DIRE_MAUL = 429,
+    MAP_CHAMPIONS_HALL = 449,
+    MAP_HALL_OF_LEGENDS = 450,
+    MAP_DEVELOPMENT_LAND = 451,
+    MAP_BLACKWING_LAIR = 469,
+    MAP_WARSONG_GULCH = 489,
+    MAP_AHN_QIRAJ_RUINS = 509,
+    MAP_ARATHI_BASIN = 529,
+    MAP_AHN_QIRAJ_TEMPLE = 531,
+    MAP_NAXXRAMAS = 533
+};
+
 enum InstanceResetMethod
 {
     INSTANCE_RESET_ALL,
@@ -1612,6 +1673,29 @@ enum ShapeshiftForm
     FORM_MOONKIN = 0x1F,
     FORM_SPIRITOFREDEMPTION = 0x20
 };
+
+enum ShapeshiftFlags
+{
+    SHAPESHIFT_FLAG_STANCE = 0x00000001, // Form allows various player activities, which normally cause "You can't X while shapeshifted." errors (npc/go interaction, item use, etc)
+    SHAPESHIFT_FLAG_NOT_TOGGLEABLE = 0x00000002, // NYI
+    SHAPESHIFT_FLAG_PERSIST_ON_DEATH = 0x00000004, // NYI
+    SHAPESHIFT_FLAG_CAN_INTERACT_NPC = 0x00000008, // Form unconditionally allows talking to NPCs while shapeshifted (even if other activities are disabled)
+    SHAPESHIFT_FLAG_DONT_USE_WEAPON = 0x00000010, // Not using weapon damage in combat
+    SHAPESHIFT_FLAG_AGILITY_ATTACK_BONUS = 0x00000020, // Druid Cat form
+    SHAPESHIFT_FLAG_CAN_USE_EQUIPPED_ITEMS = 0x00000040, // NYI
+};
+
+inline bool IsTankingForm(ShapeshiftForm form)
+{
+    switch (form)
+    {
+    case FORM_BEAR:
+    case FORM_DIREBEAR:
+    case FORM_DEFENSIVESTANCE:
+        return true;
+    }
+    return false;
+}
 
 inline bool IsAttackSpeedOverridenForm(ShapeshiftForm form)
 {

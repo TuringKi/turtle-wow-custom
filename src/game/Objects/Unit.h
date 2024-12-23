@@ -33,6 +33,7 @@
 #include "Opcodes.h"
 #include "SharedDefines.h"
 #include "SpellAuraDefines.h"
+#include "SpellCaster.h"
 #include "ThreatManager.h"
 #include "Timer.h"
 #include "UnitDefines.h"
@@ -594,6 +595,7 @@ public:
     ShapeshiftForm GetShapeshiftForm() const { return ShapeshiftForm(GetByteValue(UNIT_FIELD_BYTES_1, 2)); }
     void SetShapeshiftForm(ShapeshiftForm form) { SetByteValue(UNIT_FIELD_BYTES_1, 2, form); }
     bool IsShapeShifted() const; // mirrors clientside logic, moonkin form not counted as shapeshift
+    bool IsNoWeaponShapeShift() const;
     bool IsInFeralForm() const { return IsAttackSpeedOverridenForm(GetShapeshiftForm()); }
     Aura* GetDummyAura(uint32 spell_id) const;
     bool IsInDisallowedMountForm();
@@ -997,10 +999,15 @@ public:
     void SetConfused(bool apply, ObjectGuid casterGuid = ObjectGuid(), uint32 spellID = 0); /*DEPRECATED METHOD*/
     void SetFeignDeath(bool apply, ObjectGuid casterGuid = ObjectGuid(), bool success = true);
 
+    void GetEnemyListInRadiusAround(Unit const* pTarget, float radius, std::list<Unit*>& targets) const;
+
     // Cooldown management
     SpellCooldowns const& GetSpellCooldownMap() const { return m_spellCooldowns; }
     static uint32 const infinityCooldownDelay = MONTH; // used for set "infinity cooldowns" for spells and check
     static uint32 const infinityCooldownDelayCheck = MONTH / 2;
+
+    bool IsTargetableBy(WorldObject const* pCaster, bool forAoE = false, bool checkAlive = true, bool helpful = false) const;
+
 
     bool HasSpellCategoryCooldown(uint32 category) const;
     bool HasSpellCooldown(uint32 spell_id) const
@@ -1014,6 +1021,11 @@ public:
         time_t t = time(nullptr);
         return itr != m_spellCooldowns.end() && itr->second.end > t ? itr->second.end - t : 0;
     }
+
+
+    void ProcSkillsAndReactives(bool isVictim, Unit* pTarget, uint32 procFlag, uint32 procExtra, WeaponAttackType attType, SpellEntry const* procSpell);
+
+
     void CooldownEvent(SpellEntry const* spellInfo, uint32 itemId = 0, Spell* spell = nullptr);
     void AddSpellAndCategoryCooldowns(SpellEntry const* spellInfo, uint32 itemId, Spell* spell = nullptr, bool infinityCooldown = false);
     void RemoveSpellCooldown(uint32 spell_id, bool update = false);
@@ -1136,6 +1148,9 @@ public:
     void SendAttackStateUpdate(uint32 HitInfo, Unit* target, uint8 SwingType, SpellSchoolMask damageSchoolMask, uint32 Damage, uint32 AbsorbDamage, int32 Resist, VictimState TargetState, uint32 BlockedAmount) const;
     void SendMeleeAttackStop(Unit* victim) const;
     void SendMeleeAttackStart(Unit* pVictim) const;
+
+    bool IsTotalImmune() const;
+
 
     void ProcDamageAndSpellFor(bool isVictim, Unit* pTarget, uint32 procFlag, uint32 procExtra, WeaponAttackType attType, SpellEntry const* procSpell, uint32 damage, ProcTriggeredList& triggeredList, Spell* spell = nullptr);
     void HandleTriggers(Unit* pVictim, uint32 procExtra, uint32 amount, int32 originalAmount, SpellEntry const* procSpell, ProcTriggeredList const& procTriggered);

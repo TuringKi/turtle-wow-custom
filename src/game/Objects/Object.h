@@ -38,6 +38,8 @@
 #include <set>
 #include <string>
 
+class SpellCaster;
+
 #include "MoveSpline.h"
 
 #define CONTACT_DISTANCE 0.5f
@@ -413,6 +415,10 @@ public:
 
     virtual void BuildCreateUpdateBlockForPlayer(UpdateData* data, Player* target) const;
     void SendCreateUpdateToPlayer(Player* player);
+
+    inline bool IsSpellCaster() const { return IsUnit() || IsGameObject(); }
+    SpellCaster* ToSpellCaster();
+    SpellCaster const* ToSpellCaster() const;
 
     // must be overwrite in appropriate subclasses (WorldObject, Item currently), or will crash
     virtual void AddToClientUpdateList();
@@ -889,6 +895,9 @@ public:
     float GetGridActivationDistance() const;
 
     bool isFacing(const Position location, const float tolerance = (M_PI_F / 2)) const;
+
+    bool IsValidHelpfulTarget(Unit const* target, bool checkAlive = true) const;
+
 
     void SetRawPosition(Position&& pos) { m_position = std::move(pos); }
     Position const& GetPosition() const { return m_position; }

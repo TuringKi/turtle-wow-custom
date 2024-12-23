@@ -25,6 +25,7 @@ set (shared_SRCS
     Log.h
     httplib.h
     PerfStats.h
+    ProgressBar.h
     PosixDaemon.h
     revision.h
     SystemConfig.h
@@ -67,6 +68,7 @@ set (shared_SRCS
     DelayExecutor.cpp
     Log.cpp
     PerfStats.cpp
+    ProgressBar.cpp
     PosixDaemon.cpp
     ThreadPool.cpp
     BS_thread_pool.hpp

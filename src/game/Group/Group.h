@@ -43,6 +43,18 @@ class DungeonPersistentState;
 class Field;
 class Unit;
 
+enum RaidTargetIcon : uint8
+{
+    RAID_TARGET_ICON_STAR = 0,
+    RAID_TARGET_ICON_CIRCLE = 1,
+    RAID_TARGET_ICON_DIAMOND = 2,
+    RAID_TARGET_ICON_TRIANGLE = 3,
+    RAID_TARGET_ICON_MOON = 4,
+    RAID_TARGET_ICON_SQUARE = 5,
+    RAID_TARGET_ICON_CROSS = 6,
+    RAID_TARGET_ICON_SKULL = 7
+};
+
 #define MAX_GROUP_SIZE 5
 #define MAX_RAID_SIZE 40
 #define MAX_RAID_SUBGROUPS (MAX_RAID_SIZE / MAX_GROUP_SIZE)
@@ -221,6 +233,7 @@ public:
     LootMethod GetLootMethod() const { return m_lootMethod; }
     ObjectGuid GetLooterGuid() const { return m_looterGuid; }
     ItemQualities GetLootThreshold() const { return m_lootThreshold; }
+    ObjectGuid GetTargetWithIcon(RaidTargetIcon id) const { return m_targetIcons[id]; }
 
     // member manipulation methods
     bool IsMember(ObjectGuid guid) const { return _getMemberCSlot(guid) != m_memberSlots.end(); }

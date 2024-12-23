@@ -734,6 +734,22 @@ enum PlayerLoginQueryIndex
 
     MAX_PLAYER_LOGIN_QUERY
 };
+enum PlayerFieldBytesOffsets
+{
+    PLAYER_FIELD_BYTES_OFFSET_FLAGS = 0,
+    PLAYER_FIELD_BYTES_OFFSET_COMBO_POINTS = 1,
+    PLAYER_FIELD_BYTES_OFFSET_ACTION_BARS = 2,
+    PLAYER_FIELD_BYTES_OFFSET_HIGHEST_HONOR_RANK = 3
+};
+
+
+enum PlayerBytes3Offsets
+{
+    PLAYER_BYTES_3_OFFSET_GENDER_AND_INEBRIATION = 0, // uint16, 1 bit for gender, rest for drunk state
+    PLAYER_BYTES_3_OFFSET_CITY_PROTECTOR_TITLE = 2, // race id
+    PLAYER_BYTES_3_OFFSET_HONOR_RANK = 3
+};
+
 
 enum PlayerDelayedOperations
 {
@@ -1092,6 +1108,9 @@ public:
     static UpdateMask updateVisualBits;
     static void InitVisibleBits();
 
+    uint32 GetCurrentCinematicEntry() const { return watching_cinematic_entry; }
+
+
     bool Create(uint32 guidlow, std::string const& name, uint8 race, uint8 class_, uint8 gender, uint8 skin, uint8 face, uint8 hairStyle, uint8 hairColor, uint8 facialHair);
     void Update(uint32 update_diff, uint32 time) override;
     static bool BuildEnumData(QueryResult* result, WorldPacket* pData);
@@ -1117,8 +1136,14 @@ private:
     uint32 _playerOptions;
     bool m_shopAllowed = true;
     bool m_shopTransactionInProgress = false;
+    bool m_enableInstanceSwitch = true;
 
 public:
+    void SetAutoInstanceSwitch(bool v) { m_enableInstanceSwitch = v; }
+
+    bool IsBot() const { return m_session->GetBot() != nullptr; }
+
+
     bool IsAcceptTickets() const { return GetSession()->GetSecurity() >= SEC_DEVELOPER && (m_ExtraFlags & PLAYER_EXTRA_GM_ACCEPT_TICKETS); }
     void SetAcceptTicket(bool on)
     {
@@ -1567,6 +1592,25 @@ public:
     void AddTimedQuest(uint32 quest_id) { m_timedquests.insert(quest_id); }
     void RemoveTimedQuest(uint32 quest_id) { m_timedquests.erase(quest_id); }
 
+    bool HasCheatOption(PlayerCheatOptions o) const { return (m_cheatOptions & o); }
+    void EnableCheatOption(PlayerCheatOptions o) { m_cheatOptions |= o; }
+    void RemoveCheatOption(PlayerCheatOptions o) { m_cheatOptions &= (~o); }
+    void SetCheatOption(PlayerCheatOptions o, bool on)
+    {
+        if (on)
+            EnableCheatOption(o);
+        else
+            RemoveCheatOption(o);
+    }
+
+    bool HasGCD(SpellEntry const* spellEntry);
+
+
+private:
+    uint16 m_cheatOptions;
+    GCDMap m_GCDCatMap;
+    CooldownContainer m_cooldownMap;
+
     /*********************************************************/
     /***                   LOAD SYSTEM                     ***/
     /*********************************************************/
@@ -1759,7 +1803,11 @@ public:
     void SetFreeTalentPoints(uint32 points) { SetUInt32Value(PLAYER_CHARACTER_POINTS1, points); }
     bool ResetTalents(bool no_cost = false);
     void InitTalentForLevel();
-    void LearnTalent(uint32 talentId, uint32 talentRank);
+    bool LearnTalent(uint32 talentId, uint32 talentRank);
+
+    uint32 GetHighestKnownArmorProficiency() const;
+    void AddStartingItems();
+
 
     /*********************************************************/
     /***                    STAT SYSTEM                    ***/

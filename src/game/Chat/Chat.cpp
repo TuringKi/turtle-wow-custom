@@ -50,6 +50,39 @@ ChatCommand* ChatHandler::getCommandTable()
 
 #endif
 
+
+    static ChatCommand partyBotCommandTable[] = {
+        {"add", SEC_ADMINISTRATOR, false, &ChatHandler::HandlePartyBotAddCommand, "", nullptr},
+        {"clone", SEC_ADMINISTRATOR, false, &ChatHandler::HandlePartyBotCloneCommand, "", nullptr},
+        {"load", SEC_ADMINISTRATOR, false, &ChatHandler::HandlePartyBotLoadCommand, "", nullptr},
+        {"setrole", SEC_ADMINISTRATOR, false, &ChatHandler::HandlePartyBotSetRoleCommand, "", nullptr},
+        {"attackstart", SEC_ADMINISTRATOR, false, &ChatHandler::HandlePartyBotAttackStartCommand, "", nullptr},
+        {"attackstop", SEC_ADMINISTRATOR, false, &ChatHandler::HandlePartyBotAttackStopCommand, "", nullptr},
+        {"pull", SEC_ADMINISTRATOR, false, &ChatHandler::HandlePartyBotPullCommand, "", nullptr},
+        {"aoe", SEC_ADMINISTRATOR, false, &ChatHandler::HandlePartyBotAoECommand, "", nullptr},
+        {"ccmark", SEC_ADMINISTRATOR, false, &ChatHandler::HandlePartyBotControlMarkCommand, "", nullptr},
+        {"focusmark", SEC_ADMINISTRATOR, false, &ChatHandler::HandlePartyBotFocusMarkCommand, "", nullptr},
+        {"clearmarks", SEC_ADMINISTRATOR, false, &ChatHandler::HandlePartyBotClearMarksCommand, "", nullptr},
+        {"cometome", SEC_ADMINISTRATOR, false, &ChatHandler::HandlePartyBotComeToMeCommand, "", nullptr},
+        {"usegobject", SEC_ADMINISTRATOR, false, &ChatHandler::HandlePartyBotUseGObjectCommand, "", nullptr},
+        {"pause", SEC_ADMINISTRATOR, false, &ChatHandler::HandlePartyBotPauseCommand, "", nullptr},
+        {"unpause", SEC_ADMINISTRATOR, false, &ChatHandler::HandlePartyBotUnpauseCommand, "", nullptr},
+        {"unequip", SEC_ADMINISTRATOR, false, &ChatHandler::HandlePartyBotUnequipCommand, "", nullptr},
+        {"remove", SEC_ADMINISTRATOR, false, &ChatHandler::HandlePartyBotRemoveCommand, "", nullptr},
+        {nullptr, 0, false, nullptr, "", nullptr},
+    };
+    static ChatCommand battleBotAddCommandTable[] = {
+        {"alterac", SEC_ADMINISTRATOR, true, &ChatHandler::HandleBattleBotAddAlteracCommand, "", nullptr},
+        {"arathi", SEC_ADMINISTRATOR, true, &ChatHandler::HandleBattleBotAddArathiCommand, "", nullptr},
+        {"warsong", SEC_ADMINISTRATOR, true, &ChatHandler::HandleBattleBotAddWarsongCommand, "", nullptr},
+        {nullptr, 0, false, nullptr, "", nullptr},
+    };
+
+    static ChatCommand battleBotCommandTable[] = {
+        {"add", SEC_ADMINISTRATOR, true, nullptr, "Add a new bot", battleBotAddCommandTable}, {"remove", SEC_ADMINISTRATOR, false, &ChatHandler::HandleBattleBotRemoveCommand, "", nullptr}, {"removeall", SEC_ADMINISTRATOR, true, &ChatHandler::HandleBattleBotRemoveAllCommand, "", nullptr}, {"showpath", SEC_ADMINISTRATOR, false, &ChatHandler::HandleBattleBotShowPathCommand, "", nullptr}, {"showallpaths", SEC_ADMINISTRATOR, false, &ChatHandler::HandleBattleBotShowAllPathsCommand, "", nullptr}, {nullptr, 0, false, nullptr, "", nullptr},
+    };
+
+
     static ChatCommand accountSetCommandTable[] = {{"gmlevel", SEC_ADMINISTRATOR, true, &ChatHandler::HandleAccountSetGmLevelCommand, "", nullptr}, {"password", SEC_DEVELOPER, true, &ChatHandler::HandleAccountSetPasswordCommand, "", nullptr}, {nullptr, 0, false, nullptr, "", nullptr}};
 
     static ChatCommand accountCommandTable[] = {{"characters", SEC_DEVELOPER, true, &ChatHandler::HandleAccountCharactersCommand, "", nullptr}, {"create", SEC_ADMINISTRATOR, true, &ChatHandler::HandleAccountCreateCommand, "", nullptr}, {"delete", SEC_CONSOLE, true, &ChatHandler::HandleAccountDeleteCommand, "", nullptr}, {"email", SEC_PLAYER, false, &ChatHandler::HandleAccountEmailCommand, "", nullptr}, {"getname", SEC_OBSERVER, true, &ChatHandler::HandleAccountGetNameCommand, "", nullptr}, {"set", SEC_DEVELOPER, true, nullptr, "", accountSetCommandTable}, {"password", SEC_PLAYER, true, &ChatHandler::HandleAccountPasswordCommand, "", nullptr}, {"twofa", SEC_ADMINISTRATOR, true, &ChatHandler::HandleAccountFaCommand, "", nullptr}, {"", SEC_PLAYER, true, &ChatHandler::HandleAccountCommand, "", nullptr}, {nullptr, 0, false, nullptr, "", nullptr}};
@@ -431,6 +464,8 @@ ChatCommand* ChatHandler::getCommandTable()
                                          {"gm", SEC_OBSERVER, true, nullptr, "", gmCommandTable},
                                          {"honor", SEC_ADMINISTRATOR, false, nullptr, "", honorCommandTable},
                                          {"go", SEC_OBSERVER, false, nullptr, "", goCommandTable},
+                                         {"partybot", SEC_ADMINISTRATOR, false, nullptr, "Manage party bots", partyBotCommandTable},
+                                         {"battlebot", SEC_ADMINISTRATOR, true, nullptr, "Manage battle bots", battleBotCommandTable},
                                          {"gobject", SEC_DEVELOPER, false, nullptr, "", gobjectCommandTable},
                                          {"guild", SEC_DEVELOPER, true, nullptr, "", guildCommandTable},
                                          {"instance", SEC_ADMINISTRATOR, true, nullptr, "", instanceCommandTable},

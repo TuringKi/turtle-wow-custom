@@ -473,6 +473,11 @@ struct ItemPrototype
     uint32 DestItemId = 0; // Transmogrification
     uint32 SourceItemId = 0; // Transmogrification
 
+    mutable int32 SourceQuestLevel = -1; // minimum level of quest that rewards this item
+    mutable uint32 SourceQuestRaces = 0; // allowed races of quest that rewards this item
+    mutable uint32 SourceQuestClasses = 0; // allowed classes of quest that rewards this item
+
+
     bool IsQuestItem = false;
 
     mutable bool Discovered = false; // has item been discovered by players
@@ -499,6 +504,10 @@ struct ItemPrototype
     }
 
     uint32 GetMaxStackSize() const { return Stackable; }
+
+    bool HasExtraFlag(uint32 flag) const { return ExtraFlags & flag; }
+    void GetAllowedEquipSlots(uint8 slots[4], uint8 classId, bool canDualWield) const;
+
 
     bool IsPotion() const { return Class == ITEM_CLASS_CONSUMABLE && SubClass == ITEM_SUBCLASS_POTION; }
     bool IsConjuredConsumable() const { return Class == ITEM_CLASS_CONSUMABLE && (Flags & ITEM_FLAG_CONJURED); }

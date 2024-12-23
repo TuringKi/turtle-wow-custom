@@ -24,6 +24,7 @@
 #include "Database/DatabaseImpl.h"
 #include "Database/SQLStorageImpl.h"
 #include "Policies/SingletonImp.h"
+#include "ProgressBar.h"
 
 #include "AccountMgr.h"
 #include "CharacterDatabaseCache.h"
@@ -3860,6 +3861,10 @@ void ObjectMgr::LoadQuests()
             if (ItemPrototype const* pItemProto = GetItemPrototype(qinfo->SrcItemId))
             {
                 pItemProto->Discovered = true; // all quest items count as discovered
+                pItemProto->SourceQuestRaces |= qinfo->RequiredRaces;
+                pItemProto->SourceQuestClasses |= qinfo->RequiredClasses;
+                if (pItemProto->SourceQuestLevel < 0 || uint32(pItemProto->SourceQuestLevel) > qinfo->MinLevel)
+                    pItemProto->SourceQuestLevel = int32(std::min<uint32>(qinfo->MinLevel, INT32_MAX));
                 if (qinfo->SrcItemCount == 0)
                 {
                     sLog.outErrorDb("Quest %u has `SrcItemId` = %u but `SrcItemCount` = 0, set to 1 but need fix in DB.", qinfo->GetQuestId(), qinfo->SrcItemId);
@@ -3906,7 +3911,9 @@ void ObjectMgr::LoadQuests()
                 qinfo->SetSpecialFlag(QUEST_SPECIAL_FLAG_DELIVER);
 
                 if (ItemPrototype const* pItemProto = GetItemPrototype(id))
+                {
                     pItemProto->Discovered = true;
+                }
                 else
                 {
                     sLog.outErrorDb("Quest %u has `ReqItemId%d` = %u but item with entry %u does not exist, quest can't be done.", qinfo->GetQuestId(), j + 1, id, id);
@@ -3925,7 +3932,9 @@ void ObjectMgr::LoadQuests()
             if (uint32 id = qinfo->ReqSourceId[j])
             {
                 if (ItemPrototype const* pItemProto = GetItemPrototype(id))
+                {
                     pItemProto->Discovered = true;
+                }
                 else
                 {
                     sLog.outErrorDb("Quest %u has `ReqSourceId%d` = %u but item with entry %u does not exist, quest can't be done.", qinfo->GetQuestId(), j + 1, id, id);
@@ -4027,6 +4036,10 @@ void ObjectMgr::LoadQuests()
                 {
                     choice_found = true;
                     pItemProto->Discovered = true;
+                    pItemProto->SourceQuestRaces |= qinfo->RequiredRaces;
+                    pItemProto->SourceQuestClasses |= qinfo->RequiredClasses;
+                    if (pItemProto->SourceQuestLevel < 0 || uint32(pItemProto->SourceQuestLevel) > qinfo->MinLevel)
+                        pItemProto->SourceQuestLevel = int32(std::min<uint32>(qinfo->MinLevel, INT32_MAX));
                 }
                 else
                 {
@@ -4059,7 +4072,13 @@ void ObjectMgr::LoadQuests()
             if (uint32 id = qinfo->RewItemId[j])
             {
                 if (ItemPrototype const* pItemProto = GetItemPrototype(id))
+                {
                     pItemProto->Discovered = true;
+                    pItemProto->SourceQuestRaces |= qinfo->RequiredRaces;
+                    pItemProto->SourceQuestClasses |= qinfo->RequiredClasses;
+                    if (pItemProto->SourceQuestLevel < 0 || uint32(pItemProto->SourceQuestLevel) > qinfo->MinLevel)
+                        pItemProto->SourceQuestLevel = int32(std::min<uint32>(qinfo->MinLevel, INT32_MAX));
+                }
                 else
                 {
                     sLog.outErrorDb("Quest %u has `RewItemId%d` = %u but item with entry %u does not exist, quest will not reward this item.", qinfo->GetQuestId(), j + 1, id, id);
@@ -9888,4 +9907,324 @@ ChatChannelsEntry const* ObjectMgr::GetChannelEntryFor(std::string const& name)
     }
 
     return nullptr;
+}
+
+
+void ObjectMgr::LoadPlayerPremadeTemplates()
+{
+    {
+        sLog.outBasic("Loading player premade gear templates ...");
+        m_playerPremadeGearMap.clear();
+
+        //                                                               0        1        2        3       4
+        std::unique_ptr<QueryResult> result(WorldDatabase.Query("SELECT `entry`, `class`, `level`, `role`, `name` FROM `player_premade_item_template`"));
+
+        if (!result)
+        {
+            BarGoLink bar(1);
+            bar.step();
+
+            sLog.outBasic(">> Loaded 0 premade player templates. DB table `player_premade_template` is empty.");
+            return;
+        }
+
+        BarGoLink bar(result->GetRowCount());
+
+        do
+        {
+            bar.step();
+            auto fields = result->Fetch();
+
+            uint32 entry = fields[0].GetUInt32();
+            uint8 requiredClass = fields[1].GetUInt8();
+            uint8 level = fields[2].GetUInt8();
+            uint8 role = fields[3].GetUInt8();
+            std::string name = fields[4].GetCppString();
+
+            switch (requiredClass)
+            {
+            case CLASS_WARRIOR:
+            case CLASS_PALADIN:
+            case CLASS_HUNTER:
+            case CLASS_ROGUE:
+            case CLASS_PRIEST:
+            case CLASS_SHAMAN:
+            case CLASS_MAGE:
+            case CLASS_WARLOCK:
+            case CLASS_DRUID:
+                break;
+            default:
+                sLog.outDebug("Wrong class %hhu for entry %u in table `player_premade_template`", requiredClass, entry);
+                continue;
+            }
+
+            if (!(level >= 1 && level <= PLAYER_MAX_LEVEL))
+            {
+                sLog.outDebug("Wrong level %hhu for entry %u in table `player_premade_template`", level, entry);
+                continue;
+            }
+
+            PlayerPremadeGearTemplate& data = m_playerPremadeGearMap[entry];
+            data.entry = entry;
+            data.requiredClass = requiredClass;
+            data.level = level;
+            data.role = CombatBotRoles(role);
+            data.name = name;
+        }
+        while (result->NextRow());
+
+        sLog.outBasic(">> Loaded " SIZEFMTD " premade player gear templates", m_playerPremadeGearMap.size());
+        sLog.outBasic("");
+    }
+
+    {
+        sLog.outBasic("Loading player premade items ...");
+        //                                                               0        1       2          3
+        std::unique_ptr<QueryResult> result(WorldDatabase.Query("SELECT `entry`, `item`, `enchant`, `team` FROM `player_premade_item`"));
+
+        if (!result)
+        {
+            BarGoLink bar(1);
+            bar.step();
+
+            sLog.outBasic(">> Loaded 0 premade player items. DB table `player_premade_item` is empty.");
+            return;
+        }
+
+        BarGoLink bar(result->GetRowCount());
+        uint32 count = 0;
+
+        do
+        {
+            bar.step();
+            auto fields = result->Fetch();
+
+            uint32 entry = fields[0].GetUInt32();
+            uint32 item = fields[1].GetUInt32();
+            uint32 enchant = fields[2].GetUInt32();
+            uint32 team = fields[3].GetUInt32();
+
+            auto itr = m_playerPremadeGearMap.find(entry);
+            if (itr == m_playerPremadeGearMap.end())
+            {
+                sLog.outDebug("Wrong entry %u in table `player_premade_item`", entry);
+                continue;
+            }
+
+            if (!GetItemPrototype(item))
+                continue;
+            if (enchant && !sSpellItemEnchantmentStore.LookupEntry(enchant))
+                continue;
+
+            switch (team)
+            {
+            case TEAM_NONE:
+            case HORDE:
+            case ALLIANCE:
+                break;
+            default:
+                sLog.outDebug("Wrong team %u for entry %u in table `player_premade_item`", team, entry);
+                continue;
+            }
+
+            count++;
+            itr->second.items.emplace_back(item, enchant, team);
+        }
+        while (result->NextRow());
+
+        sLog.outBasic(">> Loaded %u premade player items", count);
+        sLog.outBasic("");
+    }
+
+    {
+        sLog.outBasic("Loading player premade spec templates ...");
+        m_playerPremadeSpecMap.clear();
+
+        //                                                               0        1        2        3       4
+        std::unique_ptr<QueryResult> result(WorldDatabase.Query("SELECT `entry`, `class`, `level`, `role`, `name` FROM `player_premade_spell_template`"));
+
+        if (!result)
+        {
+            BarGoLink bar(1);
+            bar.step();
+
+            sLog.outBasic(">> Loaded 0 premade player spec templates. DB table `player_premade_spell_template` is empty.");
+            return;
+        }
+
+        BarGoLink bar(result->GetRowCount());
+
+        do
+        {
+            bar.step();
+            auto fields = result->Fetch();
+
+            uint32 entry = fields[0].GetUInt32();
+            uint8 requiredClass = fields[1].GetUInt8();
+            uint8 level = fields[2].GetUInt8();
+            uint8 role = fields[3].GetUInt8();
+            std::string name = fields[4].GetCppString();
+
+            switch (requiredClass)
+            {
+            case CLASS_WARRIOR:
+            case CLASS_PALADIN:
+            case CLASS_HUNTER:
+            case CLASS_ROGUE:
+            case CLASS_PRIEST:
+            case CLASS_SHAMAN:
+            case CLASS_MAGE:
+            case CLASS_WARLOCK:
+            case CLASS_DRUID:
+                break;
+            default:
+                sLog.outDebug("Wrong class %hhu for entry %u in table `player_premade_template`", requiredClass, entry);
+                continue;
+            }
+
+            if (!(level >= 1 && level <= PLAYER_MAX_LEVEL))
+            {
+                sLog.outDebug("Wrong level %hhu for entry %u in table `player_premade_template`", level, entry);
+                continue;
+            }
+
+            PlayerPremadeSpecTemplate& data = m_playerPremadeSpecMap[entry];
+            data.entry = entry;
+            data.requiredClass = requiredClass;
+            data.level = level;
+            data.role = CombatBotRoles(role);
+            data.name = name;
+        }
+        while (result->NextRow());
+
+        sLog.outBasic(">> Loaded " SIZEFMTD " premade player spec templates", m_playerPremadeSpecMap.size());
+        sLog.outBasic("");
+    }
+
+    {
+        sLog.outBasic("Loading player premade spells ...");
+        //                                                               0        1
+        std::unique_ptr<QueryResult> result(WorldDatabase.Query("SELECT `entry`, `spell` FROM `player_premade_spell`"));
+
+        if (!result)
+        {
+            BarGoLink bar(1);
+            bar.step();
+
+            sLog.outBasic(">> Loaded 0 premade player spells. DB table `player_premade_spell` is empty.");
+            return;
+        }
+
+        BarGoLink bar(result->GetRowCount());
+        uint32 count = 0;
+
+        do
+        {
+            bar.step();
+            auto fields = result->Fetch();
+
+            uint32 entry = fields[0].GetUInt32();
+            uint32 spell = fields[1].GetUInt32();
+
+            auto itr = m_playerPremadeSpecMap.find(entry);
+            if (itr == m_playerPremadeSpecMap.end())
+            {
+                sLog.outDebug("Wrong entry %u in table `player_premade_spell`", entry);
+                continue;
+            }
+
+            if (!sSpellMgr.GetSpellEntry(spell))
+                continue;
+
+            count++;
+            itr->second.spells.push_back(spell);
+        }
+        while (result->NextRow());
+
+        sLog.outBasic(">> Loaded %u premade player spells", count);
+        sLog.outBasic("");
+    }
+}
+
+void ObjectMgr::ApplyPremadeGearTemplateToPlayer(uint32 entry, Player* pPlayer) const
+{
+    auto itr = m_playerPremadeGearMap.find(entry);
+    if (itr == m_playerPremadeGearMap.end())
+    {
+        sLog.outError("Attempt to apply non-existent premade template to player (%u)", entry);
+        return;
+    }
+
+    if (pPlayer->GetClass() != itr->second.requiredClass)
+    {
+        sLog.outError("Attempt to apply premade template (%u) to a player with wrong class", entry);
+        return;
+    }
+
+    if (pPlayer->GetLevel() < itr->second.level)
+    {
+        pPlayer->GiveLevel(itr->second.level);
+        pPlayer->InitTalentForLevel();
+        pPlayer->SetUInt32Value(PLAYER_XP, 0);
+    }
+
+    // Unequip current gear
+    for (int i = EQUIPMENT_SLOT_START; i < EQUIPMENT_SLOT_END; ++i)
+        pPlayer->AutoUnequipItemFromSlot(i);
+
+    // Learn Dual Wield Specialization
+    if (pPlayer->GetClass() == CLASS_WARRIOR || pPlayer->GetClass() == CLASS_ROGUE || pPlayer->GetClass() == CLASS_HUNTER)
+        if (!pPlayer->HasSpell(674))
+            pPlayer->LearnSpell(674, false, false);
+
+    for (auto item : itr->second.items)
+    {
+        if (!item.requiredTeam || (pPlayer->GetTeam() == item.requiredTeam))
+        {
+            ItemPrototype const* pItem = GetItemPrototype(item.itemId);
+
+            pPlayer->SatisfyItemRequirements(pItem);
+            pPlayer->StoreNewItemInBestSlots(item.itemId, 1, item.enchantId);
+        }
+    }
+}
+
+void ObjectMgr::ApplyPremadeSpecTemplateToPlayer(uint32 entry, Player* pPlayer) const
+{
+    auto itr = m_playerPremadeSpecMap.find(entry);
+    if (itr == m_playerPremadeSpecMap.end())
+    {
+        sLog.outError("Attempt to apply non-existent premade template to player (%u)", entry);
+        return;
+    }
+
+    if (pPlayer->GetClass() != itr->second.requiredClass)
+    {
+        sLog.outError("Attempt to apply premade template (%u) to a player with wrong class", entry);
+        return;
+    }
+
+    if (pPlayer->GetLevel() < itr->second.level)
+    {
+        pPlayer->GiveLevel(itr->second.level);
+        pPlayer->InitTalentForLevel();
+        pPlayer->SetUInt32Value(PLAYER_XP, 0);
+    }
+
+    // Learn Dual Wield Specialization
+    if (pPlayer->GetClass() == CLASS_WARRIOR || pPlayer->GetClass() == CLASS_ROGUE || pPlayer->GetClass() == CLASS_HUNTER)
+        if (!pPlayer->HasSpell(674))
+            pPlayer->LearnSpell(674, false, false);
+
+    if (!itr->second.spells.empty())
+    {
+        pPlayer->ResetTalents(true);
+        for (auto spellId : itr->second.spells)
+        {
+            uint32 const firstRankId = sSpellMgr.GetFirstSpellInChain(spellId);
+            if (firstRankId && firstRankId != spellId && GetTalentSpellPos(firstRankId))
+                pPlayer->LearnSpell(firstRankId, false, true);
+            pPlayer->LearnSpell(spellId, false, (firstRankId == spellId && GetTalentSpellPos(firstRankId)));
+        }
+    }
 }

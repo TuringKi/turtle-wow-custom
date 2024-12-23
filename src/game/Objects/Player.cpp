@@ -2910,7 +2910,8 @@ void Player::RemoveFromWorld()
     ///- The player should only be removed when logging out
     if (IsInWorld())
     {
-        GetSession()->GetAntiCheat()->LeaveWorld();
+        if (!IsBot())
+            GetSession()->GetAntiCheat()->LeaveWorld();
         GetCamera().ResetView();
     }
 
@@ -5946,7 +5947,7 @@ Corpse* Player::CreateCorpse()
     }
 
     // we not need saved corpses for BG/arenas
-    if (!GetMap()->IsBattleGround())
+    if (!GetMap()->IsBattleGround() && !GetSession()->GetBot())
         corpse->SaveToDB();
 
     // register for player, but not show
@@ -7506,7 +7507,8 @@ void Player::CheckAreaExploreAndOutdoor()
             sLog.outError("PLAYER: Player %u discovered unknown area (x: %f y: %f map: %u", GetGUIDLow(), GetPositionX(), GetPositionY(), GetMapId());
         else
         {
-            GetSession()->GetAntiCheat()->OnExplore(p);
+            if (!IsBot())
+                GetSession()->GetAntiCheat()->OnExplore(p);
             // GetCheatData()->OnExplore(p);
             uint32 area = p->Id;
             uint32 xp = 0;
@@ -16603,7 +16605,7 @@ bool Player::LoadFromDB(ObjectGuid guid, SqlQueryHolder* holder)
                 SetAcceptWhispers(true);
             break;
         }
-        SetInvincibilityHpThreshold(1);
+        //  SetInvincibilityHpThreshold(1);
     }
 
     if (extraflags & PLAYER_EXTRA_WHISP_RESTRICTION)
@@ -22165,29 +22167,29 @@ bool Player::FallGround(uint8 FallMode)
     return true;
 }
 
-void Player::LearnTalent(uint32 talentId, uint32 talentRank)
+bool Player::LearnTalent(uint32 talentId, uint32 talentRank)
 {
     uint32 CurTalentPoints = GetFreeTalentPoints();
 
     if (CurTalentPoints == 0)
-        return;
+        return false;
 
     if (talentRank >= MAX_TALENT_RANK)
-        return;
+        return false;
 
     TalentEntry const* talentInfo = sTalentStore.LookupEntry(talentId);
 
     if (!talentInfo)
-        return;
+        return false;
 
     TalentTabEntry const* talentTabInfo = sTalentTabStore.LookupEntry(talentInfo->TalentTab);
 
     if (!talentTabInfo)
-        return;
+        return false;
 
     // prevent learn talent for different class (cheating)
     if ((GetClassMask() & talentTabInfo->ClassMask) == 0)
-        return;
+        return false;
 
     // find current max talent rank
     uint32 curtalent_maxrank = 0;
@@ -22202,11 +22204,11 @@ void Player::LearnTalent(uint32 talentId, uint32 talentRank)
 
     // we already have same or higher talent rank learned
     if (curtalent_maxrank >= (talentRank + 1))
-        return;
+        return false;
 
     // check if we have enough talent points
     if (CurTalentPoints < (talentRank - curtalent_maxrank + 1))
-        return;
+        return false;
 
     // Check if it requires another talent
     if (talentInfo->DependsOn > 0)
@@ -22222,13 +22224,13 @@ void Player::LearnTalent(uint32 talentId, uint32 talentRank)
             }
 
             if (!hasEnoughRank)
-                return;
+                return false;
         }
     }
 
     // Check if it requires spell
     if (talentInfo->DependsOnSpell && !HasSpell(talentInfo->DependsOnSpell))
-        return;
+        return false;
 
     // Find out how many points we have in this field
     uint32 spentPoints = 0;
@@ -22260,23 +22262,24 @@ void Player::LearnTalent(uint32 talentId, uint32 talentRank)
 
     // not have required min points spent in talent tree
     if (spentPoints < (talentInfo->Row * MAX_TALENT_RANK))
-        return;
+        return false;
 
     // spell not set in talent.dbc
     uint32 spellid = talentInfo->RankID[talentRank];
     if (spellid == 0)
     {
         sLog.outError("Talent.dbc have for talent: %u Rank: %u spell id = 0", talentId, talentRank);
-        return;
+        return false;
     }
 
     // already known
     if (HasSpell(spellid))
-        return;
+        return false;
 
     // learn! (other talent ranks will unlearned at learning)
     LearnSpell(spellid, false, true);
     DETAIL_LOG("TalentID: %u Rank: %u Spell: %u\n", talentId, talentRank, spellid);
+    return true;
 }
 
 void Player::UnsummonPetTemporaryIfAny()
@@ -22491,7 +22494,10 @@ void Player::SendDuelCountdown(uint32 counter) const
 void Player::RemoveAI()
 {
     if (i_AI)
+    {
         i_AI->Remove();
+        i_AI = nullptr;
+    }
 }
 void Player::SetControlledBy(Unit* pWho)
 {
@@ -25032,4 +25038,69 @@ void Player::ClearTemporaryWarWithFactions()
         }
         m_temporaryAtWarFactions.clear();
     }
+}
+
+
+uint32 Player::GetHighestKnownArmorProficiency() const
+{
+    if (GetSkillValue(SKILL_PLATE_MAIL))
+        return SKILL_PLATE_MAIL;
+    if (GetSkillValue(SKILL_MAIL))
+        return SKILL_MAIL;
+    if (GetSkillValue(SKILL_LEATHER))
+        return SKILL_LEATHER;
+    return SKILL_CLOTH;
+}
+
+
+bool Player::HasGCD(SpellEntry const* spellEntry) { return GetGlobalCooldownMgr().HasGlobalCooldown(spellEntry); }
+
+
+void Player::AddStartingItems()
+{
+    PlayerInfo const* info = sObjectMgr.GetPlayerInfo(GetRace(), GetClass());
+    if (!info)
+    {
+        sLog.outError("Player have incorrect race/class pair. Can't add starting items.");
+        return;
+    }
+
+    // Starting items.
+    for (const auto& item_id_itr : info->item)
+        StoreNewItemInBestSlots(item_id_itr.item_id, item_id_itr.item_amount);
+
+    // bags and main-hand weapon must equipped at this moment
+    // now second pass for not equipped (offhand weapon/shield if it attempt equipped before main-hand weapon)
+    // or ammo not equipped in special bag
+    for (int i = INVENTORY_SLOT_ITEM_START; i < INVENTORY_SLOT_ITEM_END; ++i)
+    {
+        if (Item* pItem = GetItemByPos(INVENTORY_SLOT_BAG_0, i))
+        {
+            uint16 eDest;
+            // equip offhand weapon/shield if it attempt equipped before main-hand weapon
+            uint8 msg = CanEquipItem(NULL_SLOT, eDest, pItem, false);
+            if (msg == EQUIP_ERR_OK)
+            {
+                RemoveItem(INVENTORY_SLOT_BAG_0, i, true);
+                EquipItem(eDest, pItem, true);
+            }
+            // move other items to more appropriate slots (ammo not equipped in special bag)
+            else
+            {
+                ItemPosCountVec sDest;
+                msg = CanStoreItem(NULL_BAG, NULL_SLOT, sDest, pItem, false);
+                if (msg == EQUIP_ERR_OK)
+                {
+                    RemoveItem(INVENTORY_SLOT_BAG_0, i, true);
+                    pItem = StoreItem(sDest, pItem, true);
+                }
+
+                // if  this is ammo then use it
+                msg = CanUseAmmo(pItem->GetEntry());
+                if (msg == EQUIP_ERR_OK)
+                    SetAmmo(pItem->GetEntry());
+            }
+        }
+    }
+    // all item positions resolved
 }
