@@ -11923,7 +11923,8 @@ Item* Player::EquipItem(uint16 pos, Item* pItem, bool update)
 
     // Transmog
     // Larn item when equipping it, if not already learned
-    _transmogMgr->AddToCollection(pItem->GetEntry());
+    if (!IsBot())
+        _transmogMgr->AddToCollection(pItem->GetEntry());
 
     if (!pItem2)
     {
