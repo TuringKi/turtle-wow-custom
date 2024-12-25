@@ -381,7 +381,7 @@ bool WorldSession::Update(PacketFilter& updater)
     return true;
 }
 
-bool WorldSession::CanProcessPackets() const { return ((m_Socket && !m_Socket->IsClosed()) || (_player && sPlayerBotMgr.IsChatBot(_player->GetGUIDLow()))); }
+bool WorldSession::CanProcessPackets() const { return ((m_Socket && !m_Socket->IsClosed()) || (_player && (m_bot || sPlayerBotMgr.IsChatBot(_player->GetGUIDLow())))); }
 
 void WorldSession::ProcessPackets(PacketFilter& updater)
 {

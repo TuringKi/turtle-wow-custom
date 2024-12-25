@@ -317,7 +317,7 @@ void PlayerBotMgr::Update(uint32 diff)
                 }
             }
 
-            for (uint32 bracketId = BG_BRACKET_ID_FIRST; bracketId < MAX_BATTLEGROUND_BRACKETS; ++bracketId)
+            for (uint32 bracketId = BG_BRACKET_ID_FIRST; bracketId < 6; ++bracketId)
             {
                 if (!hasPlayerInQueue[bracketId])
                     continue;

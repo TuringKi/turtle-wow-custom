@@ -6162,12 +6162,19 @@ bool RegisterPlayerToBG(WorldSession* sess, BattleGroundTypeId bgid)
     Player* pPlayer = sess->GetPlayer();
     if (!pPlayer->GetBGAccessByLevel(bgid))
         return false;
-
+    if (pPlayer->InBattleGround())
+        return false;
     pPlayer->SetBattleGroundEntryPoint(pPlayer->GetMapId(), pPlayer->GetPositionX(), pPlayer->GetPositionY(), pPlayer->GetPositionZ(), pPlayer->GetOrientation());
     sess->SendBattleGroundList(pPlayer->GetObjectGuid(), bgid);
 
     return true;
 }
+
+
+bool ChatHandler::HandleGoWarsongCommand(char* args) { return RegisterPlayerToBG(m_session, BattleGroundTypeId(BATTLEGROUND_WS)); }
+bool ChatHandler::HandleGoArathiCommand(char* args) { return RegisterPlayerToBG(m_session, BattleGroundTypeId(BATTLEGROUND_AB)); }
+bool ChatHandler::HandleGoAlteracCommand(char* args) { return RegisterPlayerToBG(m_session, BattleGroundTypeId(BATTLEGROUND_AV)); }
+
 
 bool ChatHandler::HandleHelpCommand(char* args)
 {

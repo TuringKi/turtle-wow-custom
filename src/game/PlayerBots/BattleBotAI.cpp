@@ -462,13 +462,13 @@ void BattleBotAI::OnPacketReceived(WorldPacket const* packet)
             {
                 // Temporary battlebots are removed after bg ends.
                 if (m_temporary)
+                {
                     botEntry->requestRemoval = true;
+                }
                 else
                 {
                     auto* data = new WorldPacket(CMSG_LEAVE_BATTLEFIELD);
-#if SUPPORTED_CLIENT_BUILD > CLIENT_BUILD_1_8_4
                     *data << uint32(me->GetMapId());
-#endif
                     me->GetSession()->QueuePacket(std::move(data));
                 }
             }
@@ -590,7 +590,9 @@ void BattleBotAI::OnLeaveBattleGround()
 
     // Temporary battlebots are removed after bg ends.
     if (m_temporary)
+    {
         botEntry->requestRemoval = true;
+    }
 }
 
 bool BattleBotAI::CheckForUnreachableTarget()
@@ -3007,19 +3009,3 @@ void BattleBotAI::UpdateInCombatAI_Druid()
         }
     }
 }
-
-static bool RegisterPlayerToBG(WorldSession* sess, BattleGroundTypeId bgid)
-{
-    Player* pPlayer = sess->GetPlayer();
-    if (!pPlayer->GetBGAccessByLevel(bgid))
-        return false;
-    if (pPlayer->InBattleGround())
-        return false;
-    pPlayer->SetBattleGroundEntryPoint(pPlayer->GetMapId(), pPlayer->GetPositionX(), pPlayer->GetPositionY(), pPlayer->GetPositionZ(), pPlayer->GetOrientation());
-    sess->SendBattleGroundList(pPlayer->GetObjectGuid(), bgid);
-    return true;
-}
-
-bool ChatHandler::HandleGoWarsongCommand(char* args) { return RegisterPlayerToBG(m_session, BattleGroundTypeId(BATTLEGROUND_WS)); }
-bool ChatHandler::HandleGoArathiCommand(char* args) { return RegisterPlayerToBG(m_session, BattleGroundTypeId(BATTLEGROUND_AB)); }
-bool ChatHandler::HandleGoAlteracCommand(char* args) { return RegisterPlayerToBG(m_session, BattleGroundTypeId(BATTLEGROUND_AV)); }

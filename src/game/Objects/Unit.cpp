@@ -11466,14 +11466,6 @@ void Unit::ProcSkillsAndReactives(bool isVictim, Unit* pTarget, uint32 procFlag,
             // for victim
             if (isVictim)
             {
-#if SUPPORTED_CLIENT_BUILD <= CLIENT_BUILD_1_8_4
-                // if victim and got critted
-                if (procExtra & PROC_EX_CRITICAL_HIT)
-                {
-                    ModifyAuraState(AURA_STATE_BERSERKING, true);
-                    StartReactiveTimer(REACTIVE_CRIT, GetObjectGuid());
-                }
-#endif
                 // if victim and dodged attack
                 if (procExtra & PROC_EX_DODGE)
                 {
@@ -11500,11 +11492,7 @@ void Unit::ProcSkillsAndReactives(bool isVictim, Unit* pTarget, uint32 procFlag,
                     // World of Warcraft Client Patch 1.7.0 (2005-09-13)
                     // - Riposte - Fixed a bug where the ability was not usable when a special
                     //   attack(e.g.Gouge) is parried.
-#if SUPPORTED_CLIENT_BUILD > CLIENT_BUILD_1_6_1
                     else
-#else
-                    else if (!(GetClass() == CLASS_ROGUE && procSpell))
-#endif
                     {
                         ModifyAuraState(AURA_STATE_DEFENSE, true);
                         StartReactiveTimer(REACTIVE_DEFENSE, pTarget->GetObjectGuid());

@@ -3014,9 +3014,7 @@ void CombatBotBaseAI::SendBattlefieldPortPacket()
         if (me->IsInvitedForBattleGroundQueueType(BattleGroundQueueTypeId(i)))
         {
             WorldPacket data(CMSG_BATTLEFIELD_PORT);
-#if SUPPORTED_CLIENT_BUILD > CLIENT_BUILD_1_8_4
             data << uint32(GetBattleGrounMapIdByTypeId(BattleGroundTypeId(i)));
-#endif
             data << uint8(1);
             me->GetSession()->HandleBattleFieldPortOpcode(data);
             break;
@@ -3096,9 +3094,7 @@ void CombatBotBaseAI::OnPacketReceived(WorldPacket const* packet)
 
             auto* data = new WorldPacket(MSG_MOVE_TELEPORT_ACK);
             *data << me->GetObjectGuid();
-#if SUPPORTED_CLIENT_BUILD > CLIENT_BUILD_1_9_4
             *data << me->GetLastCounterForMovementChangeType(TELEPORT);
-#endif
             *data << uint32(time(nullptr));
             me->GetSession()->QueuePacket(std::move(data));
             break;

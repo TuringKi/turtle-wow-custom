@@ -37,11 +37,7 @@ void PlayerBotAI::UpdateAI(uint32 const diff)
     {
         WorldPacket data(MSG_MOVE_TELEPORT_ACK, 10);
         data << me->GetObjectGuid();
-#if SUPPORTED_CLIENT_BUILD > CLIENT_BUILD_1_9_4
         data << uint32(0) << uint32(0);
-#else
-        data << uint32(0);
-#endif
         me->GetSession()->HandleMoveTeleportAckOpcode(data);
     }
     if (me->IsBeingTeleportedFar())
