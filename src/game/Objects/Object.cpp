@@ -3384,7 +3384,7 @@ ReputationRank WorldObject::GetReactionTo(WorldObject const* target) const
                 return *repRank;
     }
 
-    bool b_IsPossessed = HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_POSSESSED) || target->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_POSSESSED);
+    bool b_IsPossessed = (IsUnit() && HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_POSSESSED)) || (target->IsUnit() && target->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_POSSESSED));
     if (IsUnit() && (HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PLAYER_CONTROLLED) || b_IsPossessed))
     {
         if (target->IsUnit() && (target->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PLAYER_CONTROLLED) || b_IsPossessed))
