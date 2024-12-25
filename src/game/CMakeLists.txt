@@ -75,6 +75,7 @@ set (game_SRCS
 	Analysis/AccountAnalyser.cpp
     Autoscaling/AutoScaler.cpp
     AuctionHouse/AuctionHouseMgr.cpp
+    AuctionHouse/AuctionHouseBotMgr.cpp
     Battlegrounds/BattleGround.cpp
     Battlegrounds/BattleGroundAB.cpp
     Battlegrounds/BattleGroundAV.cpp

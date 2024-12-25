@@ -50,6 +50,7 @@ ChatCommand* ChatHandler::getCommandTable()
 
 #endif
 
+    static ChatCommand ahbotCommandTable[] = {{"reload", SEC_ADMINISTRATOR, true, &ChatHandler::HandleAHBotReloadCommand, "Reload table and config", nullptr}, {"update", SEC_ADMINISTRATOR, true, &ChatHandler::HandleAHBotUpdateCommand, "Add items for sale", nullptr}, {nullptr, 0, false, nullptr, "", nullptr}};
 
     static ChatCommand partyBotCommandTable[] = {
         {"add", SEC_ADMINISTRATOR, false, &ChatHandler::HandlePartyBotAddCommand, "", nullptr},

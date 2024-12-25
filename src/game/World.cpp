@@ -28,6 +28,7 @@
 #include "AccountMgr.h"
 #include "Anticheat/Config.hpp"
 #include "Anticheat/libanticheat.hpp"
+#include "AuctionHouseBotMgr.h"
 #include "AuctionHouseMgr.h"
 #include "AuraRemovalMgr.h"
 #include "AutoBroadCastMgr.h"
@@ -2190,6 +2191,10 @@ void World::SetInitialWorldSettings()
     sLog.outString("Loading dynamic visibility templates...");
     sDynamicVisMgr.LoadFromDB(false);
 
+    sLog.outString("Loading AH bot");
+    sAuctionHouseBotMgr.Load();
+
+
     sLog.outString("Loading PlayerBot ..."); // Requires Players cache
     sPlayerBotMgr.Load();
 
@@ -2460,6 +2465,7 @@ void World::Update(uint32 diff)
     if (m_timers[WUPDATE_AUCTIONS].Passed())
     {
         m_timers[WUPDATE_AUCTIONS].Reset();
+        sAuctionHouseBotMgr.Update();
         ///- Handle expired auctions
         sAuctionMgr.Update();
     }

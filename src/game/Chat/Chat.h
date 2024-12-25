@@ -228,6 +228,9 @@ protected:
     bool HandleCharacterInactivityDataCommand(char* args);
     bool HandleUnitStatInfoCommand(char* args);
 
+    bool HandleAHBotUpdateCommand(char* args);
+    bool HandleAHBotReloadCommand(char* args);
+
     bool HandleBotAddAllCommand(char*);
     bool HandleBotAddRandomCommand(char* args);
     bool HandleBotAddCommand(char* args);
