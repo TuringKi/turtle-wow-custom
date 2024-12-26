@@ -4860,7 +4860,7 @@ void WorldObject::DealDamageMods(Unit* victim, uint32& damage, uint32* absorb)
     {
         if (plr->IsBot() && plr->GetSession()->GetBot()->ai->GetType() == PlayerBotAI::PARTY)
         {
-            originalDamage *= sWorld.getConfig(CONFIG_FLOAT_PARTY_BOT_DAMAGE_MUL);
+            damage *= sWorld.getConfig(CONFIG_FLOAT_PARTY_BOT_DAMAGE_MUL);
         }
     }
 
