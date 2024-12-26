@@ -33,6 +33,7 @@
 #include "ObjectPosSelector.h"
 #include "Opcodes.h"
 #include "Player.h"
+#include "PlayerBotAI.h"
 #include "SharedDefines.h"
 #include "TargetedMovementGenerator.h"
 #include "Totem.h"
@@ -52,6 +53,7 @@
 #include "ZoneScriptMgr.h"
 
 #include "MovementBroadcaster.h"
+#include "PlayerBotMgr.h"
 #include "PlayerBroadcaster.h"
 #include "packet_builder.h"
 
@@ -4853,6 +4855,14 @@ void WorldObject::DealDamageMods(Unit* victim, uint32& damage, uint32* absorb)
     }
 
     uint32 originalDamage = damage;
+
+    if (auto* plr = ToPlayer())
+    {
+        if (plr->IsBot() && plr->GetSession()->GetBot()->ai->GetType() == PlayerBotAI::PARTY)
+        {
+            originalDamage *= sWorld.getConfig(CONFIG_FLOAT_PARTY_BOT_DAMAGE_MUL);
+        }
+    }
 
     // Script Event damage Deal
     if (Creature* pCreature = ToCreature())

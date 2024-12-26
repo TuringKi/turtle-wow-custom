@@ -38,6 +38,9 @@ public:
         m_updateTimer.Reset(2000);
     }
 
+    Type GetType() const override { return PARTY; }
+
+
     bool OnSessionLoaded(PlayerBotEntry* entry, WorldSession* sess) final;
     void OnPlayerLogin() final;
     void UpdateAI(uint32 const diff) final;
