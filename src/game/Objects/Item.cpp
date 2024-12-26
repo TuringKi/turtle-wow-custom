@@ -1266,12 +1266,16 @@ void Item::GetLocalizedNameWithSuffix(std::string& name, const ItemPrototype* pr
 }
 
 
-void ItemPrototype::GetAllowedEquipSlots(uint8 slots[4], uint8 classId, bool canDualWield) const
+void ItemPrototype::GetAllowedEquipSlots(uint8 slots[8], uint8 classId, bool canDualWield) const
 {
     slots[0] = NULL_SLOT;
     slots[1] = NULL_SLOT;
     slots[2] = NULL_SLOT;
     slots[3] = NULL_SLOT;
+    slots[4] = NULL_SLOT;
+    slots[5] = NULL_SLOT;
+    slots[6] = NULL_SLOT;
+    slots[7] = NULL_SLOT;
     switch (InventoryType)
     {
     case INVTYPE_HEAD:
@@ -1281,13 +1285,13 @@ void ItemPrototype::GetAllowedEquipSlots(uint8 slots[4], uint8 classId, bool can
         slots[0] = EQUIPMENT_SLOT_NECK;
         break;
     case INVTYPE_SHOULDERS:
-        slots[0] = EQUIPMENT_SLOT_SHOULDERS;
+        slots[4] = EQUIPMENT_SLOT_SHOULDERS;
         break;
     case INVTYPE_BODY:
         slots[0] = EQUIPMENT_SLOT_BODY;
         break;
     case INVTYPE_CHEST:
-        slots[0] = EQUIPMENT_SLOT_CHEST;
+        slots[5] = EQUIPMENT_SLOT_CHEST;
         break;
     case INVTYPE_ROBE:
         slots[0] = EQUIPMENT_SLOT_CHEST;
@@ -1296,10 +1300,10 @@ void ItemPrototype::GetAllowedEquipSlots(uint8 slots[4], uint8 classId, bool can
         slots[0] = EQUIPMENT_SLOT_WAIST;
         break;
     case INVTYPE_LEGS:
-        slots[0] = EQUIPMENT_SLOT_LEGS;
+        slots[6] = EQUIPMENT_SLOT_LEGS;
         break;
     case INVTYPE_FEET:
-        slots[0] = EQUIPMENT_SLOT_FEET;
+        slots[7] = EQUIPMENT_SLOT_FEET;
         break;
     case INVTYPE_WRISTS:
         slots[0] = EQUIPMENT_SLOT_WRISTS;

@@ -506,7 +506,7 @@ struct ItemPrototype
     uint32 GetMaxStackSize() const { return Stackable; }
 
     bool HasExtraFlag(uint32 flag) const { return ExtraFlags & flag; }
-    void GetAllowedEquipSlots(uint8 slots[4], uint8 classId, bool canDualWield) const;
+    void GetAllowedEquipSlots(uint8 slots[8], uint8 classId, bool canDualWield) const;
 
 
     bool IsPotion() const { return Class == ITEM_CLASS_CONSUMABLE && SubClass == ITEM_SUBCLASS_POTION; }

@@ -2567,7 +2567,7 @@ void CombatBotBaseAI::EquipRandomGearInEmptySlots()
                 continue;
         }
 
-        uint8 slots[4];
+        uint8 slots[8];
         pProto->GetAllowedEquipSlots(slots, me->GetClass(), me->CanDualWield());
 
         for (uint8 slot : slots)
