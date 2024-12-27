@@ -4856,14 +4856,6 @@ void WorldObject::DealDamageMods(Unit* victim, uint32& damage, uint32* absorb)
 
     uint32 originalDamage = damage;
 
-    if (auto* plr = ToPlayer())
-    {
-        if (plr->IsBot() && plr->GetSession()->GetBot()->ai->GetType() == PlayerBotAI::PARTY)
-        {
-            damage *= sWorld.getConfig(CONFIG_FLOAT_PARTY_BOT_DAMAGE_MUL);
-        }
-    }
-
     // Script Event damage Deal
     if (Creature* pCreature = ToCreature())
         if (pCreature->AI())
@@ -4873,6 +4865,34 @@ void WorldObject::DealDamageMods(Unit* victim, uint32& damage, uint32* absorb)
     if (Creature* pCreature = victim->ToCreature())
         if (pCreature->AI() && pUnit)
             pCreature->AI()->DamageTaken(pUnit, damage);
+
+
+    if (auto* plr = ToPlayer())
+    {
+        if (plr->IsBot() && plr->GetSession()->GetBot()->ai->GetType() == PlayerBotAI::PARTY)
+        {
+
+            if (damage > 0)
+            {
+                if (this != victim)
+                    damage = ceil((float)damage * sWorld.getConfig(CONFIG_FLOAT_PARTY_BOT_DAMAGE_MUL));
+                else
+                    damage = ceil((float)damage * sWorld.getConfig(CONFIG_FLOAT_PARTY_BOT_DAMAGE_TAKEN_MUL));
+            }
+            //    sLog.outError("plr damage: %u,%u, %f", damage, originalDamage, sWorld.getConfig(CONFIG_FLOAT_PARTY_BOT_DAMAGE_MUL));
+        }
+    }
+
+    if (auto* plr = victim->ToPlayer())
+    {
+        if (plr->IsBot() && plr->GetSession()->GetBot()->ai->GetType() == PlayerBotAI::PARTY)
+        {
+            if (damage > 0)
+                damage = ceil((float)damage * sWorld.getConfig(CONFIG_FLOAT_PARTY_BOT_DAMAGE_TAKEN_MUL));
+            //     sLog.outError("plr victim damage: %u,%u,%f", damage, originalDamage, sWorld.getConfig(CONFIG_FLOAT_PARTY_BOT_DAMAGE_TAKEN_MUL));
+        }
+    }
+
 
     if (absorb && originalDamage > damage)
         *absorb += (originalDamage - damage);
