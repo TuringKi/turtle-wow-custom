@@ -5,6 +5,12 @@
 #ifndef DEF_NAXXRAMAS_H
 #define DEF_NAXXRAMAS_H
 
+#include "Common.h"
+#include "G3D/Vector2.h"
+#include "ScriptedInstance.h"
+#include "SharedDefines.h"
+#include "Utilities/EventMap.h"
+
 enum NAXX_ENCOUNTERS_TYPES
 {
     TYPE_ANUB_REKHAN = 0,

@@ -16,6 +16,7 @@
 
 #include <algorithm>
 #include <random>
+#include "PlayerBotAI.h"
 #include "naxxramas.h"
 #include "scriptPCH.h"
 
@@ -495,6 +496,16 @@ struct boss_thaddiusAddsAI : public ScriptedAI
         uiDamage = 0;
 
         fakeDeathTimer = 5000;
+
+        if (auto* plr = pKiller->ToPlayer())
+        {
+            if (plr->IsBot() && static_cast<PlayerBotAI*>(plr->AI())->GetType() == PlayerBotAI::PARTY)
+            {
+                sLog.outError("partybot kill me.");
+                fakeDeathTimer = 50000; // longger.
+            }
+        }
+
         m_bFakeDeath = true;
         m_creature->InterruptNonMeleeSpells(false);
         m_creature->SetHealth(0);
