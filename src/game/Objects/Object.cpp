@@ -4845,27 +4845,6 @@ int32 WorldObject::SpellBonusWithCoeffs(SpellEntry const* spellProto, SpellEffec
 void WorldObject::DealDamageMods(Unit* victim, uint32& damage, uint32* absorb)
 {
     Unit* pUnit = ToUnit();
-    // Don't allow Spirit of Redemption to take damage
-    if (!victim->IsAlive() || victim->IsTaxiFlying() || (victim->IsCreature() && static_cast<Creature*>(victim)->IsInEvadeMode()) || (pUnit && pUnit->GetClass() == CLASS_PRIEST && pUnit->HasAura(27827)))
-    {
-        if (absorb)
-            *absorb += damage;
-        damage = 0;
-        return;
-    }
-
-    uint32 originalDamage = damage;
-
-    // Script Event damage Deal
-    if (Creature* pCreature = ToCreature())
-        if (pCreature->AI())
-            pCreature->AI()->DamageDeal(victim, damage);
-
-    // Script Event damage taken
-    if (Creature* pCreature = victim->ToCreature())
-        if (pCreature->AI() && pUnit)
-            pCreature->AI()->DamageTaken(pUnit, damage);
-
 
     if (auto* plr = ToPlayer())
     {
@@ -4893,6 +4872,28 @@ void WorldObject::DealDamageMods(Unit* victim, uint32& damage, uint32* absorb)
         }
     }
 
+
+    // Don't allow Spirit of Redemption to take damage
+    if (!victim->IsAlive() || victim->IsTaxiFlying() || (victim->IsCreature() && static_cast<Creature*>(victim)->IsInEvadeMode()) || (pUnit && pUnit->GetClass() == CLASS_PRIEST && pUnit->HasAura(27827)))
+    {
+        if (absorb)
+            *absorb += damage;
+        damage = 0;
+        return;
+    }
+
+
+    uint32 originalDamage = damage;
+
+    // Script Event damage Deal
+    if (Creature* pCreature = ToCreature())
+        if (pCreature->AI())
+            pCreature->AI()->DamageDeal(victim, damage);
+
+    // Script Event damage taken
+    if (Creature* pCreature = victim->ToCreature())
+        if (pCreature->AI() && pUnit)
+            pCreature->AI()->DamageTaken(pUnit, damage);
 
     if (absorb && originalDamage > damage)
         *absorb += (originalDamage - damage);
