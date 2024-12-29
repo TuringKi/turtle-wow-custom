@@ -918,7 +918,7 @@ void Creature::Update(uint32 update_diff, uint32 diff)
                     else
                         m_callForHelpTimer -= update_diff;
 
-                    unreachableTarget = !i_motionMaster.empty() && !HasExtraFlag(CREATURE_FLAG_EXTRA_NO_UNREACHABLE_EVADE) && i_motionMaster.GetCurrent()->GetMovementGeneratorType() == CHASE_MOTION_TYPE && !i_motionMaster.GetCurrent()->IsReachable() && !HasDistanceCasterMovement() && !GetCharmerOrOwnerGuid().IsPlayer() && (!CanReachWithMeleeAutoAttack(GetVictim()) || !IsWithinLOSInMap(GetVictim())) && !(GetVictim()->IsPlayer() && static_cast<Player*>(GetVictim())->GetSession()->GetAntiCheat()->IsInKnockBack());
+                    unreachableTarget = !i_motionMaster.empty() && !HasExtraFlag(CREATURE_FLAG_EXTRA_NO_UNREACHABLE_EVADE) && i_motionMaster.GetCurrent()->GetMovementGeneratorType() == CHASE_MOTION_TYPE && !i_motionMaster.GetCurrent()->IsReachable() && !HasDistanceCasterMovement() && !GetCharmerOrOwnerGuid().IsPlayer() && (!CanReachWithMeleeAutoAttack(GetVictim()) || !IsWithinLOSInMap(GetVictim())) && !(GetVictim()->IsPlayer() && !(static_cast<Player*>(GetVictim())->IsBot()) && static_cast<Player*>(GetVictim())->GetSession()->GetAntiCheat()->IsInKnockBack());
                 }
             }
 
