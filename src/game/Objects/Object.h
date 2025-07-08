@@ -78,6 +78,33 @@ class SpellCaster;
 #define LEEWAY_MIN_MOVE_SPEED 4.97f
 #define LEEWAY_BONUS_RANGE 2.66f
 
+
+enum TempSpawnType
+{
+    TEMPSPAWN_MANUAL_DESPAWN = 0, // despawns when UnSummon() is called
+    TEMPSPAWN_DEAD_DESPAWN = 1, // despawns when the creature disappears
+    TEMPSPAWN_CORPSE_DESPAWN = 2, // despawns instantly after death
+    TEMPSPAWN_CORPSE_TIMED_DESPAWN = 3, // despawns after a specified time after death (or when the creature disappears)
+    TEMPSPAWN_TIMED_DESPAWN = 4, // despawns after a specified time
+    TEMPSPAWN_TIMED_OOC_DESPAWN = 5, // despawns after a specified time after the creature is out of combat
+    TEMPSPAWN_TIMED_OR_DEAD_DESPAWN = 6, // despawns after a specified time OR when the creature disappears
+    TEMPSPAWN_TIMED_OR_CORPSE_DESPAWN = 7, // despawns after a specified time OR when the creature dies
+    TEMPSPAWN_TIMED_OOC_OR_DEAD_DESPAWN = 8, // despawns after a specified time (OOC) OR when the creature disappears
+    TEMPSPAWN_TIMED_OOC_OR_CORPSE_DESPAWN = 9, // despawns after a specified time (OOC) OR when the creature dies
+};
+
+enum TempSpawnLinkedAura
+{
+    TEMPSPAWN_LINKED_AURA_OWNER_CHECK = 0x00000001,
+    TEMPSPAWN_LINKED_AURA_REMOVE_OWNER = 0x00000002
+};
+
+struct AreaNameInfo
+{
+    const char* areaName;
+    const char* wmoNameOverride;
+};
+
 enum TempSummonType
 {
     TEMPSUMMON_TIMED_OR_DEAD_DESPAWN = 1, // despawns after a specified time (out of combat) OR when the creature disappears
@@ -259,6 +286,10 @@ enum SplineFlags
 
     SPLINEFLAG_SPLINE = 0x00002000, // spline n*(float x,y,z)
 };
+
+MovementFlags const movementFlagsMask = MovementFlags(MOVEFLAG_FORWARD | MOVEFLAG_BACKWARD | MOVEFLAG_STRAFE_LEFT | MOVEFLAG_STRAFE_RIGHT | MOVEFLAG_PITCH_UP | MOVEFLAG_PITCH_DOWN | MOVEFLAG_JUMPING | MOVEFLAG_FALLINGFAR | MOVEFLAG_SPLINE_ELEVATION);
+
+MovementFlags const movementOrTurningFlagsMask = MovementFlags(movementFlagsMask | MOVEFLAG_TURN_LEFT | MOVEFLAG_TURN_RIGHT);
 
 class MovementInfo
 {
@@ -983,6 +1014,10 @@ public:
     float GetDistance2d(Position const& position, SizeFactor distcalc = SizeFactor::BoundingRadius) const { return GetDistance2d(position.x, position.y, distcalc); }
     float GetDistanceZ(WorldObject const* obj, SizeFactor distcalc = SizeFactor::BoundingRadius) const;
     float GetDistanceSqr(float x, float y, float z) const;
+
+    // Spawner: guid of a unit, who is reponsible for starting this objects's parent script (only for script-spawned objects)
+    virtual ObjectGuid const GetSpawnerGuid() const { return ObjectGuid(); }
+
     bool IsInMap(WorldObject const* obj) const;
     template <class T>
     bool IsWithinDist3d(T const& position, float dist2compare, SizeFactor distcalc = SizeFactor::BoundingRadius) const
@@ -1015,6 +1050,8 @@ public:
     bool HasInArc(WorldObject const* target, float const arcangle = M_PI_F, float offset = 0.0f) const;
     bool HasInArc(const float arcangle, const float x, const float y) const;
     bool IsFacingTarget(WorldObject const* target) const;
+    bool IsInFront(WorldObject const* target, float distance, float arc = M_PI) const;
+
 
     bool CanReachWithMeleeSpellAttack(WorldObject const* pVictim, float flat_mod = 0.0f) const;
 

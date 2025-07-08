@@ -99,6 +99,113 @@ void GlobalCooldownMgr::CancelGlobalCooldown(SpellEntry const* spellInfo) { m_Gl
 ////////////////////////////////////////////////////////////
 // Methods of class Unit
 
+Player const* Unit::GetControllingPlayer(bool ignoreCharms /* = false*/) const
+{
+    // Mode selector: normal or permanent (UI point of view, ignore charms)
+    ObjectGuid const& (Unit::*getter)() const = (ignoreCharms ? &Unit::GetOwnerGuid : &Unit::GetMasterGuid);
+
+    // Original logic begins
+
+    // Pre-TBC variant
+    if (ObjectGuid const& masterGuid = (this->*getter)())
+    {
+        if (Unit const* master = ObjectAccessor::GetUnit(*this, masterGuid))
+        {
+            if (master->GetTypeId() == TYPEID_PLAYER)
+                return static_cast<Player const*>(master);
+        }
+    }
+    else if (GetTypeId() == TYPEID_PLAYER)
+        return static_cast<Player const*>(this);
+    return nullptr;
+}
+
+
+bool Unit::IsClientControlled(Player const* exactClient /*= nullptr*/) const
+{
+    // Severvide method to check if unit is client controlled (optionally check for specific client in control)
+
+    // Applies only to player controlled units
+    if (!HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PLAYER_CONTROLLED))
+        return false;
+
+    // These flags are meant to be used when server controls this unit, client control is taken away
+    if (HasFlag(UNIT_FIELD_FLAGS, (UNIT_FLAG_DISABLE_MOVE | UNIT_FLAG_CONFUSED | UNIT_FLAG_FLEEING)))
+        return false;
+
+    // If unit is possessed, it has lost original control...
+    if (ObjectGuid const& guid = GetCharmerGuid())
+    {
+        // ... but if it is a possessing charm, then we have to check if some other player controls it
+        if (HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_POSSESSED) && guid.IsPlayer())
+            return (exactClient ? (exactClient->GetObjectGuid() == guid) : true);
+        return false;
+    }
+
+    // By default: players have client control over themselves
+    if (GetTypeId() == TYPEID_PLAYER)
+        return (exactClient ? (exactClient == this) : true);
+    return false;
+}
+
+float Unit::GetAttackDistance(Unit const* target) const
+{
+    float aggroRate = sWorld.getConfig(CONFIG_FLOAT_RATE_CREATURE_AGGRO);
+    if (aggroRate == 0)
+        return 0.0f;
+
+    uint32 playerlevel = target->GetLevelForTarget(this);
+    uint32 creaturelevel = GetLevelForTarget(target);
+
+    int32 leveldif = int32(playerlevel) - int32(creaturelevel);
+
+    // "The maximum Aggro Radius has a cap of 25 levels under. Example: A level 30 char has the same Aggro Radius of a level 5 char on a level 60 mob."
+    if (leveldif < -25)
+        leveldif = -25;
+
+    // "The aggro radius of a mob having the same level as the player is roughly 18 yards"
+    float attackDistance = GetDetectionRange();
+    if (attackDistance == 0.f)
+        return 0.0f;
+
+    // "Aggro Radius varies with level difference at a rate of roughly 1 yard/level"
+    // radius grow if playlevel < creaturelevel
+    attackDistance -= (float)leveldif;
+
+    // detect range auras
+    attackDistance += GetTotalAuraModifier(SPELL_AURA_MOD_DETECT_RANGE);
+
+    // detected range auras
+    attackDistance += target->GetTotalAuraModifier(SPELL_AURA_MOD_DETECTED_RANGE);
+
+    // "Minimum Aggro Radius for a mob seems to be combat range (5 yards)"
+    if (attackDistance < 5)
+        attackDistance = 5;
+
+    if (target->IsPlayerControlled() && target->IsCreature() && !target->IsClientControlled()) // player pets do not aggro from so afar
+        attackDistance = attackDistance * 0.65f;
+
+    return (attackDistance * aggroRate);
+}
+
+bool Unit::IsSitState() const
+{
+    uint8 s = GetStandState();
+    return s == UNIT_STAND_STATE_SIT_CHAIR || s == UNIT_STAND_STATE_SIT_LOW_CHAIR || s == UNIT_STAND_STATE_SIT_MEDIUM_CHAIR || s == UNIT_STAND_STATE_SIT_HIGH_CHAIR || s == UNIT_STAND_STATE_SIT;
+}
+bool Unit::IsStandState() const
+{
+    uint8 s = GetStandState();
+    return !IsSitState() && s != UNIT_STAND_STATE_SLEEP && s != UNIT_STAND_STATE_KNEEL;
+}
+
+
+bool Unit::IsSeatedState() const
+{
+    uint8 standState = GetStandState();
+    return standState != UNIT_STAND_STATE_SLEEP && standState != UNIT_STAND_STATE_STAND;
+}
+
 Unit::Unit() : WorldObject(), i_motionMaster(this), m_ThreatManager(this), m_HostileRefManager(this), movespline(new Movement::MoveSpline()), m_debugFlags(0), m_needUpdateVisibility(false), m_AutoRepeatFirstCast(true), m_regenTimer(0), m_lastDamageTaken(0), m_meleeZLimit(UNIT_DEFAULT_MELEE_Z_LIMIT), m_meleeZReach(UNIT_DEFAULT_MELEE_Z_LIMIT), m_lastSanctuaryTime(0)
 {
     m_objectType |= TYPEMASK_UNIT;
@@ -9399,6 +9506,85 @@ void Unit::ModConfuseSpell(bool apply, ObjectGuid casterGuid, uint32 spellID, Mo
         }
     }
 }
+
+
+void Unit::UpdateSplinePosition(bool relocateOnly)
+{
+    Movement::Location computedLoc = movespline->ComputePosition();
+    Position pos(computedLoc.x, computedLoc.y, computedLoc.z, computedLoc.orientation);
+    if (auto* transport = GetTransport())
+    {
+        m_movementInfo.GetTransportPos().x = pos.x;
+        m_movementInfo.GetTransportPos().y = pos.y;
+        m_movementInfo.GetTransportPos().z = pos.z;
+        m_movementInfo.GetTransportPos().o = pos.o;
+        transport->CalculatePassengerPosition(pos.x, pos.y, pos.z, &pos.o);
+    }
+
+    // bool faced = false;
+    // if (movespline->isFacing())
+    // {
+    //     if (movespline->isFacingTarget())
+    //     {
+    //         if (WorldObject const* target = GetMap()->GetWorldObject(ObjectGuid(movespline->GetFacing().target)))
+    //         {
+    //             pos.o = GetAngle(target);
+    //             faced = true;
+    //         }
+    //     }
+    //     else if (movespline->isFacingPoint())
+    //     {
+    //         auto& facing = movespline->GetFacing();
+    //         pos.o = GetAngle(facing.f.x, facing.f.y);
+    //         faced = true;
+    //     }
+    //     else if (movespline->isFacingAngle())
+    //     {
+    //         pos.o = movespline->GetFacing().angle;
+    //         faced = true;
+    //     }
+    // }
+
+    // if (!faced)
+    // {
+    //     if (pos.y == GetPositionY() && pos.x == GetPositionX())
+    //         pos.o = GetOrientation();
+    //     else
+    //     {
+    //         float angle = atan2((pos.y - GetPositionY()), (pos.x - GetPositionX()));
+    //         pos.o = (angle >= 0 ? angle : ((2 * M_PI_F) + angle));
+    //     }
+    // }
+
+
+    if (relocateOnly)
+    {
+        Relocate(pos.x, pos.y, pos.z, pos.o);
+        return;
+    }
+
+    if (IsPlayer())
+        static_cast<Player*>(this)->SetPosition(pos.x, pos.y, pos.z, pos.o);
+    else
+        GetMap()->CreatureRelocation((Creature*)this, pos.x, pos.y, pos.z, pos.o);
+}
+
+
+void Unit::InterruptMoving(bool forceSendStop /*=false*/)
+{
+    bool isMoving = false;
+
+    if (!movespline->Finalized())
+    {
+        UpdateSplinePosition(true);
+
+        movespline->_Interrupt();
+        isMoving = true;
+    }
+
+    StopMoving(forceSendStop || isMoving);
+}
+
 
 void Unit::SetFeignDeath(bool apply, ObjectGuid casterGuid, bool success)
 {

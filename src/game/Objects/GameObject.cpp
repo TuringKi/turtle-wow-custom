@@ -63,6 +63,15 @@ QuaternionData QuaternionData::fromEulerAnglesZYX(float Z, float Y, float X)
     return QuaternionData(quat.x, quat.y, quat.z, quat.w);
 }
 
+void GameObject::SetInUse(bool use)
+{
+    m_isInUse = use;
+    if (use)
+        SetGoState(GO_STATE_ACTIVE);
+    else
+        SetGoState(GO_STATE_READY);
+}
+
 GameObject::GameObject() : WorldObject(), loot(this), m_visible(true), m_goInfo(nullptr)
 {
     m_objectType |= TYPEMASK_GAMEOBJECT;
@@ -70,6 +79,7 @@ GameObject::GameObject() : WorldObject(), loot(this), m_visible(true), m_goInfo(
     m_updateFlag = (UPDATEFLAG_ALL | UPDATEFLAG_HAS_POSITION);
 
     m_valuesCount = GAMEOBJECT_END;
+    m_isInUse = false;
     m_respawnTime = 0;
     m_respawnDelayTime = 25;
     m_lootState = GO_NOT_READY;

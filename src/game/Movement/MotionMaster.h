@@ -26,6 +26,8 @@
 #include <vector>
 #include "Common.h"
 
+#include "ObjectGuid.h"
+
 #include "MoveSpline.h"
 
 class MovementGenerator;

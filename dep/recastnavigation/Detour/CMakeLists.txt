@@ -28,5 +28,6 @@ set(Detour_STAT_SRCS
 )
 
 add_library(Detour STATIC ${Detour_STAT_SRCS})
+add_library(RecastNavigation::Detour ALIAS Detour)
 
 SET_TARGET_PROPERTIES (Detour PROPERTIES FOLDER "3rd Party")

@@ -728,7 +728,7 @@ public:
     ChatChannelsEntry const* GetChannelEntryFor(std::string const& name);
 
     static Player* GetPlayer(const char* name) { return ObjectAccessor::FindPlayerByName(name); }
-    static Player* GetPlayer(ObjectGuid guid) { return ObjectAccessor::FindPlayer(guid); }
+    static Player* GetPlayer(ObjectGuid guid, bool isInWorld = true) { return ObjectAccessor::FindPlayer(guid, isInWorld); }
 
     GameObjectInfo const* GetGameObjectInfo(uint32 id)
     {
@@ -976,6 +976,12 @@ public:
         return nullptr;
     }
     CreatureInfoMap const& GetCreatureInfoMap() const { return m_creatureInfoMap; }
+
+
+    void GetQuestLocaleStrings(uint32 entry, int32 loc_idx, std::string* titlePtr) const;
+    void GetCreatureLocaleStrings(uint32 entry, int32 loc_idx, char const** namePtr, char const** subnamePtr = nullptr) const;
+    void GetItemLocaleStrings(uint32 entry, int32 loc_idx, std::string* namePtr, std::string* descriptionPtr = nullptr) const;
+
 
     void LoadCreatures(bool reload = false);
     void LoadCreatureAddons();

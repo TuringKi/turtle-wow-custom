@@ -721,6 +721,26 @@ void AuctionHouseObject::Update()
     }
 }
 
+void AuctionEntry::AuctionBidWinning(Player* newbidder)
+{
+    sAuctionMgr.SendAuctionSuccessfulMail(this);
+    sAuctionMgr.SendAuctionWonMail(this);
+
+    sAuctionMgr.RemoveAItem(this->itemGuidLow);
+    sAuctionMgr.GetAuctionsMap(this->auctionHouseEntry)->RemoveAuction(this);
+
+    CharacterDatabase.BeginTransaction();
+    this->DeleteFromDB();
+    if (newbidder)
+    {
+        newbidder->SaveInventoryAndGoldToDB();
+    }
+    CharacterDatabase.CommitTransaction();
+
+    delete this;
+}
+
+
 void AuctionHouseObject::BuildListBidderItems(WorldPacket& data, Player* player, uint32 listfrom, uint32& count, uint32& totalcount)
 {
     for (const auto& itr : AuctionsMap)

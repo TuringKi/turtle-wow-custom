@@ -20,11 +20,13 @@
 #include "CellImpl.h"
 #include "DBCEnums.h"
 #include "DBCStores.h"
+#include "DBCStructure.h"
 #include "GridStates.h"
 #include "Log.h"
 #include "Map.h"
 #include "MapManager.h"
 #include "MoveMap.h"
+#include "ObjectMgr.h"
 #include "Policies/SingletonImp.h"
 #include "SQLStorages.h"
 #include "Util.h"
@@ -665,6 +667,67 @@ void TerrainInfo::LoadAll()
         for (int i = 0; i < MAX_NUMBER_OF_GRIDS; ++i)
             Load(i, k);
 }
+
+
+// Return:    char const* (name of area or uknown if it fail to get one)
+// Parameter: float x, y, z (object position)
+// Parameter: uint32 langIndex (language index for specific locale)
+AreaNameInfo TerrainInfo::GetAreaName(float x, float y, float z, uint32 langIndex) const
+{
+    static const char* fallbackName = "<unknown>";
+    AreaNameInfo nameInfo;
+    nameInfo.areaName = fallbackName;
+    nameInfo.wmoNameOverride = nullptr;
+    int32 adtId, rootId, groupId;
+    uint32 mogpFlags = 0;
+
+    if (GetAreaInfo(x, y, z, mogpFlags, adtId, rootId, groupId))
+    {
+        // getting data from WMOAreaTable.dbc using vmap data
+        auto wmoEntries = GetWMOAreaTableEntryByTripple(rootId, adtId, groupId);
+
+        auto getAreaName = [](const WMOAreaTableEntry* wmoEntries, AreaNameInfo& nameInfo, uint32 langIndex)
+        {
+            if (wmoEntries->Name[langIndex][0] != '\0')
+                nameInfo.wmoNameOverride = wmoEntries->Name[langIndex];
+            if (wmoEntries->areaId)
+            {
+                // if nothing is in previous entry that mean we should get it from parent area id
+                auto aEntry = sAreaStorage.LookupEntry<AreaTableEntry>(wmoEntries->areaId);
+                if (aEntry && aEntry->area_name[langIndex][0] != '\0')
+                    nameInfo.areaName = aEntry->area_name[langIndex];
+            }
+        };
+
+        if (wmoEntries)
+            getAreaName(wmoEntries, nameInfo, langIndex);
+
+        if (nameInfo.areaName == fallbackName)
+        {
+            wmoEntries = GetWMOAreaTableEntryByTripple(rootId, adtId, -1);
+            if (wmoEntries)
+                getAreaName(wmoEntries, nameInfo, langIndex);
+        }
+    }
+
+    if (nameInfo.areaName == fallbackName)
+    {
+        // getting data from AreaTable.dbc using map data
+        uint16 areaflag;
+        if (GridMap* gmap = const_cast<TerrainInfo*>(this)->GetGrid(x, y))
+        {
+            areaflag = gmap->getArea(x, y);
+
+            AreaTableEntry const* entry = GetAreaEntryByAreaFlagAndMap(areaflag, m_mapId);
+
+            if (entry && entry->area_name[langIndex][0] != '\0')
+                nameInfo.areaName = entry->area_name[langIndex];
+        }
+    }
+
+    return nameInfo;
+}
+
 
 TerrainInfo::~TerrainInfo()
 {

@@ -27,6 +27,9 @@
 // also see MAX_LEVEL and PLAYER_STRONG_MAX_LEVEL define
 #define PLAYER_MAX_LEVEL 60
 
+#define DEFAULT_MAX_LEVEL PLAYER_MAX_LEVEL
+
+
 // client supported max level for player/pets/etc. Avoid overflow or client stability affected.
 // also see GT_MAX_LEVEL define
 #define MAX_LEVEL 100

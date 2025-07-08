@@ -889,6 +889,8 @@ public:
     uint32 GetUniqueUseCount();
 
     void AddUse() { ++m_useTimes; }
+    bool IsInUse() const { return m_isInUse; }
+    void SetInUse(bool use);
     uint32 GetUseCount() const { return m_useTimes; }
 
     void SaveRespawnTime() override;
@@ -1010,6 +1012,7 @@ protected:
     GuidsSet m_SkillupSet; // players that already have skill-up at GO use
 
     uint32 m_useTimes; // amount uses/charges triggered
+    bool m_isInUse;
 
     // collected only for GAMEOBJECT_TYPE_SUMMONING_RITUAL
     ObjectGuid m_firstUser; // first GO user, in most used cases owner, but in some cases no, for example non-summoned multi-use GAMEOBJECT_TYPE_SUMMONING_RITUAL

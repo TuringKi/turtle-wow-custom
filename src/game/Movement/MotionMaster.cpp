@@ -38,6 +38,12 @@
 
 #include <cassert>
 
+namespace
+{
+    // Minimum falling distance required to launch a FallMovement generator.
+    constexpr float g_moveFallMinFallDistance = 0.5f;
+} // namespace
+
 inline bool isStatic(MovementGenerator* mv) { return (mv == &si_idleMovement); }
 
 void MotionMaster::Initialize()

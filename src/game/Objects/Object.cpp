@@ -1615,6 +1615,10 @@ float WorldObject::GetAngle(WorldObject const* obj) const
     return GetAngle(obj->GetPositionX(), obj->GetPositionY());
 }
 
+
+bool WorldObject::IsInFront(WorldObject const* target, float distance, float arc) const { return IsWithinDist(target, distance) && HasInArc(target, arc); }
+
+
 // Return angle in range 0..2*pi
 float WorldObject::GetAngle(const float x, const float y) const
 {

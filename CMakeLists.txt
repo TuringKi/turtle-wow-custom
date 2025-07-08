@@ -537,9 +537,8 @@ set_property(DIRECTORY APPEND PROPERTY
 message(STATUS "Build flags (RELEASE) : ${CMAKE_CXX_FLAGS_RELEASE}")
 message(STATUS "Build flags (DEBUG)   : ${CMAKE_CXX_FLAGS_DEBUG}")
 
-
-add_subdirectory(src)
 add_subdirectory(dep)
+add_subdirectory(src)
 
 
 if (USE_EXTRACTORS OR USE_REALMMERGE)

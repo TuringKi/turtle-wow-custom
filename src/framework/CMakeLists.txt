@@ -120,6 +120,11 @@ target_link_libraries(framework
   ${TBB_LIBRARIES}
 )
 
+target_include_directories(framework
+  PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}
+)
+
+
 if(USE_TRACY)
   target_link_libraries(framework PUBLIC TracyClient)
 endif()

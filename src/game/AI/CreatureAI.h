@@ -74,7 +74,7 @@ enum class SelectTargetMethod
 };
 
 template <class ArgumentType, class ResultType>
-struct unary_function
+struct zunary_function
 {
     using argument_type = ArgumentType;
     using result_type = ResultType;
@@ -91,7 +91,7 @@ private:
     const bool m_ascending;
 };
 
-struct DefaultTargetSelector : public unary_function<Unit*, bool>
+struct DefaultTargetSelector : public zunary_function<Unit*, bool>
 {
     const Unit* me;
     float m_dist;

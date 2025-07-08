@@ -1153,8 +1153,10 @@ void Map::Remove(Player* player, bool remove)
     for (ObjectGuidSet::const_iterator it = player->m_visibleGUIDs.begin(); it != player->m_visibleGUIDs.end(); ++it)
         if (Player* other = GetPlayer(*it))
             other->m_broadcaster->RemoveListener(player);
-
-    player->ResetMap();
+    if (!player->GetPlayerbotAI())
+    {
+        player->ResetMap();
+    }
     if (remove)
         DeleteFromWorld(player);
 }
@@ -3205,6 +3207,63 @@ bool Map::GetWalkRandomPosition(Transport* transport, float& x, float& y, float&
         if (vmapH > z)
             z = vmapH;
     }
+    return true;
+}
+
+
+// Find an height within a reasonable range of provided Z. This method may fail so we have to handle that case.
+bool Map::GetHeightInRange(float x, float y, float& z, float maxSearchDist /*= 4.0f*/) const
+{
+    float height;
+    float mapHeight = INVALID_HEIGHT_VALUE;
+    float vmapHeight = VMAP_INVALID_HEIGHT_VALUE;
+
+    VMAP::IVMapManager* vmgr = VMAP::VMapFactory::createOrGetVMapManager();
+    if (!vmgr->isLineOfSightCalcEnabled())
+        vmgr = nullptr;
+
+    if (vmgr)
+    {
+        // pure vmap search
+        vmapHeight = vmgr->getHeight(i_id, x, y, z + 2.0f, maxSearchDist + 2.0f);
+    }
+
+    // find raw height from .map file on X,Y coordinates
+    if (GridMap* gmap = const_cast<TerrainInfo*>(m_TerrainData)->GetGrid(x, y)) // TODO:: find a way to remove that const_cast
+        mapHeight = gmap->getHeight(x, y);
+
+    float diffMaps = fabs(fabs(z) - fabs(mapHeight));
+    float diffVmaps = fabs(fabs(z) - fabs(vmapHeight));
+    if (diffVmaps < maxSearchDist)
+    {
+        if (diffMaps < maxSearchDist)
+        {
+            // well we simply have to take the highest as normally there we cannot be on top of cavern is maxSearchDist is not too big
+            if (vmapHeight > mapHeight || std::fabs(mapHeight - z) > std::fabs(vmapHeight - z))
+                height = vmapHeight;
+            else
+                height = mapHeight;
+
+            // sLog.outString("vmap %5.4f, map %5.4f, height %5.4f", vmapHeight, mapHeight, height);
+        }
+        else
+        {
+            // sLog.outString("vmap %5.4f", vmapHeight);
+            height = vmapHeight;
+        }
+    }
+    else
+    {
+        if (diffMaps < maxSearchDist)
+        {
+            // sLog.outString("map %5.4f", mapHeight);
+            height = mapHeight;
+        }
+        else
+            return false;
+    }
+
+    z = std::max<float>(height, GetDynamicTreeHeight(x, y, height + 1.0f, maxSearchDist));
     return true;
 }
 

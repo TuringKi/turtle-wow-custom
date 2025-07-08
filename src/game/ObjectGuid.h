@@ -260,6 +260,7 @@ namespace std
 
 } // namespace std
 
+typedef std::set<ObjectGuid> GuidSet;
 typedef std::unordered_set<ObjectGuid> ObjectGuidSet;
 typedef std::list<ObjectGuid> GuidList;
 

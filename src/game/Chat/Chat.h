@@ -168,6 +168,12 @@ public:
     bool HandleLearnAllItemsCommand(char* args);
 
 
+    bool HandlePlayerbotCommand(char* args);
+    bool HandleRandomPlayerbotCommand(char* args);
+    bool HandleAhBotCommand(char* args);
+    bool HandlePerfMonCommand(char* args);
+    bool HandlePlayerbotConsoleCommand(char* args);
+
 protected:
     explicit ChatHandler() : m_session(nullptr), sentErrorMessage(false) {} // for CLI subclass
 

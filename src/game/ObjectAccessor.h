@@ -101,7 +101,7 @@ public:
     static Unit* GetUnit(WorldObject const& obj, ObjectGuid guid);
 
     // Player access
-    static Player* FindPlayer(ObjectGuid guid); // if need player at specific map better use Map::GetPlayer
+    static Player* FindPlayer(ObjectGuid guid, bool isInWorld = false); // if need player at specific map better use Map::GetPlayer
     static Player* FindPlayerNotInWorld(ObjectGuid guid);
     static Player* FindPlayerByName(const char* name);
     static Player* FindPlayerByNameNotInWorld(const char* name);

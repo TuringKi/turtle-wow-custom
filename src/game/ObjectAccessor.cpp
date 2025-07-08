@@ -84,10 +84,10 @@ Player* ObjectAccessor::FindPlayerNotInWorld(ObjectGuid guid)
     return HashMapHolder<Player>::Find(guid);
 }
 
-Player* ObjectAccessor::FindPlayer(ObjectGuid guid)
+Player* ObjectAccessor::FindPlayer(ObjectGuid guid, bool inWorld)
 {
     Player* plr = FindPlayerNotInWorld(guid);
-    if (!plr || !plr->IsInWorld())
+    if (!plr || (!plr->IsInWorld() && inWorld))
         return nullptr;
 
     return plr;

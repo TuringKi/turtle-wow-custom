@@ -90,6 +90,9 @@
 #include "events/event_wareffort.h"
 #include "miscellaneous/feature_transmog.h"
 
+#include "playerbot.h"
+
+
 #include <sstream>
 
 #define ZONE_UPDATE_INTERVAL (1 * IN_MILLISECONDS)
@@ -589,6 +592,10 @@ UpdateMask Player::updateVisualBits;
 
 Player::Player(WorldSession* session) : Unit(), m_mover(this), m_camera(this), m_reputationMgr(this), m_currentTicketCounter(0), m_repopAtGraveyardPending(false), m_honorMgr(this), m_bNextRelocationsIgnored(0), m_standStateTimer(0), m_newStandState(MAX_UNIT_STAND_STATE), m_foodEmoteTimer(0), _transmogMgr(new TransmogMgr(this))
 {
+
+    m_playerbotAI = 0;
+    m_playerbotMgr = 0;
+
     m_objectType |= TYPEMASK_PLAYER;
     m_objectTypeId = TYPEID_PLAYER;
 
@@ -790,6 +797,19 @@ Player::~Player()
     // Note: buy back item already deleted from DB when player was saved
     for (const auto& item : m_items)
         delete item;
+
+
+    // Delete player bot AI and manager if they exist
+    if (m_playerbotAI)
+    {
+        delete m_playerbotAI;
+        m_playerbotAI = 0;
+    }
+    if (m_playerbotMgr)
+    {
+        delete m_playerbotMgr;
+        m_playerbotMgr = 0;
+    }
 
     CleanupChannels();
 
@@ -1864,6 +1884,17 @@ void Player::Update(uint32 update_diff, uint32 p_time)
             else
                 m_hardcoreSaveItemsTimer -= update_diff;
         }
+    }
+
+
+    // Update player bot AI
+    if (m_playerbotAI)
+    {
+        m_playerbotAI->UpdateAI(p_time);
+    }
+    if (m_playerbotMgr)
+    {
+        m_playerbotMgr->UpdateAI(p_time);
     }
 }
 
@@ -3853,6 +3884,47 @@ void Player::GiveLevel(uint32 level)
 
     if (m_session->ShouldBeBanned(GetLevel()))
         sWorld.BanAccount(BAN_ACCOUNT, m_session->GetUsername(), 0, m_session->GetScheduleBanReason(), "");
+}
+
+
+void Player::Whisper(const std::string& text, uint32 language, ObjectGuid receiver)
+{
+    if (language != LANG_ADDON) // if not addon data
+    {
+        language = LANG_UNIVERSAL; // whispers should always be readable
+    }
+
+    Player* rPlayer = sObjectMgr.GetPlayer(receiver);
+
+    WorldPacket data;
+    ChatHandler::BuildChatPacket(data, CHAT_MSG_WHISPER, text.c_str(), Language(language), GetChatTag(), GetObjectGuid(), GetName());
+    rPlayer->GetSession()->SendPacket(&data);
+
+    // not send confirmation for addon messages
+    if (language != LANG_ADDON)
+    {
+        data.clear();
+        ChatHandler::BuildChatPacket(data, CHAT_MSG_WHISPER_INFORM, text.c_str(), Language(language), CHAT_TAG_NONE, rPlayer->GetObjectGuid());
+        //   LogWhisper(text, receiver);
+        GetSession()->SendPacket(&data);
+    }
+
+    if (!IsAcceptWhispers())
+    {
+        SetAcceptWhispers(true);
+        ChatHandler(this).SendSysMessage(LANG_COMMAND_WHISPERON);
+    }
+
+    if (rPlayer->IsAFK())
+    {
+        /* Announce to the player that the person they're whispering to is afk */
+        ChatHandler(this).PSendSysMessage(LANG_PLAYER_AFK, rPlayer->GetName(), "[AFK]");
+    }
+    else if (rPlayer->IsDND())
+    {
+        /* Announce to the player that the person they're whispering to is dnd */
+        ChatHandler(this).PSendSysMessage(LANG_PLAYER_DND, rPlayer->GetName(), "[DND]");
+    }
 }
 
 void Player::UpdateFreeTalentPoints(bool resetIfNeed)

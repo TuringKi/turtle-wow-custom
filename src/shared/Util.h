@@ -27,6 +27,7 @@
 #include "OptickIntegration.h"
 
 #include <memory>
+#include <random>
 #include <string>
 #include <vector>
 
@@ -34,6 +35,29 @@
 #include "fmt/core.h"
 
 extern const char* lsan_output_path;
+
+
+inline std::string& ltrim(std::string& s)
+{
+    s.erase(s.begin(), std::find_if(s.begin(), s.end(), [](unsigned char ch) { return !std::isspace(ch); }));
+    return s;
+}
+
+inline std::string& rtrim(std::string& s)
+{
+    s.erase(std::find_if(s.rbegin(), s.rend(), [](unsigned char ch) { return !std::isspace(ch); }).base(), s.end());
+    return s;
+}
+
+inline std::string& trim(std::string& s) { return ltrim(rtrim(s)); }
+
+
+inline auto GetRandomGenerator()
+{
+    auto seed = std::chrono::system_clock::now().time_since_epoch().count();
+    return std::default_random_engine(seed);
+}
+
 
 template <typename T, typename std::enable_if<std::is_enum_v<T>>::type>
 auto format_as(T enumx)

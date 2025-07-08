@@ -265,7 +265,18 @@ struct CreatureInfo
 
     ObjectGuid GetObjectGuid(uint32 lowguid) const { return ObjectGuid(GetHighGuid(), entry, lowguid); }
 
+    SkillType GetRequiredLootSkill() const
+    {
+        if (HasFlag(CreatureTypeFlags::SKIN_WITH_HERBALISM))
+            return SKILL_HERBALISM;
+        if (HasFlag(CreatureTypeFlags::SKIN_WITH_MINING))
+            return SKILL_MINING;
+
+        return SKILL_SKINNING; // normal case
+    }
     bool isTameable() const { return type == CREATURE_TYPE_BEAST && beast_family != 0 && type_flags & CREATURE_TYPEFLAGS_TAMEABLE; }
+
+    bool HasFlag(CreatureTypeFlags flags) const { return bool(CreatureTypeFlags(type_flags) & flags); }
 };
 
 struct EquipmentInfo
@@ -743,7 +754,7 @@ public:
     uint32 m_spells[CREATURE_MAX_SPELLS];
 
     float GetAttackDistance(Unit const* pl) const;
-    float GetDetectionRange() const { return m_detectionDistance; }
+    float GetDetectionRange() const override { return m_detectionDistance; }
 
     void SendAIReaction(AiReaction reactionType);
 

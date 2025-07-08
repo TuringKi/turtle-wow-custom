@@ -115,6 +115,9 @@ enum SpellTargetType
 
 #define MAX_SPELL_TARGET_TYPE 3
 
+
+inline bool IsNonCombatSpell(SpellEntry const* spellInfo) { return spellInfo->HasAttribute(SPELL_ATTR_CANT_USED_IN_COMBAT); }
+
 struct SpellTargetEntry
 {
     SpellTargetEntry(SpellTargetType type_, uint32 targetEntry_, uint32 conditionId_, uint32 inverseEffectMask_) : type(type_), targetEntry(targetEntry_), conditionId(conditionId_), inverseEffectMask(inverseEffectMask_) {}

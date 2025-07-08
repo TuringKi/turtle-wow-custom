@@ -214,6 +214,14 @@ add_library(shared STATIC
   ${shared_SRCS}
 )
 
+target_include_directories(shared
+  PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}
+  PUBLIC ${Boost_INCLUDE_DIRS}
+  PUBLIC ${OPENSSL_INCLUDE_DIR}
+  PUBLIC ${CMAKE_BINARY_DIR}/src/shared # For the generated revision.h.
+)
+
+
 if(USE_DISCORD_BOT)
     target_link_libraries(shared PUBLIC
 	dpp

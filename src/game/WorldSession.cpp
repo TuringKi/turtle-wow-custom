@@ -55,6 +55,9 @@
 #include "PlayerBotMgr.h"
 #include "miscellaneous/feature_transmog.h"
 
+#include "playerbot.h"
+
+
 #ifdef USING_DISCORD_BOT
 #include "DiscordBot/Bot.hpp"
 #endif
@@ -195,6 +198,20 @@ void WorldSession::SendPacket(WorldPacket const* packet)
         sendLastPacketBytes = packet->wpos(); // wpos is real written size
     }
 #endif
+
+
+    if (GetPlayer())
+    {
+        if (GetPlayer()->GetPlayerbotAI())
+        {
+            GetPlayer()->GetPlayerbotAI()->HandleBotOutgoingPacket(*packet);
+        }
+        else if (GetPlayer()->GetPlayerbotMgr())
+        {
+            GetPlayer()->GetPlayerbotMgr()->HandleMasterOutgoingPacket(*packet);
+        }
+    }
+
 
     if (m_Socket == nullptr)
     {
@@ -342,6 +359,12 @@ bool WorldSession::Update(PacketFilter& updater)
         if (_clientHashComputeStep == HASH_COMPUTED && GetPlayer())
             _clientHashComputeStep = HASH_NOTIFIED;
 
+
+        if (GetPlayer() && GetPlayer()->GetPlayerbotMgr())
+        {
+            GetPlayer()->GetPlayerbotMgr()->UpdateSessions(0);
+        }
+
         ///- Cleanup socket pointer if need
         if (m_Socket && m_Socket->IsClosed())
         {
@@ -349,9 +372,17 @@ bool WorldSession::Update(PacketFilter& updater)
             m_Socket = nullptr;
 
             ///- Reset the online field in the account table if client is disconnected
-            static SqlStatementID id;
-            SqlStatement stmt = LoginDatabase.CreateStatement(id, "UPDATE account SET current_realm = ?, online = 0 WHERE id = ?");
-            stmt.PExecute(uint32(0), GetAccountId());
+            if (!GetPlayer()->GetPlayerbotAI())
+            {
+                static SqlStatementID id;
+                // playerbot mod
+                if (!_player->GetPlayerbotAI())
+                {
+                    SqlStatement stmt = LoginDatabase.CreateStatement(id, "UPDATE account SET current_realm = ?, online = 0 WHERE id = ?");
+                    stmt.PExecute(uint32(0), GetAccountId());
+                }
+            }
+
 
             // Character stays IG for 2 minutes
             return ForcePlayerLogoutDelay();
@@ -428,6 +459,11 @@ void WorldSession::ProcessPackets(PacketFilter& updater)
                 }
                 else if (_player->IsInWorld())
                     ExecuteOpcode(opHandle, packet);
+
+                if (_player && _player->GetPlayerbotMgr())
+                {
+                    _player->GetPlayerbotMgr()->HandleMasterIncomingPacket(*packet);
+                }
 
                 // lag can cause STATUS_LOGGEDIN opcodes to arrive after the player started a transfer
                 break;
@@ -554,12 +590,24 @@ void WorldSession::LogoutPlayer(bool Save)
 
     if (_player)
     {
+
+        if (GetPlayer()->GetPlayerbotMgr())
+        {
+            GetPlayer()->GetPlayerbotMgr()->LogoutAllBots();
+        }
+
         bool inWorld = _player->IsInWorld() && _player->FindMap();
 
         sLog.out(LOG_CHAR, "[%s:%u@%s] Logout Character:[%s] (guid: %u)", GetUsername().c_str(), GetAccountId(), GetRemoteAddress().c_str(), _player->GetName(), _player->GetGUIDLow());
         sDBLogger.LogCharAction({_player->GetGUIDLow(), GetAccountId(), LogCharAction::ActionLogout, {}});
         if (ObjectGuid lootGuid = GetPlayer()->GetLootGuid())
             DoLootRelease(lootGuid);
+
+        if (_player->GetPlayerbotMgr())
+        {
+            _player->GetPlayerbotMgr()->LogoutAllBots();
+        }
+        sRandomPlayerbotMgr.OnPlayerLogout(_player);
 
         disabledSocials = _player->HasGMDisabledSocials();
 
@@ -794,6 +842,20 @@ void WorldSession::SendAreaTriggerMessage(const char* Text, ...)
     data << length;
     data << szStr;
     SendPacket(&data);
+}
+
+void WorldSession::HandleBotPackets()
+{
+    WorldPacket* packet;
+    for (auto& i : _recvQueue)
+    {
+        while (i.next(packet))
+        {
+            OpcodeHandler const& opHandle = opcodeTable[packet->GetOpcode()];
+            (this->*opHandle.handler)(*packet);
+            delete packet;
+        }
+    }
 }
 
 void WorldSession::SendNotification(const char* format, ...)

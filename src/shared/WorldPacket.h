@@ -38,6 +38,15 @@ public:
 
     WorldPacket(WorldPacket&& packet) : ByteBuffer(std::move(packet)), m_opcode(packet.m_opcode), m_recvdTime(packet.m_recvdTime) {}
 
+
+    WorldPacket& operator=(const WorldPacket& rhs)
+    {
+        m_opcode = rhs.m_opcode;
+        m_recvdTime = rhs.m_recvdTime;
+        ByteBuffer::operator=((rhs));
+        return *this;
+    }
+
     WorldPacket& operator=(WorldPacket&& rhs)
     {
         m_opcode = rhs.m_opcode;

@@ -72,6 +72,14 @@ public:
         return *this;
     }
 
+    ByteBuffer& operator=(const ByteBuffer& rhs)
+    {
+        _rpos = rhs._rpos;
+        _wpos = rhs._wpos;
+        _storage = rhs._storage;
+        return *this;
+    }
+
     void clear()
     {
         _storage.clear();

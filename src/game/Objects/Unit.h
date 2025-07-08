@@ -585,6 +585,9 @@ public:
     virtual void SetSheath(SheathState sheathed) { SetByteValue(UNIT_FIELD_BYTES_2, 0, sheathed); }
     void SetStandState(uint8 state);
     uint8 GetStandState() const { return GetByteValue(UNIT_FIELD_BYTES_1, 0); }
+    bool IsStandState() const;
+    bool IsSitState() const;
+    bool IsSeatedState() const;
     bool IsSittingDown() const;
     bool IsStandingUp() const;
     virtual bool IsStandingUpForProc() const; // takes not yet applied stand state change into account (for players to simulate batching)
@@ -615,6 +618,9 @@ public:
     void InitPlayerDisplayIds();
     static float GetScaleForDisplayId(uint32 displayId);
     void DeMorph();
+
+    Player const* GetControllingPlayer(bool ignoreCharms = false) const;
+
 
     bool IsVendor() const { return HasFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_VENDOR); }
     bool IsTrainer() const { return HasFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_TRAINER); }
@@ -1387,6 +1393,13 @@ public:
     CharmInfo* InitCharmInfo(Unit* charm);
     void HandlePetCommand(CommandStates command, Unit* pTarget);
 
+    ObjectGuid const& GetMasterGuid() const
+    {
+        ObjectGuid const& guid = GetCharmerGuid();
+        return (guid ? guid : GetOwnerGuid());
+    }
+
+
     Unit* GetOwner() const;
     Creature* GetOwnerCreature() const;
     ObjectGuid const& GetOwnerGuid() const { return GetGuidValue(UNIT_FIELD_SUMMONEDBY); }
@@ -1505,6 +1518,9 @@ protected:
 public:
     void SendMovementPacket(uint16 opcode, bool includingSelf = true);
 
+
+    void UpdateSplinePosition(bool relocateOnly = false);
+
     void SetRooted(bool apply);
     void SetRootedReal(bool apply);
 
@@ -1567,6 +1583,19 @@ public:
     bool IsBehindTarget(Unit const* pTarget, bool strict = true) const;
     bool CantPathToVictim() const;
 
+
+    virtual float GetDetectionRange() const { return 18.f; }
+    bool IsPlayerControlled() const { return HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PLAYER_CONTROLLED); }
+    uint32 GetCreatedBySpellId() const { return GetUInt32Value(UNIT_CREATED_BY_SPELL); }
+    float GetAttackDistance(Unit const* target) const;
+    bool IsClientControlled(Player const* exactClient = nullptr) const;
+
+
+    inline bool IsStunned() const { return HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_STUNNED); }
+    bool SetStunned(bool apply, ObjectGuid casterGuid = ObjectGuid(), uint32 spellID = 0, bool logout = false);
+    inline bool IsStunnedByLogout() const { return HasUnitState(UNIT_STAT_NO_KILL_REWARD); }
+
+
     MotionMaster* GetMotionMaster() { return &i_motionMaster; }
     MotionMaster const* GetMotionMaster() const { return &i_motionMaster; }
     void RestoreMovement();
@@ -1584,6 +1613,8 @@ public:
     bool IsStopped() const { return !(HasUnitState(UNIT_STAT_MOVING)); }
     void StopMoving(bool force = false);
     void DisableSpline();
+    void InterruptMoving(bool forceSendStop = false);
+
 
     // Caster movement
     float GetMinChaseDistance(Unit* target) const;

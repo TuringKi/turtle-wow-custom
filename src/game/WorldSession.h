@@ -646,6 +646,9 @@ public: // opcodes handlers
     void HandlePlayerLogin(LoginQueryHolder* holder);
     void HandlePlayedTime(WorldPacket& recvPacket);
 
+    void HandleBotPackets();
+
+
     // Movement
     void HandleMoveRootAck(WorldPacket& recvPacket);
     void HandleMoveKnockBackAck(WorldPacket& recvPacket);

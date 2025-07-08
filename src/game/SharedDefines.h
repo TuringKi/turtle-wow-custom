@@ -226,6 +226,7 @@ enum Language
 enum Team
 {
     TEAM_NONE = 0, // used when team value unknown or not set, 0 is also meaning that can be used !team check
+    TEAM_BOTH_ALLOWED = 0, // used when a check should evaluate true for both teams
     TEAM_CROSSFACTION = 1,
     HORDE = 67,
     ALLIANCE = 469,
@@ -1015,6 +1016,31 @@ enum CreatureTypeFlags
     CREATURE_TYPEFLAGS_HIDE_FACTION_TOOLTIP = 0x00000010, // Controls something in client tooltip related to creature faction
     CREATURE_TYPEFLAGS_UNK6 = 0x00000020, // May be sound related
     CREATURE_TYPEFLAGS_SPELL_ATTACKABLE = 0x00000040, // May be related to attackable / not attackable creatures with spells, used together with lua_IsHelpfulSpell/lua_IsHarmfulSpell
+    INTERACT_WHILE_DEAD = 0x00000080, // Creature can be interacted with even if it's dead
+    SKIN_WITH_HERBALISM = 0x00000100, // Can be looted by herbalist
+    SKIN_WITH_MINING = 0x00000200, // Can be looted by miner
+    NO_DEATH_MESSAGE = 0x00000400, // no idea, but it used by client
+    ALLOW_MOUNTED_COMBAT = 0x00000800, // possibility to attack and cast spells while mounted
+    CAN_ASSIST = 0x00001000, // Can aid any player (and group) in combat. Typically seen for escorting NPC's
+    NO_PET_BAR = 0x00002000, // checked from calls in Lua_PetHasActionBar
+    MASK_UID = 0x00004000, // Lua_UnitGUID, client does guid_low &= 0xFF000000 if this flag is set
+    SKIN_WITH_ENGINEERING = 0x00008000, // Can be looted by engineer
+    TAMEABLE_EXOTIC = 0x00010000, // Can be tamed by hunter as exotic pet
+    USE_MODEL_COLLISION_SIZE = 0x00020000, // related to CreatureDisplayInfo and scaling in some way
+    ALLOW_INTERACTION_WHILE_IN_COMBAT = 0x00040000, // Related to vehicle/siege weapons
+    COLLIDE_WITH_MISSILES = 0x00080000, // may be has something to do with missiles
+    NO_NAME_PLATE = 0x00100000, // no idea, but it used by client, may be related to rendering
+    DO_NOT_PLAY_MOUNTED_ANIMATIONS = 0x00200000, // may be has something to do with animation (disable animation?)
+    LINK_ALL = 0x00400000, // this one probably controls some creature visual
+    INTERACT_ONLY_WITH_CREATOR = 0x00800000, // First seen in 3.2.2. Related to banner/backpack of creature/companion, used in CanInteract function by client
+    DO_NOT_PLAY_UNIT_EVENT_SOUNDS = 0x01000000, // pet sounds related?
+    HAS_NO_SHADOW_BLOB = 0x02000000, // this one probably controls some creature visual
+    TREAT_AS_RAID_UNIT_FOR_HELPFUL_SPELLS = 0x04000000, // creature has no type, or forces creature to be considered as in party, may be related to creature assistance
+    FORCE_GOSSIP = 0x08000000, // used in Lua_ForceGossip
+    DO_NOT_SHEATHE = 0x10000000, // no idea, but it used by client
+    DO_NOT_TARGET_ON_INTERACTION = 0x20000000,
+    DO_NOT_RENDER_OBJECT_NAME = 0x40000000,
+    QUEST_BOSS = 0x80000000, // Lua_UnitIsQuestBoss
 };
 
 enum CreatureEliteType
@@ -1352,6 +1378,80 @@ enum UnitDynFlags
     UNIT_DYNFLAG_TAPPED_BY_PLAYER = 0x0008, // Et non *_ROOTED !
     UNIT_DYNFLAG_SPECIALINFO = 0x0010,
     UNIT_DYNFLAG_DEAD = 0x0020,
+};
+
+
+// [-ZERO] Need fix, possible uptodate in mangos-0.6
+enum InventoryResult
+{
+    EQUIP_ERR_OK = 0,
+    EQUIP_ERR_CANT_EQUIP_LEVEL_I = 1, // ERR_CANT_EQUIP_LEVEL_I
+    EQUIP_ERR_CANT_EQUIP_SKILL = 2, // ERR_CANT_EQUIP_SKILL
+    EQUIP_ERR_ITEM_DOESNT_GO_TO_SLOT = 3, // ERR_WRONG_SLOT
+    EQUIP_ERR_BAG_FULL = 4, // ERR_BAG_FULL
+    EQUIP_ERR_NONEMPTY_BAG_OVER_OTHER_BAG = 5, // ERR_BAG_IN_BAG
+    EQUIP_ERR_CANT_TRADE_EQUIP_BAGS = 6, // ERR_TRADE_EQUIPPED_BAG
+    EQUIP_ERR_ONLY_AMMO_CAN_GO_HERE = 7, // ERR_AMMO_ONLY
+    EQUIP_ERR_NO_REQUIRED_PROFICIENCY = 8, // ERR_PROFICIENCY_NEEDED
+    EQUIP_ERR_NO_EQUIPMENT_SLOT_AVAILABLE = 9, // ERR_NO_SLOT_AVAILABLE
+    EQUIP_ERR_YOU_CAN_NEVER_USE_THAT_ITEM = 10, // ERR_CANT_EQUIP_EVER
+    EQUIP_ERR_YOU_CAN_NEVER_USE_THAT_ITEM2 = 11, // ERR_CANT_EQUIP_EVER
+    EQUIP_ERR_NO_EQUIPMENT_SLOT_AVAILABLE2 = 12, // ERR_NO_SLOT_AVAILABLE
+    EQUIP_ERR_CANT_EQUIP_WITH_TWOHANDED = 13, // ERR_2HANDED_EQUIPPED
+    EQUIP_ERR_CANT_DUAL_WIELD = 14, // ERR_2HSKILLNOTFOUND
+    EQUIP_ERR_ITEM_DOESNT_GO_INTO_BAG = 15, // ERR_WRONG_BAG_TYPE
+    EQUIP_ERR_ITEM_DOESNT_GO_INTO_BAG2 = 16, // ERR_WRONG_BAG_TYPE
+    EQUIP_ERR_CANT_CARRY_MORE_OF_THIS = 17, // ERR_ITEM_MAX_COUNT
+    EQUIP_ERR_NO_EQUIPMENT_SLOT_AVAILABLE3 = 18, // ERR_NO_SLOT_AVAILABLE
+    EQUIP_ERR_ITEM_CANT_STACK = 19, // ERR_CANT_STACK
+    EQUIP_ERR_ITEM_CANT_BE_EQUIPPED = 20, // ERR_NOT_EQUIPPABLE
+    EQUIP_ERR_ITEMS_CANT_BE_SWAPPED = 21, // ERR_CANT_SWAP
+    EQUIP_ERR_SLOT_IS_EMPTY = 22, // ERR_SLOT_EMPTY
+    EQUIP_ERR_ITEM_NOT_FOUND = 23, // ERR_ITEM_NOT_FOUND
+    EQUIP_ERR_CANT_DROP_SOULBOUND = 24, // ERR_DROP_BOUND_ITEM
+    EQUIP_ERR_OUT_OF_RANGE = 25, // ERR_OUT_OF_RANGE
+    EQUIP_ERR_TRIED_TO_SPLIT_MORE_THAN_COUNT = 26, // ERR_TOO_FEW_TO_SPLIT
+    EQUIP_ERR_COULDNT_SPLIT_ITEMS = 27, // ERR_SPLIT_FAILED
+    EQUIP_ERR_MISSING_REAGENT = 28, // ERR_SPELL_FAILED_REAGENTS_GENERIC
+    EQUIP_ERR_NOT_ENOUGH_MONEY = 29, // ERR_NOT_ENOUGH_MONEY
+    EQUIP_ERR_NOT_A_BAG = 30, // ERR_NOT_A_BAG
+    EQUIP_ERR_CAN_ONLY_DO_WITH_EMPTY_BAGS = 31, // ERR_DESTROY_NONEMPTY_BAG
+    EQUIP_ERR_DONT_OWN_THAT_ITEM = 32, // ERR_NOT_OWNER
+    EQUIP_ERR_CAN_EQUIP_ONLY1_QUIVER = 33, // ERR_ONLY_ONE_QUIVER
+    EQUIP_ERR_MUST_PURCHASE_THAT_BAG_SLOT = 34, // ERR_NO_BANK_SLOT
+    EQUIP_ERR_TOO_FAR_AWAY_FROM_BANK = 35, // ERR_NO_BANK_HERE
+    EQUIP_ERR_ITEM_LOCKED = 36, // ERR_ITEM_LOCKED
+    EQUIP_ERR_YOU_ARE_STUNNED = 37, // ERR_GENERIC_STUNNED
+    EQUIP_ERR_YOU_ARE_DEAD = 38, // ERR_PLAYER_DEAD
+    EQUIP_ERR_CANT_DO_RIGHT_NOW = 39, // ERR_CLIENT_LOCKED_OUT
+    EQUIP_ERR_INT_BAG_ERROR = 40, // ERR_INTERNAL_BAG_ERROR
+    EQUIP_ERR_CAN_EQUIP_ONLY1_BOLT = 41, // ERR_ONLY_ONE_BOLT
+    EQUIP_ERR_CAN_EQUIP_ONLY1_AMMOPOUCH = 42, // ERR_ONLY_ONE_AMMO
+    EQUIP_ERR_STACKABLE_CANT_BE_WRAPPED = 43, // ERR_CANT_WRAP_STACKABLE
+    EQUIP_ERR_EQUIPPED_CANT_BE_WRAPPED = 44, // ERR_CANT_WRAP_EQUIPPED
+    EQUIP_ERR_WRAPPED_CANT_BE_WRAPPED = 45, // ERR_CANT_WRAP_WRAPPED
+    EQUIP_ERR_BOUND_CANT_BE_WRAPPED = 46, // ERR_CANT_WRAP_BOUND
+    EQUIP_ERR_UNIQUE_CANT_BE_WRAPPED = 47, // ERR_CANT_WRAP_UNIQUE
+    EQUIP_ERR_BAGS_CANT_BE_WRAPPED = 48, // ERR_CANT_WRAP_BAGS
+    EQUIP_ERR_ALREADY_LOOTED = 49, // ERR_LOOT_GONE
+    EQUIP_ERR_INVENTORY_FULL = 50, // ERR_INV_FULL
+    EQUIP_ERR_BANK_FULL = 51, // ERR_BAG_FULL
+    EQUIP_ERR_ITEM_IS_CURRENTLY_SOLD_OUT = 52, // ERR_VENDOR_SOLD_OUT
+    EQUIP_ERR_BAG_FULL3 = 53, // ERR_BAG_FULL
+    EQUIP_ERR_ITEM_NOT_FOUND2 = 54, // ERR_ITEM_NOT_FOUND
+    EQUIP_ERR_ITEM_CANT_STACK2 = 55, // ERR_CANT_STACK
+    EQUIP_ERR_BAG_FULL4 = 56, // ERR_BAG_FULL
+    EQUIP_ERR_ITEM_SOLD_OUT = 57, // ERR_VENDOR_SOLD_OUT
+    EQUIP_ERR_OBJECT_IS_BUSY = 58, // ERR_OBJECT_IS_BUSY
+    EQUIP_ERR_NONE = 59, // ERR_CANT_BE_DISENCHANTED
+    EQUIP_ERR_NOT_IN_COMBAT = 60, // ERR_NOT_IN_COMBAT
+    EQUIP_ERR_NOT_WHILE_DISARMED = 61, // ERR_NOT_WHILE_DISARMED
+    EQUIP_ERR_BAG_FULL6 = 62, // ERR_BAG_FULL
+    EQUIP_ERR_CANT_EQUIP_RANK = 63, // ERR_CANT_EQUIP_RANK
+    EQUIP_ERR_CANT_EQUIP_REPUTATION = 64, // ERR_CANT_EQUIP_REPUTATION
+    EQUIP_ERR_TOO_MANY_SPECIAL_BAGS = 65, // ERR_TOO_MANY_SPECIAL_BAGS
+    EQUIP_ERR_LOOT_CANT_LOOT_THAT_NOW = 66, // ERR_LOOT_CANT_LOOT_THAT_NOW
+    // any greater values show as "bag full"
 };
 
 enum CorpseDynFlags
@@ -1999,6 +2099,10 @@ struct Position
 {
     Position() = default;
     Position(float position_x, float position_y, float position_z, float orientation) : x(position_x), y(position_y), z(position_z), o(orientation) {}
+    float GetPositionX() const { return x; }
+    float GetPositionY() const { return y; }
+    float GetPositionZ() const { return z; }
+    float GetPositionO() const { return o; }
     float x = 0.0f;
     float y = 0.0f;
     float z = 0.0f;

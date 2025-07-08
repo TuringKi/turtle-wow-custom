@@ -27,7 +27,6 @@
 using std::optional;
 
 class Aura;
-class ChatHandler;
 class DynamicObject;
 class Item;
 class Spell;

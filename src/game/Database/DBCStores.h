@@ -25,6 +25,7 @@
 #include "Common.h"
 #include "DBCStructure.h"
 #include "Database/DBCStore.h"
+#include "Map.h"
 
 #include <list>
 
@@ -72,6 +73,9 @@ extern DBCStorage<DurabilityCostsEntry> sDurabilityCostsStore;
 extern DBCStorage<DurabilityQualityEntry> sDurabilityQualityStore;
 extern DBCStorage<EmotesEntry> sEmotesStore;
 extern DBCStorage<EmotesTextEntry> sEmotesTextStore;
+extern DBCStorage<FactionEntry> sFactionStore;
+extern DBCStorage<FactionTemplateEntry> sFactionTemplateStore;
+
 extern DBCStorage<GameObjectDisplayInfoEntry> sGameObjectDisplayInfoStore;
 
 extern DBCStorage<ItemBagFamilyEntry> sItemBagFamilyStore;
@@ -106,8 +110,13 @@ extern DBCStorage<WMOAreaTableEntry> sWMOAreaTableStore;
 // extern DBCStorage <WorldMapAreaEntry>           sWorldMapAreaStore; -- use Zone2MapCoordinates and Map2ZoneCoordinates
 // extern DBCStorage <WorldMapOverlayEntry>         sWorldMapOverlayStore;
 extern DBCStorage<WorldSafeLocsEntry> sWorldSafeLocsStore;
+extern DBCStorage<MapEntry> sMapStore;
 
 void LoadDBCStores(std::string const& dataPath);
+
+
+AreaTableEntry const* GetAreaEntryByAreaFlagAndMap(uint32 area_flag, uint32 map_id);
+
 
 char const* GetRaceName(uint8 race, uint8 locale);
 char const* GetClassName(uint8 class_, uint8 locale);

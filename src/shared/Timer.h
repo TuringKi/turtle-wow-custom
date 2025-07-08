@@ -24,6 +24,17 @@
 #include <ace/OS_NS_sys_time.h>
 #include "Common.h"
 
+
+inline std::chrono::steady_clock::time_point GetApplicationStartTime()
+{
+    using namespace std::chrono;
+
+    static const steady_clock::time_point ApplicationStartTime = steady_clock::now();
+
+    return ApplicationStartTime;
+}
+
+
 class WorldTimer
 {
 public:

@@ -1831,6 +1831,50 @@ void ObjectMgr::LoadCreatureSpells()
         sLog.outErrorDb("Table `creature_spells_scripts` contains unused script, id %u.", itr);
 }
 
+void ObjectMgr::GetItemLocaleStrings(uint32 entry, int32 loc_idx, std::string* namePtr, std::string* descriptionPtr) const
+{
+    if (loc_idx >= 0)
+    {
+        if (ItemLocale const* il = GetItemLocale(entry))
+        {
+            if (namePtr && il->Name.size() > size_t(loc_idx) && !il->Name[loc_idx].empty())
+                *namePtr = il->Name[loc_idx];
+
+            if (descriptionPtr && il->Description.size() > size_t(loc_idx) && !il->Description[loc_idx].empty())
+                *descriptionPtr = il->Description[loc_idx];
+        }
+    }
+}
+
+
+void ObjectMgr::GetCreatureLocaleStrings(uint32 entry, int32 loc_idx, char const** namePtr, char const** subnamePtr) const
+{
+    if (loc_idx >= 0)
+    {
+        if (CreatureLocale const* il = GetCreatureLocale(entry))
+        {
+            if (namePtr && il->Name.size() > size_t(loc_idx) && !il->Name[loc_idx].empty())
+                *namePtr = il->Name[loc_idx].c_str();
+
+            if (subnamePtr && il->SubName.size() > size_t(loc_idx) && !il->SubName[loc_idx].empty())
+                *subnamePtr = il->SubName[loc_idx].c_str();
+        }
+    }
+}
+
+void ObjectMgr::GetQuestLocaleStrings(uint32 entry, int32 loc_idx, std::string* titlePtr) const
+{
+    if (loc_idx >= 0)
+    {
+        if (QuestLocale const* il = GetQuestLocale(entry))
+        {
+            if (titlePtr && il->Title.size() > size_t(loc_idx) && !il->Title[loc_idx].empty())
+                *titlePtr = il->Title[loc_idx];
+        }
+    }
+}
+
+
 void ObjectMgr::LoadCreatures(bool reload)
 {
     //                                                                          0                  1                2                 3                 4      5
@@ -5728,6 +5772,7 @@ void ObjectMgr::LoadGameObjectLocales()
     }
     while (result->NextRow());
 }
+
 
 inline void CheckGOLockId(GameObjectInfo const* goInfo, uint32 dataN, uint32 N)
 {

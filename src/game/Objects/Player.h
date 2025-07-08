@@ -66,6 +66,9 @@ class PlayerAI;
 class PlayerBroadcaster;
 class MapReference;
 
+class PlayerbotAI;
+class PlayerbotMgr;
+
 static constexpr uint8 PLAYER_MAX_SKILLS = 127;
 constexpr uint8 PLAYER_EXPLORED_ZONES_SIZE = 64;
 constexpr uint32 CORPSE_REPOP_TIME = (6 * MINUTE * IN_MILLISECONDS);
@@ -1447,11 +1450,42 @@ public:
     uint32 DurabilityRepairAll(bool cost, float discountMod);
     uint32 DurabilityRepair(uint16 pos, bool cost, float discountMod);
 
+
+    // Player bot AI
+    PlayerbotAI* m_playerbotAI;
+
+    // Player bot manager
+    PlayerbotMgr* m_playerbotMgr;
+
     /*********************************************************/
     /***                    GOSSIP SYSTEM                  ***/
     /*********************************************************/
 
 public:
+    // Set the player bot AI
+    void SetPlayerbotAI(PlayerbotAI* ai)
+    {
+        assert(!m_playerbotAI && !m_playerbotMgr);
+        m_playerbotAI = ai;
+    }
+
+    // Get the player bot AI
+    PlayerbotAI* GetPlayerbotAI() { return m_playerbotAI; }
+    const PlayerbotAI* GetPlayerbotAI() const { return m_playerbotAI; }
+
+    // Set the player bot manager
+    void SetPlayerbotMgr(PlayerbotMgr* mgr)
+    {
+        assert(!m_playerbotAI && !m_playerbotMgr);
+        m_playerbotMgr = mgr;
+    }
+    bool MinimalLoadFromDB(QueryResult* result, uint32 guid);
+    // Get the player bot manager
+    PlayerbotMgr* GetPlayerbotMgr() { return m_playerbotMgr; }
+
+    // Set the bot death timer
+    void SetBotDeathTimer() { m_deathTimer = 0; }
+
     void PrepareGossipMenu(WorldObject* pSource, uint32 menuId = 0);
     void SendPreparedGossip(WorldObject* pSource);
     void OnGossipSelect(WorldObject* pSource, uint32 gossipListId);
@@ -1477,7 +1511,11 @@ private:
     void GiveQuestSourceItemIfNeed(Quest const* pQuest);
 
     uint16 FindQuestSlot(uint32 quest_id) const;
+
+public:
     uint32 GetQuestSlotQuestId(uint16 slot) const { return GetUInt32Value(PLAYER_QUEST_LOG_1_1 + slot * MAX_QUEST_OFFSET + QUEST_ID_OFFSET); }
+
+private:
     void SetQuestSlot(uint16 slot, uint32 quest_id, uint32 timer = 0)
     {
         SetUInt32Value(PLAYER_QUEST_LOG_1_1 + slot * MAX_QUEST_OFFSET + QUEST_ID_OFFSET, quest_id);
@@ -1792,13 +1830,14 @@ private:
     time_t m_resetTalentsTime;
     uint32 m_usedTalentCount;
 
-    void UpdateFreeTalentPoints(bool resetIfNeed = true);
     uint32 GetResetTalentsCost() const;
     void UpdateResetTalentsMultiplier() const;
     uint32 CalculateTalentsPoints() const;
     void SendTalentWipeConfirm(ObjectGuid guid) const;
 
 public:
+    void UpdateFreeTalentPoints(bool resetIfNeed = true);
+    friend PlayerbotAI;
     uint32 GetFreeTalentPoints() const { return GetUInt32Value(PLAYER_CHARACTER_POINTS1); }
     void SetFreeTalentPoints(uint32 points) { SetUInt32Value(PLAYER_CHARACTER_POINTS1, points); }
     bool ResetTalents(bool no_cost = false);
@@ -2649,6 +2688,8 @@ public:
     void LeftChannel(::Channel* c);
     void CleanupChannels();
     void LeaveLFGChannel();
+
+    void Whisper(const std::string& text, uint32 language, ObjectGuid receiver);
 
     bool IsAllowedWhisperFrom(ObjectGuid guid) const;
     bool IsEnabledWhisperRestriction() const { return m_ExtraFlags & PLAYER_EXTRA_WHISP_RESTRICTION; }
