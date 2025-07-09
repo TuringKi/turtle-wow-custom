@@ -2941,7 +2941,7 @@ void Player::RemoveFromWorld()
     ///- The player should only be removed when logging out
     if (IsInWorld())
     {
-        if (!IsBot())
+        if (!IsBot() && !GetPlayerbotAI())
             GetSession()->GetAntiCheat()->LeaveWorld();
         GetCamera().ResetView();
     }
@@ -7579,7 +7579,7 @@ void Player::CheckAreaExploreAndOutdoor()
             sLog.outError("PLAYER: Player %u discovered unknown area (x: %f y: %f map: %u", GetGUIDLow(), GetPositionX(), GetPositionY(), GetMapId());
         else
         {
-            if (!IsBot())
+            if (!IsBot() && !GetPlayerbotAI())
                 GetSession()->GetAntiCheat()->OnExplore(p);
             // GetCheatData()->OnExplore(p);
             uint32 area = p->Id;
@@ -11995,7 +11995,7 @@ Item* Player::EquipItem(uint16 pos, Item* pItem, bool update)
 
     // Transmog
     // Larn item when equipping it, if not already learned
-    if (!IsBot())
+    if (!IsBot() && !GetPlayerbotAI())
         _transmogMgr->AddToCollection(pItem->GetEntry());
 
     if (!pItem2)

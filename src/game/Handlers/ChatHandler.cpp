@@ -618,8 +618,8 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket& recv_data)
                 if (toPlayer->GetPlayerbotAI())
                 {
                     toPlayer->GetPlayerbotAI()->HandleCommand(type, msg, *GetPlayer());
-                    player->m_speakTime = 0;
-                    player->m_speakCount = 0;
+                    // player->m_speakTime = 0;
+                    // player->m_speakCount = 0;
                 }
                 else
                 {
@@ -651,8 +651,8 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket& recv_data)
                 if (player && player->GetPlayerbotAI())
                 {
                     player->GetPlayerbotAI()->HandleCommand(type, msg, *GetPlayer());
-                    mplayer->m_speakTime = 0;
-                    mplayer->m_speakCount = 0;
+                    // mplayer->m_speakTime = 0;
+                    // mplayer->m_speakCount = 0;
                 }
             }
 
@@ -736,8 +736,8 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket& recv_data)
                 if (player && player->GetPlayerbotAI())
                 {
                     player->GetPlayerbotAI()->HandleCommand(type, msg, *GetPlayer());
-                    mplayer->m_speakTime = 0;
-                    mplayer->m_speakCount = 0;
+                    // mplayer->m_speakTime = 0;
+                    // mplayer->m_speakCount = 0;
                 }
             }
 
@@ -767,8 +767,8 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket& recv_data)
                 if (player && player->GetPlayerbotAI())
                 {
                     player->GetPlayerbotAI()->HandleCommand(type, msg, *GetPlayer());
-                    mplayer->m_speakTime = 0;
-                    mplayer->m_speakCount = 0;
+                    // mplayer->m_speakTime = 0;
+                    // mplayer->m_speakCount = 0;
                 }
             }
 
@@ -794,8 +794,8 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket& recv_data)
                 if (player && player->GetPlayerbotAI())
                 {
                     player->GetPlayerbotAI()->HandleCommand(type, msg, *GetPlayer());
-                    mplayer->m_speakTime = 0;
-                    mplayer->m_speakCount = 0;
+                    // mplayer->m_speakTime = 0;
+                    // mplayer->m_speakCount = 0;
                 }
             }
 

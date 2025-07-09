@@ -1,9 +1,11 @@
 #include "../botpch.h"
-#include "PlayerbotAIConfig.h"
-#include "playerbot.h"
-#include "RandomPlayerbotFactory.h"
+
+
 #include "AccountMgr.h"
+#include "PlayerbotAIConfig.h"
+#include "RandomPlayerbotFactory.h"
 #include "SystemConfig.h"
+#include "playerbot.h"
 
 using namespace std;
 
@@ -13,61 +15,9 @@ INSTANTIATE_SINGLETON_1(PlayerbotAIConfig);
  * @brief Constructor for PlayerbotAIConfig.
  * Initializes all configuration parameters with default values.
  */
-PlayerbotAIConfig::PlayerbotAIConfig()
-    : enabled(false),
-      allowGuildBots(false),
-      globalCoolDown(0),
-      reactDelay(0),
-      maxWaitForMove(0),
-      sightDistance(0.0f),
-      spellDistance(0.0f),
-      reactDistance(0.0f),
-      grindDistance(0.0f),
-      lootDistance(0.0f),
-      fleeDistance(0.0f),
-      tooCloseDistance(0.0f),
-      meleeDistance(0.0f),
-      followDistance(0.0f),
-      whisperDistance(0.0f),
-      contactDistance(0.0f),
-      criticalHealth(0),
-      lowHealth(0),
-      mediumHealth(0),
-      almostFullHealth(0),
-      lowMana(0),
-      mediumMana(0),
-      randomBotAutologin(false),
-      randomBotTeleportDistance(0),
-      randomGearLoweringChance(0.0f),
-      randomBotMaxLevelChance(0.0f),
-      minRandomBots(0),
-      maxRandomBots(0),
-      randomBotUpdateInterval(0),
-      randomBotCountChangeMinInterval(0),
-      randomBotCountChangeMaxInterval(0),
-      minRandomBotInWorldTime(0),
-      maxRandomBotInWorldTime(0),
-      minRandomBotRandomizeTime(0),
-      maxRandomBotRandomizeTime(0),
-      minRandomBotReviveTime(0),
-      maxRandomBotReviveTime(0),
-      minRandomBotPvpTime(0),
-      maxRandomBotPvpTime(0),
-      minRandomBotsPerInterval(0),
-      maxRandomBotsPerInterval(0),
-      minRandomBotsPriceChangeInterval(0),
-      maxRandomBotsPriceChangeInterval(0),
-      randomBotJoinLfg(false),
-      randomBotLoginAtStartup(false),
-      randomBotTeleLevel(0),
-      logInGroupOnly(false),
-      logValuesPerTick(false),
-      fleeingEnabled(false),
-      randomBotMinLevel(0),
-      randomBotMaxLevel(0),
-      randomChangeMultiplier(0.0f),
-      commandServerPort(0),
-      iterationsPerTick(0)
+PlayerbotAIConfig::PlayerbotAIConfig() :
+    enabled(false), allowGuildBots(false), globalCoolDown(0), reactDelay(0), maxWaitForMove(0), sightDistance(0.0f), spellDistance(0.0f), reactDistance(0.0f), grindDistance(0.0f), lootDistance(0.0f), fleeDistance(0.0f), tooCloseDistance(0.0f), meleeDistance(0.0f), followDistance(0.0f), whisperDistance(0.0f), contactDistance(0.0f), criticalHealth(0), lowHealth(0), mediumHealth(0), almostFullHealth(0), lowMana(0), mediumMana(0), randomBotAutologin(false), randomBotTeleportDistance(0), randomGearLoweringChance(0.0f), randomBotMaxLevelChance(0.0f), minRandomBots(0), maxRandomBots(0), randomBotUpdateInterval(0), randomBotCountChangeMinInterval(0), randomBotCountChangeMaxInterval(0), minRandomBotInWorldTime(0), maxRandomBotInWorldTime(0), minRandomBotRandomizeTime(0), maxRandomBotRandomizeTime(0), minRandomBotReviveTime(0), maxRandomBotReviveTime(0), minRandomBotPvpTime(0), maxRandomBotPvpTime(0), minRandomBotsPerInterval(0), maxRandomBotsPerInterval(0), minRandomBotsPriceChangeInterval(0),
+    maxRandomBotsPriceChangeInterval(0), randomBotJoinLfg(false), randomBotLoginAtStartup(false), randomBotTeleLevel(0), logInGroupOnly(false), logValuesPerTick(false), fleeingEnabled(false), randomBotMinLevel(0), randomBotMaxLevel(0), randomChangeMultiplier(0.0f), commandServerPort(0), iterationsPerTick(0)
 {
 }
 
@@ -77,7 +27,7 @@ PlayerbotAIConfig::PlayerbotAIConfig()
  * @param list The list to load the values into.
  */
 template <class T>
-void LoadList(string value, T &list)
+void LoadList(string value, T& list)
 {
     vector<string> ids = split(value, ',');
     for (vector<string>::iterator i = ids.begin(); i != ids.end(); i++)
@@ -100,7 +50,7 @@ bool PlayerbotAIConfig::Initialize()
 {
     sLog.outString("Initializing AI Playerbot by ike3, based on the original Playerbot by blueboy");
 
-    if (!config.SetSource(SYSCONFDIR"aiplayerbot.conf"))
+    if (!config.SetSource(SYSCONFDIR "aiplayerbot.conf"))
     {
         sLog.outString("AI Playerbot is Disabled. Unable to open configuration file aiplayerbot.conf");
         return false;
@@ -114,9 +64,9 @@ bool PlayerbotAIConfig::Initialize()
     }
 
     // Load various configuration parameters from the configuration file
-    globalCoolDown = (uint32) config.GetIntDefault("AiPlayerbot.GlobalCooldown", 500);
+    globalCoolDown = (uint32)config.GetIntDefault("AiPlayerbot.GlobalCooldown", 500);
     maxWaitForMove = config.GetIntDefault("AiPlayerbot.MaxWaitForMove", 3000);
-    reactDelay = (uint32) config.GetIntDefault("AiPlayerbot.ReactDelay", 100);
+    reactDelay = (uint32)config.GetIntDefault("AiPlayerbot.ReactDelay", 100);
 
     sightDistance = config.GetFloatDefault("AiPlayerbot.SightDistance", 50.0f);
     spellDistance = config.GetFloatDefault("AiPlayerbot.SpellDistance", 30.0f);
@@ -146,9 +96,9 @@ bool PlayerbotAIConfig::Initialize()
 
     // Load lists of values from the configuration file
     randomBotMapsAsString = config.GetStringDefault("AiPlayerbot.RandomBotMaps", "0,1,530,571");
-    LoadList<vector<uint32> >(randomBotMapsAsString, randomBotMaps);
-    LoadList<list<uint32> >(config.GetStringDefault("AiPlayerbot.RandomBotQuestItems", "6948,5175,5176,5177,5178"), randomBotQuestItems);
-    LoadList<list<uint32> >(config.GetStringDefault("AiPlayerbot.RandomBotSpellIds", "54197"), randomBotSpellIds);
+    LoadList<vector<uint32>>(randomBotMapsAsString, randomBotMaps);
+    LoadList<list<uint32>>(config.GetStringDefault("AiPlayerbot.RandomBotQuestItems", "6948,5175,5176,5177,5178"), randomBotQuestItems);
+    LoadList<list<uint32>>(config.GetStringDefault("AiPlayerbot.RandomBotSpellIds", "54197"), randomBotSpellIds);
 
     randomBotAutologin = config.GetBoolDefault("AiPlayerbot.RandomBotAutologin", true);
     minRandomBots = config.GetIntDefault("AiPlayerbot.MinRandomBots", 50);
@@ -190,7 +140,8 @@ bool PlayerbotAIConfig::Initialize()
     {
         for (uint32 spec = 0; spec < 3; ++spec)
         {
-            ostringstream os; os << "AiPlayerbot.RandomClassSpecProbability." << cls << "." << spec;
+            ostringstream os;
+            os << "AiPlayerbot.RandomClassSpecProbability." << cls << "." << spec;
             specProbability[cls][spec] = config.GetIntDefault(os.str().c_str(), 33);
         }
     }
@@ -206,20 +157,14 @@ bool PlayerbotAIConfig::Initialize()
  * @param id The account ID to check.
  * @return True if the account ID is in the list, false otherwise.
  */
-bool PlayerbotAIConfig::IsInRandomAccountList(uint32 id)
-{
-    return find(randomBotAccounts.begin(), randomBotAccounts.end(), id) != randomBotAccounts.end();
-}
+bool PlayerbotAIConfig::IsInRandomAccountList(uint32 id) { return find(randomBotAccounts.begin(), randomBotAccounts.end(), id) != randomBotAccounts.end(); }
 
 /**
  * @brief Checks if a given item ID is in the random bot quest item list.
  * @param id The item ID to check.
  * @return True if the item ID is in the list, false otherwise.
  */
-bool PlayerbotAIConfig::IsInRandomQuestItemList(uint32 id)
-{
-    return find(randomBotQuestItems.begin(), randomBotQuestItems.end(), id) != randomBotQuestItems.end();
-}
+bool PlayerbotAIConfig::IsInRandomQuestItemList(uint32 id) { return find(randomBotQuestItems.begin(), randomBotQuestItems.end(), id) != randomBotQuestItems.end(); }
 
 /**
  * @brief Gets the value of a configuration parameter by name.
@@ -298,7 +243,7 @@ string PlayerbotAIConfig::GetValue(string name) const
  * @param name The name of the configuration parameter.
  * @param value The value to set the configuration parameter to.
  */
-void PlayerbotAIConfig::SetValue(string &name, string value)
+void PlayerbotAIConfig::SetValue(string& name, string value)
 {
     istringstream out(value, istringstream::in);
 
@@ -372,14 +317,15 @@ void PlayerbotAIConfig::CreateRandomBots()
     if (config.GetBoolDefault("AiPlayerbot.DeleteRandomBotAccounts", false))
     {
         sLog.outBasic("Deleting random bot accounts...");
-        QueryResult *results = LoginDatabase.PQuery("SELECT `id` FROM `account` WHERE `username` LIKE '%s%%'", randomBotAccountPrefix.c_str());
+        QueryResult* results = LoginDatabase.PQuery("SELECT `id` FROM `account` WHERE `username` LIKE '%s%%'", randomBotAccountPrefix.c_str());
         if (results)
         {
             do
             {
                 Field* fields = results->Fetch();
                 sAccountMgr.DeleteAccount(fields[0].GetUInt32());
-            } while (results->NextRow());
+            }
+            while (results->NextRow());
 
             delete results;
         }
@@ -390,9 +336,10 @@ void PlayerbotAIConfig::CreateRandomBots()
 
     for (int accountNumber = 0; accountNumber < randomBotAccountCount; ++accountNumber)
     {
-        ostringstream out; out << randomBotAccountPrefix << accountNumber;
+        ostringstream out;
+        out << randomBotAccountPrefix << accountNumber;
         string accountName = out.str();
-        QueryResult *results = LoginDatabase.PQuery("SELECT `id` FROM `account` WHERE `username` = '%s'", accountName.c_str());
+        QueryResult* results = LoginDatabase.PQuery("SELECT `id` FROM `account` WHERE `username` = '%s'", accountName.c_str());
         if (results)
         {
             delete results;
@@ -409,15 +356,16 @@ void PlayerbotAIConfig::CreateRandomBots()
         sLog.outDetail("Account %s created for random bots", accountName.c_str());
     }
 
-    LoginDatabase.PExecute("UPDATE `account` SET `expansion` = '%u', `playerbot` = %u WHERE `username` LIKE '%s%%'", 0,true, randomBotAccountPrefix.c_str());
+    LoginDatabase.PExecute("UPDATE `account` SET `expansion` = '%u', `playerbot` = %u WHERE `username` LIKE '%s%%'", 0, true, randomBotAccountPrefix.c_str());
 
     int totalRandomBotChars = 0;
     for (int accountNumber = 0; accountNumber < randomBotAccountCount; ++accountNumber)
     {
-        ostringstream out; out << randomBotAccountPrefix << accountNumber;
+        ostringstream out;
+        out << randomBotAccountPrefix << accountNumber;
         string accountName = out.str();
 
-        QueryResult *results = LoginDatabase.PQuery("SELECT `id` FROM `account` WHERE `username` = '%s'", accountName.c_str());
+        QueryResult* results = LoginDatabase.PQuery("SELECT `id` FROM `account` WHERE `username` = '%s'", accountName.c_str());
         if (!results)
         {
             continue;

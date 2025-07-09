@@ -115,9 +115,6 @@ extern DBCStorage<MapEntry> sMapStore;
 void LoadDBCStores(std::string const& dataPath);
 
 
-AreaTableEntry const* GetAreaEntryByAreaFlagAndMap(uint32 area_flag, uint32 map_id);
-
-
 char const* GetRaceName(uint8 race, uint8 locale);
 char const* GetClassName(uint8 class_, uint8 locale);
 

@@ -255,7 +255,7 @@ void RandomPlayerbotMgr::RandomTeleport(Player* bot, vector<WorldLocation>& locs
             continue;
         }
 
-        AreaTableEntry const* area = sAreaStorage.LookupEntry<AreaTableEntry>(terrain->GetAreaId(x, y, z));
+        AreaEntry const* area = sAreaStorage.LookupEntry<AreaEntry>(terrain->GetAreaId(x, y, z));
         if (!area)
         {
             continue;
@@ -264,7 +264,7 @@ void RandomPlayerbotMgr::RandomTeleport(Player* bot, vector<WorldLocation>& locs
         if (!terrain->IsOutdoors(x, y, z) || terrain->IsUnderWater(x, y, z) || terrain->IsInWater(x, y, z))
             continue;
 
-        sLog.outDetail("Random teleporting bot %s to %s %f,%f,%f", bot->GetName(), area->area_name[0], x, y, z);
+        sLog.outDetail("Random teleporting bot %s to %s %f,%f,%f", bot->GetName(), area->Name, x, y, z);
         float height = map->GetTerrain()->GetHeightStatic(x, y, 0.5f + z, true, MAX_HEIGHT);
         if (height <= INVALID_HEIGHT)
         {
@@ -286,8 +286,8 @@ void RandomPlayerbotMgr::RandomTeleportForLevel(Player* bot)
     vector<WorldLocation> locs;
     QueryResult* results = WorldDatabase.PQuery("SELECT `map`, `position_x`, `position_y`, `position_z` FROM ("
                                                 "SELECT MIN(`c`.`map`) `map`, MIN(`c`.`position_x`) `position_x`, MIN(`c`.`position_y`) `position_y`, "
-                                                "MIN(`c`.`position_z`) `position_z`, AVG(`t`.`maxlevel`), AVG(`t`.`minlevel`), "
-                                                "%u - (AVG(`t`.`maxlevel`) + AVG(`t`.`minlevel`)) / 2 `delta` FROM `creature` `c` "
+                                                "MIN(`c`.`position_z`) `position_z`, AVG(`t`.`level_max`), AVG(`t`.`level_min`), "
+                                                "%u - (AVG(`t`.`level_min`) + AVG(`t`.`level_min`)) / 2 `delta` FROM `creature` `c` "
                                                 "INNER JOIN `creature_template` `t` ON `c`.`id` = `t`.`entry` GROUP BY `t`.`entry`) `q` "
                                                 "WHERE `delta` >= 0 AND `delta` <= %u AND `map` IN (%s)",
 
@@ -424,9 +424,9 @@ uint32 RandomPlayerbotMgr::GetZoneLevel(uint32 mapId, float teleX, float teleY, 
     uint32 maxLevel = sWorld.getConfig(CONFIG_UINT32_MAX_PLAYER_LEVEL);
 
     uint32 level;
-    QueryResult* results = WorldDatabase.PQuery("SELECT AVG(`t`.`minlevel`) `minlevel`, AVG(`t`.`maxlevel`) `maxlevel` FROM `creature` `c` "
+    QueryResult* results = WorldDatabase.PQuery("SELECT AVG(`t`.`level_min`) `level_min`, AVG(`t`.`level_max`) `level_max` FROM `creature` `c` "
                                                 "INNER JOIN `creature_template` `t` ON `c`.`id` = `t`.`entry` "
-                                                "WHERE `map` = '%u' AND `minlevel` > 1 AND ABS(`position_x` - '%f') < '%u' AND ABS(`position_y` - '%f') < '%u'",
+                                                "WHERE `map` = '%u' AND `level_min` > 1 AND ABS(`position_x` - '%f') < '%u' AND ABS(`position_y` - '%f') < '%u'",
                                                 mapId, teleX, sPlayerbotAIConfig.randomBotTeleportDistance / 2, teleY, sPlayerbotAIConfig.randomBotTeleportDistance / 2);
 
     if (results)

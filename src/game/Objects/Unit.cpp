@@ -7360,7 +7360,7 @@ bool Unit::IsMovedByPlayer() const
         if (pPossessor->GetCharmGuid() == GetObjectGuid())
             return true;
 
-    return IsPlayer() && static_cast<Player const*>(this)->IsControlledByOwnClient() && !static_cast<Player const*>(this)->IsBot();
+    return IsPlayer() && static_cast<Player const*>(this)->IsControlledByOwnClient() && !static_cast<Player const*>(this)->IsBot() && !static_cast<Player const*>(this)->GetPlayerbotAI();
 }
 
 PlayerMovementPendingChange::PlayerMovementPendingChange() { time = WorldTimer::getMSTime(); }
@@ -10326,7 +10326,7 @@ void Unit::KnockBack(float angle, float horizontalSpeed, float verticalSpeed)
 
         if (Player* pPlayer = ToPlayer())
         {
-            if (!pPlayer->IsBot())
+            if (!pPlayer->IsBot() && !pPlayer->GetPlayerbotAI())
                 ToPlayer()->GetSession()->GetAntiCheat()->KnockBack(horizontalSpeed, verticalSpeed, vcos, vsin);
         }
     }

@@ -93,7 +93,7 @@ WorldSession::WorldSession(uint32 id, WorldSocket* sock, AccountTypes sec, time_
         sock->AddReference();
     }
     else
-        m_Address = "<BOT>";
+        m_Address = "<PBOT>";
 
     m_lastUpdateTime = WorldTimer::getMSTime();
     _analyser = std::make_unique<AccountAnalyser>(this);
@@ -372,7 +372,7 @@ bool WorldSession::Update(PacketFilter& updater)
             m_Socket = nullptr;
 
             ///- Reset the online field in the account table if client is disconnected
-            if (!GetPlayer()->GetPlayerbotAI())
+            if (GetPlayer() && !GetPlayer()->GetPlayerbotAI())
             {
                 static SqlStatementID id;
                 // playerbot mod

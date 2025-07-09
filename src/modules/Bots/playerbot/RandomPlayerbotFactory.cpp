@@ -109,7 +109,6 @@ bool RandomPlayerbotFactory::CreateRandomBot(uint8 cls)
 
     //   WorldSession* session = new WorldSession(accountId, NULL, SEC_PLAYER, 0, LOCALE_enUS);
     WorldSession* session = new WorldSession(accountId, nullptr, sAccountMgr.GetSecurity(accountId), 0, LOCALE_enUS, "<PBOT>", 0);
-
     if (!session)
     {
         sLog.outError("Couldn't create session for random bot account %d", accountId);

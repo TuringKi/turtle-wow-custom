@@ -43,26 +43,6 @@
 #endif
 
 
-struct AreaTableEntry
-{
-    uint32 ID; // 0        m_ID
-    uint32 mapid; // 1        m_ContinentID
-    uint32 zone; // 2        m_ParentAreaID
-    uint32 exploreFlag; // 3        m_AreaBit
-    uint32 flags; // 4        m_flags
-    // 5        m_SoundProviderPref
-    // 6        m_SoundProviderPrefUnderwater
-    // 7        m_AmbienceID
-    // 8        m_ZoneMusic
-    // 9        m_IntroSound
-    int32 area_level; // 10       m_ExplorationLevel
-    char* area_name[8]; // 11-18    m_AreaName_lang
-    // 19 string flags
-    uint32 team; // 20       m_factionGroupMask
-    // 21-23    uknown/unused
-    uint32 LiquidTypeOverride; // 24       m_liquidTypeID override for water type
-};
-
 struct AreaTriggerEntry
 {
     uint32 id; // 0
@@ -729,7 +709,7 @@ struct WMOAreaTableEntry
     // uint32 field8;                                        // 8        m_IntroSound
     uint32 Flags; // 9        m_flags (used for indoor/outdoor determination)
     uint32 areaId; // 10       m_AreaTableID (AreaTable.dbc)
-    char* Name[8]; //          m_AreaName_lang
+    //  char* Name[8]; //          m_AreaName_lang
     // uint32 nameFlags;
 };
 

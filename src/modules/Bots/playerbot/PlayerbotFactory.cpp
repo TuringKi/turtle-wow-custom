@@ -225,6 +225,10 @@ void PlayerbotFactory::InitPet()
     {
 
         uint32 spellId = pet->m_spells[i];
+        if (!spellId)
+        {
+            continue;
+        }
         if (Spells::IsPassiveSpell(spellId))
         {
             continue;
@@ -1474,7 +1478,7 @@ void PlayerbotFactory::InitAmmo()
         return;
     }
 
-    QueryResult* results = WorldDatabase.PQuery("select max(`entry`), max(`RequiredLevel`) from `item_template` where `class` = '%u' and `subclass` = '%u' and `RequiredLevel` <= '%u'", ITEM_CLASS_PROJECTILE, subClass, bot->GetLevel());
+    QueryResult* results = WorldDatabase.PQuery("select max(`entry`), max(`required_level`) from `item_template` where `class` = '%u' and `subclass` = '%u' and `required_level` <= '%u'", ITEM_CLASS_PROJECTILE, subClass, bot->GetLevel());
     if (!results)
     {
         return;

@@ -194,7 +194,7 @@ public:
         // The bot's WorldSession is deleted by PlayerbotMgr::LogoutPlayerBot
         uint32 botAccountId = lqh->GetAccountId();
         WorldSession* botSession = new WorldSession(botAccountId, NULL, SEC_PLAYER, 0, LOCALE_enUS, "<PBOT>", 0);
-        botSession->m_Address = "bot";
+        botSession->m_playerLoading = true;
         botSession->HandlePlayerLogin(lqh); // will delete lqh
         Player* bot = botSession->GetPlayer();
         if (!bot)
@@ -722,7 +722,10 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder)
 
     ASSERT(pCurrChar->GetSession() == this);
     SetPlayer(pCurrChar);
-    m_antiCheat->NewPlayer();
+    if (m_antiCheat)
+    {
+        m_antiCheat->NewPlayer();
+    }
 
 
     // WE DO NOT NEED TO SEND ALL POSSIBLE TRANSMOGS TO ANY PLAYER ON LOGIN

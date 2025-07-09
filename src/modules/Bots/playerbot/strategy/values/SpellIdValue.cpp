@@ -89,6 +89,10 @@ uint32 SpellIdValue::Calculate()
         {
 
             uint32 spellId = pet->m_spells[i];
+            if (!spellId)
+            {
+                continue;
+            }
             //   uint32 spellId = itr->first;
             const SpellEntry* pSpellInfo = sSpellMgr.GetSpellEntry(spellId);
             if (!pSpellInfo)
