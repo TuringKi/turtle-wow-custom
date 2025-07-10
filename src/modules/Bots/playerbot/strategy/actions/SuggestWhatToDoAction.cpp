@@ -281,5 +281,5 @@ void SuggestWhatToDoAction::spam(string msg)
     if (sPlayerbotAIConfig.whisperDistance && !bot->GetGroup() && sRandomPlayerbotMgr.IsRandomBot(bot) && player->GetSession()->GetSecurity() < SEC_ADMINISTRATOR && (bot->GetMapId() != player->GetMapId() || bot->GetDistance(player) > sPlayerbotAIConfig.whisperDistance))
         return;
 
-    bot->Whisper(msg, LANG_UNIVERSAL, player->GetObjectGuid());
+    bot->GetSession()->GetMasterPlayer()->Whisper(msg, LANG_UNIVERSAL, player->GetSession()->GetMasterPlayer(), true);
 }

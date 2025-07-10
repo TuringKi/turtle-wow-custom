@@ -859,7 +859,7 @@ bool PlayerbotAI::TellMasterNoFacing(string text, PlayerbotSecurityLevel securit
         return false;
     }
 
-    bot->Whisper(text, LANG_UNIVERSAL, master->GetObjectGuid());
+    bot->GetSession()->GetMasterPlayer()->Whisper(text, LANG_UNIVERSAL, master->GetSession()->GetMasterPlayer(), true);
     return true;
 }
 

@@ -3887,46 +3887,6 @@ void Player::GiveLevel(uint32 level)
 }
 
 
-void Player::Whisper(const std::string& text, uint32 language, ObjectGuid receiver)
-{
-    if (language != LANG_ADDON) // if not addon data
-    {
-        language = LANG_UNIVERSAL; // whispers should always be readable
-    }
-
-    Player* rPlayer = sObjectMgr.GetPlayer(receiver);
-
-    WorldPacket data;
-    ChatHandler::BuildChatPacket(data, CHAT_MSG_WHISPER, text.c_str(), Language(language), GetChatTag(), GetObjectGuid(), GetName());
-    rPlayer->GetSession()->SendPacket(&data);
-
-    // not send confirmation for addon messages
-    if (language != LANG_ADDON)
-    {
-        data.clear();
-        ChatHandler::BuildChatPacket(data, CHAT_MSG_WHISPER_INFORM, text.c_str(), Language(language), CHAT_TAG_NONE, rPlayer->GetObjectGuid());
-        //   LogWhisper(text, receiver);
-        GetSession()->SendPacket(&data);
-    }
-
-    if (!IsAcceptWhispers())
-    {
-        SetAcceptWhispers(true);
-        ChatHandler(this).SendSysMessage(LANG_COMMAND_WHISPERON);
-    }
-
-    if (rPlayer->IsAFK())
-    {
-        /* Announce to the player that the person they're whispering to is afk */
-        ChatHandler(this).PSendSysMessage(LANG_PLAYER_AFK, rPlayer->GetName(), "[AFK]");
-    }
-    else if (rPlayer->IsDND())
-    {
-        /* Announce to the player that the person they're whispering to is dnd */
-        ChatHandler(this).PSendSysMessage(LANG_PLAYER_DND, rPlayer->GetName(), "[DND]");
-    }
-}
-
 void Player::UpdateFreeTalentPoints(bool resetIfNeed)
 {
     uint32 level = GetLevel();

@@ -2689,8 +2689,6 @@ public:
     void CleanupChannels();
     void LeaveLFGChannel();
 
-    void Whisper(const std::string& text, uint32 language, ObjectGuid receiver);
-
     bool IsAllowedWhisperFrom(ObjectGuid guid) const;
     bool IsEnabledWhisperRestriction() const { return m_ExtraFlags & PLAYER_EXTRA_WHISP_RESTRICTION; }
     void SetWhisperRestriction(bool on)

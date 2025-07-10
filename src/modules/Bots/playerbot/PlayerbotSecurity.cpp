@@ -213,6 +213,6 @@ bool PlayerbotSecurity::CheckLevelFor(PlayerbotSecurityLevel level, bool silent,
         break;
     }
 
-    bot->Whisper(out.str(), LANG_UNIVERSAL, from->GetObjectGuid());
+    bot->GetSession()->GetMasterPlayer()->Whisper(out.str(), LANG_UNIVERSAL, from->GetSession()->GetMasterPlayer(), true);
     return false;
 }
