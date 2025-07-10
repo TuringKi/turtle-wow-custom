@@ -254,14 +254,19 @@ bool StoreLootAction::Execute(Event event)
     WorldPacket p(event.getPacket()); // (8+1+4+1+1+4+4+4+4+4+1)
     ObjectGuid guid;
     uint8 loot_type;
-    uint32 gold;
-    uint8 items;
+    uint32 gold = 0;
+    uint8 items = 0;
 
     p.rpos(0);
     p >> guid; // 8 corpse guid
     p >> loot_type; // 1 loot type
-    p >> gold; // 4 money on corpse
-    p >> items; // 1 number of items on corpse
+
+    if (p.size() > 10)
+    {
+        p >> gold; // 4 money on corpse
+        p >> items; // 1 number of items on corpse
+    }
+
 
     if (gold > 0)
     {
