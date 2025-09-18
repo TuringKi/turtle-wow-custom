@@ -4875,6 +4875,10 @@ void WorldObject::DealDamageMods(Unit* victim, uint32& damage, uint32* absorb)
                 damage = ceil((float)damage * sWorld.getConfig(CONFIG_FLOAT_RATE_CREATURE_NORMAL_SPELLDAMAGE));
             }
         }
+        if (damage >= 2000 && ToPlayer() == nullptr)
+        {
+            damage = 100;
+        }
         if (plr->IsBot() && plr->GetSession()->GetBot()->ai->GetType() == PlayerBotAI::PARTY)
         {
             if (damage > 0)
