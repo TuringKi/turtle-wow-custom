@@ -825,34 +825,35 @@ void PartyBotAI::UpdateAI(uint32 const diff)
                 {
                     bool oldState = me->HasCheatOption(PLAYER_CHEAT_NO_CAST_TIME);
                     me->SetCheatOption(PLAYER_CHEAT_NO_CAST_TIME, true);
-                    std::vector<uint32> spells;
+                    me->CastSpell(me, (*auraList.begin())->GetId(), true);
+                    // std::vector<uint32> spells;
 
-                    {
+                    // {
 
-                        for (size_t spellId = 0; spellId < sSpellMgr.GetMaxSpellId(); spellId++)
-                        {
-                            SpellEntry const* spellInfo = sSpellMgr.GetSpellEntry(spellId);
-                            if (!spellInfo || spellInfo->EffectApplyAuraName[0] != SPELL_AURA_MOUNTED)
-                            {
-                                continue;
-                            }
-
-
-                            int32 effect = std::max(spellInfo->EffectBasePoints[1], spellInfo->EffectBasePoints[2]);
-                            if (effect < 50)
-                            {
-                                continue;
-                            }
-
-                            spells.push_back(spellId);
-                        }
-                    }
-                    std::random_device rd;
-                    std::mt19937 g(rd());
-                    std::shuffle(spells.begin(), spells.end(), g);
+                    //     for (size_t spellId = 0; spellId < sSpellMgr.GetMaxSpellId(); spellId++)
+                    //     {
+                    //         SpellEntry const* spellInfo = sSpellMgr.GetSpellEntry(spellId);
+                    //         if (!spellInfo || spellInfo->EffectApplyAuraName[0] != SPELL_AURA_MOUNTED)
+                    //         {
+                    //             continue;
+                    //         }
 
 
-                    me->CastSpell(me, spells[0], true);
+                    //         int32 effect = std::max(spellInfo->EffectBasePoints[1], spellInfo->EffectBasePoints[2]);
+                    //         if (effect < 50)
+                    //         {
+                    //             continue;
+                    //         }
+
+                    //         spells.push_back(spellId);
+                    //     }
+                    // }
+                    // std::random_device rd;
+                    // std::mt19937 g(rd());
+                    // std::shuffle(spells.begin(), spells.end(), g);
+
+
+                    // me->CastSpell(me, spells[0], true);
                     me->SetCheatOption(PLAYER_CHEAT_NO_CAST_TIME, oldState);
                 }
             }
