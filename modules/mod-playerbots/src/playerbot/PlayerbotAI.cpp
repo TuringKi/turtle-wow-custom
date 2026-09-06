@@ -2151,6 +2151,61 @@ void PlayerbotAI::ChangeEngine(BotState type)
 }
 
 
+// Follow movement cannot rely on a travel-graph route out of every custom
+// dungeon. Retry on AI ticks after the human master has completed the transfer;
+// busy followers remain in place until they can safely leave.
+static bool FollowMasterOutOfDungeon(PlayerbotAI* ai)
+{
+    Player* bot = ai->GetBot();
+    Player* master = ai->GetMaster();
+    if (!bot || !master || ai->IsRealPlayer() || !ai->HasRealPlayerMaster() ||
+        sRandomPlayerbotMgr.IsExternallyManaged(bot->GetGUIDLow()))
+        return false;
+
+    Group* group = bot->GetGroup();
+    if (!group || group->isRaidGroup() || master->GetGroup() != group)
+        return false;
+
+    if (!bot->IsInWorld() || bot->IsBeingTeleported() ||
+        !master->IsInWorld() || master->IsBeingTeleported())
+        return false;
+
+    Map* source = bot->GetMap();
+    Map* destination = master->GetMap();
+    if (!source || !source->IsDungeon() || source->IsRaid() ||
+        !destination || destination->Instanceable())
+        return false;
+
+    if (!bot->GetSession() || !master->GetSession() ||
+        bot->GetSession()->isLogingOut() || master->GetSession()->isLogingOut() ||
+        !bot->IsAlive() || !master->IsAlive() ||
+        bot->IsInCombat() || master->IsInCombat() ||
+        bot->IsTaxiFlying() || master->IsTaxiFlying() ||
+        bot->GetTransport() || master->GetTransport() ||
+        bot->InBattleGround() || master->InBattleGround() ||
+        bot->InBattleGroundQueue() || master->InBattleGroundQueue())
+        return false;
+
+    // Preserve explicit stay/guard orders. Both follow and the default wander
+    // strategy can accompany a human master.
+    if (ai->HasStrategy("stay", BotState::BOT_STATE_NON_COMBAT) ||
+        ai->HasStrategy("guard", BotState::BOT_STATE_NON_COMBAT) ||
+        (!ai->HasStrategy("follow", BotState::BOT_STATE_NON_COMBAT) &&
+         !ai->HasStrategy("wander", BotState::BOT_STATE_NON_COMBAT)) || !ai->CanMove())
+        return false;
+
+    ai->StopMoving();
+    if (!bot->TeleportTo(master->GetMapId(), master->GetPositionX(),
+        master->GetPositionY(), master->GetPositionZ(), master->GetOrientation()))
+        return false;
+
+    // Normal bot session ticking acknowledges the worldport and resets stale
+    // movement/targets. Do not run another AI action while awaiting that ACK.
+    sLog.outBasic("Playerbots: %s following %s out of dungeon to map %u",
+        bot->GetName(), master->GetName(), master->GetMapId());
+    return true;
+}
+
 void PlayerbotAI::DoNextAction(bool min)
 {
     SC_PHASE("DoNextAction.entry", bot ? bot->GetName() : "(null)");
@@ -2159,6 +2214,9 @@ void PlayerbotAI::DoNextAction(bool min)
         SetAIInternalUpdateDelay(sPlayerbotAIConfig.globalCoolDown);
         return;
     }
+
+    if (FollowMasterOutOfDungeon(this))
+        return;
 
     // if in combat but stuck with old data - clear targets
     SC_PHASE("DoNextAction.staleTargetCheck", bot ? bot->GetName() : "(null)");
