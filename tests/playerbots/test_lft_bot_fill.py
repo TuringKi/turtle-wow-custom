@@ -64,6 +64,8 @@ bool Script_IsMachineDriven(Player* p){return p->machine;}
 uint8 Script_GetAllowedRoles(Player* p){return p->roles;}
 void Script_SetForcedRole(Player* p,uint8 role){p->forced=role;}
 unsigned completed=0;
+bool teleportAllowed=true;
+struct Config {bool GetBoolDefault(const char*,bool){return false;}} sConfig;
 LFTManager::LFTManager():m_nextListingId(1),m_nextOfferId(1),m_nextQueueOrder(1),m_listingsLoaded(false),m_botFillTimer(0){}
 Player* LFTManager::GetPlayer(ObjectGuid const& g)const {auto i=sObjectAccessor.players.find(g);return i==sObjectAccessor.players.end()?nullptr:i->second;}
 uint8 LFTManager::AllowedRoleMask(Player const* p)const{return p->allowed;}
@@ -74,6 +76,7 @@ void LFTManager::SeedBotOnlyQueue(){} // Separate opt-in feature, disabled in th
 Player* LFTManager::TakeFromBotOnlyGroup(uint8,QueuedPlayer const&,uint32,uint32){return nullptr;}
 bool LFTManager::AddPlayerToGroup(Group*&,ObjectGuid const&,ObjectGuid const&){return true;}
 void LFTManager::TeleportBotGroupToInstance(Offer const&){++completed;}
+bool LFTManager::TeleportGroupToInstance(Offer const&){return teleportAllowed;}
 '''
 # Anonymous helpers are copied verbatim too.
 q = read(queue)
@@ -141,6 +144,12 @@ int main(){
  assert(party.m_rolechecks.empty() && party.m_offers.size()==1);
  party.AcceptOffersForFillBots();assert(completed==1);
  party.HandleOfferAccept(&p[0]);assert(completed==2);
+ // A rejected teleport must not send a successful offer completion.
+ LFTManager rejected;rejected.StartRolecheck(&p[0],{"Deadmines"});
+ rejected.HandleRolecheckResponse(&p[0],{"C2S_ROLECHECK_RESPONSE","d"});
+ rejected.AcceptOffersForFillBots();teleportAllowed=false;
+ rejected.HandleOfferAccept(&p[0]);assert(completed==2);
+ assert(rejected.m_offers.empty() && rejected.m_queue.empty());
 }
 '''
 with tempfile.TemporaryDirectory(prefix='lft-fill-') as tmp:

@@ -1,5 +1,6 @@
 #include "Config/Config.h"
 #include "LFTMgr.h"
+#include "LFTDungeonEntrances.h"
 
 #include "Group.h"
 #include "ObjectMgr.h"
@@ -78,7 +79,7 @@ void LFTManager::HandleQueueJoin(Player* player, std::vector<std::string> const&
         return;
     }
 
-    std::vector<std::string> instances = GetSharedInstances(SplitPreserveEmpty(fields[1], ':'));
+    std::vector<std::string> instances = GetSharedInstances(LFT::SplitDungeonChoices(fields[1]));
     uint8 roleMask = ParseRoleMask(fields[2]) & AllowedRoleMask(player);
 
     if (instances.empty() || !roleMask)
@@ -86,6 +87,9 @@ void LFTManager::HandleQueueJoin(Player* player, std::vector<std::string> const&
         Send(player, "S2C_QUEUE_ERROR;invalid");
         return;
     }
+
+    if (!ValidateTeleportDestinations(player, instances))
+        return;
 
     CleanupPlayer(player->GetObjectGuid());
     StartRolecheck(player, instances);
@@ -632,6 +636,8 @@ bool LFTManager::CompleteOffer(uint32 offerId)
         return false;
 
     Offer offer = offerItr->second;
+    if (offer.roles.size() != 5 || offer.accepted.size() != offer.roles.size())
+        return false;
     ObjectGuid leaderGuid;
     for (std::map<ObjectGuid, uint8>::const_iterator itr = offer.roles.begin(); itr != offer.roles.end(); ++itr)
     {
@@ -668,6 +674,12 @@ bool LFTManager::CompleteOffer(uint32 offerId)
         }
     }
 
+    if (!TeleportGroupToInstance(offer))
+    {
+        CancelOffer(offerId, false);
+        return false;
+    }
+
     for (std::map<ObjectGuid, uint8>::const_iterator itr = offer.roles.begin(); itr != offer.roles.end(); ++itr)
     {
         m_queue.erase(itr->first);
@@ -679,7 +691,8 @@ bool LFTManager::CompleteOffer(uint32 offerId)
             Send(player, "S2C_OFFER_COMPLETE");
     }
 
-    TeleportBotGroupToInstance(offer);
+    if (!sConfig.GetBoolDefault("LFT.Teleport.Enable", false))
+        TeleportBotGroupToInstance(offer);
 
     m_offers.erase(offerId);
     return true;

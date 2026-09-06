@@ -136,6 +136,7 @@ set (game_SRCS
     LFT/LFTBotFill.cpp
     LFT/LFTMgr.cpp
     LFT/LFTQeueue.cpp
+    LFT/LFTTeleport.cpp
     LFT/LFTUserGroups.cpp
     Logging/DatabaseLogger.hpp
     Logging/DatabaseLogger.cpp

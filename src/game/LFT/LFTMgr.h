@@ -180,6 +180,8 @@ class LFTManager
         Player* TakeBotAndRespecFor(uint8 wanted, QueuedPlayer const& waiter,
                                     uint32 below, uint32 above);
         void TeleportBotGroupToInstance(Offer const& offer);
+        bool ValidateTeleportDestinations(Player* player, std::vector<std::string> const& instances) const;
+        bool TeleportGroupToInstance(Offer const& offer);
         void AcceptOffersForFillBots();
         void ForgetFillBot(ObjectGuid const& guid);
         bool IsFillBot(ObjectGuid const& guid) const;

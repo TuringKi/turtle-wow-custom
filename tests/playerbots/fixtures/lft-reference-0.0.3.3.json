@@ -1,0 +1,141 @@
+{
+  "source": "Local historical LFT.mpq, addonVer 0.0.3.3; NOT a verified 1.18.1 client list",
+  "dungeons": [
+    {
+      "name": "Ragefire Chasm",
+      "code": "rfc"
+    },
+    {
+      "name": "Wailing Caverns",
+      "code": "wc"
+    },
+    {
+      "name": "The Deadmines",
+      "code": "dm"
+    },
+    {
+      "name": "Shadowfang Keep",
+      "code": "sfk"
+    },
+    {
+      "name": "The Stockade",
+      "code": "stocks"
+    },
+    {
+      "name": "Blackfathom Deeps",
+      "code": "bfd"
+    },
+    {
+      "name": "Scarlet Monastery Graveyard",
+      "code": "smgy"
+    },
+    {
+      "name": "Scarlet Monastery Library",
+      "code": "smlib"
+    },
+    {
+      "name": "Gnomeregan",
+      "code": "gnomer"
+    },
+    {
+      "name": "Razorfen Kraul",
+      "code": "rfk"
+    },
+    {
+      "name": "The Crescent Grove",
+      "code": "tcg"
+    },
+    {
+      "name": "Scarlet Monastery Armory",
+      "code": "smarmory"
+    },
+    {
+      "name": "Scarlet Monastery Cathedral",
+      "code": "smcath"
+    },
+    {
+      "name": "Razorfen Downs",
+      "code": "rfd"
+    },
+    {
+      "name": "Uldaman",
+      "code": "ulda"
+    },
+    {
+      "name": "Zul'Farrak",
+      "code": "zf"
+    },
+    {
+      "name": "Maraudon Orange",
+      "code": "maraorange"
+    },
+    {
+      "name": "Maraudon Purple",
+      "code": "marapurple"
+    },
+    {
+      "name": "Maraudon Princess",
+      "code": "maraprincess"
+    },
+    {
+      "name": "Temple of Atal'Hakkar",
+      "code": "st"
+    },
+    {
+      "name": "Blackrock Depths",
+      "code": "brd"
+    },
+    {
+      "name": "Blackrock Depths Arena",
+      "code": "brdarena"
+    },
+    {
+      "name": "Blackrock Depths Emperor",
+      "code": "brdemp"
+    },
+    {
+      "name": "Lower Blackrock Spire",
+      "code": "lbrs"
+    },
+    {
+      "name": "Dire Maul East",
+      "code": "dme"
+    },
+    {
+      "name": "Dire Maul North",
+      "code": "dmn"
+    },
+    {
+      "name": "Dire Maul West",
+      "code": "dmw"
+    },
+    {
+      "name": "Scholomance",
+      "code": "scholo"
+    },
+    {
+      "name": "Stratholme: Undead District",
+      "code": "stratud"
+    },
+    {
+      "name": "Stratholme: Scarlet Bastion",
+      "code": "stratlive"
+    },
+    {
+      "name": "Karazhan Crypt",
+      "code": "kc"
+    },
+    {
+      "name": "Caverns of Time: Black Morass",
+      "code": "cotbm"
+    },
+    {
+      "name": "Stormwind Vault",
+      "code": "swv"
+    },
+    {
+      "name": "Hateforge Quarry",
+      "code": "hfq"
+    }
+  ]
+}

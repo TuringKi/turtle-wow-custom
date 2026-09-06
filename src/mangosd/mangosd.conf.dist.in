@@ -2244,8 +2244,7 @@ GuildBank.NpcEntriesHorde = 80918
 # handles roles, faction, hardcore and group building. The population module
 # supplies eligible random bots using its configured accounts, not a fixed
 # username prefix. It excludes human-controlled and reserved bots.
-# Mixed groups travel to the dungeon normally; the player can use
-# ".bot summon *" inside to bring the bot members into the same instance.
+# With LFT.Teleport.Enable, all five confirmed members enter the same instance.
 #
 #   DelaySeconds  how long a real player waits before bots are added. Filling
 #                 instantly would mean nobody ever waits for a human again.
@@ -2270,6 +2269,14 @@ LFT.BotFill.DelaySeconds = 60
 LFT.BotFill.LevelRangeBelow = 2
 LFT.BotFill.LevelRangeBelowHealer = 4
 LFT.BotFill.LevelRangeAbove = 6
+
+# Automatically send the complete LFT party to a verified inside entrance after
+# all five members accept. Checks the whole party's entry requirements first.
+# Unknown/ambiguous wings cannot queue while enabled. Override an exact name
+# with its areatrigger_teleport ID, e.g. LFT.Teleport.Entrance.deadmines = 78.
+# The key is the lowercase name with ASCII punctuation/spaces and leading
+# "the" removed. Overrides must still point into a non-raid dungeon.
+LFT.Teleport.Enable = 0
 
 
 # AutoScaler.Enable. Enable or disable instance auto-scaling. 0 = off, 1 = on.
