@@ -118,6 +118,25 @@ class PlayerbotPlayerScript : public PlayerScript
             return player && GetBotMgr(player) != nullptr;
         }
 
+        bool IsLFTBotCandidate(Player const* player) override
+        {
+            if (!sPlayerbotAIConfig.enabled || !player || !player->GetSession())
+                return false;
+
+            PlayerbotAI* ai = GetBotAI(player);
+            if (!ai || ai->IsRealPlayer() || ai->HasRealPlayerMaster())
+                return false;
+
+            if (player->GetMap() && player->GetMap()->Instanceable() && !player->GetGroup())
+                return false;
+
+            return sPlayerbotAIConfig.IsInRandomAccountList(player->GetSession()->GetAccountId()) &&
+                !sRandomPlayerbotMgr.IsExternallyManaged(player->GetGUIDLow()) &&
+                player->IsInWorld() && player->IsAlive() && !player->IsBeingTeleported() &&
+                !player->IsInCombat() && !player->IsTaxiFlying() &&
+                !player->InBattleGround() && !player->InBattleGroundQueue();
+        }
+
         // BotRoles and LFT_ROLE_* share their bit values - tank 1, healer 2,
         // dps 4 - so the mask carries over unchanged.
         bool GetAllowedRoles(Player const* player, uint8& roles) override

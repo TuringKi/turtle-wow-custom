@@ -3305,3 +3305,14 @@ bool Script_IsMachineDriven(Player const* player)
         return script->IsMachineDriven(player);
     });
 }
+
+bool Script_IsLFTBotCandidate(Player const* player)
+{
+    if (!player)
+        return false;
+
+    return ScriptRegistry<PlayerScript>::ForEachEnabledHookWithReturn(PLAYERHOOK_IS_LFT_BOT_CANDIDATE, [&](PlayerScript* script)
+    {
+        return script->IsLFTBotCandidate(player);
+    });
+}

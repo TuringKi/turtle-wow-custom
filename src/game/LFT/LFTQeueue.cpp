@@ -281,6 +281,26 @@ void LFTManager::StartRolecheck(Player* leader, std::vector<std::string> const& 
             Send(member, "S2C_UPDATE_QUEUE_STATUS;pending_rolecheck");
         }
     }
+
+    if (!sWorld.getConfig(CONFIG_BOOL_LFT_BOTFILL_ENABLE))
+        return;
+
+    // Existing bot party members have no client to answer the role popup.
+    // Iterate the snapshot: the final response can erase the live rolecheck.
+    for (ObjectGuid const& guid : rolecheck.members)
+    {
+        Player* member = GetPlayer(guid);
+        if (!member || !Script_IsMachineDriven(member))
+            continue;
+
+        uint8 roles = Script_GetAllowedRoles(member) & AllowedRoleMask(member);
+        std::string response;
+        if (roles & LFT_ROLE_TANK) response += 't';
+        if (roles & LFT_ROLE_HEALER) response += 'h';
+        if (roles & LFT_ROLE_DAMAGE) response += 'd';
+        if (!response.empty())
+            HandleRolecheckResponse(member, { "C2S_ROLECHECK_RESPONSE", response });
+    }
 }
 
 void LFTManager::EnqueuePlayer(Player* player, ObjectGuid const& leaderGuid, std::vector<std::string> const& instances, uint8 roleMask)
@@ -575,7 +595,7 @@ void LFTManager::TeleportBotGroupToInstance(Offer const& offer)
     for (auto const& role : offer.roles)
     {
         Player* member = GetPlayer(role.first);
-        if (!member || !Script_IsAIControlled(member))
+        if (!member || !Script_IsMachineDriven(member))
             return;
     }
 
@@ -652,6 +672,9 @@ bool LFTManager::CompleteOffer(uint32 offerId)
     {
         m_queue.erase(itr->first);
         m_playerOffers.erase(itr->first);
+        // These bots now belong to the formed party. Queue cleanup must not
+        // clear their assigned combat role on the next fill update.
+        ForgetFillBot(itr->first);
         if (Player* player = GetPlayer(itr->first))
             Send(player, "S2C_OFFER_COMPLETE");
     }

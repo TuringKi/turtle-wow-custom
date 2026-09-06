@@ -8,24 +8,21 @@
  * mechanism, and nothing to keep in sync.
  *
  * Rules, in the order they matter:
- *   - Real players come first. As soon as one joins the queue, every fill bot
- *     that is not already part of an offer is dropped again, so a human can
- *     take the slot. An offer that has already gone out is left alone; pulling
- *     a group apart mid-formation would be worse than one bot too many.
+ *   - Fill bots without a waiting player are removed. An offer that has
+ *     already gone out is left alone until it completes or expires.
  *   - Bots only appear after LFT.BotFill.DelaySeconds. Filling instantly would
  *     mean nobody ever waits for a human again.
  *   - Same faction, same hardcore mode, level within LFT.BotFill.LevelRange of
  *     the waiting player. The instance names the client sends are free text and
  *     carry no level information, so the waiting player is the reference.
  *
- * Getting the group to the dungeon is not handled here: the party leader types
- * "summon" in party chat and the playerbot module teleports them.
+ * Getting the group to the dungeon is handled by the playerbot module; the
+ * player can use ".bot summon *" after entering the instance.
  */
 
 #include "Config/Config.h"
 #include "LFTMgr.h"
 
-#include "AccountMgr.h"
 #include "Group.h"
 #include "ObjectAccessor.h"
 #include "ObjectMgr.h"
@@ -36,9 +33,6 @@
 
 namespace
 {
-    // Bots are recognised the same way the leech restriction does it: random
-    // bots live on RNDBOT accounts. Keeps this inside the core instead of
-    // pulling in the playerbot module.
     struct SeedDungeon
     {
         std::string name;
@@ -81,23 +75,6 @@ namespace
         }
 
         return out;
-    }
-
-    bool IsRandomBotAccount(Player const* player)
-    {
-        WorldSession const* session = player ? player->GetSession() : nullptr;
-        if (!session)
-            return false;
-
-        std::string name;
-        if (!sAccountMgr.GetName(session->GetAccountId(), name))
-            return false;
-
-        for (char& c : name)
-            if (c >= 'a' && c <= 'z')
-                c = c - 'a' + 'A';
-
-        return name.rfind("RNDBOT", 0) == 0;
     }
 
     bool ListsInstance(std::vector<std::string> const& instances, std::string const& instance)
@@ -165,7 +142,7 @@ void LFTManager::DropUnneededFillBots()
         QueueMap::const_iterator queued = m_queue.find(guid);
         bool needed = false;
 
-        if (queued != m_queue.end())
+        if (queued != m_queue.end() && sWorld.getConfig(CONFIG_BOOL_LFT_BOTFILL_ENABLE))
         {
             for (std::string const& instance : queued->second.instances)
             {
@@ -244,7 +221,7 @@ void LFTManager::SeedBotOnlyQueue()
         if (!bot || !bot->IsInWorld() || !bot->IsAlive())
             continue;
 
-        if (!Script_IsAIControlled(bot) || !IsRandomBotAccount(bot))
+        if (!Script_IsLFTBotCandidate(bot))
             continue;
 
         if (bot->GetGroup() || bot->InBattleGround() || bot->InBattleGroundQueue())
@@ -284,7 +261,7 @@ Player* LFTManager::TakeFromBotOnlyGroup(uint8 wanted, QueuedPlayer const& waite
         if (!bot || !bot->IsInWorld() || !bot->IsAlive())
             continue;
 
-        if (!Script_IsAIControlled(bot) || !IsRandomBotAccount(bot))
+        if (!Script_IsLFTBotCandidate(bot))
             continue;
 
         Group* group = bot->GetGroup();
@@ -300,7 +277,7 @@ Player* LFTManager::TakeFromBotOnlyGroup(uint8 wanted, QueuedPlayer const& waite
         if (m_queue.find(bot->GetObjectGuid()) != m_queue.end())
             continue;
 
-        if (bot->GetTeam() != waiter.team)
+        if (bot->GetTeam() != waiter.team || bot->IsHardcore() != waiter.isHardcore)
             continue;
 
         uint32 const botLevel = bot->GetLevel();
@@ -323,7 +300,7 @@ Player* LFTManager::TakeFromBotOnlyGroup(uint8 wanted, QueuedPlayer const& waite
             }
 
             Player* member = GetPlayer(slot.guid);
-            if (!member || !Script_IsAIControlled(member) || !IsRandomBotAccount(member))
+            if (!member || !Script_IsLFTBotCandidate(member))
             {
                 botsOnly = false;
                 break;
@@ -358,7 +335,7 @@ Player* LFTManager::TakeBotAndRespecFor(uint8 wanted, QueuedPlayer const& waiter
         if (!bot || !bot->IsInWorld() || !bot->IsAlive())
             continue;
 
-        if (!Script_IsAIControlled(bot) || !IsRandomBotAccount(bot))
+        if (!Script_IsLFTBotCandidate(bot))
             continue;
 
         if (bot->GetGroup() || bot->InBattleGround() || bot->InBattleGroundQueue())
@@ -367,7 +344,7 @@ Player* LFTManager::TakeBotAndRespecFor(uint8 wanted, QueuedPlayer const& waiter
         if (m_queue.find(bot->GetObjectGuid()) != m_queue.end())
             continue;
 
-        if (bot->GetTeam() != waiter.team)
+        if (bot->GetTeam() != waiter.team || bot->IsHardcore() != waiter.isHardcore)
             continue;
 
         uint32 const botLevel = bot->GetLevel();
@@ -415,13 +392,12 @@ void LFTManager::FillInstanceWithBots(std::string const& instance, QueuedPlayer 
     for (ObjectGuid const& guid : GetQueueOrder())
     {
         QueueMap::const_iterator itr = m_queue.find(guid);
-        if (itr == m_queue.end() || !ListsInstance(itr->second.instances, instance))
+        if (itr == m_queue.end() || m_playerOffers.find(guid) != m_playerOffers.end() ||
+            !ListsInstance(itr->second.instances, instance))
             continue;
 
         if (!CanQueuedPlayersGroup(waiter, itr->second))
             continue;
-
-        ++inQueue;
 
         if ((itr->second.roleMask & LFT_ROLE_TANK) && tanks < 1)
             ++tanks;
@@ -429,6 +405,10 @@ void LFTManager::FillInstanceWithBots(std::string const& instance, QueuedPlayer 
             ++healers;
         else if ((itr->second.roleMask & LFT_ROLE_DAMAGE) && damage < 3)
             ++damage;
+        else
+            continue;
+
+        ++inQueue;
     }
 
     if (inQueue >= 5)
@@ -471,7 +451,7 @@ void LFTManager::FillInstanceWithBots(std::string const& instance, QueuedPlayer 
             if (!bot || !bot->IsInWorld() || !bot->IsAlive())
                 continue;
 
-            if (!Script_IsAIControlled(bot) || !IsRandomBotAccount(bot))
+            if (!Script_IsLFTBotCandidate(bot))
                 continue;
 
             if (bot->GetGroup() || bot->InBattleGround() || bot->InBattleGroundQueue())
@@ -480,7 +460,7 @@ void LFTManager::FillInstanceWithBots(std::string const& instance, QueuedPlayer 
             if (m_queue.find(bot->GetObjectGuid()) != m_queue.end())
                 continue;
 
-            if (bot->GetTeam() != waiter.team)
+            if (bot->GetTeam() != waiter.team || bot->IsHardcore() != waiter.isHardcore)
                 continue;
 
             uint32 const botLevel = bot->GetLevel();
@@ -582,7 +562,7 @@ void LFTManager::AcceptOffersForFillBots()
             // button nobody was going to press, so the offer expired and the
             // whole cycle started over every couple of minutes. A real player
             // still decides for themselves.
-            if (!bot || !Script_IsAIControlled(bot))
+            if (!bot || !Script_IsMachineDriven(bot))
                 continue;
 
             // Hand the assigned role to the bot's AI before it accepts. Its

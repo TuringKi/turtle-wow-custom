@@ -148,6 +148,7 @@ enum PlayerHook
     PLAYERHOOK_SET_FORCED_ROLE,
     PLAYERHOOK_ON_CHAT_COMMAND,
     PLAYERHOOK_CAN_USE_GROUP_CHAT,
+    PLAYERHOOK_IS_LFT_BOT_CANDIDATE,
     PLAYERHOOK_END
 };
 
@@ -212,6 +213,10 @@ class PlayerScript : public ScriptObject
         // as a human here, which is what the core wants when it decides whether
         // a group member can be waited on.
         virtual bool IsMachineDriven(Player const* /*player*/) { return false; }
+
+        // An autonomous population bot that LFT may recruit. Account ownership
+        // and external run reservations belong to the population module.
+        virtual bool IsLFTBotCandidate(Player const* /*player*/) { return false; }
 
         // Whether this *human* player commands puppets of his own. Distinct from
         // IsAIControlled: the master is a real player, his followers are not.

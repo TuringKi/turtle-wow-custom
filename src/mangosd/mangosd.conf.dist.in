@@ -2241,8 +2241,11 @@ GuildBank.NpcEntriesHorde = 80918
 # LFT.BotFill. Fills a waiting player's dungeon queue with random bots.
 #
 # Bots are put into the same queue real players sit in, so the existing matcher
-# handles roles, faction, hardcore and group building. Getting to the dungeon is
-# not automated: the party leader types "summon" in party chat.
+# handles roles, faction, hardcore and group building. The population module
+# supplies eligible random bots using its configured accounts, not a fixed
+# username prefix. It excludes human-controlled and reserved bots.
+# Mixed groups travel to the dungeon normally; the player can use
+# ".bot summon *" inside to bring the bot members into the same instance.
 #
 #   DelaySeconds  how long a real player waits before bots are added. Filling
 #                 instantly would mean nobody ever waits for a human again.
@@ -2254,9 +2257,8 @@ GuildBank.NpcEntriesHorde = 80918
 #                 tank. The instance names the client sends carry no level
 #                 information, so the player is the reference.
 #
-# Real players always take priority: when one joins the queue, every bot that is
-# not already part of an offer is dropped again. An offer already sent out is
-# left alone rather than breaking a group mid-formation.
+# Fill bots are removed when nobody is waiting for their dungeon anymore.
+# An offer already sent out remains until it completes or expires.
 #   LevelRangeBelowHealer
 #                 the same limit for a healer, which can afford to be further
 #                 under the group: it keeps its distance and is not the one
