@@ -959,6 +959,16 @@ std::string PlayerbotHolder::ProcessBotCommand(std::string cmd, ObjectGuid guid,
     auto it = m_botCommandHandlers.find(cmd);
     if (it != m_botCommandHandlers.end())
     {
+        // A far teleport temporarily removes the bot from the world. The
+        // default ObjectMgr lookup filters those live sessions out.
+        if (!bot && it->second == &PlayerbotHolder::HandleBotSummon)
+        {
+            bot = GetPlayerBot(guid.GetCounter());
+            if (!bot)
+                bot = sRandomPlayerbotMgr.GetPlayerBot(guid.GetCounter());
+            if (!bot)
+                bot = sObjectMgr.GetPlayer(guid, false);
+        }
         std::string realParam;
         
         if (!subType.empty())
@@ -2274,6 +2284,12 @@ std::string PlayerbotHolder::HandleBotSummon(Player* bot, Player* master, const 
     if (!master)
         return "No master session — can only be called by an in-world player";
 
+    if (!bot->GetSession() || bot->GetSession()->PlayerLoading() || bot->GetSession()->isLogingOut())
+        return "Bot is logging in or out; wait before summoning it.";
+    PlayerbotAI* botAI = GetBotAI(bot);
+    if (!botAI || botAI->IsRealPlayer())
+        return "Target is not an AI-controlled bot.";
+
     uint32 masterAccountId = master->GetSession()->GetAccountId();
     uint32 botAccount = sObjectMgr.GetPlayerAccountIdByGUID(bot->GetObjectGuid());
     const bool isMasterAccount = (masterAccountId == botAccount);
@@ -2291,6 +2307,17 @@ std::string PlayerbotHolder::HandleBotSummon(Player* bot, Player* master, const 
     if (!allowed)
         return "This bot isn't yours to summon.";
 
+    // Finish an existing transfer before starting another one. Bots have no
+    // client to acknowledge worldports; use the same ACK path as their tick.
+    if (bot->IsBeingTeleported())
+    {
+        botAI->HandleTeleportAck();
+        if (bot->IsBeingTeleported())
+            return "Bot is still changing maps; retry after the transfer completes.";
+    }
+    if (!bot->IsInWorld())
+        return "Bot has a live session but is not in world; its map transfer needs recovery.";
+
     // Block when in combat, BG, or instance — these usually mean the bot
     // is mid-fight or in restricted content. The master can manually
     // address those (e.g. wait for combat to end, leave the BG queue).
@@ -2306,11 +2333,12 @@ std::string PlayerbotHolder::HandleBotSummon(Player* bot, Player* master, const 
            master->GetMapId(),
            master->GetPositionX(), master->GetPositionY(), master->GetPositionZ());
 
-    bot->TeleportTo(master->GetMapId(),
+    if (!bot->TeleportTo(master->GetMapId(),
                     master->GetPositionX(),
                     master->GetPositionY(),
                     master->GetPositionZ(),
-                    master->GetOrientation());
+                    master->GetOrientation()))
+        return "Teleport was rejected; check instance entry requirements and restrictions.";
 
     return "ok — teleporting to you";
 }
@@ -3217,6 +3245,7 @@ std::unordered_map<std::string, std::string> PlayerbotHolder::GetCommandTexts()
         // Bot commands (used with .(rnd)bot <bot> ...)
         {"add", "Add a bot to the player's group.\nUsage: .(rnd)bot add <playername>"},
         {"login", "Add a bot to the player's group.\nUsage: .(rnd)bot login <playername>"},
+        {"summon", "Teleport an online bot to you; complete a pending map transfer first.\nUsage: .(rnd)bot summon <botname|*>"},
         {"remove", "Remove a bot from the player's group.\nUsage: .(rnd)bot remove <botname>"},
         {"logout", "Remove a bot from the player's group.\nUsage: .(rnd)bot logout <botname>"},
         {"rm", "Remove a bot from the player's group.\nUsage: .(rnd)bot rm <botname>"},

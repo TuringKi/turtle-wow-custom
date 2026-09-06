@@ -10,7 +10,7 @@ bool ReachAreaTriggerAction::Execute(Event& event)
     Player* requester = event.getOwner() ? event.getOwner() : GetMaster();
     uint32 triggerId;
 
-    if (ai->IsRealPlayer()) //Do not trigger own area trigger.
+    if (ai->IsRealPlayer() || ai->IsAreaTriggerRelaySuppressed())
         return false;
 
     WorldPacket p(event.getPacket());
@@ -38,9 +38,20 @@ bool ReachAreaTriggerAction::Execute(Event& event)
         return true;
     }
 
+    // Use the same acceptance zone as WorldSession::HandleAreaTriggerOpcode.
+    // Navmesh paths can end short of a portal's center, particularly at walls.
+    if (::IsPointInAreaTriggerZone(atEntry, bot->GetMapId(), bot->GetPositionX(), bot->GetPositionY(), bot->GetPositionZ(), 5.0f))
+    {
+        context->GetValue<LastMovement&>("last area trigger")->Get().lastAreaTrigger = 0;
+        WorldPacket trigger(CMSG_AREATRIGGER);
+        trigger << triggerId;
+        bot->GetSession()->HandleAreaTriggerOpcode(trigger);
+        return true;
+    }
+
     MotionMaster &mm = *bot->GetMotionMaster();
-	mm.MovePoint(atEntry->mapid, atEntry->x, atEntry->y, atEntry->z, FORCED_MOVEMENT_RUN);
-    const float distance = sqrt(bot->GetDistance(atEntry->x, atEntry->y, atEntry->z, DIST_CALC_NONE));
+    mm.MovePoint(triggerId, atEntry->x, atEntry->y, atEntry->z, MOVE_PATHFINDING | MOVE_RUN_MODE);
+    const float distance = bot->GetDistance(atEntry->x, atEntry->y, atEntry->z, DIST_CALC_NONE);
     const float duration = 1000.0f * distance / bot->GetSpeed(MOVE_RUN) + sPlayerbotAIConfig.reactDelay;
     ai->TellError(requester, "Wait for me");
     SetDuration(duration);
@@ -56,19 +67,28 @@ bool AreaTriggerAction::Execute(Event& event)
     LastMovement& movement = context->GetValue<LastMovement&>("last area trigger")->Get();
 
     uint32 triggerId = movement.lastAreaTrigger;
-    movement.lastAreaTrigger = 0;
 
-    // Module gate: while an exit-sensitive run owns this bot, a teleport
-    // trigger underfoot must NOT be relayed (the consume above still clears
-    // it so the trigger cannot fire later either). Non-teleport triggers are
-    // not this action's business anyway - it returns before the relay for
-    // those below.
+    // Clear pending entry while an exit-sensitive run suppresses portal
+    // relays, so it cannot fire after the module releases this bot.
     if (ai->IsAreaTriggerRelaySuppressed())
+    {
+        movement.lastAreaTrigger = 0;
         return false;
+    }
 
     AreaTriggerEntry const* atEntry = sAreaTriggerStore.LookupEntry(triggerId);
     if(!atEntry)
+    {
+        movement.lastAreaTrigger = 0;
         return false;
+    }
+
+    // Recheck at execution time; do not consume a pending entry while still
+    // approaching it, or relay a trigger from a different map.
+    if (!::IsPointInAreaTriggerZone(atEntry, bot->GetMapId(), bot->GetPositionX(), bot->GetPositionY(), bot->GetPositionZ(), 5.0f))
+        return false;
+
+    movement.lastAreaTrigger = 0;
 
     AreaTrigger const* at = sObjectMgr.GetAreaTrigger(triggerId);
     if (!at)
