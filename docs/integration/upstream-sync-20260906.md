@@ -10,7 +10,7 @@
 
 上游新增 `sql/database_updates/world/20260905175321_world.sql` 含两个 DELETE，分别清理 `creature_movement` 和 `creature_linking` 的指定记录。初次合并时没有执行；用户随后明确要求执行，已按下节核对并应用带孤立条件的定制版本。SQL 自动更新继续保持关闭。
 
-代码合并阶段未部署安装目录或重启服务；随后数据库操作见下节。路线生效需要按实际 `DungeonClear.RouteRecorderDir` 配置同步数据，部署时另行核对。
+代码合并阶段未部署安装目录。后续补齐审计已将 140 份 `.route` / `.fallback` 和 `dc_roster.txt` 部署到 `.install/share/mod-dungeon-clear`；主配置中的 `DungeonClear.RouteRecorderDir`、`DungeonClear.RosterFile` 已指向实际路径。文件逐一校验与源码一致。正式世界服未重启，运行时加载和导航仍需重启后实测。其余 SQL 补齐见 [merge-completion-20260906.md](merge-completion-20260906.md)。
 
 合并前已有的 `src/modules/.gitignore` 未提交修改及嵌套 `src/modules/playerbots/` 工作区保持原样，不纳入提交。
 
