@@ -241,6 +241,8 @@ void LFTManager::SendQueueStatus(Player* player) const
     QueueMap::const_iterator queueItr = m_queue.find(guid);
     if (queueItr != m_queue.end())
         SendQueuedStatus(player, queueItr->second);
+    else
+        Send(player, "S2C_QUEUE_LEFT;" + std::string(player->GetName()));
 }
 
 void LFTManager::SendQueuedStatus(Player* player, QueuedPlayer const& queued) const
@@ -674,6 +676,21 @@ bool LFTManager::CompleteOffer(uint32 offerId)
         }
     }
 
+    // A far teleport removes players from the world before returning. Keep
+    // the connected recipients now: GetPlayer deliberately excludes players
+    // between maps. These pointers live through this synchronous operation.
+    std::map<ObjectGuid, Player*> recipients;
+    for (auto const& role : offer.roles)
+    {
+        Player* player = GetPlayer(role.first);
+        if (!player)
+        {
+            CancelOffer(offerId, false);
+            return false;
+        }
+        recipients.emplace(role.first, player);
+    }
+
     if (!TeleportGroupToInstance(offer))
     {
         CancelOffer(offerId, false);
@@ -687,8 +704,7 @@ bool LFTManager::CompleteOffer(uint32 offerId)
         // These bots now belong to the formed party. Queue cleanup must not
         // clear their assigned combat role on the next fill update.
         ForgetFillBot(itr->first);
-        if (Player* player = GetPlayer(itr->first))
-            Send(player, "S2C_OFFER_COMPLETE");
+        Send(recipients.at(itr->first), "S2C_OFFER_COMPLETE");
     }
 
     if (!sConfig.GetBoolDefault("LFT.Teleport.Enable", false))

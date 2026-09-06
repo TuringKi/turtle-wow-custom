@@ -50,11 +50,11 @@ struct Log {template<class... T> void outBasic(const char*,T...) {}} sLog;
 struct Group {struct MemberSlot{ObjectGuid guid;}; std::vector<MemberSlot> members;
  const auto& GetMemberSlots(){return members;}};
 struct Player {
- ObjectGuid guid; unsigned level=60,team=1; bool hardcore=false,candidate=true,machine=true;
+ ObjectGuid guid; unsigned level=60,team=1; bool hardcore=false,candidate=true,machine=true,inWorld=true;
  uint8 roles=4,allowed=4,forced=0; Group* group=nullptr; std::vector<std::string> messages;
  ObjectGuid GetObjectGuid() const{return guid;} const char* GetName() const{return "Fixture";}
  unsigned GetLevel() const{return level;} unsigned GetTeam() const{return team;}
- bool IsHardcore() const{return hardcore;} bool IsInWorld() const{return true;}
+ bool IsHardcore() const{return hardcore;} bool IsInWorld() const{return inWorld;}
  bool IsAlive() const{return true;} bool InBattleGround()const{return false;}
  bool InBattleGroundQueue()const{return false;} Group* GetGroup()const{return group;}
 };
@@ -64,10 +64,10 @@ bool Script_IsMachineDriven(Player* p){return p->machine;}
 uint8 Script_GetAllowedRoles(Player* p){return p->roles;}
 void Script_SetForcedRole(Player* p,uint8 role){p->forced=role;}
 unsigned completed=0;
-bool teleportAllowed=true;
+bool teleportAllowed=true, teleportRemovesFromWorld=false;
 struct Config {bool GetBoolDefault(const char*,bool){return false;}} sConfig;
 LFTManager::LFTManager():m_nextListingId(1),m_nextOfferId(1),m_nextQueueOrder(1),m_listingsLoaded(false),m_botFillTimer(0){}
-Player* LFTManager::GetPlayer(ObjectGuid const& g)const {auto i=sObjectAccessor.players.find(g);return i==sObjectAccessor.players.end()?nullptr:i->second;}
+Player* LFTManager::GetPlayer(ObjectGuid const& g)const {auto i=sObjectAccessor.players.find(g);return i==sObjectAccessor.players.end() || !i->second->IsInWorld()?nullptr:i->second;}
 uint8 LFTManager::AllowedRoleMask(Player const* p)const{return p->allowed;}
 std::string LFTManager::ClassName(Player const*)const{return "Fixture";}
 bool LFTManager::CanPlayersGroup(Player const* a,Player const* b)const{return a->team==b->team && a->hardcore==b->hardcore;}
@@ -76,7 +76,11 @@ void LFTManager::SeedBotOnlyQueue(){} // Separate opt-in feature, disabled in th
 Player* LFTManager::TakeFromBotOnlyGroup(uint8,QueuedPlayer const&,uint32,uint32){return nullptr;}
 bool LFTManager::AddPlayerToGroup(Group*&,ObjectGuid const&,ObjectGuid const&){return true;}
 void LFTManager::TeleportBotGroupToInstance(Offer const&){++completed;}
-bool LFTManager::TeleportGroupToInstance(Offer const&){return teleportAllowed;}
+bool LFTManager::TeleportGroupToInstance(Offer const& offer){
+ if(teleportAllowed && teleportRemovesFromWorld)
+  for(auto const& role:offer.roles)sObjectAccessor.players.at(role.first)->inWorld=false;
+ return teleportAllowed;
+}
 '''
 # Anonymous helpers are copied verbatim too.
 q = read(queue)
@@ -88,7 +92,7 @@ for name in ['IsFillBot', 'ForgetFillBot', 'RealPlayerWaitsFor', 'DropUnneededFi
     code += function(fill, name)
 for name in ['CanQueuedPlayersGroup', 'GetPartyMembers', 'GetQueueOrder', 'ParseRoleMask', 'JoinStrings',
              'StartRolecheck', 'HandleRolecheckResponse', 'EnqueueRolecheck', 'EnqueuePlayer',
-             'SendQueueJoined', 'SendQueuedStatus', 'SendQueueLeft', 'TryMakeOffers',
+             'SendQueueJoined', 'SendQueuedStatus', 'SendQueueLeft', 'SendQueueStatus', 'TryMakeOffers',
              'TryBuildOfferForInstance', 'HandleOfferAccept', 'CompleteOffer', 'CancelOffer']:
     code += function(queue, name)
 code += r'''
@@ -107,7 +111,20 @@ int main(){
  m.TryMakeOffers();assert(m.m_offers.size()==1);
  m.AcceptOffersForFillBots();assert(completed==0);assert(m.m_offers.begin()->second.accepted.size()==4);
  assert(!m.m_offers.begin()->second.accepted.count(p[0].guid));
+ teleportRemovesFromWorld=true;
+ for(unsigned i=0;i<5;++i)p[i].messages.clear();
  m.HandleOfferAccept(&p[0]);assert(completed==1 && m.m_offers.empty());
+ assert(m.m_queue.empty() && m.m_playerOffers.empty());
+ for(unsigned i=0;i<5;++i){
+  assert(!p[i].inWorld);
+  assert(std::count(p[i].messages.begin(),p[i].messages.end(),"S2C_OFFER_COMPLETE")==1);
+  p[i].inWorld=true;
+ }
+ teleportRemovesFromWorld=false;
+ m.SendQueueStatus(&p[0]);assert(p[0].messages.back()=="S2C_QUEUE_LEFT;Fixture");
+ // A completed party can queue again and receive a fresh pending status.
+ LFTManager again;enqueue(again,0);again.SendQueueStatus(&p[0]);
+ assert(p[0].messages.back().find("S2C_UPDATE_QUEUE_STATUS;queued;")==0);
  m.DropUnneededFillBots();assert(m.m_fillBots.empty());
  assert(p[1].forced==1 && p[2].forced==2); // Successful match retains tank/healer strategy.
  LFTManager disabled;enqueue(disabled,0);
@@ -148,7 +165,9 @@ int main(){
  LFTManager rejected;rejected.StartRolecheck(&p[0],{"Deadmines"});
  rejected.HandleRolecheckResponse(&p[0],{"C2S_ROLECHECK_RESPONSE","d"});
  rejected.AcceptOffersForFillBots();teleportAllowed=false;
+ p[0].messages.clear();
  rejected.HandleOfferAccept(&p[0]);assert(completed==2);
+ assert(std::count(p[0].messages.begin(),p[0].messages.end(),"S2C_OFFER_COMPLETE")==0);
  assert(rejected.m_offers.empty() && rejected.m_queue.empty());
 }
 '''
@@ -159,4 +178,4 @@ with tempfile.TemporaryDirectory(prefix='lft-fill-') as tmp:
     subprocess.run(['g++', '-std=c++17', '-Wall', '-Wextra', '-Wno-unused-function',
                     '-fsanitize=address,undefined', '-fno-omit-frame-pointer', str(source), '-o', str(exe)], check=True)
     subprocess.run([str(exe)], check=True)
-print('PASS: LFT delay/disable, 1 tank + 1 healer + 3 DPS, manual human acceptance, crowded/offered queues, faction/hardcore/level, cancellation, bot party rolecheck (ASan/UBSan)')
+print('PASS: LFT delay/disable, 1 tank + 1 healer + 3 DPS, manual human acceptance, crowded/offered queues, faction/hardcore/level, cancellation, bot party rolecheck, completion during worldport, idle status recovery (ASan/UBSan)')
