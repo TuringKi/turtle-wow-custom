@@ -21,8 +21,8 @@
 
 #pragma once
 
-#include <ace/OS_NS_sys_time.h>
 #include "Common.h"
+#include <ace/OS_NS_sys_time.h>
 
 
 inline std::chrono::steady_clock::time_point GetApplicationStartTime()
@@ -38,10 +38,10 @@ inline std::chrono::steady_clock::time_point GetApplicationStartTime()
 class WorldTimer
 {
 public:
-    // get current server time
+    //get current server time
     static uint32 getMSTime();
 
-    // get time difference between two timestamps
+    //get time difference between two timestamps
     static uint32 getMSTimeDiff(const uint32& oldMSTime, const uint32& newMSTime)
     {
         if (oldMSTime > newMSTime)
@@ -56,18 +56,18 @@ public:
     }
     static uint32 getMSTimeDiffToNow(uint32 t) { return getMSTimeDiff(t, getMSTime()); }
 
-    // get last world tick time
+    //get last world tick time
     static uint32 tickTime();
-    // get previous world tick time
+    //get previous world tick time
     static uint32 tickPrevTime();
-    // tick world timer
+    //tick world timer
     static uint32 tick();
 
 private:
     WorldTimer();
-    WorldTimer(const WorldTimer&);
+    WorldTimer(const WorldTimer& );
 
-    // analogue to getMSTime() but it persists m_SystemTickTime
+    //analogue to getMSTime() but it persists m_SystemTickTime
     static uint32 getMSTime_internal(bool savetime = false);
 
     static uint32 m_iTime;
@@ -107,7 +107,10 @@ class ShortIntervalTimer
 public:
     ShortIntervalTimer() : _interval(0), _current(0) {}
 
-    void Update(uint32 diff) { _current += diff; }
+    void Update(uint32 diff)
+    {
+        _current += diff;
+    }
 
     bool Passed() const { return _current >= _interval; }
     void Reset()
@@ -140,7 +143,7 @@ private:
 
 struct ShortTimeTracker
 {
-    explicit ShortTimeTracker(int32 expiry = 0) : i_expiryTime(expiry) {}
+    explicit ShortTimeTracker(int32 expiry=0) : i_expiryTime(expiry) {}
     void Update(int32 diff) { i_expiryTime -= diff; }
     bool Passed() const { return i_expiryTime <= 0; }
     void Reset(int32 interval) { i_expiryTime = interval; }
@@ -159,7 +162,7 @@ namespace CPU
 
     uint64 QPC();
     void Init();
-} // namespace CPU
+}
 
 class XTimer
 {
@@ -167,9 +170,12 @@ protected:
     uint64 qwStartTime;
 
 public:
-    constexpr XTimer() : qwStartTime(0) {}
+	constexpr XTimer() : qwStartTime(0) { }
 
-    inline void Start() { qwStartTime = CPU::QPC(); }
+	inline void Start()
+	{
+		qwStartTime = CPU::QPC();
+	}
 
     inline uint64 GetElapsed_ticks() const { return CPU::QPC() - qwStartTime; }
     inline uint32 GetElapsed_ms() const { return uint32(GetElapsed_ticks() * 1000 / CPU::qpc_freq); }
@@ -191,19 +197,8 @@ struct XStatTimer
     void FrameStart();
     void FrameEnd();
 
-    inline void Begin()
-    {
-        if (!g_bEnableStatGather)
-            return;
-        count++;
-        T.Start();
-    }
-    inline void End()
-    {
-        if (!g_bEnableStatGather)
-            return;
-        accum += T.GetElapsed_ticks();
-    }
+	inline void	 Begin() { if (!g_bEnableStatGather) return; count++; T.Start(); }
+	inline void	 End() { if (!g_bEnableStatGather) return; accum += T.GetElapsed_ticks(); }
 
     // On Win32 ticks are unknown value, that should be divided to qpc_freq to get seconds
     // On Linux ticks are nanoseconds
@@ -215,7 +210,6 @@ struct XStatTimer
 class XScopeStatTimer
 {
     XStatTimer& _timer;
-
 public:
     XScopeStatTimer(XStatTimer& destTimer);
     ~XScopeStatTimer();

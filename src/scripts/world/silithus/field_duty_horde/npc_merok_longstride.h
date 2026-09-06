@@ -12,9 +12,11 @@ private:
     AbilityTimer m_flameShockTimer = AbilityTimer(15616, 12000, 15000, 3000);
     AbilityTimer m_healingWaveTimer = AbilityTimer(15982, 2000, 6000);
     AbilityTimer m_lightningShieldTimer = AbilityTimer(15507, 4000, 8000);
-
 public:
-    npc_merok_longstride(Creature* pCreature) : ScriptedAI(pCreature) { npc_merok_longstride::Reset(); }
+    npc_merok_longstride(Creature* pCreature) : ScriptedAI(pCreature)
+    {
+        npc_merok_longstride::Reset();
+    }
 
     void Reset() override
     {
@@ -181,7 +183,10 @@ public:
         DoMeleeAttackIfReady();
     }
 
-    static CreatureAI* GetAI(Creature* pCreature) { return new npc_merok_longstride(pCreature); }
+    static CreatureAI* GetAI(Creature* pCreature)
+    {
+        return new npc_merok_longstride(pCreature);
+    }
 
     static void register_script()
     {

@@ -2,8 +2,8 @@
  * Auteur        : Daemon
  * All rights reserved */
 
-#include "dire_maul.h"
 #include "scriptPCH.h"
+#include "dire_maul.h"
 
 enum
 {
@@ -12,7 +12,10 @@ enum
 };
 struct npc_ecorceferAI : public ScriptedAI
 {
-    npc_ecorceferAI(Creature* pCreature) : ScriptedAI(pCreature) { Reset(); }
+    npc_ecorceferAI(Creature* pCreature) : ScriptedAI(pCreature)
+    {
+        Reset();
+    }
 
     uint32 m_uiCheckDoorTimer;
     bool m_bHasBrokenDoor;
@@ -21,21 +24,21 @@ struct npc_ecorceferAI : public ScriptedAI
     void Reset() override
     {
         m_uiCheckDoorTimer = 0;
-        m_bHasBrokenDoor = false;
-        m_bIsZevrimDead = false;
+        m_bHasBrokenDoor   = false;
+        m_bIsZevrimDead    = false;
     }
 
     void UpdateAI(const uint32 uiDiff) override
     {
         if (!m_bIsZevrimDead)
         {
-            instance_dire_maul* pInstance = (instance_dire_maul*)m_creature->GetInstanceData();
+            instance_dire_maul* pInstance = (instance_dire_maul*) m_creature->GetInstanceData();
             if (pInstance && pInstance->GetData(TYPE_BOSS_ZEVRIM) == DONE)
             {
                 if (m_creature->GetEntry() == NPC_OLD_IRONBARK)
                 {
                     m_creature->UpdateEntry(NPC_IRONBARK_THE_REDEEMED);
-                    m_creature->MonsterYell("At last... Freed from his curse grasp!", 0, 0);
+                    m_creature->MonsterYell("At last... Freed from his curse grasp!",0,0);
                 }
                 m_bIsZevrimDead = true;
             }
@@ -64,14 +67,17 @@ struct npc_ecorceferAI : public ScriptedAI
     }
 };
 
-CreatureAI* GetAI_npc_ecorcefer(Creature* pCreature) { return new npc_ecorceferAI(pCreature); }
-
-bool GossipSelect_npc_ecorcefer(Player* player, Creature* _Creature, uint32 sender, uint32 action)
+CreatureAI* GetAI_npc_ecorcefer(Creature* pCreature)
 {
-    instance_dire_maul* pInstance = (instance_dire_maul*)_Creature->GetInstanceData();
+    return new npc_ecorceferAI(pCreature);
+}
+
+bool GossipSelect_npc_ecorcefer(Player *player, Creature *_Creature, uint32 sender, uint32 action)
+{
+    instance_dire_maul* pInstance = (instance_dire_maul*) _Creature->GetInstanceData();
     if (!pInstance || pInstance->GetData(TYPE_BOSS_ZEVRIM) != DONE || pInstance->GetData(TYPE_SPEAK_ECORCEFER) == DONE)
     {
-        //        _Creature->MonsterSay("Cheater Spotted", 0, 0);
+//        _Creature->MonsterSay("Cheater Spotted", 0, 0);
         return true;
     }
     _Creature->MonsterSay(66104, 0, 0);
@@ -81,19 +87,19 @@ bool GossipSelect_npc_ecorcefer(Player* player, Creature* _Creature, uint32 send
     return true;
 }
 
-bool GossipHello_npc_ecorcefer(Player* player, Creature* _Creature)
+bool GossipHello_npc_ecorcefer(Player *player, Creature *_Creature)
 {
-    instance_dire_maul* pInstance = (instance_dire_maul*)_Creature->GetInstanceData();
+    instance_dire_maul* pInstance = (instance_dire_maul*) _Creature->GetInstanceData();
     if (!pInstance || pInstance->GetData(TYPE_BOSS_ZEVRIM) != DONE)
     {
-        // player->ADD_GOSSIP_ITEM(0, "Vous devez tuer Zevrim !",GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
-        // player->SEND_GOSSIP_MENU(_Creature->GetEntry(),_Creature->GetGUID());
+        //player->ADD_GOSSIP_ITEM(0, "Vous devez tuer Zevrim !",GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
+        //player->SEND_GOSSIP_MENU(_Creature->GetEntry(),_Creature->GetGUID());
         return false;
     }
     if (pInstance->GetData(TYPE_SPEAK_ECORCEFER) == DONE)
     {
-        // player->ADD_GOSSIP_ITEM(0, "Porte deja cassee !",GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
-        // player->SEND_GOSSIP_MENU(_Creature->GetEntry(),_Creature->GetGUID());
+        //player->ADD_GOSSIP_ITEM(0, "Porte deja cassee !",GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
+        //player->SEND_GOSSIP_MENU(_Creature->GetEntry(),_Creature->GetGUID());
         return false;
     }
     player->ADD_GOSSIP_ITEM(0, "Thank you, Ironbark. We are ready for you to open the door.", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
@@ -106,8 +112,8 @@ void AddSC_npc_ecorcefer()
     Script* pNewScript;
     pNewScript = new Script;
     pNewScript->Name = "npc_ecorcefer";
-    pNewScript->pGossipHello = &GossipHello_npc_ecorcefer;
-    pNewScript->pGossipSelect = &GossipSelect_npc_ecorcefer;
-    pNewScript->GetAI = &GetAI_npc_ecorcefer;
+    pNewScript->pGossipHello   = &GossipHello_npc_ecorcefer;
+    pNewScript->pGossipSelect  = &GossipSelect_npc_ecorcefer;
+    pNewScript->GetAI          = &GetAI_npc_ecorcefer;
     pNewScript->RegisterSelf();
 }

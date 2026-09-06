@@ -23,7 +23,7 @@
 #include "Creature.h"
 #include "Player.h"
 
-int GuardAI::Permissible(const Creature* creature)
+int GuardAI::Permissible(const Creature *creature)
 {
     if (creature->IsGuard())
         return PERMIT_BASE_SPECIAL;
@@ -31,7 +31,9 @@ int GuardAI::Permissible(const Creature* creature)
     return PERMIT_BASE_NO;
 }
 
-GuardAI::GuardAI(Creature* c) : CreatureAI(c) {}
+GuardAI::GuardAI(Creature *c) : CreatureAI(c)
+{
+}
 
 // Returns whether the Unit is currently attacking other players or friendly npcs.
 bool GuardAI::IsAttackingPlayerOrFriendly(const Unit* pWho) const
@@ -48,7 +50,7 @@ bool GuardAI::IsAttackingPlayerOrFriendly(const Unit* pWho) const
     return false;
 }
 
-void GuardAI::MoveInLineOfSight(Unit* pWho)
+void GuardAI::MoveInLineOfSight(Unit *pWho)
 {
     if (m_creature->GetVictim())
         return;
@@ -76,13 +78,18 @@ void GuardAI::MoveInLineOfSight(Unit* pWho)
     if (!m_creature->IsWithinDistInMap(pWho, attackRadius, true, SizeFactor::None))
         return;
 
-    if (m_creature->CanInitiateAttack() && m_creature->IsValidAttackTarget(pWho) && (pWho->IsHostileToPlayers() || m_creature->IsHostileTo(pWho) || isAttackingFriend) && pWho->IsInAccessablePlaceFor(m_creature) && m_creature->IsWithinLOSInMap(pWho))
+    if (m_creature->CanInitiateAttack() && m_creature->IsValidAttackTarget(pWho) &&
+       (pWho->IsHostileToPlayers() || m_creature->IsHostileTo(pWho) || isAttackingFriend) &&
+        pWho->IsInAccessablePlaceFor(m_creature) && m_creature->IsWithinLOSInMap(pWho))
     {
         AttackStart(pWho);
     }
 }
 
-void GuardAI::EnterCombat(Unit*) { m_creature->CallForHelp(30.0f); }
+void GuardAI::EnterCombat(Unit *)
+{
+    m_creature->CallForHelp(30.0f);
+}
 
 void GuardAI::UpdateAI(const uint32 uiDiff)
 {
@@ -95,7 +102,7 @@ void GuardAI::UpdateAI(const uint32 uiDiff)
     DoMeleeAttackIfReady();
 }
 
-void GuardAI::AttackStart(Unit* pWho)
+void GuardAI::AttackStart(Unit *pWho)
 {
     if (!pWho)
         return;

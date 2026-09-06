@@ -23,12 +23,15 @@ SDComment: Placeholder
 SDCategory: Wailing Caverns
 EndScriptData */
 
-#include "def_wailing_caverns.h"
 #include "scriptPCH.h"
+#include "def_wailing_caverns.h"
 
 struct instance_wailing_caverns : public ScriptedInstance
 {
-    instance_wailing_caverns(Map* pMap) : ScriptedInstance(pMap) { Initialize(); }
+    instance_wailing_caverns(Map* pMap) : ScriptedInstance(pMap)
+    {
+        Initialize();
+    }
 
     uint32 m_auiEncounter[WAILING_CAVERNS_MAX_ENCOUNTER];
     std::string strInstData;
@@ -36,7 +39,7 @@ struct instance_wailing_caverns : public ScriptedInstance
     uint64 m_uiDiscipleGUID;
     uint64 m_uiNaralexGUID;
     uint64 m_uiAnacondraGUID;
-    // uint64 m_uiVerdanGUID;
+    //uint64 m_uiVerdanGUID;
     uint64 m_uiSerpentisGUID;
     uint64 m_uiDMFChestGUID;
     bool Assaulted;
@@ -51,7 +54,7 @@ struct instance_wailing_caverns : public ScriptedInstance
         m_uiDiscipleGUID = 0;
         m_uiNaralexGUID = 0;
         m_uiAnacondraGUID = 0;
-        // m_uiVerdanGUID = 0;
+        //m_uiVerdanGUID = 0;
         m_uiSerpentisGUID = 0;
         Assaulted = false;
     }
@@ -60,20 +63,21 @@ struct instance_wailing_caverns : public ScriptedInstance
     {
         switch (pCreature->GetEntry())
         {
-        case 3678:
-            m_uiDiscipleGUID = pCreature->GetGUID();
-            break;
-        case 3679:
-            m_uiNaralexGUID = pCreature->GetGUID();
-            break;
-        case 3673:
-            m_uiSerpentisGUID = pCreature->GetGUID();
-            break;
-        case 3671:
-            m_uiAnacondraGUID = pCreature->GetGUID();
-            break;
+            case 3678:
+                m_uiDiscipleGUID = pCreature->GetGUID();
+                break;
+            case 3679:
+                m_uiNaralexGUID = pCreature->GetGUID();
+                break;
+            case 3673:
+                m_uiSerpentisGUID = pCreature->GetGUID();
+                break;
+            case 3671:
+                m_uiAnacondraGUID = pCreature->GetGUID();
+                break;
         }
-        if ((pCreature->GetCreatureType() != CREATURE_TYPE_CRITTER) && pCreature->GetFactionTemplateId() != 35 && // the 2 druids
+        if ((pCreature->GetCreatureType() != CREATURE_TYPE_CRITTER) &&
+            pCreature->GetFactionTemplateId() != 35 && // the 2 druids
             pCreature->GetEntry() != 3653) // Kresh is cool
             vNightmareMonsters.push_back(pCreature->GetGUID());
     }
@@ -104,67 +108,67 @@ struct instance_wailing_caverns : public ScriptedInstance
     {
         switch (uiType)
         {
-        case TYPE_ANACONDRA:
-            m_auiEncounter[TYPE_ANACONDRA] = uiData;
-            if (uiData == DONE && !Assaulted)
-            {
-                if (Creature* pSerpentis = instance->GetCreature(m_uiSerpentisGUID))
-                    if (pSerpentis->IsAlive())
-                        DoScriptText(SERPENTIS_YELL, pSerpentis);
-                Assaulted = true;
-            }
-            if (uiData == SPECIAL)
-            {
-                if (Creature* pAna = instance->GetCreature(m_uiAnacondraGUID))
-                    if (pAna->IsAlive())
-                        if (Creature* pDruid = GetClosestCreatureWithEntry(pAna, 3840, INTERACTION_DISTANCE))
-                            if (pDruid->IsAlive())
-                                pDruid->DisappearAndDie();
-            }
-            break;
-        case TYPE_COBRAHN:
-            m_auiEncounter[TYPE_COBRAHN] = uiData;
-            if (uiData == DONE && !Assaulted)
-            {
-                if (Creature* pSerpentis = instance->GetCreature(m_uiSerpentisGUID))
-                    if (pSerpentis->IsAlive())
-                        DoScriptText(SERPENTIS_YELL, pSerpentis);
-                Assaulted = true;
-            }
-            break;
-        case TYPE_PYTHAS:
-            m_auiEncounter[TYPE_PYTHAS] = uiData;
-            if (uiData == DONE && !Assaulted)
-            {
-                if (Creature* pSerpentis = instance->GetCreature(m_uiSerpentisGUID))
-                    if (pSerpentis->IsAlive())
-                        DoScriptText(SERPENTIS_YELL, pSerpentis);
-                Assaulted = true;
-            }
-            break;
-        case TYPE_MUTANUS:
-            m_auiEncounter[uiType] = uiData;
-            if (uiData == DONE) // despawn every hostile creature
-            {
-                auto it = vNightmareMonsters.begin();
-                while (it != vNightmareMonsters.end())
+            case TYPE_ANACONDRA:
+                m_auiEncounter[TYPE_ANACONDRA] = uiData;
+                if (uiData == DONE && !Assaulted)
                 {
-                    if (Creature* pCreature = instance->GetCreature(*it))
-                    {
-                        if (pCreature->IsAlive() || pCreature->loot.empty())
-                            pCreature->ForcedDespawn();
-                    }
-                    it = vNightmareMonsters.erase(it);
+                    if (Creature* pSerpentis = instance->GetCreature(m_uiSerpentisGUID))
+                        if (pSerpentis->IsAlive())
+                            DoScriptText(SERPENTIS_YELL, pSerpentis);
+                    Assaulted = true;
                 }
-            }
-            break;
-        case TYPE_SERPENTIS:
-        case TYPE_DISCIPLE:
-            m_auiEncounter[uiType] = uiData;
-            break;
-        default:
-            sLog.outError("Instance Wiling Caverns: ERROR SetData = %u for type %u does not exist/not implemented.", uiType, uiData);
-            break;
+                if (uiData == SPECIAL)
+                {
+                    if (Creature* pAna = instance->GetCreature(m_uiAnacondraGUID))
+                        if (pAna->IsAlive())
+                            if (Creature* pDruid = GetClosestCreatureWithEntry(pAna, 3840, INTERACTION_DISTANCE))
+                                if (pDruid->IsAlive())
+                                    pDruid->DisappearAndDie();
+                }
+                break;
+            case TYPE_COBRAHN:
+                m_auiEncounter[TYPE_COBRAHN] = uiData;
+                if (uiData == DONE && !Assaulted)
+                {
+                    if (Creature* pSerpentis = instance->GetCreature(m_uiSerpentisGUID))
+                        if (pSerpentis->IsAlive())
+                            DoScriptText(SERPENTIS_YELL, pSerpentis);
+                    Assaulted = true;
+                }
+                break;
+            case TYPE_PYTHAS:
+                m_auiEncounter[TYPE_PYTHAS] = uiData;
+                if (uiData == DONE && !Assaulted)
+                {
+                    if (Creature* pSerpentis = instance->GetCreature(m_uiSerpentisGUID))
+                        if (pSerpentis->IsAlive())
+                            DoScriptText(SERPENTIS_YELL, pSerpentis);
+                    Assaulted = true;
+                }
+                break;
+            case TYPE_MUTANUS:
+                m_auiEncounter[uiType] = uiData;
+                if (uiData == DONE) // despawn every hostile creature
+                {
+                    auto it = vNightmareMonsters.begin();
+                    while (it != vNightmareMonsters.end())
+                    {
+                        if (Creature* pCreature = instance->GetCreature(*it))
+                        {
+                            if (pCreature->IsAlive() || pCreature->loot.empty())
+                                pCreature->ForcedDespawn();
+                        }
+                        it = vNightmareMonsters.erase(it);
+                    }
+                }
+                break;
+            case TYPE_SERPENTIS:
+            case TYPE_DISCIPLE:
+                m_auiEncounter[uiType] = uiData;
+                break;
+            default:
+                sLog.outError("Instance Wiling Caverns: ERROR SetData = %u for type %u does not exist/not implemented.", uiType, uiData);
+                break;
         }
         if (m_auiEncounter[0] == DONE && m_auiEncounter[1] == DONE && m_auiEncounter[2] == DONE && m_auiEncounter[3] == DONE && m_auiEncounter[4] == NOT_STARTED)
         {
@@ -182,7 +186,8 @@ struct instance_wailing_caverns : public ScriptedInstance
             OUT_SAVE_INST_DATA;
 
             std::ostringstream saveStream;
-            saveStream << m_auiEncounter[0] << " " << m_auiEncounter[1] << " " << m_auiEncounter[2] << " " << m_auiEncounter[3] << " " << m_auiEncounter[4] << " " << m_auiEncounter[5];
+            saveStream << m_auiEncounter[0] << " " << m_auiEncounter[1] << " " << m_auiEncounter[2] << " "
+                       << m_auiEncounter[3] << " " << m_auiEncounter[4] << " " << m_auiEncounter[5];
 
             strInstData = saveStream.str();
 
@@ -191,19 +196,22 @@ struct instance_wailing_caverns : public ScriptedInstance
         }
     }
 
-    const char* Save() override { return strInstData.c_str(); }
+    const char* Save() override
+    {
+        return strInstData.c_str();
+    }
 
     uint32 GetData(uint32 uiType) override
     {
         switch (uiType)
         {
-        case TYPE_ANACONDRA:
-        case TYPE_COBRAHN:
-        case TYPE_PYTHAS:
-        case TYPE_SERPENTIS:
-        case TYPE_DISCIPLE:
-        case TYPE_MUTANUS:
-            return m_auiEncounter[uiType];
+            case TYPE_ANACONDRA:
+            case TYPE_COBRAHN:
+            case TYPE_PYTHAS:
+            case TYPE_SERPENTIS:
+            case TYPE_DISCIPLE:
+            case TYPE_MUTANUS:
+                return m_auiEncounter[uiType];
         }
         return 0;
     }
@@ -212,8 +220,8 @@ struct instance_wailing_caverns : public ScriptedInstance
     {
         switch (uiData)
         {
-        case DATA_NARALEX:
-            return m_uiNaralexGUID;
+            case DATA_NARALEX:
+                return m_uiNaralexGUID;
         }
         return 0;
     }
@@ -231,7 +239,7 @@ struct instance_wailing_caverns : public ScriptedInstance
         std::istringstream loadStream(chrIn);
         loadStream >> m_auiEncounter[0] >> m_auiEncounter[1] >> m_auiEncounter[2] >> m_auiEncounter[3] >> m_auiEncounter[4] >> m_auiEncounter[5];
 
-        for (uint32& i : m_auiEncounter)
+        for (uint32 & i : m_auiEncounter)
             if (i == IN_PROGRESS)
                 i = NOT_STARTED;
 
@@ -239,11 +247,14 @@ struct instance_wailing_caverns : public ScriptedInstance
     }
 };
 
-InstanceData* GetInstanceData_instance_wailing_caverns(Map* pMap) { return new instance_wailing_caverns(pMap); }
+InstanceData* GetInstanceData_instance_wailing_caverns(Map* pMap)
+{
+    return new instance_wailing_caverns(pMap);
+}
 
 void AddSC_instance_wailing_caverns()
 {
-    Script* newscript;
+    Script *newscript;
     newscript = new Script;
     newscript->Name = "instance_wailing_caverns";
     newscript->GetInstanceData = &GetInstanceData_instance_wailing_caverns;

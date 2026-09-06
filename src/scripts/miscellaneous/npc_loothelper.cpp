@@ -1,5 +1,5 @@
-#include "npc_loothelper.h"
 #include "scriptPCH.h"
+#include "npc_loothelper.h"
 
 using namespace std;
 
@@ -9,7 +9,10 @@ const int GOSSIP_GENERATE_LOOT_REAL = GOSSIP_ACTION_INFO_DEF + 5;
 const int GOSSIP_HIDE_FROM_PLAYERS = GOSSIP_ACTION_INFO_DEF + 1;
 const int GOSSIP_SHOW_TO_PLAYERS = GOSSIP_ACTION_INFO_DEF + 2;
 
-void KillCreature(Player* player, Creature* creature) { player->DealDamage(creature, creature->GetHealth(), nullptr, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, nullptr, false); }
+void KillCreature(Player* player, Creature* creature)
+{
+    player->DealDamage(creature, creature->GetHealth(), nullptr, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, nullptr, false);
+}
 
 void EraseCreature(Player* player, Creature* creature)
 {
@@ -52,10 +55,8 @@ bool GenerateMenuOptions(Player* pPlayer, Creature* pCreature, npc_loothelperAI*
     if (pPlayer->IsGameMaster())
     {
         stringstream ss;
-        ss << "When you are ready, click 'Show me to players'."
-           << "\n";
-        ss << "This will make the NPC visible to players so they can generate loot for their group."
-           << "\n";
+        ss << "When you are ready, click 'Show me to players'." << "\n";
+        ss << "This will make the NPC visible to players so they can generate loot for their group." << "\n";
         ss << "Creature entry: " << loothelperAi->GetCreatureEntry() << "\n";
         ss << "Visible: " << (loothelperAi->IsVisibleToPlayers() ? "yes" : "no");
         pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, ss.str().c_str(), GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
@@ -93,7 +94,7 @@ bool GossipHello_npc_loothelper(Player* pPlayer, Creature* pCreature)
     {
         return false;
     }
-
+    
     pPlayer->SEND_GOSSIP_MENU(1001000, pCreature->GetGUID());
     return true;
 }
@@ -129,25 +130,18 @@ bool GossipSelect_npc_loothelper(Player* pPlayer, Creature* pCreature, uint32 ui
             if (pPlayer->IsGameMaster())
             {
                 stringstream ss;
-                ss << "!!! WARNING !!!"
-                   << "\n";
-                ss << "You are about to generate loot for YOURSELF."
-                   << "\n";
-                ss << "If you are trying to fix a loot issue, please do not do this."
-                   << "\n";
-                ss << "Make a group member generate loot instead by making the loot helper visible."
-                   << "\n";
+                ss << "!!! WARNING !!!" << "\n";
+                ss << "You are about to generate loot for YOURSELF." << "\n";
+                ss << "If you are trying to fix a loot issue, please do not do this." << "\n";
+                ss << "Make a group member generate loot instead by making the loot helper visible." << "\n";
                 pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, ss.str().c_str(), GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
             }
             else
             {
                 stringstream ss;
-                ss << "!!! WARNING !!!"
-                   << "\n";
-                ss << "You are about to generate loot for your group."
-                   << "\n";
-                ss << "Please ensure your members are nearby and ready to loot the boss."
-                   << "\n";
+                ss << "!!! WARNING !!!" << "\n";
+                ss << "You are about to generate loot for your group." << "\n";
+                ss << "Please ensure your members are nearby and ready to loot the boss." << "\n";
                 pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, ss.str().c_str(), GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
             }
             pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_INTERACT_1, "Generate loot and make the helper lootable.", GOSSIP_SENDER_MAIN, GOSSIP_GENERATE_LOOT_REAL);
@@ -177,7 +171,10 @@ bool GossipSelect_npc_loothelper(Player* pPlayer, Creature* pCreature, uint32 ui
 }
 
 
-CreatureAI* GetAI_npc_loothelper(Creature* pCreature) { return new npc_loothelperAI(pCreature); }
+CreatureAI* GetAI_npc_loothelper(Creature* pCreature)
+{
+    return new npc_loothelperAI(pCreature);
+}
 
 void AddSC_npc_loothelper()
 {
@@ -190,13 +187,22 @@ void AddSC_npc_loothelper()
     newscript->RegisterSelf();
 }
 
-inline npc_loothelperAI::npc_loothelperAI(Creature* pCreature) : ScriptedAI(pCreature) { Reset(); }
+inline npc_loothelperAI::npc_loothelperAI(Creature* pCreature) : ScriptedAI(pCreature)
+{
+    Reset();
+}
 
-uint32_t npc_loothelperAI::GetCreatureEntry() const { return lootEntry; }
+uint32_t npc_loothelperAI::GetCreatureEntry() const
+{
+    return lootEntry;
+}
 
 inline bool npc_loothelperAI::IsVisibleToPlayers() const { return visibleToPlayers; }
 
-void npc_loothelperAI::SetCreatureEntry(uint32_t entry) { lootEntry = entry; }
+void npc_loothelperAI::SetCreatureEntry(uint32_t entry)
+{
+    lootEntry = entry;
+}
 
 inline void npc_loothelperAI::SetPlayerVisibility(bool visible)
 {
@@ -211,4 +217,7 @@ inline void npc_loothelperAI::SetPlayerVisibility(bool visible)
     }
 }
 
-inline void npc_loothelperAI::Reset() { SetPlayerVisibility(false); }
+inline void npc_loothelperAI::Reset()
+{
+    SetPlayerVisibility(false);
+}

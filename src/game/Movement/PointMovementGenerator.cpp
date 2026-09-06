@@ -17,19 +17,19 @@
  */
 
 #include "PointMovementGenerator.h"
-#include "Anticheat.h"
+#include "Errors.h"
 #include "Creature.h"
 #include "CreatureAI.h"
-#include "Errors.h"
 #include "GameObjectAI.h"
-#include "MoveSpline.h"
-#include "MoveSplineInit.h"
 #include "PlayerAI.h"
 #include "TemporarySummon.h"
 #include "World.h"
+#include "MoveSplineInit.h"
+#include "MoveSpline.h"
+#include "Anticheat.h"
 
 //----- Point Movement Generator
-template <class T>
+template<class T>
 void PointMovementGenerator<T>::Initialize(T& unit)
 {
     if (!unit.IsStopped())
@@ -55,20 +55,20 @@ void PointMovementGenerator<T>::Initialize(T& unit)
     init.Launch();
 }
 
-template <class T>
+template<class T>
 void PointMovementGenerator<T>::Finalize(T& unit)
 {
     unit.ClearUnitState(UNIT_STAT_ROAMING | UNIT_STAT_ROAMING_MOVE);
     MovementInform(unit);
 }
 
-template <class T>
+template<class T>
 void PointMovementGenerator<T>::Interrupt(T& unit)
 {
     unit.ClearUnitState(UNIT_STAT_ROAMING | UNIT_STAT_ROAMING_MOVE);
 }
 
-template <class T>
+template<class T>
 void PointMovementGenerator<T>::Reset(T& unit)
 {
     if (!unit.IsStopped())
@@ -77,7 +77,7 @@ void PointMovementGenerator<T>::Reset(T& unit)
     unit.AddUnitState(UNIT_STAT_ROAMING | UNIT_STAT_ROAMING_MOVE);
 }
 
-template <class T>
+template<class T>
 bool PointMovementGenerator<T>::Update(T& unit, uint32 const& /*diff*/)
 {
     if (!&unit)
@@ -99,7 +99,7 @@ bool PointMovementGenerator<T>::Update(T& unit, uint32 const& /*diff*/)
     return !unit.movespline->Finalized();
 }
 
-template <>
+template<>
 void PointMovementGenerator<Player>::MovementInform(Player& player)
 {
     if (!player.IsAlive())
@@ -152,13 +152,13 @@ bool DistancingMovementGenerator<T>::Update(T& unit, uint32 const& /*diff*/)
 {
     if (!&unit)
         return false;
-
+    
     if (unit.HasUnitState(UNIT_STAT_CAN_NOT_MOVE))
     {
         unit.ClearUnitState(UNIT_STAT_ROAMING_MOVE);
         return false;
     }
-
+    
     unit.AddUnitState(UNIT_STAT_ROAMING_MOVE);
 
     if (!unit.movespline->Finalized() && m_recalculateSpeed)
@@ -179,6 +179,7 @@ void DistancingMovementGenerator<Creature>::MovementInform(Creature& unit)
 template <>
 void DistancingMovementGenerator<Player>::MovementInform(Player& /*unit*/)
 {
+
 }
 
 template bool DistancingMovementGenerator<Player>::Update(Player&, uint32 const& diff);
@@ -210,7 +211,10 @@ void AssistanceMovementGenerator::Finalize(Creature& unit)
         unit.GetMotionMaster()->MoveSeekAssistanceDistract(sWorld.getConfig(CONFIG_UINT32_CREATURE_FAMILY_ASSISTANCE_DELAY));
 }
 
-bool EffectMovementGenerator::Update(Unit& unit, uint32 const&) { return !unit.movespline->Finalized(); }
+bool EffectMovementGenerator::Update(Unit& unit, uint32 const&)
+{
+    return !unit.movespline->Finalized();
+}
 
 void EffectMovementGenerator::Finalize(Unit& unit)
 {
@@ -223,7 +227,7 @@ void EffectMovementGenerator::Finalize(Unit& unit)
 }
 
 //----- Charge Movement Generator
-template <class T>
+template<class T>
 void ChargeMovementGenerator<T>::Initialize(T& unit)
 {
     if (!unit.IsStopped())
@@ -240,7 +244,7 @@ void ChargeMovementGenerator<T>::Initialize(T& unit)
     init.Launch();
 }
 
-template <class T>
+template<class T>
 void ChargeMovementGenerator<T>::Finalize(T& unit)
 {
     unit.ClearUnitState(UNIT_STAT_ROAMING | UNIT_STAT_ROAMING_MOVE);
@@ -257,7 +261,7 @@ void ChargeMovementGenerator<T>::Finalize(T& unit)
     unit.RestoreMovement();
 }
 
-template <class T>
+template<class T>
 void ChargeMovementGenerator<T>::ComputePath(T& attacker, Unit& victim)
 {
     Vector3 attackPos; // attacker position
@@ -285,7 +289,8 @@ void ChargeMovementGenerator<T>::ComputePath(T& attacker, Unit& victim)
     // Improved path to victim future estimated position
     if (Player* victimPlayer = victim.ToPlayer())
     {
-        if ((victimPlayer->ExtrapolateMovement(victimPlayer->m_movementInfo, 1000, victimSpd.x, victimSpd.y, victimSpd.z, o)) && (victimPlayer->ExtrapolateMovement(victimPlayer->m_movementInfo, 0, victimPos.x, victimPos.y, victimPos.z, o)))
+        if ((victimPlayer->ExtrapolateMovement(victimPlayer->m_movementInfo, 1000, victimSpd.x, victimSpd.y, victimSpd.z, o)) &&
+            (victimPlayer->ExtrapolateMovement(victimPlayer->m_movementInfo, 0, victimPos.x, victimPos.y, victimPos.z, o)))
         {
             // Victim speed per sec.
             victimSpd -= victimPos;
@@ -327,7 +332,7 @@ void ChargeMovementGenerator<T>::ComputePath(T& attacker, Unit& victim)
     }
 }
 
-template <class T>
+template<class T>
 void ChargeMovementGenerator<T>::Interrupt(T& unit)
 {
     unit.ClearUnitState(UNIT_STAT_ROAMING | UNIT_STAT_ROAMING_MOVE);
@@ -339,7 +344,7 @@ void ChargeMovementGenerator<T>::Interrupt(T& unit)
         unit.SetRooted(true);
 }
 
-template <class T>
+template<class T>
 void ChargeMovementGenerator<T>::Reset(T& unit)
 {
     unit.ClearUnitState(UNIT_STAT_ROAMING | UNIT_STAT_ROAMING_MOVE);
@@ -351,7 +356,7 @@ void ChargeMovementGenerator<T>::Reset(T& unit)
         unit.SetRooted(true);
 }
 
-template <class T>
+template<class T>
 bool ChargeMovementGenerator<T>::Update(T& unit, uint32 const& diff)
 {
     if (!&unit)

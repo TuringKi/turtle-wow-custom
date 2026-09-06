@@ -5,8 +5,8 @@
 #ifndef SC_GRIDSEARCH_H
 #define SC_GRIDSEARCH_H
 
-#include "GameObject.h"
 #include "Unit.h"
+#include "GameObject.h"
 
 #include "Cell.h"
 #include "CellImpl.h"
@@ -17,24 +17,30 @@ struct ObjectDistanceOrder
 {
     const Unit* m_pSource;
 
-    ObjectDistanceOrder(const Unit* pSource) : m_pSource(pSource){};
+    ObjectDistanceOrder(const Unit* pSource) : m_pSource(pSource) {};
 
-    bool operator()(const WorldObject* pLeft, const WorldObject* pRight) const { return m_pSource->GetDistanceOrder(pLeft, pRight); }
+    bool operator()(const WorldObject* pLeft, const WorldObject* pRight) const
+    {
+        return m_pSource->GetDistanceOrder(pLeft, pRight);
+    }
 };
 
 struct ObjectDistanceOrderReversed
 {
     const Unit* m_pSource;
 
-    ObjectDistanceOrderReversed(const Unit* pSource) : m_pSource(pSource){};
+    ObjectDistanceOrderReversed(const Unit* pSource) : m_pSource(pSource) {};
 
-    bool operator()(const WorldObject* pLeft, const WorldObject* pRight) const { return !m_pSource->GetDistanceOrder(pLeft, pRight); }
+    bool operator()(const WorldObject* pLeft, const WorldObject* pRight) const
+    {
+        return !m_pSource->GetDistanceOrder(pLeft, pRight);
+    }
 };
 
 GameObject* GetClosestGameObjectWithEntry(WorldObject* pSource, uint32 uiEntry, float fMaxSearchRange);
 Creature* GetClosestCreatureWithEntry(WorldObject* pSource, uint32 uiEntry, float fMaxSearchRange);
 
-void GetGameObjectListWithEntryInGrid(std::list<GameObject*>& lList, WorldObject* pSource, uint32 uiEntry, float fMaxSearchRange);
+void GetGameObjectListWithEntryInGrid(std::list<GameObject*>& lList , WorldObject* pSource, uint32 uiEntry, float fMaxSearchRange);
 void GetCreatureListWithEntryInGrid(std::list<Creature*>& lList, WorldObject* pSource, uint32 uiEntry, float fMaxSearchRange);
 void GetCreatureListWithEntryInGrid(std::list<Creature*>& lList, WorldObject* pSource, const std::vector<uint32>& entries, float fMaxSearchRange);
 

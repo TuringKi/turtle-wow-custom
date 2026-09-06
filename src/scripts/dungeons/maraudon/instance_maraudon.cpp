@@ -2,12 +2,15 @@
   ROCKETTE FOR NOSTALRIUS
  */
 
-#include "maraudon.h"
 #include "scriptPCH.h"
+#include "maraudon.h"
 
 struct instance_maraudon : public ScriptedInstance
 {
-    instance_maraudon(Map* pMap) : ScriptedInstance(pMap) { cGuid = 0; }
+    instance_maraudon(Map *pMap) : ScriptedInstance(pMap)
+    {
+        cGuid = 0;
+    }
 
     uint32 m_auiEncounter[MARAUDON_MAX_ENCOUNTER];
     std::string strInstData;
@@ -31,22 +34,22 @@ struct instance_maraudon : public ScriptedInstance
         uiSpewedLarvaTimer = 4000;
     }
 
-    void OnCreatureCreate(Creature* pCreature) override
+    void OnCreatureCreate(Creature *pCreature) override
     {
         switch (pCreature->GetEntry())
         {
-        case NPC_CELEBRAS_REDEEMED:
-            cGuid = pCreature->GetObjectGuid();
+            case NPC_CELEBRAS_REDEEMED:
+                cGuid = pCreature->GetObjectGuid();
 
-            if (m_auiEncounter[TYPE_CELEBRAS] != DONE)
-                pCreature->SetVisibility(VISIBILITY_OFF);
-            break;
-        case NPC_SPEWED_LARVA:
-            spewedLarvaGuid = pCreature->GetObjectGuid();
-            // No functional spewer no larva
-            if (m_auiEncounter[TYPE_LARVA_SPEWER] == DONE)
-                pCreature->DisappearAndDie();
-            break;
+                if (m_auiEncounter[TYPE_CELEBRAS] != DONE)
+                    pCreature->SetVisibility(VISIBILITY_OFF);
+                break;
+            case NPC_SPEWED_LARVA:
+                spewedLarvaGuid = pCreature->GetObjectGuid();
+                // No functional spewer no larva
+                if (m_auiEncounter[TYPE_LARVA_SPEWER] == DONE)
+                    pCreature->DisappearAndDie();
+                break;
         }
     }
 
@@ -54,39 +57,42 @@ struct instance_maraudon : public ScriptedInstance
     {
         switch (pGo->GetEntry())
         {
-        case GO_HEALED_CELEBRIAN_VINE:
-            // The healed vine is summoned by the corrupted one
-            vineGuid = pGo->GetObjectGuid();
-            break;
-        case GO_LARVA_SPEWER:
-            larvaSpewerGuid = pGo->GetObjectGuid();
-            // Alternative state = destroyed
-            if (m_auiEncounter[TYPE_LARVA_SPEWER] == DONE)
-                pGo->SetGoState(GO_STATE_ACTIVE_ALTERNATIVE);
-            break;
+            case GO_HEALED_CELEBRIAN_VINE:
+                // The healed vine is summoned by the corrupted one
+                vineGuid = pGo->GetObjectGuid();
+                break;
+            case GO_LARVA_SPEWER:
+                larvaSpewerGuid = pGo->GetObjectGuid();
+                // Alternative state = destroyed
+                if (m_auiEncounter[TYPE_LARVA_SPEWER] == DONE)
+                    pGo->SetGoState(GO_STATE_ACTIVE_ALTERNATIVE);
+                break;
         }
     }
 
-    void OnCreatureRespawn(Creature* pCreature) override
+    void OnCreatureRespawn(Creature *pCreature) override
     {
         switch (pCreature->GetEntry())
         {
-        case NPC_SPEWED_LARVA:
-            // No functional spewer no larva
-            if (m_auiEncounter[TYPE_LARVA_SPEWER] == DONE)
-                pCreature->DisappearAndDie();
-            break;
+            case NPC_SPEWED_LARVA:
+                // No functional spewer no larva
+                if (m_auiEncounter[TYPE_LARVA_SPEWER] == DONE)
+                    pCreature->DisappearAndDie();
+                break;
         }
     }
 
-    const char* Save() override { return strInstData.c_str(); }
+    const char* Save() override
+    {
+        return strInstData.c_str();
+    }
 
     void Load(const char* chrIn) override
     {
         if (!chrIn)
             return;
         std::istringstream loadStream(chrIn);
-        for (uint32& i : m_auiEncounter)
+        for (uint32 & i : m_auiEncounter)
         {
             loadStream >> i;
             if (i == IN_PROGRESS)
@@ -98,14 +104,14 @@ struct instance_maraudon : public ScriptedInstance
     {
         switch (uiType)
         {
-        case TYPE_LARVA_SPEWER:
-            return m_auiEncounter[TYPE_LARVA_SPEWER];
-            break;
-        case TYPE_CELEBRAS:
-            return m_auiEncounter[TYPE_CELEBRAS];
-            break;
-        default:
-            return 0;
+            case TYPE_LARVA_SPEWER:
+                return m_auiEncounter[TYPE_LARVA_SPEWER];
+                break;
+            case TYPE_CELEBRAS:
+                return m_auiEncounter[TYPE_CELEBRAS];
+                break;
+            default:
+                return 0;
         }
     }
 
@@ -113,24 +119,24 @@ struct instance_maraudon : public ScriptedInstance
     {
         switch (uiType)
         {
-        case TYPE_LARVA_SPEWER:
-            if (uiData == IN_PROGRESS)
-            {
-                // First kill our larva
-                if (Creature* pSpewedLarva = instance->GetCreature(spewedLarvaGuid))
-                    pSpewedLarva->DisappearAndDie();
-                SpewLarva();
-            }
-            else
-                m_auiEncounter[TYPE_LARVA_SPEWER] = uiData;
-            break;
-        case TYPE_CELEBRAS:
-            if (uiData == DONE)
-                if (Creature* pCreature = instance->GetCreature(GetData64(NPC_CELEBRAS_REDEEMED)))
-                    pCreature->SetVisibility(VISIBILITY_ON);
+            case TYPE_LARVA_SPEWER:
+                if (uiData == IN_PROGRESS)
+                {
+                    // First kill our larva
+                    if (Creature* pSpewedLarva = instance->GetCreature(spewedLarvaGuid))
+                        pSpewedLarva->DisappearAndDie();
+                    SpewLarva();
+                }
+                else
+                    m_auiEncounter[TYPE_LARVA_SPEWER] = uiData;
+                break;
+            case TYPE_CELEBRAS:
+                if (uiData == DONE)
+                    if (Creature* pCreature = instance->GetCreature(GetData64(NPC_CELEBRAS_REDEEMED)))
+                        pCreature->SetVisibility(VISIBILITY_ON);
 
-            m_auiEncounter[TYPE_CELEBRAS] = uiData;
-            break;
+                m_auiEncounter[TYPE_CELEBRAS] = uiData;
+                break;
         }
 
         if (uiData == DONE)
@@ -152,8 +158,8 @@ struct instance_maraudon : public ScriptedInstance
     {
         switch (uiData)
         {
-        case NPC_CELEBRAS_REDEEMED:
-            return cGuid;
+            case NPC_CELEBRAS_REDEEMED:
+                return cGuid;
         }
 
         return 0;
@@ -191,13 +197,15 @@ struct instance_maraudon : public ScriptedInstance
                     pSpewedLarva->Respawn();
                 bRespawnSpewedLarva = false;
             }
-            else
-                uiSpewedLarvaTimer -= uiDiff;
+            else uiSpewedLarvaTimer -= uiDiff;
         }
     }
 };
 
-InstanceData* GetInstanceData_instance_maraudon(Map* pMap) { return new instance_maraudon(pMap); }
+InstanceData* GetInstanceData_instance_maraudon(Map* pMap)
+{
+    return new instance_maraudon(pMap);
+}
 
 void AddSC_instance_maraudon()
 {

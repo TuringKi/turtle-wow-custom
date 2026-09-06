@@ -23,8 +23,8 @@
 #define MANGOSSERVER_CHAT_H
 
 #include "Common.h"
-#include "ObjectGuid.h"
 #include "SharedDefines.h"
+#include "ObjectGuid.h"
 
 #include <any>
 
@@ -62,12 +62,12 @@ enum CommandFlags
 class ChatCommand
 {
 public:
-    const char* Name;
+        const char *       Name;
     uint8 SecurityLevel; // function pointer required correct align (use uint32)
     bool AllowConsole;
     bool (ChatHandler::*Handler)(char* args);
     std::string Help;
-    ChatCommand* ChildCommands;
+        ChatCommand *      ChildCommands;
     uint8 Flags;
     std::string FullName;
     uint32 PermissionMask = 0;
@@ -90,7 +90,8 @@ enum PlayerChatTag
 
 class ChatHandler
 {
-public:
+    public:
+
     friend struct LookupPlayerHandler;
 
     explicit ChatHandler(WorldSession* session);
@@ -99,37 +100,32 @@ public:
 
     static void LoadRbacPermissions();
 
-    static char* LineFromMessage(char*& pos)
-    {
-        char* start = strtok(pos, "\n");
-        pos = nullptr;
-        return start;
-    }
+        static char* LineFromMessage(char*& pos) { char* start = strtok(pos,"\n"); pos = nullptr; return start; }
 
     // function with different implementation for chat/console
-    virtual const char* GetMangosString(int32 entry) const;
-    const char* GetOnOffStr(bool value) const;
+        virtual const char *GetMangosString(int32 entry) const;
+        const char *GetOnOffStr(bool value) const;
 
-    virtual void SendSysMessage(const char* str);
+        virtual void SendSysMessage(  const char *str);
 
-    void SendSysMessage(int32 entry);
-    void PSendSysMessage(const char* format, ...) ATTR_PRINTF(2, 3);
-    void PSendSysMessage(int32 entry, ...);
+        void SendSysMessage(          int32     entry);
+        void PSendSysMessage(         const char *format, ...) ATTR_PRINTF(2,3);
+        void PSendSysMessage(         int32     entry, ...  );
     std::string PGetParseString(int32 entry, ...);
 
     bool ParseCommands(const char* text);
     ChatCommand const* FindCommand(char const* text);
 
     bool isValidChatMessage(const char* msg);
-    bool HasSentErrorMessage() { return sentErrorMessage; }
+        bool HasSentErrorMessage() { return sentErrorMessage;}
 
-    std::string playerLink(std::string const& name) const { return m_session ? "|cffffffff|Hplayer:" + name + "|h[" + name + "]|h|r" : name; }
+        std::string playerLink(std::string const& name) const { return m_session ? "|cffffffff|Hplayer:"+name+"|h["+name+"]|h|r" : name; }
     std::string GetNameLink(Player* chr) const;
     std::string GetItemLink(ItemPrototype const* pItem) const;
 
-    GameObject* GetGameObjectWithGuid(uint32 lowguid, uint32 entry);
+        GameObject* GetGameObjectWithGuid(uint32 lowguid,uint32 entry);
 
-    // same as above but uses GOData to narrow down the correct map.
+        //same as above but uses GOData to narrow down the correct map.
     GameObject* GetGameObjectWithGuidGlobal(uint32 lowguid, const GameObjectData* data) const;
 
     WorldSession* GetSession() { return m_session; }
@@ -157,6 +153,7 @@ public:
      * \param char const* channelName       : Required only for CHAT_MSG_CHANNEL
      * \param uint8 playerRank              : Used only for Defensive Channels (Value over 0 will show rank name before character name in channel)
      **/
+    void SendSysMessage(std::string const& str) { SendSysMessage(str.c_str()); }
     static void BuildChatPacket(WorldPacket& data, ChatMsg msgtype, const std::string& message, Language language = LANG_UNIVERSAL, uint32 chatTag = CHAT_TAG_NONE, ObjectGuid const& senderGuid = ObjectGuid(), char const* senderName = nullptr, ObjectGuid const& targetGuid = ObjectGuid(), char const* targetName = nullptr, char const* channelName = nullptr, uint8 playerRank = 0);
 
     bool HandleGonameCommand(char* args);
@@ -191,33 +188,34 @@ protected:
     bool HasLowerSecurity(Player* target, ObjectGuid guid = ObjectGuid(), bool strong = false);
     bool HasLowerSecurityAccount(WorldSession* target, uint32 account, bool strong = false);
 
-    void SendGlobalSysMessage(const char* str);
+        void SendGlobalSysMessage(const char *str);
 
     static bool SetPermissionMaskForCommandInTable(ChatCommand* table, const char* text, uint32 permissionId);
-    static bool SetDataForCommandInTable(ChatCommand* table, const char* text, uint8 security, std::string const& help, uint8 flags);
+        static bool SetDataForCommandInTable(ChatCommand *table, const char* text, uint8 security, std::string const& help, uint8 flags);
     void ExecuteCommand(const char* text);
-    bool ShowHelpForCommand(ChatCommand* table, const char* cmd);
-    bool ShowHelpForSubCommands(ChatCommand* table, char const* cmd);
+        bool ShowHelpForCommand(ChatCommand *table, const char* cmd);
+        bool ShowHelpForSubCommands(ChatCommand *table, char const* cmd);
     static ChatCommandSearchResult FindCommand(ChatCommand* table, char const*& text, ChatCommand*& command, ChatCommand** parentCommand = nullptr, std::string* cmdNamePtr = nullptr, bool allAvailable = false, bool exactlyName = false);
 
-    void CheckIntegrity(ChatCommand* table, ChatCommand* parentCommand);
+        void CheckIntegrity(ChatCommand *table, ChatCommand *parentCommand);
     static void FillFullCommandsName(ChatCommand* table, std::string prefix);
     static ChatCommand* getCommandTable();
 
-    bool HandleGodCommand(char*);
-    bool HandleGMOptionsCommand(char*);
-    bool HandleAnticheatCommand(char*);
-    bool HandleWardenCommand(char*);
-    bool HandleWardenReadCommand(char*);
-    bool HandleClientInfosCommand(char*);
-    bool HandleClientSearchCommand(char*);
-    // Custom
-    bool HandleCartographerCommand(char*);
-    bool HandleListAddonsCommand(char*);
-    bool HandleUpdateWorldStateCommand(char*);
+        bool HandleGodCommand(char *);
+        bool HandleGMOptionsCommand(char *);
+        bool HandleAnticheatCommand(char *);
+        bool HandleWardenCommand(char *);
+        bool HandleWardenReadCommand(char *);
+        bool HandleClientInfosCommand(char* );
+        bool HandleClientSearchCommand(char* );
+        //Custom
+        bool HandleCartographerCommand(char *);
+        bool HandleListAddonsCommand(char *);
+        bool HandleUpdateWorldStateCommand(char *);
     bool HandleCastCustomCommand(char* args);
-    bool HandleSendSpellVisualCommand(char*);
-    bool HandleSendSpellImpactCommand(char*);
+        // bot adds .perfmon/.bot/.rndbot commands via ChatHandler.
+        bool HandleSendSpellVisualCommand(char *);
+        bool HandleSendSpellImpactCommand(char *);
     bool HandleServiceDeleteCharacters(char* args);
     bool HandleUnstuckCommand(char* args);
     bool HandleGoldRemoval(char* args);
@@ -278,10 +276,10 @@ protected:
     Object* GetObjectHelper(CommandStream& stream, uint32& lowGuid, uint32& index);
 
     // spell_disabled
-    bool HandleReloadSpellDisabledCommand(char* args);
+        bool HandleReloadSpellDisabledCommand(char *args);
     // AutoBroadCast
-    bool HandleReloadAutoBroadcastCommand(char* args);
-    bool HandleReloadItemTemplate(char*);
+        bool HandleReloadAutoBroadcastCommand(char *args);
+        bool HandleReloadItemTemplate(char *);
     // Managing saved variables
     bool HandleVariableCommand(char* args);
     bool HandleReloadVariablesCommand(char* args);
@@ -292,49 +290,49 @@ protected:
     bool HandleGoForwardCommand(char* args);
     bool HandleGoUpCommand(char* args);
     bool HandleReloadHousingCommand(char* args);
-    bool HandleGameObjectTempAddCommand(char* args);
+        bool HandleGameObjectTempAddCommand(char *args);
 
     // Clean characters
-    bool HandleCleanCharactersToDeleteCommand(char* args);
-    bool HandleCleanCharactersItemsCommand(char* args);
+        bool HandleCleanCharactersToDeleteCommand(char *args);
+        bool HandleCleanCharactersItemsCommand(char *args);
 
     // Character mail
     bool HandleCharacterMailListCommand(char* args);
     bool HandleCharacterMailDeleteCommand(char* args);
 
-    // Mmaps
+        //Mmaps
     bool HandleMmapsPathCommand(char* args);
     bool HandleMmapsNearCommand(char* args);
 
-    // Faction
+        //Faction
     bool HandleFactionAtWarCommand(char* args);
 
 
-    // Shellcoin
+        //Shellcoin
     bool HandleShellcoinCommand(char* args);
 
     // Formations
-    bool HandleNpcGroupAddCommand(char* args);
-    bool HandleNpcGroupAddRelCommand(char* args);
-    bool HandleNpcGroupDelCommand(char* args);
+        bool HandleNpcGroupAddCommand(char *args);
+        bool HandleNpcGroupAddRelCommand(char *args);
+        bool HandleNpcGroupDelCommand(char *args);
     bool HandleNpcGroupLinkCommand(char* args);
 
-    bool HandleReloadCreatureGroupsCommand(char* args);
+        bool HandleReloadCreatureGroupsCommand(char *args);
     // Characters
-    bool HandleCharacterFillFlysCommand(char* args);
-    bool HandleFactionChangeItemsCommand(char* args);
+        bool HandleCharacterFillFlysCommand(char *args);
+        bool HandleFactionChangeItemsCommand(char *args);
     // bg
-    bool HandleBGStatusCommand(char* args);
-    bool HandleBGStartCommand(char* args);
-    bool HandleBGStopCommand(char* args);
+        bool HandleBGStatusCommand(char *args);
+        bool HandleBGStartCommand(char *args);
+        bool HandleBGStopCommand(char *args);
     bool HandleBGCustomCommand(char* args);
     // Other
-    bool HandleFreezeCommand(char* args);
-    bool HandleUnfreezeCommand(char* args);
-    bool HandleUnitStatCommand(char* args);
-    bool HandleBgTestCommand(char* args);
-    bool HandleTurtleCinematic(char* args);
-    bool HandleGetSkillValueCommand(char* args);
+        bool HandleFreezeCommand(char *args);
+        bool HandleUnfreezeCommand(char *args);
+        bool HandleUnitStatCommand(char *args);
+		bool HandleBgTestCommand(char *args);
+		bool HandleTurtleCinematic(char *args);
+		bool HandleGetSkillValueCommand(char *args);
     bool HandleHCMessagesCommand(char* args);
     bool HandlePvPCommand(char* args);
     bool HandleDeleteTransmogCollectionCommand(char* args);
@@ -388,6 +386,7 @@ protected:
     bool HandleReloadLocalesPointsOfInterestCommand(char* args);
     bool HandleReloadLocalesQuestCommand(char* args);
     bool HandleReloadLootTemplatesMailCommand(char* args);
+        bool HandleReloadModuleStringCommand(char* args);
     bool HandleReloadNpcGossipCommand(char* args);
     bool HandleReloadNpcTextCommand(char* args);
     bool HandleReloadNpcTrainerCommand(char* args);
@@ -519,6 +518,7 @@ protected:
     bool HandleGoTriggerCommand(char* args);
     bool HandleGoXYZCommand(char* args);
     bool HandleGoCorpseCommand(char*);
+        bool HandleGoGraveyardCommand(char* args);
 
     bool HandleGuildCreateCommand(char* args);
     bool HandleGuildInviteCommand(char* args);
@@ -660,7 +660,7 @@ protected:
     bool HandlePetDeleteCommand(char* args);
     bool HandlePetLoyaltyCommand(char* args);
 
-    bool HandleReloadMangosStringCommand(char*);
+        bool HandleReloadMangosStringCommand(char *);
 
     bool HandleReloadConfigCommand(char* args);
     bool HandleReloadQuestTemplateCommand(char* args);
@@ -801,9 +801,9 @@ protected:
     bool HandleSaveAllCommand(char* args);
 
 #ifdef USE_ANTICHEAT
-public:
+        public:
 #include "Anticheat/AnticheatChatCommandsFunctions.h"
-protected:
+       protected:
 #else
     bool HandleAnticheatInfoCommand(char* args);
 #endif
@@ -842,7 +842,7 @@ protected:
     bool HandleDebugItemEnchantCommand(int lootid, unsigned int simCount);
 
     bool HandleBlockEggsCommand(char* args);
-    /// Suspicious statistic commands
+		///Suspicious statistic commands
 
     bool HandleSuspiciousEnable(char* args);
     bool HandleSuspiciousMovementEnable(char* args);
@@ -864,7 +864,7 @@ protected:
     bool HandleGetShopLogs(char* args);
 
     // Temp simple waypoints
-    bool HandleCreaturePathSetup(char*);
+        bool HandleCreaturePathSetup(char* );
     bool HandleCreaturePathAddPoint(char*);
     bool HandleCreaturePathLaunch(char*);
 
@@ -885,7 +885,7 @@ protected:
     bool ExtractInt32(char** args, int32& val);
     bool ExtractOptInt32(char** args, int32& val, int32 defVal);
     bool ExtractUInt32Base(char** args, uint32& val, uint32 base);
-    bool ExtractUInt32(char** args, uint32& val) { return ExtractUInt32Base(args, val, 10); }
+        bool  ExtractUInt32(char** args, uint32& val) { return ExtractUInt32Base(args,val, 10); }
     bool ExtractOptUInt32(char** args, uint32& val, uint32 defVal);
     bool ExtractFloat(char** args, float& val);
     bool ExtractOptFloat(char** args, float& val, float defVal);
@@ -916,12 +916,12 @@ protected:
 
     // Utility methods for commands
     bool ShowAccountIpListHelper(char* args, bool onlineonly);
-    void ShowFactionListHelper(FactionEntry const* factionEntry, LocaleConstant loc, FactionState const* repState = nullptr, Player* target = nullptr);
+        void ShowFactionListHelper(FactionEntry const * factionEntry, LocaleConstant loc, FactionState const* repState = nullptr, Player * target = nullptr );
     void ShowItemListHelper(uint32 itemId, int loc_idx, Player* target = nullptr);
     void ShowQuestListHelper(uint32 questId, int32 loc_idx, Player* target = nullptr);
     void ShowSpellListHelper(Player* target, SpellEntry const* spellInfo, LocaleConstant loc);
     void ShowPoolListHelper(uint16 pool_id);
-    void ShowTriggerListHelper(AreaTriggerEntry const* atEntry);
+        void ShowTriggerListHelper(AreaTriggerEntry const * atEntry);
     void ShowTriggerTargetListHelper(uint32 id, AreaTriggerTeleport const* at, bool subpart = false);
     bool LookupPlayerSearchCommand(QueryResult* result, uint32* limit = nullptr);
     bool HandleBanListHelper(QueryResult* result);
@@ -931,7 +931,7 @@ protected:
     bool HandleMuteHistoryHelper(uint32 accountid, char const* accountname);
     void HandleCharacterLevel(Player* player, ObjectGuid player_guid, uint32 oldlevel, uint32 newlevel);
     SkillLineEntry const* FindSkillLineEntryFromProfessionName(char* args, std::string& nameOut);
-    void HandleLearnSkillRecipesHelper(Player* player, uint32 skill_id);
+        void HandleLearnSkillRecipesHelper(Player* player,uint32 skill_id);
     void HandleLearnTrainerHelper(Player* player, TrainerSpellData const* tSpells);
     bool HandleGoHelper(Player* _player, uint32 mapid, float x, float y, float const* zPtr = nullptr, float const* ortPtr = nullptr);
     bool HandleGetValueHelper(Object* target, uint32 field, char* typeStr);
@@ -943,7 +943,7 @@ protected:
     bool HandleSendMailHelper(MailDraft& draft, char* args);
     bool HandleSendMoneyHelper(MailDraft& draft, char* args);
 
-    template <typename T>
+        template<typename T>
     void ShowNpcOrGoSpawnInformation(uint32 guid);
     template <typename T>
     std::string PrepareStringNpcOrGoSpawnInformation(uint32 guid);
@@ -966,10 +966,10 @@ protected:
     void HandleCharacterDeletedListHelper(DeletedInfoList const& foundList);
     void HandleCharacterDeletedRestoreHelper(DeletedInfo& delInfo);
 
-    void SetSentErrorMessage(bool val) { sentErrorMessage = val; };
+        void SetSentErrorMessage(bool val){ sentErrorMessage = val;};
 
-private:
-    WorldSession* m_session; // != nullptr for chat command call and nullptr for CLI command
+    private:
+        WorldSession * m_session;                           // != nullptr for chat command call and nullptr for CLI command
 
     // common global flag
     static std::map<uint32 /*Permission Id*/, std::string /*Permission Name*/> m_rbacPermissionNames;
@@ -980,22 +980,23 @@ private:
 
 class CliHandler : public ChatHandler
 {
-public:
+    public:
     typedef void Print(std::any, char const*);
-    explicit CliHandler(uint32 accountId, AccountTypes accessLevel, std::any callbackArg, Print* zprint) : m_accountId(accountId), m_loginAccessLevel(accessLevel), m_callbackArg(callbackArg), m_print(zprint) {}
+        explicit CliHandler(uint32 accountId, AccountTypes accessLevel, std::any callbackArg, Print* zprint)
+            : m_accountId(accountId), m_loginAccessLevel(accessLevel), m_callbackArg(callbackArg), m_print(zprint) {}
 
     // overwrite functions
-    const char* GetMangosString(int32 entry) const override;
+        const char *GetMangosString(int32 entry) const override;
     uint32 GetAccountId() const override;
     AccountTypes GetAccessLevel() const override;
     bool isAvailable(ChatCommand const& cmd) const override;
-    void SendSysMessage(const char* str) override;
+        void SendSysMessage(const char *str) override;
     std::string GetNameLink() const override;
     bool needReportToTarget(Player* chr, bool forTeleport = false) const override;
     LocaleConstant GetSessionDbcLocale() const override;
     int GetSessionDbLocaleIndex() const override;
 
-private:
+    private:
     uint32 m_accountId;
     AccountTypes m_loginAccessLevel;
     std::any m_callbackArg;
@@ -1004,15 +1005,15 @@ private:
 
 class NullChatHandler : public ChatHandler
 {
-public:
+    public:
     explicit NullChatHandler() {}
 
     // overwrite functions
-    const char* GetMangosString(int32 entry) const override;
+        const char *GetMangosString(int32 entry) const override;
     uint32 GetAccountId() const override { return 0; }
     AccountTypes GetAccessLevel() const override { return SEC_PLAYER; }
     bool isAvailable(ChatCommand const& cmd) const override { return false; }
-    void SendSysMessage(const char* str) override {}
+        void SendSysMessage(const char *str) override {}
     std::string GetNameLink() const override { return ""; }
     LocaleConstant GetSessionDbcLocale() const override;
     int GetSessionDbLocaleIndex() const override;

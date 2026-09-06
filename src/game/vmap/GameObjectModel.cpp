@@ -16,15 +16,15 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#include "VMapDefinitions.h"
 #include "VMapFactory.h"
 #include "VMapManager2.h"
+#include "VMapDefinitions.h"
 #include "WorldModel.h"
 
-#include "DBCStores.h"
 #include "GameObject.h"
-#include "GameObjectModel.h"
 #include "World.h"
+#include "GameObjectModel.h"
+#include "DBCStores.h"
 
 struct GameobjectModelData
 {
@@ -65,11 +65,11 @@ void LoadGameObjectModelList()
         if (v1.isNaN())
         {
             v1 = Vector3::zero();
-            // Models work fine, afaik some collision mismatchihg might be in place.
+            // Models work fine, afaik some collision mismatchihg might be in place. 
             // Some of those models are original from Vanilla and were not modified at any way:
 
             /*
-
+            
             File Easternbacklandscape.wmo seems to be corrupted. V1 variable is NaN
             File Westernbacklandscape.wmo seems to be corrupted. V1 variable is NaN
             File Uppermesac.wmo seems to be corrupted. V1 variable is NaN
@@ -77,7 +77,7 @@ void LoadGameObjectModelList()
             File Be_Gardenstairs01.wmo seems to be corrupted. V1 variable is NaN
             File Sw_Harbor_Lgwall01.wmo seems to be corrupted. V1 variable is NaN
             File Sw_Harbor_Lgwall02.wmo seems to be corrupted. V1 variable is NaN
-
+            
             */
 
             // ERROR_LOG("File %s seems to be corrupted. V1 variable is NaN", buff);
@@ -97,7 +97,10 @@ void LoadGameObjectModelList()
     fclose(model_list_file);
 }
 
-GameObjectModel::~GameObjectModel() {}
+GameObjectModel::~GameObjectModel()
+{
+    
+}
 
 bool GameObjectModel::initialize(const GameObject* const pGo, const GameObjectDisplayInfoEntry* const pDisplayInfo)
 {

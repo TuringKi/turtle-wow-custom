@@ -6,8 +6,8 @@
  */
 
 #include "WardenModuleMgr.hpp"
-#include "../Config.hpp"
 #include "WardenModule.hpp"
+#include "../Config.hpp"
 
 #include "Platform/Define.h"
 #include "Policies/SingletonImp.h"
@@ -15,45 +15,48 @@
 
 #include <ace/OS_NS_dirent.h>
 
-#include <fstream>
-#include <string>
 #include <vector>
+#include <string>
+#include <fstream>
 
 namespace
 {
-    std::vector<std::string> GetModuleNames(const std::string& moduleDir)
+std::vector<std::string> GetModuleNames(const std::string &moduleDir)
+{
+    ACE_DIR *dirp = ACE_OS::opendir(ACE_TEXT(moduleDir.c_str()));
+
+    std::vector<std::string> results;
+
+    if (dirp)
     {
-        ACE_DIR* dirp = ACE_OS::opendir(ACE_TEXT(moduleDir.c_str()));
+        ACE_DIRENT *dp;
 
-        std::vector<std::string> results;
-
-        if (dirp)
+        // look only for .bin files, and assume (for now) that the corresponding .key and .cr files exist
+        while (!!(dp = ACE_OS::readdir(dirp)))
         {
-            ACE_DIRENT* dp;
+            if (strlen(dp->d_name) < 4)
+                continue;
 
-            // look only for .bin files, and assume (for now) that the corresponding .key and .cr files exist
-            while (!!(dp = ACE_OS::readdir(dirp)))
-            {
-                if (strlen(dp->d_name) < 4)
-                    continue;
-
-                if (!memcmp(&dp->d_name[strlen(dp->d_name) - 4], ".bin", 4))
-                    results.emplace_back(moduleDir + "/" + dp->d_name);
-            }
-
-#ifndef _WIN32
-            // this causes a crash on Windows, so just accept a minor memory leak for now
-            ACE_OS::closedir(dirp);
-#endif
+            if (!memcmp(&dp->d_name[strlen(dp->d_name) - 4], ".bin", 4))
+                results.emplace_back(moduleDir + "/" + dp->d_name);
         }
 
-        return results;
+#ifndef _WIN32
+        // this causes a crash on Windows, so just accept a minor memory leak for now
+        ACE_OS::closedir(dirp);
+#endif
     }
-} // namespace
+
+    return results;
+}
+}
 
 WardenModuleMgr sWardenModuleMgr;
 
-WardenModuleMgr::WardenModuleMgr() {}
+WardenModuleMgr::WardenModuleMgr()
+{
+    
+}
 
 void WardenModuleMgr::LoadWardenModules()
 {
@@ -81,14 +84,15 @@ void WardenModuleMgr::LoadWardenModules()
     }
 }
 
-const WardenModule* WardenModuleMgr::GetWindowsModule() const
-{
-    MANGOS_ASSERT(!_winModules.empty());
 
+const WardenModule *WardenModuleMgr::GetWindowsModule() const
+{
+    if (_winModules.empty())
+        return nullptr;
     return &_winModules[urand(0, _winModules.size() - 1)];
 }
 
-const WardenModule* WardenModuleMgr::GetMacModule() const
+const WardenModule *WardenModuleMgr::GetMacModule() const
 {
     MANGOS_ASSERT(!_macModules.empty());
 

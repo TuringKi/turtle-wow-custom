@@ -34,11 +34,18 @@ enum
     NPC_SMOLDERTHORN_BERSERKER = 9268
 };
 
-const float afLocations[2][4] = {{-39.355381f, -513.456482f, 88.472046f, 4.679872f}, {-49.875881f, -511.896942f, 88.195160f, 4.613114f}};
+const float afLocations[2][4] =
+{
+    { -39.355381f, -513.456482f, 88.472046f, 4.679872f},
+    { -49.875881f, -511.896942f, 88.195160f, 4.613114f}
+};
 
 struct boss_overlordwyrmthalakAI : public ScriptedAI
 {
-    boss_overlordwyrmthalakAI(Creature* pCreature) : ScriptedAI(pCreature) { Reset(); }
+    boss_overlordwyrmthalakAI(Creature* pCreature) : ScriptedAI(pCreature)
+    {
+        Reset();
+    }
 
     uint32 m_uiBlastWaveTimer;
     uint32 m_uiShoutTimer;
@@ -139,7 +146,10 @@ struct boss_overlordwyrmthalakAI : public ScriptedAI
     }
 };
 
-CreatureAI* GetAI_boss_overlordwyrmthalak(Creature* pCreature) { return new boss_overlordwyrmthalakAI(pCreature); }
+CreatureAI* GetAI_boss_overlordwyrmthalak(Creature* pCreature)
+{
+    return new boss_overlordwyrmthalakAI(pCreature);
+}
 
 void AddSC_boss_overlordwyrmthalak()
 {

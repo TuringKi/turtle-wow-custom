@@ -21,8 +21,8 @@ SDComment: Missing pre-event to open doors
 SDCategory: Blackrock Depths
 EndScriptData */
 
-#include "blackrock_depths.h"
 #include "scriptPCH.h"
+#include "blackrock_depths.h"
 
 enum
 {
@@ -71,11 +71,11 @@ struct boss_magmusAI : public ScriptedAI
 
     void UpdateAI(const uint32 uiDiff) override
     {
-        // Return since we have no target
+        //Return since we have no target
         if (!m_creature->SelectHostileTarget() || !m_creature->GetVictim())
             return;
 
-        // FieryBurst_Timer
+        //FieryBurst_Timer
         if (m_uiFieryBurst_Timer < uiDiff)
         {
             DoCastSpellIfCan(m_creature->GetVictim(), SPELL_FIERYBURST);
@@ -84,7 +84,7 @@ struct boss_magmusAI : public ScriptedAI
         else
             m_uiFieryBurst_Timer -= uiDiff;
 
-        // WarStomp_Timer
+        //WarStomp_Timer
         if (m_creature->GetHealthPercent() < 51.0f)
         {
             if (m_uiWarStomp_Timer < uiDiff)
@@ -100,11 +100,14 @@ struct boss_magmusAI : public ScriptedAI
     }
 };
 
-CreatureAI* GetAI_boss_magmus(Creature* pCreature) { return new boss_magmusAI(pCreature); }
+CreatureAI* GetAI_boss_magmus(Creature* pCreature)
+{
+    return new boss_magmusAI(pCreature);
+}
 
 void AddSC_boss_magmus()
 {
-    Script* newscript;
+    Script *newscript;
     newscript = new Script;
     newscript->Name = "boss_magmus";
     newscript->GetAI = &GetAI_boss_magmus;

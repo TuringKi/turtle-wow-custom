@@ -1,45 +1,46 @@
 #pragma once
 
-#include "AllocatorWithCategory.h"
 #include "Common.h"
 #include "SharedDefines.h"
 #include "Timer.h"
+#include "AllocatorWithCategory.h"
 
 class ChatHandler;
 
 struct PerformanceMonitor : public IPerfMonitor
 {
-    PerformanceMonitor();
+	PerformanceMonitor();
 
-    void Initialize();
-    void FrameStart();
-    void FrameEnd(uint32 delta);
+	void Initialize();
+	void FrameStart();
+	void FrameEnd(uint32 delta);
 
-    void SetReportInterval(uint32 IntervalInSeconds);
+	void SetReportInterval(uint32 IntervalInSeconds);
 
-    void ReportCPU(ChatHandler& Handler);
-    void ReportMemory(ChatHandler& Handler);
+	void ReportCPU(ChatHandler& Handler);
+	void ReportMemory(ChatHandler& Handler);
 
-    virtual void ReportAlloc(const char* Category, size_t Bytes) override;
-    virtual void ReportDealloc(const char* Category, size_t Bytes) override;
+	virtual void ReportAlloc(const char* Category, size_t Bytes) override;
+	virtual void ReportDealloc(const char* Category, size_t Bytes) override;
 
-    XStatTimer Tick;
-    XStatTimer WorldSleep;
-    XStatTimer WorldTick;
-    XStatTimer UpdateSession;
-    XStatTimer MapManager;
-    XStatTimer TEST0;
+	XStatTimer Tick;
+	XStatTimer WorldSleep;
+	XStatTimer WorldTick;
+	XStatTimer UpdateSession;
+	XStatTimer MapManager;
+	XStatTimer TEST0;
 
 protected:
-    uint32 QPC_Counter = 0;
 
-    void ReportPerformanceToDB();
+	uint32 QPC_Counter = 0;
 
-    IntervalTimer IntervalReport;
+	void ReportPerformanceToDB();
 
-    using MemBytesMap = std::unordered_map<const char*, int64>;
-    MemBytesMap MemBytes;
-    std::mutex MemBytesGuard;
+	IntervalTimer IntervalReport;
+
+	using MemBytesMap = std::unordered_map<const char*, int64>;
+	MemBytesMap MemBytes;
+	std::mutex MemBytesGuard;
 };
 
 extern PerformanceMonitor sPerfMonitor;

@@ -14,27 +14,27 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-/* ScriptData
- SDName: Silithus
- SD%Complete: 100
- SDComment: Quest support: 7785, 8304, 8534, 8519.
- SDCategory: Silithus
- EndScriptData */
+ /* ScriptData
+  SDName: Silithus
+  SD%Complete: 100
+  SDComment: Quest support: 7785, 8304, 8534, 8519.
+  SDCategory: Silithus
+  EndScriptData */
 
-/* ContentData
- npc_highlord_demitrian
- npcs_rutgar_and_frankal
- go_pierre_vents
- EndContentData */
+  /* ContentData
+   npc_highlord_demitrian
+   npcs_rutgar_and_frankal
+   go_pierre_vents
+   EndContentData */
 
 #include "AbilityTimer.h"
+#include "scriptPCH.h"
 #include "Database/DatabaseEnv.h"
 #include "HardcodedEvents.h"
-#include "scriptPCH.h"
 
-/*###
- ## npc_highlord_demitrian
- ###*/
+   /*###
+    ## npc_highlord_demitrian
+    ###*/
 
 #define GOSSIP_ITEM_DEMITRIAN1 "What do you know of it?"
 #define GOSSIP_ITEM_DEMITRIAN2 "I am listening , Demitrian."
@@ -70,10 +70,12 @@ bool GossipHello_npc_highlord_demitrian(Player* pPlayer, Creature* pCreature)
     if (pCreature->IsQuestGiver())
         pPlayer->PrepareQuestMenu(pCreature->GetGUID());
 
-    if (pPlayer->GetQuestStatus(QUEST_EXAMINE_THE_VESSEL) == QUEST_STATUS_NONE && (pPlayer->HasItemCount(ITEM_BINDINGS_WINDSEEKER_LEFT, 1, false) || pPlayer->HasItemCount(ITEM_BINDINGS_WINDSEEKER_RIGHT, 1, false)))
+    if (pPlayer->GetQuestStatus(QUEST_EXAMINE_THE_VESSEL) == QUEST_STATUS_NONE &&
+        (pPlayer->HasItemCount(ITEM_BINDINGS_WINDSEEKER_LEFT, 1, false) || pPlayer->HasItemCount(ITEM_BINDINGS_WINDSEEKER_RIGHT, 1, false)))
         pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_DEMITRIAN1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
 
-    if (pPlayer->GetQuestStatus(QUEST_THUNDERAAN_WINDSEEKER) == QUEST_STATUS_COMPLETE && pPlayer->GetQuestStatus(QUEST_RISE_THUNDERFURY) == QUEST_STATUS_NONE && !pPlayer->HasItemCount(ITEM_DORMANT_BLADE, 1, true))
+    if (pPlayer->GetQuestStatus(QUEST_THUNDERAAN_WINDSEEKER) == QUEST_STATUS_COMPLETE && pPlayer->GetQuestStatus(QUEST_RISE_THUNDERFURY) == QUEST_STATUS_NONE &&
+        !pPlayer->HasItemCount(ITEM_DORMANT_BLADE, 1, true))
         pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, BROADCAST_TEXTID_DEMITRIAN, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 7);
 
     pPlayer->SEND_GOSSIP_MENU(pPlayer->GetGossipTextId(pCreature), pCreature->GetGUID());
@@ -110,25 +112,25 @@ bool GossipSelect_npc_highlord_demitrian(Player* pPlayer, Creature* pCreature, u
         pPlayer->SEND_GOSSIP_MENU(GOSSIP_TEXTID_DEMITRIAN6, pCreature->GetGUID());
         break;
     case GOSSIP_ACTION_INFO_DEF + 6:
-        {
-            pPlayer->SEND_GOSSIP_MENU(GOSSIP_TEXTID_DEMITRIAN7, pCreature->GetGUID());
+    {
+        pPlayer->SEND_GOSSIP_MENU(GOSSIP_TEXTID_DEMITRIAN7, pCreature->GetGUID());
 
-            ItemPosCountVec dest;
-            uint8 msg = pPlayer->CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, ITEM_VESSEL_OF_REBIRTH, 1);
-            if (msg == EQUIP_ERR_OK)
-                pPlayer->StoreNewItem(dest, ITEM_VESSEL_OF_REBIRTH, true);
-            break;
-        }
+        ItemPosCountVec dest;
+        uint8 msg = pPlayer->CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, ITEM_VESSEL_OF_REBIRTH, 1);
+        if (msg == EQUIP_ERR_OK)
+            pPlayer->StoreNewItem(dest, ITEM_VESSEL_OF_REBIRTH, true);
+        break;
+    }
     case GOSSIP_ACTION_INFO_DEF + 7:
-        {
-            pPlayer->SEND_GOSSIP_MENU(GOSSIP_TEXTID_DEMITRIAN8, pCreature->GetGUID());
+    {
+        pPlayer->SEND_GOSSIP_MENU(GOSSIP_TEXTID_DEMITRIAN8, pCreature->GetGUID());
 
-            if (Creature* pThunderaan = GetClosestCreatureWithEntry(pCreature, NPC_PRINCE_THUNDERAAN, 200.0f))
-                return true;
+        if (Creature* pThunderaan = GetClosestCreatureWithEntry(pCreature, NPC_PRINCE_THUNDERAAN, 200.0f))
+            return true;
 
-            pCreature->SummonCreature(NPC_PRINCE_THUNDERAAN, -6255.0f, 1706.59f, 6.137f, 1.323f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 1800000);
-            break;
-        }
+        pCreature->SummonCreature(NPC_PRINCE_THUNDERAAN, -6255.0f, 1706.59f, 6.137f, 1.323f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 1800000);
+        break;
+    }
     }
     return true;
 }
@@ -170,57 +172,27 @@ struct go_wind_stoneAI : public GameObjectAI
     bool OnActivateBySpell(WorldObject* caster, uint32 spellId, uint32 action) override
     {
         uint32 npcEntry = 0;
-        static constexpr uint32 templars[] = {15209, 15211, 15212, 15307};
-        static constexpr uint32 dukes[] = {15206, 15207, 15208, 15220};
-        static constexpr uint32 royals[] = {15203, 15204, 15205, 15305};
+        static constexpr uint32 templars[] = { 15209, 15211, 15212, 15307 };
+        static constexpr uint32 dukes[] = { 15206, 15207, 15208, 15220 };
+        static constexpr uint32 royals[] = { 15203, 15204, 15205, 15305 };
 
         switch (spellId)
         {
-        case 24734:
-            npcEntry = templars[urand(0, 3)];
-            break; // Summon Templar Random
-        case 24763:
-            npcEntry = dukes[urand(0, 3)];
-            break; // Summon Duke Random
-        case 24784:
-            npcEntry = royals[urand(0, 3)];
-            break; // Summon Royal Random
-        case 24744:
-            npcEntry = 15209;
-            break; // Summon Templar (fire)
-        case 24756:
-            npcEntry = 15212;
-            break; // Summon Templar (air)
-        case 24758:
-            npcEntry = 15307;
-            break; // Summon Templar (earth)
-        case 24760:
-            npcEntry = 15211;
-            break; // Summon Templar (water)
-        case 24765:
-            npcEntry = 15206;
-            break; // Summon Duke (fire)
-        case 24768:
-            npcEntry = 15220;
-            break; // Summon Duke (air)
-        case 24770:
-            npcEntry = 15208;
-            break; // Summon Duke (earth)
-        case 24772:
-            npcEntry = 15207;
-            break; // Summon Duke (water)
-        case 24786:
-            npcEntry = 15203;
-            break; // Summon Royal (fire)
-        case 24788:
-            npcEntry = 15204;
-            break; // Summon Royal (air)
-        case 24789:
-            npcEntry = 15205;
-            break; // Summon Royal (earth)
-        case 24790:
-            npcEntry = 15305;
-            break; // Summon Royal (water)
+        case 24734: npcEntry = templars[urand(0, 3)]; break; // Summon Templar Random
+        case 24763: npcEntry = dukes[urand(0, 3)];    break; // Summon Duke Random
+        case 24784: npcEntry = royals[urand(0, 3)];   break; // Summon Royal Random
+        case 24744: npcEntry = 15209;                 break; // Summon Templar (fire)
+        case 24756: npcEntry = 15212;                 break; // Summon Templar (air)
+        case 24758: npcEntry = 15307;                 break; // Summon Templar (earth)
+        case 24760: npcEntry = 15211;                 break; // Summon Templar (water)
+        case 24765: npcEntry = 15206;                 break; // Summon Duke (fire)
+        case 24768: npcEntry = 15220;                 break; // Summon Duke (air)
+        case 24770: npcEntry = 15208;                 break; // Summon Duke (earth)
+        case 24772: npcEntry = 15207;                 break; // Summon Duke (water)
+        case 24786: npcEntry = 15203;                 break; // Summon Royal (fire)
+        case 24788: npcEntry = 15204;                 break; // Summon Royal (air)
+        case 24789: npcEntry = 15205;                 break; // Summon Royal (earth)
+        case 24790: npcEntry = 15305;                 break; // Summon Royal (water)
         }
 
         if (!npcEntry)
@@ -263,27 +235,22 @@ struct go_wind_stoneAI : public GameObjectAI
 
         if (Creature* pCreature = me->SummonCreature(npcEntry, x, y, z, o, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, MINUTE * IN_MILLISECONDS, false, 7000))
         {
-            pCreature->m_Events.AddLambdaEventAtOffset(
-                [pCreature, casterGuid = caster->GetObjectGuid()]
+            pCreature->m_Events.AddLambdaEventAtOffset([pCreature, casterGuid = caster->GetObjectGuid()]
                 {
                     if (Player* pPlayer = pCreature->GetMap()->GetPlayer(casterGuid))
                         pCreature->SetFacingToObject(pPlayer);
-                },
-                1500);
+                }, 1500);
 
             if (uint32 textId = GetSpawnText(npcEntry))
             {
-                pCreature->m_Events.AddLambdaEventAtOffset(
-                    [pCreature, textId, casterGuid = caster->GetObjectGuid()]
+                pCreature->m_Events.AddLambdaEventAtOffset([pCreature, textId, casterGuid = caster->GetObjectGuid()]
                     {
                         if (Player* pPlayer = pCreature->GetMap()->GetPlayer(casterGuid))
                             DoScriptText(textId, pCreature, pPlayer);
-                    },
-                    1600);
+                    }, 1600);
             }
 
-            pCreature->m_Events.AddLambdaEventAtOffset(
-                [pCreature, casterGuid = caster->GetObjectGuid()]
+            pCreature->m_Events.AddLambdaEventAtOffset([pCreature, casterGuid = caster->GetObjectGuid()]
                 {
                     pCreature->AddUnitState(UNIT_STAT_IGNORE_PATHFINDING);
                     pCreature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PLAYER);
@@ -292,15 +259,17 @@ struct go_wind_stoneAI : public GameObjectAI
                         pCreature->AI()->AttackStart(pPlayer);
                         pCreature->SetLootRecipient(pPlayer);
                     }
-                },
-                8000);
+                }, 8000);
         }
         me->Despawn();
         return true;
     }
 };
 
-GameObjectAI* GetAIgo_wind_stone(GameObject* go) { return new go_wind_stoneAI(go); }
+GameObjectAI* GetAIgo_wind_stone(GameObject* go)
+{
+    return new go_wind_stoneAI(go);
+}
 
 enum
 {
@@ -323,15 +292,15 @@ enum
     QUEST_STAVE_OF_THE_ANCIENTS = 7636
 };
 
-#define GOSSIP_ITEM "Show me your real face, demon."
+#define GOSSIP_ITEM                 "Show me your real face, demon."
 
 /*#####
  ## npc_nelson_the_nice
  ######*/
 
-/*#####
- ## npc_solenor_the_slayer
- ######*/
+ /*#####
+  ## npc_solenor_the_slayer
+  ######*/
 
 struct npc_solenorAI : public ScriptedAI
 {
@@ -410,7 +379,7 @@ struct npc_solenorAI : public ScriptedAI
     /** Solenor the Slayer */
     void Aggro(Unit* pWho) override
     {
-        if (pWho->GetClass() == CLASS_HUNTER && (m_hunterGuid.IsEmpty() || m_hunterGuid == pWho->GetObjectGuid()) /*&& pWho->GetQuestStatus(QUEST_STAVE_OF_THE_ANCIENTS) == QUEST_STATUS_INCOMPLETE*/)
+        if (pWho->GetClass() == CLASS_HUNTER && (m_hunterGuid.IsEmpty() || m_hunterGuid == pWho->GetObjectGuid())/*&& pWho->GetQuestStatus(QUEST_STAVE_OF_THE_ANCIENTS) == QUEST_STATUS_INCOMPLETE*/)
         {
             m_hunterGuid = pWho->GetObjectGuid();
         }
@@ -431,7 +400,10 @@ struct npc_solenorAI : public ScriptedAI
             pSummoned->AI()->AttackStart(m_creature->GetVictim());
     }
 
-    void JustDied(Unit* /*pKiller*/) override { m_creature->SetHomePosition(-7724.21f, 1676.43f, 7.0571f, 4.80044f); }
+    void JustDied(Unit* /*pKiller*/) override
+    {
+        m_creature->SetHomePosition(-7724.21f, 1676.43f, 7.0571f, 4.80044f);
+    }
 
     void DemonDespawn(bool triggered = true)
     {
@@ -472,11 +444,11 @@ struct npc_solenorAI : public ScriptedAI
             case 2974: // Wing Clip (Rank 1)
             case 14267: // Wing Clip (Rank 2)
             case 14268: // Wing Clip (Rank 3)
-                {
-                    if (DoCastSpellIfCan(m_creature, SPELL_CRIPPLING_CLIP, CF_TRIGGERED) == CAST_OK)
-                        DoScriptText(EMOTE_IMMOBILIZED, m_creature);
-                    break;
-                }
+            {
+                if (DoCastSpellIfCan(m_creature, SPELL_CRIPPLING_CLIP, CF_TRIGGERED) == CAST_OK)
+                    DoScriptText(EMOTE_IMMOBILIZED, m_creature);
+                break;
+            }
             }
         }
     }
@@ -570,7 +542,8 @@ struct npc_solenorAI : public ScriptedAI
 
 bool GossipHello_npc_solenor(Player* pPlayer, Creature* pCreature)
 {
-    if (pPlayer->GetQuestStatus(QUEST_STAVE_OF_THE_ANCIENTS) == QUEST_STATUS_INCOMPLETE || (pPlayer->GetLevel() >= 60 && pPlayer->GetClass() == CLASS_HUNTER && pPlayer->HasItemCount(51636, 1)))
+    if (pPlayer->GetQuestStatus(QUEST_STAVE_OF_THE_ANCIENTS) == QUEST_STATUS_INCOMPLETE ||
+        (pPlayer->GetLevel() >= 60 && pPlayer->GetClass() == CLASS_HUNTER && pPlayer->HasItemCount(51636, 1)))
         pPlayer->ADD_GOSSIP_ITEM(0, GOSSIP_ITEM, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
 
     pPlayer->SEND_GOSSIP_MENU(pPlayer->GetGossipTextId(pCreature), pCreature->GetObjectGuid());
@@ -584,7 +557,10 @@ bool GossipSelect_npc_solenor(Player* pPlayer, Creature* pCreature, uint32 uiSen
     return true;
 }
 
-CreatureAI* GetAI_npc_solenor(Creature* pCreature) { return new npc_solenorAI(pCreature); }
+CreatureAI* GetAI_npc_solenor(Creature* pCreature)
+{
+    return new npc_solenorAI(pCreature);
+}
 
 /*#####
  ## npc_creeping_doom
@@ -594,7 +570,7 @@ struct npc_creeping_doomAI : public ScriptedAI
 {
     npc_creeping_doomAI(Creature* pCreature) : ScriptedAI(pCreature) { Reset(); }
 
-    void Reset() override{};
+    void Reset() override {};
 
     void DamageTaken(Unit* pDoneBy, uint32& uiDamage) override
     {
@@ -608,7 +584,10 @@ struct npc_creeping_doomAI : public ScriptedAI
     }
 };
 
-CreatureAI* GetAI_npc_creeping_doom(Creature* pCreature) { return new npc_creeping_doomAI(pCreature); }
+CreatureAI* GetAI_npc_creeping_doom(Creature* pCreature)
+{
+    return new npc_creeping_doomAI(pCreature);
+}
 
 /*#####
  ## npc_prince_thunderaan
@@ -662,7 +641,7 @@ struct npc_prince_thunderaanAI : public ScriptedAI
     {
         if (!emerged)
         {
-            m_creature->CastSpell(m_creature, 20568, false); // Ragnaros Emerge
+            m_creature->CastSpell(m_creature, 20568, false);     // Ragnaros Emerge
             emerged = true;
         }
 
@@ -689,7 +668,10 @@ struct npc_prince_thunderaanAI : public ScriptedAI
     }
 };
 
-CreatureAI* GetAI_npc_prince_thunderaan(Creature* pCreature) { return new npc_prince_thunderaanAI(pCreature); }
+CreatureAI* GetAI_npc_prince_thunderaan(Creature* pCreature)
+{
+    return new npc_prince_thunderaanAI(pCreature);
+}
 
 
 /*#####
@@ -743,9 +725,13 @@ struct npc_colossusAI : public ScriptedAI
         m_uiColossalSmashEmoteTimer = 0;
     }
 
-    void SpellHitTarget(Unit* pCaster, const SpellEntry* pSpell) override {}
+    void SpellHitTarget(Unit* pCaster, const SpellEntry* pSpell) override
+    {
+    }
 
-    void Aggro(Unit* pWho) override {}
+    void Aggro(Unit* pWho) override
+    {
+    }
 
     void EnterEvadeMode() override
     {
@@ -819,17 +805,21 @@ struct npc_colossusAI : public ScriptedAI
     }
 };
 
-CreatureAI* GetAI_npc_colossus(Creature* pCreature) { return new npc_colossusAI(pCreature); }
+CreatureAI* GetAI_npc_colossus(Creature* pCreature)
+{
+    return new npc_colossusAI(pCreature);
+}
+
 
 
 /*###
  ## npc_Geologist_Larksbane
  ###*/
 
-/*UPDATE `gameobject_template` SET `size` = 1.5, `data2` = 39321600, `type` = 1 WHERE `entry` = 210342;
- UPDATE `gameobject_template` SET data2 = 39321600 WHERE `entry` = 180514;
- DELETE FROM `gameobject` WHERE `id` IN (180514, 210342);
- UPDATE `creature_template` SET `script_name` = 'npc_Geologist_Larksbane' WHERE `entry` = 15183;*/
+ /*UPDATE `gameobject_template` SET `size` = 1.5, `data2` = 39321600, `type` = 1 WHERE `entry` = 210342;
+  UPDATE `gameobject_template` SET data2 = 39321600 WHERE `entry` = 180514;
+  DELETE FROM `gameobject` WHERE `id` IN (180514, 210342);
+  UPDATE `creature_template` SET `script_name` = 'npc_Geologist_Larksbane' WHERE `entry` = 15183;*/
 
 enum
 {
@@ -839,7 +829,10 @@ enum
 
 struct npc_Geologist_LarksbaneAI : public ScriptedAI
 {
-    npc_Geologist_LarksbaneAI(Creature* pCreature) : ScriptedAI(pCreature) { Reset(); }
+    npc_Geologist_LarksbaneAI(Creature* pCreature) : ScriptedAI(pCreature)
+    {
+        Reset();
+    }
 
     std::list<uint64> lCrystalGUIDs;
     uint32 uiNextActionTimer;
@@ -875,213 +868,213 @@ struct npc_Geologist_LarksbaneAI : public ScriptedAI
         switch (uiCurrAction)
         {
         case 1:
-            {
-                m_creature->HandleEmote(EMOTE_ONESHOT_TALK);
-                m_creature->MonsterSay(10762);
-                uiNextActionTimer = 4000;
-                break;
-            }
+        {
+            m_creature->HandleEmote(EMOTE_ONESHOT_TALK);
+            m_creature->MonsterSay(10762);
+            uiNextActionTimer = 4000;
+            break;
+        }
         case 2:
+        {
+            for (const auto& guid : lCrystalGUIDs)
             {
-                for (const auto& guid : lCrystalGUIDs)
-                {
-                    if (GameObject* pCrystal = m_creature->GetMap()->GetGameObject(guid))
-                        pCrystal->Use(m_creature);
-                }
-                uiNextActionTimer = 5000;
-                break;
+                if (GameObject* pCrystal = m_creature->GetMap()->GetGameObject(guid))
+                    pCrystal->Use(m_creature);
             }
+            uiNextActionTimer = 5000;
+            break;
+        }
         case 3:
-            {
-                m_creature->HandleEmote(EMOTE_ONESHOT_TALK);
-                m_creature->MonsterSay(10829);
-                uiNextActionTimer = 7000;
-                break;
-            }
+        {
+            m_creature->HandleEmote(EMOTE_ONESHOT_TALK);
+            m_creature->MonsterSay(10829);
+            uiNextActionTimer = 7000;
+            break;
+        }
         case 4:
-            {
-                m_creature->HandleEmote(EMOTE_ONESHOT_TALK);
-                m_creature->MonsterSay(10830);
-                uiNextActionTimer = 11000;
-                break;
-            }
+        {
+            m_creature->HandleEmote(EMOTE_ONESHOT_TALK);
+            m_creature->MonsterSay(10830);
+            uiNextActionTimer = 11000;
+            break;
+        }
         case 5:
-            {
-                m_creature->HandleEmote(EMOTE_ONESHOT_TALK);
-                m_creature->MonsterSay(10831);
-                uiNextActionTimer = 9000;
-                break;
-            }
+        {
+            m_creature->HandleEmote(EMOTE_ONESHOT_TALK);
+            m_creature->MonsterSay(10831);
+            uiNextActionTimer = 9000;
+            break;
+        }
         case 6:
-            {
-                m_creature->HandleEmote(EMOTE_ONESHOT_TALK);
-                m_creature->MonsterSay(10832);
-                uiNextActionTimer = 11000;
-                break;
-            }
+        {
+            m_creature->HandleEmote(EMOTE_ONESHOT_TALK);
+            m_creature->MonsterSay(10832);
+            uiNextActionTimer = 11000;
+            break;
+        }
         case 7:
-            {
-                m_creature->HandleEmote(EMOTE_ONESHOT_TALK);
-                m_creature->MonsterSay(10833);
-                uiNextActionTimer = 11000;
-                break;
-            }
+        {
+            m_creature->HandleEmote(EMOTE_ONESHOT_TALK);
+            m_creature->MonsterSay(10833);
+            uiNextActionTimer = 11000;
+            break;
+        }
         case 8:
-            {
-                m_creature->HandleEmote(EMOTE_ONESHOT_EXCLAMATION);
-                m_creature->MonsterSay(10836);
-                uiNextActionTimer = 9000;
-                break;
-            }
+        {
+            m_creature->HandleEmote(EMOTE_ONESHOT_EXCLAMATION);
+            m_creature->MonsterSay(10836);
+            uiNextActionTimer = 9000;
+            break;
+        }
         case 9:
-            {
-                m_creature->MonsterTextEmote(10837, nullptr, false);
-                uiNextActionTimer = 3000;
-                break;
-            }
+        {
+            m_creature->MonsterTextEmote(10837, nullptr, false);
+            uiNextActionTimer = 3000;
+            break;
+        }
         case 10:
-            {
-                m_creature->HandleEmote(EMOTE_ONESHOT_TALK);
-                m_creature->MonsterSay(10838);
-                uiNextActionTimer = 4000;
-                break;
-            }
+        {
+            m_creature->HandleEmote(EMOTE_ONESHOT_TALK);
+            m_creature->MonsterSay(10838);
+            uiNextActionTimer = 4000;
+            break;
+        }
         case 11:
-            {
-                m_creature->HandleEmote(EMOTE_ONESHOT_TALK);
-                m_creature->MonsterSay(10839);
-                uiNextActionTimer = 12000;
-                break;
-            }
+        {
+            m_creature->HandleEmote(EMOTE_ONESHOT_TALK);
+            m_creature->MonsterSay(10839);
+            uiNextActionTimer = 12000;
+            break;
+        }
         case 12:
-            {
-                m_creature->HandleEmote(EMOTE_ONESHOT_EXCLAMATION);
-                m_creature->MonsterSay(10840);
-                uiNextActionTimer = 9000;
-                break;
-            }
+        {
+            m_creature->HandleEmote(EMOTE_ONESHOT_EXCLAMATION);
+            m_creature->MonsterSay(10840);
+            uiNextActionTimer = 9000;
+            break;
+        }
         case 13:
-            {
-                m_creature->HandleEmote(EMOTE_ONESHOT_TALK);
-                m_creature->MonsterSay(10841);
-                uiNextActionTimer = 9000;
-                break;
-            }
+        {
+            m_creature->HandleEmote(EMOTE_ONESHOT_TALK);
+            m_creature->MonsterSay(10841);
+            uiNextActionTimer = 9000;
+            break;
+        }
         case 14:
-            {
-                m_creature->HandleEmote(EMOTE_ONESHOT_TALK);
-                m_creature->MonsterSay(10842);
-                uiNextActionTimer = 12000;
-                break;
-            }
+        {
+            m_creature->HandleEmote(EMOTE_ONESHOT_TALK);
+            m_creature->MonsterSay(10842);
+            uiNextActionTimer = 12000;
+            break;
+        }
         case 15:
-            {
-                m_creature->HandleEmote(EMOTE_ONESHOT_TALK);
-                m_creature->MonsterSay(10843);
-                uiNextActionTimer = 12000;
-                break;
-            }
+        {
+            m_creature->HandleEmote(EMOTE_ONESHOT_TALK);
+            m_creature->MonsterSay(10843);
+            uiNextActionTimer = 12000;
+            break;
+        }
         case 16:
-            {
-                m_creature->HandleEmote(EMOTE_ONESHOT_TALK);
-                m_creature->MonsterSay(10844);
-                uiNextActionTimer = 12000;
-                break;
-            }
+        {
+            m_creature->HandleEmote(EMOTE_ONESHOT_TALK);
+            m_creature->MonsterSay(10844);
+            uiNextActionTimer = 12000;
+            break;
+        }
         case 17:
-            {
-                m_creature->HandleEmote(EMOTE_ONESHOT_TALK);
-                m_creature->MonsterSay(10845);
-                uiNextActionTimer = 12000;
-                break;
-            }
+        {
+            m_creature->HandleEmote(EMOTE_ONESHOT_TALK);
+            m_creature->MonsterSay(10845);
+            uiNextActionTimer = 12000;
+            break;
+        }
         case 18:
-            {
-                m_creature->HandleEmote(EMOTE_ONESHOT_TALK);
-                m_creature->MonsterSay(10846);
-                uiNextActionTimer = 12000;
-                break;
-            }
+        {
+            m_creature->HandleEmote(EMOTE_ONESHOT_TALK);
+            m_creature->MonsterSay(10846);
+            uiNextActionTimer = 12000;
+            break;
+        }
         case 19:
-            {
-                m_creature->HandleEmote(EMOTE_ONESHOT_TALK);
-                m_creature->MonsterSay(10847);
-                uiNextActionTimer = 12000;
-                break;
-            }
+        {
+            m_creature->HandleEmote(EMOTE_ONESHOT_TALK);
+            m_creature->MonsterSay(10847);
+            uiNextActionTimer = 12000;
+            break;
+        }
         case 20:
-            {
-                m_creature->HandleEmote(EMOTE_ONESHOT_TALK);
-                m_creature->MonsterSay(10848);
-                uiNextActionTimer = 9000;
-                break;
-            }
+        {
+            m_creature->HandleEmote(EMOTE_ONESHOT_TALK);
+            m_creature->MonsterSay(10848);
+            uiNextActionTimer = 9000;
+            break;
+        }
         case 21:
-            {
-                m_creature->HandleEmote(EMOTE_ONESHOT_TALK);
-                m_creature->MonsterSay(10849);
-                uiNextActionTimer = 3000;
-                break;
-            }
+        {
+            m_creature->HandleEmote(EMOTE_ONESHOT_TALK);
+            m_creature->MonsterSay(10849);
+            uiNextActionTimer = 3000;
+            break;
+        }
         case 22:
-            {
-                m_creature->HandleEmote(EMOTE_ONESHOT_TALK);
-                m_creature->MonsterSay(10850);
-                uiNextActionTimer = 12000;
-                break;
-            }
+        {
+            m_creature->HandleEmote(EMOTE_ONESHOT_TALK);
+            m_creature->MonsterSay(10850);
+            uiNextActionTimer = 12000;
+            break;
+        }
         case 23:
-            {
-                m_creature->HandleEmote(EMOTE_ONESHOT_TALK);
-                m_creature->MonsterSay(10851);
-                uiNextActionTimer = 9000;
-                break;
-            }
+        {
+            m_creature->HandleEmote(EMOTE_ONESHOT_TALK);
+            m_creature->MonsterSay(10851);
+            uiNextActionTimer = 9000;
+            break;
+        }
         case 24:
-            {
-                m_creature->HandleEmote(EMOTE_ONESHOT_TALK);
-                m_creature->MonsterSay(10852);
-                uiNextActionTimer = 3000;
-                break;
-            }
+        {
+            m_creature->HandleEmote(EMOTE_ONESHOT_TALK);
+            m_creature->MonsterSay(10852);
+            uiNextActionTimer = 3000;
+            break;
+        }
         case 25:
-            {
-                if (Creature* Crea = m_creature->FindNearestCreature(15180, 50.0f)) // Baristolth of the Shifting Sands
-                    Crea->MonsterTextEmote(10853, nullptr, false);
-                uiNextActionTimer = 4000;
-                break;
-            }
+        {
+            if (Creature* Crea = m_creature->FindNearestCreature(15180, 50.0f))    // Baristolth of the Shifting Sands
+                Crea->MonsterTextEmote(10853, nullptr, false);
+            uiNextActionTimer = 4000;
+            break;
+        }
         case 26:
-            {
-                if (Creature* Crea = m_creature->FindNearestCreature(15180, 50.0f)) // Baristolth of the Shifting Sands
-                    Crea->MonsterSay(10854);
-                uiNextActionTimer = 5000;
-                break;
-            }
+        {
+            if (Creature* Crea = m_creature->FindNearestCreature(15180, 50.0f))    // Baristolth of the Shifting Sands
+                Crea->MonsterSay(10854);
+            uiNextActionTimer = 5000;
+            break;
+        }
         case 27:
+        {
+            for (const auto& guid : lCrystalGUIDs)
             {
-                for (const auto& guid : lCrystalGUIDs)
-                {
-                    if (GameObject* pCrystal = m_creature->GetMap()->GetGameObject(guid))
-                        pCrystal->Delete();
-                }
-                lCrystalGUIDs.clear();
-                uiNextActionTimer = 5000;
-                break;
+                if (GameObject* pCrystal = m_creature->GetMap()->GetGameObject(guid))
+                    pCrystal->Delete();
             }
+            lCrystalGUIDs.clear();
+            uiNextActionTimer = 5000;
+            break;
+        }
         case 28:
-            {
-                m_creature->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
-                m_creature->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
-                uiCurrAction = 0;
-                uiNextActionTimer = 0;
-                return;
-            }
+        {
+            m_creature->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
+            m_creature->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+            uiCurrAction = 0;
+            uiNextActionTimer = 0;
+            return;
+        }
         default:
-            {
-                uiNextActionTimer = 4000;
-                break;
-            }
+        {
+            uiNextActionTimer = 4000;
+            break;
+        }
         }
         ++uiCurrAction;
     }
@@ -1098,7 +1091,10 @@ struct npc_Geologist_LarksbaneAI : public ScriptedAI
     }
 };
 
-CreatureAI* GetAI_npc_Geologist_Larksbane(Creature* pCreature) { return new npc_Geologist_LarksbaneAI(pCreature); }
+CreatureAI* GetAI_npc_Geologist_Larksbane(Creature* pCreature)
+{
+    return new npc_Geologist_LarksbaneAI(pCreature);
+}
 
 bool QuestComplete_npc_Geologist_Larksbane(Player* pPlayer, Creature* pQuestGiver, Quest const* pQuest)
 {
@@ -1123,7 +1119,10 @@ enum
 
 struct npc_Emissary_RomankhanAI : public ScriptedAI
 {
-    npc_Emissary_RomankhanAI(Creature* pCreature) : ScriptedAI(pCreature) { Reset(); }
+    npc_Emissary_RomankhanAI(Creature* pCreature) : ScriptedAI(pCreature)
+    {
+        Reset();
+    }
 
     uint32 m_uiWiltTimer;
     uint32 m_uiSchockTimer;
@@ -1147,9 +1146,15 @@ struct npc_Emissary_RomankhanAI : public ScriptedAI
             guid = 0;
     }
 
-    void Aggro(Unit* pWho) override { m_creature->AddCreatureState(CSTATE_REGEN_MANA); }
+    void Aggro(Unit* pWho) override
+    {
+        m_creature->AddCreatureState(CSTATE_REGEN_MANA);
+    }
 
-    inline float GetManaPercent() { return (((float)m_creature->GetPower(POWER_MANA) / (float)m_creature->GetMaxPower(POWER_MANA)) * 100); }
+    inline float GetManaPercent()
+    {
+        return (((float)m_creature->GetPower(POWER_MANA) / (float)m_creature->GetMaxPower(POWER_MANA)) * 100);
+    }
 
     void SpellHitTarget(Unit* target, const SpellEntry* pSpell) override
     {
@@ -1254,7 +1259,10 @@ struct npc_Emissary_RomankhanAI : public ScriptedAI
     }
 };
 
-CreatureAI* GetAI_npc_Emissary_Romankhan(Creature* pCreature) { return new npc_Emissary_RomankhanAI(pCreature); }
+CreatureAI* GetAI_npc_Emissary_Romankhan(Creature* pCreature)
+{
+    return new npc_Emissary_RomankhanAI(pCreature);
+}
 
 /*###
  ## npc_anachronos_the_ancient
@@ -1318,7 +1326,7 @@ enum
     SAY_ANACHRONOS_EPILOGUE_8 = -1000783,
 
     // The transform spell for Anachronos was removed from DBC
-    // DISPLAY_ID_BRONZE_DRAGON = 15500,
+    //DISPLAY_ID_BRONZE_DRAGON = 15500,
 
     // Spells
     SPELL_GREEN_DRAGON_TRANSFORM = 25105,
@@ -1328,7 +1336,7 @@ enum
 
     SPELL_MERITHRA_WAKE = 25145, // should trigger 25172 on targets
     SPELL_WAKE_VISUAL = 25172,
-    GO_MERITHRA_WAKE = 180604, // For green fog visual
+    GO_MERITHRA_WAKE = 180604,  // For green fog visual
     SPELL_ARYGOS_VENGEANCE = 25149,
     SPELL_VENGEANCE_VISUAL = 25168,
     SPELL_CAELESTRASZ_MOLTEN_RAIN = 25150,
@@ -1374,35 +1382,41 @@ struct EventLocations
     uint32 m_uiEntry;
 };
 
-static EventLocations aEternalBoardNPCs[MAX_DRAGONS] = {
-    {-8029.301f, 1534.612f, 2.609f, 3.121f, NPC_FANDRAL_STAGHELM},
-    {-8034.227f, 1536.580f, 2.609f, 6.161f, NPC_ARYGOS},
-    {-8031.935f, 1532.658f, 2.609f, 1.012f, NPC_CAELESTRASZ},
-    {-8034.106f, 1534.224f, 2.609f, 0.290f, NPC_MERITHRA_OF_THE_DREAM},
+static EventLocations aEternalBoardNPCs[MAX_DRAGONS] =
+{
+    { -8029.301f, 1534.612f, 2.609f, 3.121f, NPC_FANDRAL_STAGHELM},
+    { -8034.227f, 1536.580f, 2.609f, 6.161f, NPC_ARYGOS},
+    { -8031.935f, 1532.658f, 2.609f, 1.012f, NPC_CAELESTRASZ},
+    { -8034.106f, 1534.224f, 2.609f, 0.290f, NPC_MERITHRA_OF_THE_DREAM},
 };
 
-static EventLocations aQirajiWarriors[MAX_CONQUERORS] = {
-    {-8092.12f, 1508.32f, 2.94f, 0.0f, 0},
-    {-8096.54f, 1525.84f, 2.83f, 0.0f, 0}, // Also used as an anchor point for the rest of the summons
-    {-8097.81f, 1541.74f, 2.88f, 0.0f, 0},
+static EventLocations aQirajiWarriors[MAX_CONQUERORS] =
+{
+    { -8092.12f, 1508.32f, 2.94f, 0.0f, 0},
+    { -8096.54f, 1525.84f, 2.83f, 0.0f, 0}, // Also used as an anchor point for the rest of the summons
+    { -8097.81f, 1541.74f, 2.88f, 0.0f, 0},
 };
 
-static EventLocations aEternalBoardMovement[] = {
-    {-8250.951f, 1500.241f, 110.0f, 0.0f, 0}, // Flight position for dragons
-    {-8107.867f, 1526.102f, 2.645f, 0.0f, 0}, // Anachronos gate location
-    {-8103.861f, 1525.923f, 2.677f, 0.0f, 0}, // Fandral gate location
-    {-8110.313f, 1522.049f, 2.618f, 0.0f, 0}, // Shattered scepter
-    {-8100.921f, 1527.740f, 2.871f, 0.0f, 0}, // Fandral epilogue location
-    {-8115.270f, 1515.926f, 3.305f, 0.0f, 0}, // Anachronos gather broken scepter 1
-    {-8116.879f, 1530.615f, 3.762f, 0.0f, 0}, // Anachronos gather broken scepter 2
-    {-7997.790f, 1548.664f, 3.738f, 0.0f, 0}, // Fandral exit location
-    {-8061.933f, 1496.196f, 2.556f, 0.0f, 0}, // Anachronos launch location
-    {-8008.705f, 1446.063f, 44.104f, 0.0f, 0}, // Anachronos flight location
+static EventLocations aEternalBoardMovement[] =
+{
+    { -8250.951f, 1500.241f, 110.0f, 0.0f, 0}, // Flight position for dragons
+    { -8107.867f, 1526.102f, 2.645f, 0.0f, 0}, // Anachronos gate location
+    { -8103.861f, 1525.923f, 2.677f, 0.0f, 0}, // Fandral gate location
+    { -8110.313f, 1522.049f, 2.618f, 0.0f, 0}, // Shattered scepter
+    { -8100.921f, 1527.740f, 2.871f, 0.0f, 0}, // Fandral epilogue location
+    { -8115.270f, 1515.926f, 3.305f, 0.0f, 0}, // Anachronos gather broken scepter 1
+    { -8116.879f, 1530.615f, 3.762f, 0.0f, 0}, // Anachronos gather broken scepter 2
+    { -7997.790f, 1548.664f, 3.738f, 0.0f, 0}, // Fandral exit location
+    { -8061.933f, 1496.196f, 2.556f, 0.0f, 0}, // Anachronos launch location
+    { -8008.705f, 1446.063f, 44.104f, 0.0f, 0}, // Anachronos flight location
 };
 
 struct npc_anachronos_the_ancientAI : public ScriptedAI
 {
-    npc_anachronos_the_ancientAI(Creature* pCreature) : ScriptedAI(pCreature) { Reset(); }
+    npc_anachronos_the_ancientAI(Creature* pCreature) : ScriptedAI(pCreature)
+    {
+        Reset();
+    }
 
     uint32 m_uiEventTimer;
 
@@ -1447,7 +1461,10 @@ struct npc_anachronos_the_ancientAI : public ScriptedAI
         m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_SPAWNING);
     }
 
-    void BeginScene() { m_uiEventTimer = 100; }
+    void BeginScene()
+    {
+        m_uiEventTimer = 100;
+    }
 
     void AbortScene()
     {
@@ -1478,7 +1495,10 @@ struct npc_anachronos_the_ancientAI : public ScriptedAI
         m_creature->ForcedDespawn(SCENE_BLOCK_TIME);
     }
 
-    void JustDied(Unit* killer) override { AbortScene(); }
+    void JustDied(Unit* killer) override
+    {
+        AbortScene();
+    }
 
     void SetupAQGate(uint32 phase)
     {
@@ -1495,10 +1515,10 @@ struct npc_anachronos_the_ancientAI : public ScriptedAI
     }
 
     void AnimateAQGate(GameObject* go, uint32 phase = AQ_CLOSE)
-    // Phase 0: Open, make invisible
-    // Phase 1: Make (open) doors visible
-    // Phase 2: Close doors
-    // Phase 3: Return to original state if required
+        // Phase 0: Open, make invisible
+        // Phase 1: Make (open) doors visible
+        // Phase 2: Close doors
+        // Phase 3: Return to original state if required
     {
         if (nullptr == go)
             return;
@@ -1548,6 +1568,7 @@ struct npc_anachronos_the_ancientAI : public ScriptedAI
                 go->SetVisible(true);
             }
             break;
+
         }
     }
 
@@ -1600,6 +1621,7 @@ struct npc_anachronos_the_ancientAI : public ScriptedAI
             if (Creature* pTemp = m_creature->GetMap()->GetCreature(guid))
                 if (pTemp->GetEntry() == NPC_KALDOREI_INFANTRY)
                     npc->AddThreat(pTemp, 100.0f);
+
     }
 
     void JustSummoned(Creature* pSummoned) override
@@ -1627,7 +1649,7 @@ struct npc_anachronos_the_ancientAI : public ScriptedAI
         case NPC_QIRAJI_DRONE:
         case NPC_QIRAJI_TANK:
             pSummoned->SetFactionTemplateId(14);
-            // pSummoned->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+            //pSummoned->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
             m_lQirajiWarriorsList.push_back(pSummoned->GetObjectGuid());
 
             AddKaldoreiThreat(pSummoned);
@@ -1663,7 +1685,8 @@ struct npc_anachronos_the_ancientAI : public ScriptedAI
             if (Creature* pTemp = m_creature->GetMap()->GetCreature(guid))
             {
                 // Cast trigger spell only on enemies
-                if (pTemp->GetEntry() == NPC_ANUBISATH_CONQUEROR || pTemp->GetEntry() == NPC_QIRAJI_DRONE || pTemp->GetEntry() == NPC_QIRAJI_TANK || pTemp->GetEntry() == NPC_QIRAJI_WASP)
+                if (pTemp->GetEntry() == NPC_ANUBISATH_CONQUEROR || pTemp->GetEntry() == NPC_QIRAJI_DRONE ||
+                    pTemp->GetEntry() == NPC_QIRAJI_TANK || pTemp->GetEntry() == NPC_QIRAJI_WASP)
                 {
                     if (spell == SPELL_WAKE_VISUAL)
                     {
@@ -1891,7 +1914,7 @@ struct npc_anachronos_the_ancientAI : public ScriptedAI
                     // Send Merithra on flight
                     if (Creature* pMerithra = m_creature->GetMap()->GetCreature(m_uiMerithraGUID))
                     {
-                        // pMerithra->SetByteValue(UNIT_FIELD_BYTES_1, 3, UNIT_BYTE1_FLAG_ALWAYS_STAND/* | UNIT_BYTE1_FLAG_UNK_2*/);
+                        //pMerithra->SetByteValue(UNIT_FIELD_BYTES_1, 3, UNIT_BYTE1_FLAG_ALWAYS_STAND/* | UNIT_BYTE1_FLAG_UNK_2*/);
                         pMerithra->SetFly(true);
                         pMerithra->GetMotionMaster()->MovePoint(POINT_ID_EXIT, aEternalBoardMovement[0].m_fX, aEternalBoardMovement[0].m_fY, aEternalBoardMovement[0].m_fZ);
                         pMerithra->ForcedDespawn(20000);
@@ -1944,7 +1967,7 @@ struct npc_anachronos_the_ancientAI : public ScriptedAI
                     // Send Arygos on flight
                     if (Creature* pArygos = m_creature->GetMap()->GetCreature(m_uiArygosGUID))
                     {
-                        // pArygos->SetByteValue(UNIT_FIELD_BYTES_1, 3, UNIT_BYTE1_FLAG_ALWAYS_STAND/* | UNIT_BYTE1_FLAG_UNK_2*/);
+                        //pArygos->SetByteValue(UNIT_FIELD_BYTES_1, 3, UNIT_BYTE1_FLAG_ALWAYS_STAND/* | UNIT_BYTE1_FLAG_UNK_2*/);
                         pArygos->SetFly(true);
                         pArygos->GetMotionMaster()->MovePoint(POINT_ID_EXIT, aEternalBoardMovement[0].m_fX, aEternalBoardMovement[0].m_fY, aEternalBoardMovement[0].m_fZ);
                         pArygos->ForcedDespawn(20000);
@@ -1999,7 +2022,7 @@ struct npc_anachronos_the_ancientAI : public ScriptedAI
                     // Send Caelestrasz on flight
                     if (Creature* pCaelestrasz = m_creature->GetMap()->GetCreature(m_uiCaelestraszGUID))
                     {
-                        // pCaelestrasz->SetByteValue(UNIT_FIELD_BYTES_1, 3, UNIT_BYTE1_FLAG_ALWAYS_STAND/* | UNIT_BYTE1_FLAG_UNK_2*/);
+                        //pCaelestrasz->SetByteValue(UNIT_FIELD_BYTES_1, 3, UNIT_BYTE1_FLAG_ALWAYS_STAND/* | UNIT_BYTE1_FLAG_UNK_2*/);
                         pCaelestrasz->SetFly(true);
                         pCaelestrasz->GetMotionMaster()->MovePoint(POINT_ID_EXIT, aEternalBoardMovement[0].m_fX, aEternalBoardMovement[0].m_fY, aEternalBoardMovement[0].m_fZ);
                         pCaelestrasz->ForcedDespawn(20000);
@@ -2164,8 +2187,8 @@ struct npc_anachronos_the_ancientAI : public ScriptedAI
                     break;
                 case 52:
                     // Spell was removed, manually change the display
-                    // DoCastSpellIfCan(m_creature, SPELL_BRONZE_DRAGON_TRANSFORM);
-                    // m_creature->SetDisplayId(DISPLAY_ID_BRONZE_DRAGON);
+                    //DoCastSpellIfCan(m_creature, SPELL_BRONZE_DRAGON_TRANSFORM);
+                    //m_creature->SetDisplayId(DISPLAY_ID_BRONZE_DRAGON);
                     m_creature->SetWalk(true);
                     m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                     m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_SPAWNING);
@@ -2181,7 +2204,7 @@ struct npc_anachronos_the_ancientAI : public ScriptedAI
                     m_creature->ForcedDespawn(5000);
                     m_creature->SetFly(true);
                     m_creature->GetMotionMaster()->MovePoint(0, aEternalBoardMovement[9].m_fX, aEternalBoardMovement[9].m_fY, aEternalBoardMovement[9].m_fZ);
-                    // m_creature->SetByteValue(UNIT_FIELD_BYTES_1, 3, UNIT_BYTE1_FLAG_ALWAYS_STAND/* | UNIT_BYTE1_FLAG_UNK_2*/);
+                    //m_creature->SetByteValue(UNIT_FIELD_BYTES_1, 3, UNIT_BYTE1_FLAG_ALWAYS_STAND/* | UNIT_BYTE1_FLAG_UNK_2*/);
                     m_uiEventTimer = 0;
                     break;
                 }
@@ -2193,7 +2216,10 @@ struct npc_anachronos_the_ancientAI : public ScriptedAI
     }
 };
 
-CreatureAI* GetAI_npc_anachronos_the_ancient(Creature* pCreature) { return new npc_anachronos_the_ancientAI(pCreature); }
+CreatureAI* GetAI_npc_anachronos_the_ancient(Creature* pCreature)
+{
+    return new npc_anachronos_the_ancientAI(pCreature);
+}
 
 bool QuestAcceptGO_crystalline_tear(Player* pPlayer, GameObject* pGo, const Quest* pQuest)
 {
@@ -2262,17 +2288,15 @@ struct scarab_gongAI : public GameObjectAI
             {
                 switch (eventStage)
                 {
-                case STAGE_OPEN_GATES:
-                    return HandleOpeningStage();
-                case STAGE_WAR:
-                    return HandleWarStage();
-                case STAGE_RESET:
-                    return ResetAQGates();
+                case STAGE_OPEN_GATES: return HandleOpeningStage();
+                case STAGE_WAR:         return HandleWarStage();
+                case STAGE_RESET:      return ResetAQGates();
                 }
+
             }
-            else
-                eventTimer -= uiDiff;
+            else eventTimer -= uiDiff;
         }
+
     }
 
     void NextStage(uint32 timeUntil = 100)
@@ -2375,7 +2399,10 @@ struct scarab_gongAI : public GameObjectAI
     }
 };
 
-GameObjectAI* GetAIscarab_gong(GameObject* go) { return new scarab_gongAI(go); }
+GameObjectAI* GetAIscarab_gong(GameObject* go)
+{
+    return new scarab_gongAI(go);
+}
 
 bool GOHello_scarab_gong(Player* player, GameObject* go)
 {
@@ -2419,7 +2446,10 @@ enum
 
 struct boss_vamAI : public ScriptedAI
 {
-    boss_vamAI(Creature* pCreature) : ScriptedAI(pCreature) { Reset(); }
+    boss_vamAI(Creature* pCreature) : ScriptedAI(pCreature)
+    {
+        Reset();
+    }
 
     uint32 Charge_Timer;
     uint32 KnockBack_Timer;
@@ -2436,17 +2466,21 @@ struct boss_vamAI : public ScriptedAI
         Enraged = false;
     }
 
-    void Aggro(Unit* who) override {}
+    void Aggro(Unit* who) override
+    {
+    }
 
-    void JustDied(Unit* Killer) override {}
+    void JustDied(Unit* Killer) override
+    {
+    }
 
     void UpdateAI(const uint32 diff) override
     {
-        // Return since we have no target
+        //Return since we have no target
         if (!m_creature->SelectHostileTarget() || !m_creature->GetVictim())
             return;
 
-        // Charge_Timer
+        //Charge_Timer
         if (Charge_Timer < diff)
         {
             Charge_Timer = 10000;
@@ -2456,10 +2490,9 @@ struct boss_vamAI : public ScriptedAI
                     Charge_Timer = urand(8000, 16000);
             }
         }
-        else
-            Charge_Timer -= diff;
+        else Charge_Timer -= diff;
 
-        // KnockBack_Timer
+        //KnockBack_Timer
         if (KnockBack_Timer < diff)
         {
             KnockBack_Timer = 15000;
@@ -2469,10 +2502,9 @@ struct boss_vamAI : public ScriptedAI
                     KnockBack_Timer = urand(15000, 25000);
             }
         }
-        else
-            KnockBack_Timer -= diff;
+        else KnockBack_Timer -= diff;
 
-        // Enrage_Timer
+        //Enrage_Timer
         if (!Enraged && Enrage_Timer < diff)
             Enraged = true;
         else if (Enraged)
@@ -2484,7 +2516,10 @@ struct boss_vamAI : public ScriptedAI
     }
 };
 
-CreatureAI* GetAI_boss_vamAI(Creature* pCreature) { return new boss_vamAI(pCreature); }
+CreatureAI* GetAI_boss_vamAI(Creature* pCreature)
+{
+    return new boss_vamAI(pCreature);
+}
 
 
 void AddSC_silithus()

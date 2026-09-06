@@ -27,32 +27,32 @@
 #include "Database/DatabaseEnv.h"
 #include "RealmList.h"
 
-#include "AuthSocket.h"
 #include "Config/Config.h"
 #include "Log.h"
-#include "PatchLimiter.hpp"
+#include "AuthSocket.h"
 #include "SystemConfig.h"
-#include "Util.h"
 #include "revision.h"
+#include "Util.h"
+#include "PatchLimiter.hpp"
 
-#include <openssl/crypto.h>
 #include <openssl/opensslv.h>
+#include <openssl/crypto.h>
 
+#include <ace/Get_Opt.h>
+#include <ace/Dev_Poll_Reactor.h>
+#include <ace/TP_Reactor.h>
 #include <ace/ACE.h>
 #include <ace/Acceptor.h>
-#include <ace/Dev_Poll_Reactor.h>
-#include <ace/Get_Opt.h>
 #include <ace/SOCK_Acceptor.h>
-#include <ace/TP_Reactor.h>
 
-#include "ace/ACE.h"
 #include "ace/MMAP_Memory_Pool.h"
-#include "ace/Malloc_T.h"
 #include "ace/Shared_Memory_MM.h"
+#include "ace/ACE.h"
+#include "ace/Malloc_T.h"
 
 #ifdef USE_SENDGRID
-#include <curl/curl.h>
 #include "MailerService.h"
+#include <curl/curl.h>
 #endif
 
 
@@ -70,15 +70,21 @@ public:
     typedef T* pointer;
     typedef const T* const_pointer;
 
-    SharedMemoryAllocator(ACE_Malloc_T<ACE_MMAP_MEMORY_POOL, ACE_Process_Mutex, ACE_Control_Block>& memory_pool) : memory_allocator_(memory_pool) {}
+    SharedMemoryAllocator(ACE_Malloc_T<ACE_MMAP_MEMORY_POOL, ACE_Process_Mutex, ACE_Control_Block>& memory_pool)
+        : memory_allocator_(memory_pool) {}
 
-    pointer allocate(size_type n, const void* hint = 0) { return static_cast<pointer>(memory_allocator_.malloc(n * sizeof(T))); }
+    pointer allocate(size_type n, const void* hint = 0) {
+        return static_cast<pointer>(memory_allocator_.malloc(n * sizeof(T)));
+    }
 
-    void deallocate(pointer p, size_type n) { memory_allocator_.free(p); }
+    void deallocate(pointer p, size_type n) {
+        memory_allocator_.free(p);
+    }
 
 private:
     ACE_Malloc_T<ACE_MMAP_MEMORY_POOL, ACE_Process_Mutex, ACE_Control_Block>& memory_allocator_;
 };
+
 
 
 bool StartDB();
@@ -86,41 +92,40 @@ void UnhookSignals();
 void HookSignals();
 void UpdateConfigVariables();
 
-bool stopEvent = false; ///< Setting it to true stops the server
+bool stopEvent = false;                                     ///< Setting it to true stops the server
 
-DatabaseType LoginDatabase; ///< Accessor to the realm server database
+DatabaseType LoginDatabase;                                 ///< Accessor to the realm server database
 
 int32 PatchHandlerKBytesDownloadLimit = 1024 * 1024; // 1024 Mb/second
 
 uint64_t MaxDataPerSecond = 1024 * 1024 * 1024; // ^
 
 /// Print out the usage string for this program on the console.
-void usage(const char* prog)
+void usage(const char *prog)
 {
     sLog.outString("Usage: \n %s [<options>]\n"
-                   "    -v, --version            print version and exist\n\r"
-                   "    -c config_file           use config_file as configuration file\n\r"
-#ifdef WIN32
-                   "    Running as service functions:\n\r"
-                   "    -s run                   run as service\n\r"
-                   "    -s install               install service\n\r"
-                   "    -s uninstall             uninstall service\n\r"
-#else
-                   "    Running as daemon functions:\n\r"
-                   "    -s run                   run as daemon\n\r"
-                   "    -s stop                  stop daemon\n\r"
-#endif
-                   ,
-                   prog);
+        "    -v, --version            print version and exist\n\r"
+        "    -c config_file           use config_file as configuration file\n\r"
+        #ifdef WIN32
+        "    Running as service functions:\n\r"
+        "    -s run                   run as service\n\r"
+        "    -s install               install service\n\r"
+        "    -s uninstall             uninstall service\n\r"
+        #else
+        "    Running as daemon functions:\n\r"
+        "    -s run                   run as daemon\n\r"
+        "    -s stop                  stop daemon\n\r"
+        #endif
+        ,prog);
 }
 
 /// Launch the realm server
-extern int main(int argc, char** argv)
+extern int main(int argc, char **argv)
 {
     ///- Command line parsing
     char const* cfg_file = _REALMD_CONFIG;
 
-    char const* options = ":c:s:";
+    char const *options = ":c:s:";
 
     ACE_Get_Opt cmd_opts(argc, argv, options);
     cmd_opts.long_option("version", 'v');
@@ -132,16 +137,16 @@ extern int main(int argc, char** argv)
     {
         switch (option)
         {
-        case 'c':
-            cfg_file = cmd_opts.opt_arg();
-            break;
-        case 'v':
-            printf("Core revion: %s\n", _FULLVERSION);
-            return 0;
+            case 'c':
+                cfg_file = cmd_opts.opt_arg();
+                break;
+            case 'v':
+                printf("Core revion: %s\n", _FULLVERSION);
+                return 0;
 
-        case 's':
+            case 's':
             {
-                const char* mode = cmd_opts.opt_arg();
+                const char *mode = cmd_opts.opt_arg();
 
                 if (!strcmp(mode, "run"))
                     serviceDaemonMode = 'r';
@@ -163,16 +168,16 @@ extern int main(int argc, char** argv)
                 }
                 break;
             }
-        case ':':
-            sLog.outError("Runtime-Error: -%c option requires an input argument", cmd_opts.opt_opt());
-            usage(argv[0]);
-            Log::WaitBeforeContinueIfNeed();
-            return 1;
-        default:
-            sLog.outError("Runtime-Error: bad format of commandline arguments");
-            usage(argv[0]);
-            Log::WaitBeforeContinueIfNeed();
-            return 1;
+            case ':':
+                sLog.outError("Runtime-Error: -%c option requires an input argument", cmd_opts.opt_opt());
+                usage(argv[0]);
+                Log::WaitBeforeContinueIfNeed();
+                return 1;
+            default:
+                sLog.outError("Runtime-Error: bad format of commandline arguments");
+                usage(argv[0]);
+                Log::WaitBeforeContinueIfNeed();
+                return 1;
         }
     }
 
@@ -183,15 +188,15 @@ extern int main(int argc, char** argv)
         return 1;
     }
 
-#ifndef WIN32 // posix daemon commands need apply after config read
+#ifndef WIN32                                               // posix daemon commands need apply after config read
     switch (serviceDaemonMode)
     {
-    case 'r':
-        startDaemon();
-        break;
-    case 's':
-        stopDaemon();
-        break;
+        case 'r':
+            startDaemon();
+            break;
+        case 's':
+            stopDaemon();
+            break;
     }
 #endif
 
@@ -210,7 +215,7 @@ extern int main(int argc, char** argv)
     }
 
     DETAIL_LOG("%s (Library: %s)", OPENSSL_VERSION_TEXT, SSLeay_version(SSLEAY_VERSION));
-    if (SSLeay() < 0x009080bfL)
+    if (SSLeay() < 0x009080bfL )
     {
         DETAIL_LOG("WARNING: Outdated version of OpenSSL lib. Logins to server may not work!");
         DETAIL_LOG("WARNING: Minimal required version [OpenSSL 0.9.8k]");
@@ -226,7 +231,7 @@ extern int main(int argc, char** argv)
     MailerService::set_global_mailer(&mailer);
 #endif
 
-#if defined(ACE_HAS_EVENT_POLL) || defined(ACE_HAS_DEV_POLL)
+#if defined (ACE_HAS_EVENT_POLL) || defined (ACE_HAS_DEV_POLL)
     ACE_Reactor::instance(new ACE_Reactor(new ACE_Dev_Poll_Reactor(ACE::max_handles(), 1), 1), true);
 #else
     ACE_Reactor::instance(new ACE_Reactor(new ACE_TP_Reactor(), true), true);
@@ -236,17 +241,17 @@ extern int main(int argc, char** argv)
 
     /// realmd PID file creation
     std::string pidfile = sConfig.GetStringDefault("PidFile", "");
-    if (!pidfile.empty())
+    if(!pidfile.empty())
     {
         uint32 pid = CreatePIDFile(pidfile);
-        if (!pid)
+        if( !pid )
         {
-            sLog.outError("Cannot create PID file %s.\n", pidfile.c_str());
+            sLog.outError( "Cannot create PID file %s.\n", pidfile.c_str() );
             Log::WaitBeforeContinueIfNeed();
             return 1;
         }
 
-        sLog.outString("Daemon PID: %u\n", pid);
+        sLog.outString( "Daemon PID: %u\n", pid );
     }
 
 #if 0
@@ -272,7 +277,7 @@ extern int main(int argc, char** argv)
 #endif
 
     ///- Initialize the database connection
-    if (!StartDB())
+    if(!StartDB())
     {
         Log::WaitBeforeContinueIfNeed();
         return 1;
@@ -290,7 +295,7 @@ extern int main(int argc, char** argv)
         }
     }
 
-    UpdateConfigVariables();
+	UpdateConfigVariables();
     ///- Get the list of realms for the server
     sRealmList.Initialize(sConfig.GetIntDefault("RealmsStateUpdateDelay", 20));
     if (sRealmList.size() == 0)
@@ -315,7 +320,7 @@ extern int main(int argc, char** argv)
 
     ACE_INET_Addr bind_addr(rmport, bind_ip.c_str());
 
-    if (acceptor.open(bind_addr, ACE_Reactor::instance(), ACE_NONBLOCK) == -1)
+    if(acceptor.open(bind_addr, ACE_Reactor::instance(), ACE_NONBLOCK) == -1)
     {
         sLog.outError("MaNGOS realmd can not bind to %s:%d", bind_ip.c_str(), rmport);
         Log::WaitBeforeContinueIfNeed();
@@ -325,49 +330,51 @@ extern int main(int argc, char** argv)
     ///- Catch termination signals
     HookSignals();
 
-///- Handle affinity for multiple processors and process priority on Windows
-#ifdef WIN32
+    ///- Handle affinity for multiple processors and process priority on Windows
+    #ifdef WIN32
     {
         HANDLE hProcess = GetCurrentProcess();
 
         uint32 Aff = sConfig.GetIntDefault("UseProcessors", 0);
-        if (Aff > 0)
+        if(Aff > 0)
         {
             ULONG_PTR appAff;
             ULONG_PTR sysAff;
 
-            if (GetProcessAffinityMask(hProcess, &appAff, &sysAff))
+            if(GetProcessAffinityMask(hProcess,&appAff,&sysAff))
             {
-                ULONG_PTR curAff = Aff & appAff; // remove non accessible processors
+                ULONG_PTR curAff = Aff & appAff;            // remove non accessible processors
 
-                if (!curAff)
+                if(!curAff )
                 {
-                    sLog.outError("Processors marked in UseProcessors bitmask (hex) %x not accessible for realmd. Accessible processors bitmask (hex): %x", Aff, appAff);
+                    sLog.outError("Processors marked in UseProcessors bitmask (hex) %x not accessible for realmd. Accessible processors bitmask (hex): %x",Aff,appAff);
                 }
                 else
                 {
-                    if (SetProcessAffinityMask(hProcess, curAff))
+                    if(SetProcessAffinityMask(hProcess,curAff))
                         sLog.outString("Using processors (bitmask, hex): %x", curAff);
                     else
                         sLog.outError("Can't set used processors (hex): %x", curAff);
                 }
             }
+            
         }
 
         bool Prio = sConfig.GetBoolDefault("ProcessPriority", false);
-    }
-#endif
 
-    // server has started up successfully => enable async DB requests
+    }
+    #endif
+
+    //server has started up successfully => enable async DB requests
     LoginDatabase.AllowAsyncTransactions();
 
     // maximum counter for next ping
-    uint32 numLoops = (sConfig.GetIntDefault("MaxPingTime", 30) * (MINUTE * 1000000 / 100000));
+    uint32 numLoops = (sConfig.GetIntDefault( "MaxPingTime", 30 ) * (MINUTE * 1000000 / 100000));
     uint32 loopCounter = 0;
 
-#ifndef WIN32
+    #ifndef WIN32
     detachDaemon();
-#endif
+    #endif
     ///- Wait for termination signal
     while (!stopEvent)
     {
@@ -380,12 +387,12 @@ extern int main(int argc, char** argv)
 
         sPatchLimiter.Update(std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now() - start).count());
 
-        if ((++loopCounter) == numLoops)
+        if( (++loopCounter) == numLoops )
         {
             loopCounter = 0;
             DETAIL_LOG("Ping MySQL to keep connection alive");
             LoginDatabase.Ping();
-            UpdateConfigVariables();
+			UpdateConfigVariables();
         }
     }
 
@@ -395,7 +402,7 @@ extern int main(int argc, char** argv)
     ///- Remove signal handling before leaving
     UnhookSignals();
 
-    sLog.outString("Halting process...");
+    sLog.outString( "Halting process..." );
     return 0;
 }
 
@@ -405,15 +412,15 @@ void OnSignal(int s)
 {
     switch (s)
     {
-    case SIGINT:
-    case SIGTERM:
-        stopEvent = true;
-        break;
-#ifdef _WIN32
-    case SIGBREAK:
-        stopEvent = true;
-        break;
-#endif
+        case SIGINT:
+        case SIGTERM:
+            stopEvent = true;
+            break;
+        #ifdef _WIN32
+        case SIGBREAK:
+            stopEvent = true;
+            break;
+        #endif
     }
 
     signal(s, OnSignal);
@@ -423,7 +430,7 @@ void OnSignal(int s)
 bool StartDB()
 {
     std::string dbstring = sConfig.GetStringDefault("LoginDatabaseInfo", "");
-    if (dbstring.empty())
+    if(dbstring.empty())
     {
         sLog.outError("Database not specified");
         return false;
@@ -462,7 +469,7 @@ bool StartDB()
         return false;
     }
 
-    if (!LoginDatabase.Initialize("Login", dbstring.c_str()))
+    if(!LoginDatabase.Initialize("Login", dbstring.c_str()))
     {
         sLog.outError("Cannot connect to database");
         return false;
@@ -473,53 +480,52 @@ bool StartDB()
 
 enum class ConfigId : int32
 {
-    SpeedLimit = 1,
+	SpeedLimit = 1,
     HardSpeedLimit = 2
 };
 
 void UpdateConfigVariables()
 {
-    QueryResult* Result = LoginDatabase.Query("SELECT id, value FROM config");
-    if (Result != nullptr)
-    {
+	QueryResult* Result = LoginDatabase.Query("SELECT id, value FROM config");
+	if (Result != nullptr)
+	{
 
-        do
-        {
-            Field* pFields = Result->Fetch();
-            ConfigId Id = (ConfigId)pFields[0].GetInt32();
-            std::string Value = pFields[1].GetCppString();
+		do
+		{
+			Field* pFields = Result->Fetch();
+			ConfigId Id = (ConfigId)pFields[0].GetInt32();
+			std::string Value = pFields[1].GetCppString();
 
-            switch (Id)
-            {
-            case ConfigId::SpeedLimit:
-                // value - number of kbytes
-                {
-                    int32 kBytes = atoi(Value.c_str());
+			switch (Id)
+			{
+			case ConfigId::SpeedLimit:
+				// value - number of kbytes
+			{
+				int32 kBytes = atoi(Value.c_str());
 
-                    if (PatchHandlerKBytesDownloadLimit != kBytes)
-                    {
-                        sLog.outString("Changing download speed limit from %d kB. to %d kB.", PatchHandlerKBytesDownloadLimit, kBytes);
-                        PatchHandlerKBytesDownloadLimit = kBytes;
-                    }
-                }
-                break;
+				if (PatchHandlerKBytesDownloadLimit != kBytes)
+				{
+					sLog.outString("Changing download speed limit from %d kB. to %d kB.", PatchHandlerKBytesDownloadLimit, kBytes);
+					PatchHandlerKBytesDownloadLimit = kBytes;
+				}
+			}
+				break;
 
             case ConfigId::HardSpeedLimit:
-                {
-                    int32 kBytes = atoi(Value.c_str());
-                    MaxDataPerSecond = (uint64_t)kBytes * 1024;
-                }
-                break;
+            {
+                int32 kBytes = atoi(Value.c_str());
+                MaxDataPerSecond = (uint64_t)kBytes * 1024;
+            }break;
 
-            default:
-                sLog.outError("Unexpected Config Id %d", (int32)Id);
-                break;
-            }
-        }
-        while (Result->NextRow());
+			default:
+				sLog.outError("Unexpected Config Id %d", (int32)Id);
+				break;
+			}
 
-        delete Result;
-    }
+		} while (Result->NextRow());
+
+		delete Result;
+	}
 }
 
 /// Define hook 'OnSignal' for all termination signals
@@ -527,9 +533,9 @@ void HookSignals()
 {
     signal(SIGINT, OnSignal);
     signal(SIGTERM, OnSignal);
-#ifdef _WIN32
+    #ifdef _WIN32
     signal(SIGBREAK, OnSignal);
-#endif
+    #endif
 }
 
 /// Unhook the signals before leaving
@@ -537,9 +543,9 @@ void UnhookSignals()
 {
     signal(SIGINT, 0);
     signal(SIGTERM, 0);
-#ifdef _WIN32
+    #ifdef _WIN32
     signal(SIGBREAK, 0);
-#endif
+    #endif
 }
 
 /// @}

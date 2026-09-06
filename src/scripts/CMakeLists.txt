@@ -19,6 +19,7 @@ dungeons/black_morass/boss_gerastrasz.cpp
 dungeons/black_morass/boss_gerastrasz.hpp
 dungeons/black_morass/instance_black_morass.cpp
 dungeons/blackfathom_deeps/blackfathom_deeps.h
+dungeons/blackfathom_deeps/boss_velthelaxx_the_defiler.cpp
 dungeons/blackfathom_deeps/instance_blackfathom_deeps.cpp
 dungeons/blackrock_depths/arena_challenge_ai.cpp
 dungeons/blackrock_depths/blackrock_depths.cpp
@@ -60,6 +61,31 @@ dungeons/deadmines/boss_mr_smite.cpp
 dungeons/deadmines/deadmines.cpp
 dungeons/deadmines/deadmines.h
 dungeons/deadmines/instance_deadmines.cpp
+dungeons/dragonmaw_retreat/boss_bogpaw_truthsay.cpp
+dungeons/dragonmaw_retreat/boss_gowlfang.cpp
+dungeons/dragonmaw_retreat/boss_halgan_redbrand.cpp
+dungeons/dragonmaw_retreat/boss_searistrasz.cpp
+dungeons/dragonmaw_retreat/boss_zuluhed_the_whacked.cpp
+dungeons/dragonmaw_retreat/dragonmaw_retreat.h
+dungeons/dragonmaw_retreat/instance_dragonmaw_retreat.cpp
+dungeons/frostmane_hollow/boss_hailar_the_frigid.cpp
+dungeons/frostmane_hollow/frostmane_hollow.h
+dungeons/windhorn_canyon/boss_bonespeaker_narlgom.cpp
+dungeons/windhorn_canyon/windhorn_canyon.cpp
+dungeons/windhorn_canyon/windhorn_canyon.h
+dungeons/stormwrought_ruins/boss_chieftain_stormsong.cpp
+dungeons/stormwrought_ruins/boss_dagar_the_glutton.cpp
+dungeons/stormwrought_ruins/boss_deathlord_tidebane.cpp
+dungeons/stormwrought_ruins/boss_duke_balor_iv.cpp
+dungeons/stormwrought_ruins/boss_eldermaw_the_primordial.cpp
+dungeons/stormwrought_ruins/boss_ighalfor.cpp
+dungeons/stormwrought_ruins/boss_lady_drazare.cpp
+dungeons/stormwrought_ruins/boss_librarian_theodorus.cpp
+dungeons/stormwrought_ruins/boss_mycellakos.cpp
+dungeons/stormwrought_ruins/boss_oronok_torn_heart.cpp
+dungeons/stormwrought_ruins/boss_subjugator_halthas_shadecrest.cpp
+dungeons/stormwrought_ruins/instance_stormwrought_ruins.cpp
+dungeons/stormwrought_ruins/stormwrought_ruins.h
 dungeons/dire_maul/boss_gordok_king.cpp
 dungeons/dire_maul/boss_immol_thar.cpp
 dungeons/dire_maul/boss_tendris_warpwood.cpp
@@ -111,12 +137,15 @@ dungeons/molten_core/boss_baron_geddon.cpp
 dungeons/molten_core/boss_garr.cpp
 dungeons/molten_core/boss_gehennas.cpp
 dungeons/molten_core/boss_golemagg.cpp
+dungeons/molten_core/boss_incindis.cpp
 dungeons/molten_core/boss_lucifron.cpp
 dungeons/molten_core/boss_magmadar.cpp
 dungeons/molten_core/boss_majordomo_executus.cpp
 dungeons/molten_core/boss_ragnaros.cpp
 dungeons/molten_core/boss_shazzrah.cpp
 dungeons/molten_core/boss_sulfuron_harbinger.cpp
+dungeons/molten_core/boss_thane.cpp
+dungeons/molten_core/boss_twin_golems.cpp
 dungeons/molten_core/instance_molten_core.cpp
 dungeons/molten_core/molten_core.cpp
 dungeons/molten_core/molten_core.h
@@ -242,6 +271,7 @@ dungeons/wailing_caverns/def_wailing_caverns.h
 dungeons/wailing_caverns/instance_wailing_caverns.cpp
 dungeons/wailing_caverns/wailing_caverns.cpp
 dungeons/zulfarrak/instance_zulfarrak.cpp
+dungeons/zulfarrak/farraki_arena.cpp
 dungeons/zulfarrak/zulfarrak.cpp
 dungeons/zulfarrak/zulfarrak.h
 dungeons/zulgurub/boss_arlokk.cpp
@@ -303,6 +333,19 @@ miscellaneous/random_scripts_3.cpp
 miscellaneous/custom_exploration_triggers.cpp
 miscellaneous/jewelcrafting.cpp
 
+spells/spell_druid.cpp
+spells/spell_hunter.cpp
+spells/spell_item.cpp
+spells/spell_mage.cpp
+spells/spell_paladin.cpp
+spells/spell_priest.cpp
+spells/spell_rogue.cpp
+spells/spell_shaman.cpp
+spells/spell_special.cpp
+spells/spells_turtle.cpp
+spells/spell_warlock.cpp
+spells/spell_warrior.cpp
+
 world/alterac_mountains.cpp
 world/arathi_highlands.cpp
 world/ashenvale.cpp
@@ -322,12 +365,15 @@ world/eastern_plaguelands.cpp
 world/elwynn_forest.cpp
 world/felwood.cpp
 world/feralas.cpp
+world/grim_reaches.cpp
 world/hillsbrad_foothills.cpp
 world/hinterlands.cpp
 world/ironforge.cpp
 world/loch_modan.cpp
 world/moonglade.cpp
+world/moonwhisper_coast.cpp
 world/mulgore.cpp
+world/northwind.cpp
 world/orgrimmar.cpp
 world/redridge_mountains.cpp
 world/searing_gorge.cpp
@@ -512,5 +558,21 @@ else()
       target_precompile_headers(${LIBRARY_NAME} PRIVATE
           ${PCHS}
           )
+  endif()
+endif()
+
+# Independent of USE_PCH_OLD on purpose: on MSVC the old PCH implementation is
+# the default, and a fallback that lived only in the modern branch never ran
+# there (2026-09-04, found by a reader: -DUSE_PCH_OLD=OFF "must also be set").
+# No PCH (USE_PCH=OFF - the usual escape from MSVC's PCH size limits, or a
+# compiler without support): the sources still assume the precompiled set of
+# headers is in scope, so force-include the same header instead. Identical
+# semantics, just no .pch file. Without this a USE_PCH=OFF build died on
+# 2026-09-04 in the scripts library the same way.
+if(NOT USE_PCH)
+  if(MSVC)
+    target_compile_options(${LIBRARY_NAME} PRIVATE "/FI${CMAKE_CURRENT_SOURCE_DIR}/scriptPCH.h")
+  else()
+    target_compile_options(${LIBRARY_NAME} PRIVATE "-include${CMAKE_CURRENT_SOURCE_DIR}/scriptPCH.h")
   endif()
 endif()

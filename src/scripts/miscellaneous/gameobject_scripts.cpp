@@ -37,8 +37,8 @@ go_bells
 go_darkmoon_faire_music
 EndContentData */
 
-#include "Language.h"
 #include "scriptPCH.h"
+#include "Language.h"
 
 /*######
 ## go_cat_figurine
@@ -46,7 +46,7 @@ EndContentData */
 
 enum
 {
-    SPELL_SUMMON_GHOST_SABER = 5968,
+    SPELL_SUMMON_GHOST_SABER    = 5968,
 };
 
 bool GOHello_go_cat_figurine(Player* pPlayer, GameObject* /*pGo*/)
@@ -139,22 +139,22 @@ bool GOHello_go_greater_moonlight(Player* pPlayer, GameObject* pGo)
         {
             switch (pGo->GetGUIDLow())
             {
-            case 3998422: // Darnassus
+                case 3998422: // Darnassus
                 {
                     pPlayer->TeleportTo(WorldLocation(1, 10150.45f, 2602.12f, 1330.82f, 5.03f));
                     break;
                 }
-            case 3998424: // Stormwind
+                case 3998424: // Stormwind
                 {
                     pPlayer->TeleportTo(WorldLocation(0, -8748.27f, 1074.27f, 90.52f, 4.17f));
                     break;
                 }
-            case 3998425: // Ironforge
+                case 3998425: // Ironforge
                 {
                     pPlayer->TeleportTo(WorldLocation(0, -4663.39f, -956.23f, 500.37f, 5.73f));
                     break;
                 }
-            default:
+                default:
                 {
                     return true;
                 }
@@ -162,24 +162,24 @@ bool GOHello_go_greater_moonlight(Player* pPlayer, GameObject* pGo)
         }
         else
         {
-            switch (pGo->GetGUID())
+            switch(pGo->GetGUID())
             {
-            case 3998423: // Thunderbluff
+                case 3998423: // Thunderbluff
                 {
                     pPlayer->TeleportTo(WorldLocation(1, -1031.73f, -230.42f, 160.18f, 3.12f));
                     break;
                 }
-            case 3998426: // Undercity
+                case 3998426: // Undercity
                 {
                     pPlayer->TeleportTo(WorldLocation(0, 1642.41f, 239.9f, 62.59f, 3.01f));
                     break;
                 }
-            case 3998427: // Orgrimmar
+                case 3998427: // Orgrimmar
                 {
                     pPlayer->TeleportTo(WorldLocation(1, 1971.18f, -4259.45f, 32.21f, 4.0f));
                     break;
                 }
-            default:
+                default:
                 {
                     return true;
                 }
@@ -274,7 +274,9 @@ bool GOHello_go_silithyste(Player* pPlayer, GameObject* pGo)
 
     pPlayer->CastSpell(pPlayer, 29519, true);
 
-    sLog.out(LOG_BG, "%s [%u:%u:'%s'] reprend une Silithyst d'un monticule", pPlayer->GetName(), pPlayer->GetGUIDLow(), pPlayer->GetSession()->GetAccountId(), pPlayer->GetSession()->GetRemoteAddress().c_str());
+    sLog.out(LOG_BG, "%s [%u:%u:'%s'] reprend une Silithyst d'un monticule",
+             pPlayer->GetName(),
+             pPlayer->GetGUIDLow(), pPlayer->GetSession()->GetAccountId(), pPlayer->GetSession()->GetRemoteAddress().c_str());
 
     if (pGo->GetEntry() == 181597)
     {
@@ -295,24 +297,24 @@ bool GOHello_go_silithyste(Player* pPlayer, GameObject* pGo)
 
 enum BellHourlySoundFX
 {
-    BELLTOLLHORDE = 6595, // Undercity
-    BELLTOLLTRIBAL = 6675, // Orgrimma/Thunderbluff
-    BELLTOLLALLIANCE = 6594, // Stormwind
-    BELLTOLLNIGHTELF = 6674, // Darnassus
+    BELLTOLLHORDE      = 6595, // Undercity
+    BELLTOLLTRIBAL     = 6675, // Orgrimma/Thunderbluff
+    BELLTOLLALLIANCE   = 6594, // Stormwind
+    BELLTOLLNIGHTELF   = 6674, // Darnassus
     BELLTOLLDWARFGNOME = 7234, // Ironforge
 };
 
 enum BellHourlySoundZones
 {
-    TIRISFAL_ZONE = 85,
-    UNDERCITY_ZONE = 1497,
+    TIRISFAL_ZONE            = 85,
+    UNDERCITY_ZONE           = 1497,
     HILLSBRAD_FOOTHILLS_ZONE = 267,
-    DUSKWOOD_ZONE = 10,
-    DUN_MOROGH_ZONE = 1,
-    IRONFORGE_ZONE = 1537,
-    TELDRASSIL_ZONE = 141,
-    DARNASSUS_ZONE = 1657,
-    ASHENVALE_ZONE = 331,
+    DUSKWOOD_ZONE            = 10,
+    DUN_MOROGH_ZONE          = 1,
+    IRONFORGE_ZONE           = 1537,
+    TELDRASSIL_ZONE          = 141,
+    DARNASSUS_ZONE           = 1657,
+    ASHENVALE_ZONE           = 331,
 };
 
 enum BellHourlyObjects
@@ -338,45 +340,45 @@ struct go_bells : public GameObjectAI
 
         switch (me->GetEntry())
         {
-        case GO_HORDE_BELL:
+            case GO_HORDE_BELL:
             {
                 switch (zoneId)
                 {
-                case TIRISFAL_ZONE:
-                case UNDERCITY_ZONE:
-                case HILLSBRAD_FOOTHILLS_ZONE:
-                case DUSKWOOD_ZONE:
-                    _soundId = BELLTOLLHORDE; // undead bell sound
-                    break;
-                default:
-                    _soundId = BELLTOLLTRIBAL; // drum sound
-                    break;
+                    case TIRISFAL_ZONE:
+                    case UNDERCITY_ZONE:
+                    case HILLSBRAD_FOOTHILLS_ZONE:
+                    case DUSKWOOD_ZONE:
+                        _soundId = BELLTOLLHORDE;  // undead bell sound 
+                        break;
+                    default:
+                        _soundId = BELLTOLLTRIBAL; // drum sound
+                        break;
                 }
 
                 break;
             }
-        case GO_ALLIANCE_BELL:
+            case GO_ALLIANCE_BELL:
             {
                 switch (zoneId)
                 {
-                case IRONFORGE_ZONE:
-                case DUN_MOROGH_ZONE:
-                    _soundId = BELLTOLLDWARFGNOME; // horn sound
-                    break;
-                case TELDRASSIL_ZONE:
-                case DARNASSUS_ZONE:
-                case ASHENVALE_ZONE:
-                    _soundId = BELLTOLLNIGHTELF; // nightelf bell sound
-                    break;
-                default:
-                    _soundId = BELLTOLLALLIANCE; // human bell sound
-                    break;
+                    case IRONFORGE_ZONE:
+                    case DUN_MOROGH_ZONE:
+                        _soundId = BELLTOLLDWARFGNOME; // horn sound
+                        break;
+                    case TELDRASSIL_ZONE:
+                    case DARNASSUS_ZONE:
+                    case ASHENVALE_ZONE:
+                        _soundId = BELLTOLLNIGHTELF;   // nightelf bell sound 
+                        break;
+                    default:
+                        _soundId = BELLTOLLALLIANCE;   // human bell sound
+                        break;
                 }
 
                 break;
             }
 
-        default:
+            default:
             sLog.outError("go_bells() called with invalid object, ID: %u", me->GetEntry());
         }
     }
@@ -396,12 +398,12 @@ struct go_bells : public GameObjectAI
         {
             switch (eventId)
             {
-            case EVENT_TIME:
+                case EVENT_TIME:
                 {
                     // Get how many times it should ring
                     time_t rawtime;
                     time(&rawtime);
-                    struct tm* timeinfo = localtime(&rawtime);
+                    struct tm * timeinfo = localtime(&rawtime);
                     uint8 _rings = (timeinfo->tm_hour) % 12;
                     if (_rings == 0) // 00:00 and 12:00
                     {
@@ -414,11 +416,11 @@ struct go_bells : public GameObjectAI
 
                     break;
                 }
-            case EVENT_RING_BELL:
-                me->PlayDistanceSound(_soundId);
-                break;
-            default:
-                break;
+                case EVENT_RING_BELL:
+                    me->PlayDistanceSound(_soundId);
+                    break;
+                default:
+                    break;
             }
         }
     }
@@ -429,7 +431,10 @@ private:
     bool once;
 };
 
-GameObjectAI* GetAI_go_bells(GameObject* gameobject) { return new go_bells(gameobject); }
+GameObjectAI* GetAI_go_bells(GameObject* gameobject)
+{
+    return new go_bells(gameobject);
+}
 
 /*####
 ## go_darkmoon_faire_music
@@ -450,7 +455,10 @@ enum DarkmoonFaireMusicEvents
 class go_darkmoon_faire_music : public GameObjectAI
 {
 public:
-    go_darkmoon_faire_music(GameObject* gobj) : GameObjectAI(gobj) { _events.ScheduleEvent(EVENT_DFM_START_MUSIC, Seconds(1)); }
+    go_darkmoon_faire_music(GameObject* gobj) : GameObjectAI(gobj)
+    {
+        _events.ScheduleEvent(EVENT_DFM_START_MUSIC, Seconds(1));
+    }
 
     void UpdateAI(const uint32 diff)
     {
@@ -459,7 +467,7 @@ public:
         {
             switch (eventId)
             {
-            case EVENT_DFM_START_MUSIC:
+                case EVENT_DFM_START_MUSIC:
                 {
                     if (sGameEventMgr.IsActiveEvent(GAME_EVENT_DARKMOON_FAIRE_ELWYNN) || sGameEventMgr.IsActiveEvent(GAME_EVENT_DARKMOON_FAIRE_THUNDER))
                     {
@@ -469,7 +477,7 @@ public:
                     _events.ScheduleEvent(EVENT_DFM_START_MUSIC, Seconds(300)); // 5 min.
                     break;
                 }
-            default:
+                default:
                 {
                     break;
                 }
@@ -481,7 +489,10 @@ private:
     EventMap _events;
 };
 
-GameObjectAI* GetAI_go_darkmoon_faire_music(GameObject* gameobject) { return new go_darkmoon_faire_music(gameobject); }
+GameObjectAI* GetAI_go_darkmoon_faire_music(GameObject* gameobject)
+{
+    return new go_darkmoon_faire_music(gameobject);
+}
 
 /*####
 ## go_roleplay_event
@@ -489,7 +500,9 @@ GameObjectAI* GetAI_go_darkmoon_faire_music(GameObject* gameobject) { return new
 
 struct go_roleplay_event : public GameObjectAI
 {
-    go_roleplay_event(GameObject* go) : GameObjectAI(go), m_warnTimer(0) {}
+    go_roleplay_event(GameObject* go) : GameObjectAI(go), m_warnTimer(0)
+    {
+    }
 
     uint32 m_warnTimer;
     static std::set<uint32> m_warnedPlayers;
@@ -516,7 +529,10 @@ struct go_roleplay_event : public GameObjectAI
 
 std::set<uint32> go_roleplay_event::m_warnedPlayers;
 
-GameObjectAI* GetAI_go_roleplay_event(GameObject* gameobject) { return new go_roleplay_event(gameobject); }
+GameObjectAI* GetAI_go_roleplay_event(GameObject* gameobject)
+{
+    return new go_roleplay_event(gameobject);
+}
 
 /*####
 ## go_containment_coffer
@@ -524,7 +540,10 @@ GameObjectAI* GetAI_go_roleplay_event(GameObject* gameobject) { return new go_ro
 
 struct go_containment_coffer : public GameObjectAI
 {
-    go_containment_coffer(GameObject* gobj) : GameObjectAI(gobj) { m_despawnTimer = 20000; }
+    go_containment_coffer(GameObject* gobj) : GameObjectAI(gobj)
+    {
+        m_despawnTimer = 20000;
+    }
 
     uint32 m_despawnTimer;
 
@@ -543,11 +562,14 @@ struct go_containment_coffer : public GameObjectAI
     }
 };
 
-GameObjectAI* GetAI_go_containment_coffer(GameObject* gameobject) { return new go_containment_coffer(gameobject); }
+GameObjectAI* GetAI_go_containment_coffer(GameObject* gameobject)
+{
+    return new go_containment_coffer(gameobject);
+}
 
 void AddSC_go_scripts()
 {
-    Script* newscript;
+    Script *newscript;
 
     newscript = new Script;
     newscript->Name = "go_greater_moonlight";
@@ -614,3 +636,5 @@ void AddSC_go_scripts()
     newscript->GOGetAI = &GetAI_go_containment_coffer;
     newscript->RegisterSelf();
 }
+
+

@@ -7,28 +7,36 @@ struct Location
     float m_fX{}, m_fY{}, m_fZ{}, m_fO{};
 };
 
-static const Location vfSpawnPoint[] = {{-8300.825195f, -3735.292725f, 138.12f, 6.020778f}, {-8283.150391f, -3740.716309f, 137.77f, 2.820284f}};
+static const Location vfSpawnPoint[] =
+{
+    { -8300.825195f, -3735.292725f, 138.12f, 6.020778f },
+    { -8283.150391f, -3740.716309f, 137.77f, 2.820284f }
+};
 
-static constexpr uint32 NPC_HARGESH_DOOMCALLER{60737};
-static constexpr uint32 NPC_FACELESS_TERROR{60738};
+static constexpr uint32 NPC_HARGESH_DOOMCALLER{ 60737 };
+static constexpr uint32 NPC_FACELESS_TERROR{ 60738 };
 
-static constexpr uint32 SPELL_IMMOLATE{11668};
-static constexpr uint32 SPELL_SHADOW_BOLT_VOLLEY{27646};
-static constexpr uint32 SPELL_SHADOW_BOLT{12739};
-static constexpr uint32 SPELL_IMMUNE_ALL{29230};
-static constexpr uint32 SPELL_SHADOW_CHANNELING{12380};
+static constexpr uint32 SPELL_IMMOLATE{ 11668 };
+static constexpr uint32 SPELL_SHADOW_BOLT_VOLLEY{ 27646 };
+static constexpr uint32 SPELL_SHADOW_BOLT{ 12739 };
+static constexpr uint32 SPELL_IMMUNE_ALL{ 29230 };
+static constexpr uint32 SPELL_SHADOW_CHANNELING{ 12380 };
 
-static constexpr int32 VOICE_SCRIPT_AGGRO{-1999959};
-static constexpr int32 VOICE_SCRIPT_PHASE2{-1999960};
-static constexpr int32 VOICE_SCRIPT_DIED{-1999961};
+static constexpr int32 VOICE_SCRIPT_AGGRO{ -1999959 };
+static constexpr int32 VOICE_SCRIPT_PHASE2{ -1999960 };
+static constexpr int32 VOICE_SCRIPT_DIED{ -1999961 };
 
 
 class boss_hargesh_doomcallerAI : public ScriptedAI
 {
 public:
-    explicit boss_hargesh_doomcallerAI(Creature* pCreature) : ScriptedAI(pCreature) { boss_hargesh_doomcallerAI::Reset(); }
+    explicit boss_hargesh_doomcallerAI(Creature* pCreature) : ScriptedAI(pCreature)
+    {
+        boss_hargesh_doomcallerAI::Reset();
+    }
 
 private:
+
     bool m_bPhaseTwo{};
     bool m_bAddsAreDead{};
 
@@ -59,7 +67,10 @@ public:
         DespawnFacelessTerror();
     }
 
-    void Aggro(Unit* /*pWho*/) override { DoScriptText(VOICE_SCRIPT_AGGRO, m_creature); }
+    void Aggro(Unit* /*pWho*/) override
+    {
+        DoScriptText(VOICE_SCRIPT_AGGRO, m_creature);
+    }
 
     void JustDied(Unit* /*pKiller*/) override
     {
@@ -133,20 +144,22 @@ public:
 
         m_creature->CastSpell(m_creature, SPELL_SHADOW_CHANNELING, true);
 
-        Map::PlayerList const& PlayerList{m_creature->GetMap()->GetPlayers()};
+        Map::PlayerList const& PlayerList{ m_creature->GetMap()->GetPlayers() };
         for (const auto& itr : PlayerList)
         {
-            if (Player * pPlayer{itr.getSource()})
+            if (Player* pPlayer{ itr.getSource() })
             {
                 if (pPlayer && pPlayer->IsAlive() && !pPlayer->IsGameMaster())
                 {
-                    if (Creature * pFacelessTerror1{m_creature->SummonCreature(NPC_FACELESS_TERROR, vfSpawnPoint[0].m_fX, vfSpawnPoint[0].m_fY, vfSpawnPoint[0].m_fZ, vfSpawnPoint[0].m_fO, TEMPSUMMON_MANUAL_DESPAWN)})
+                    if (Creature* pFacelessTerror1{ m_creature->SummonCreature(NPC_FACELESS_TERROR,
+                        vfSpawnPoint[0].m_fX, vfSpawnPoint[0].m_fY, vfSpawnPoint[0].m_fZ, vfSpawnPoint[0].m_fO, TEMPSUMMON_MANUAL_DESPAWN) })
                     {
                         pFacelessTerror1->AI()->AttackStart(pPlayer);
                         m_vFacelessTerror.push_back(pFacelessTerror1->GetObjectGuid());
                     }
 
-                    if (Creature * pFacelessTerror2{m_creature->SummonCreature(NPC_FACELESS_TERROR, vfSpawnPoint[0].m_fX, vfSpawnPoint[0].m_fY, vfSpawnPoint[0].m_fZ, vfSpawnPoint[0].m_fO, TEMPSUMMON_MANUAL_DESPAWN)})
+                    if (Creature* pFacelessTerror2{ m_creature->SummonCreature(NPC_FACELESS_TERROR,
+                        vfSpawnPoint[0].m_fX, vfSpawnPoint[0].m_fY, vfSpawnPoint[0].m_fZ, vfSpawnPoint[0].m_fO, TEMPSUMMON_MANUAL_DESPAWN) })
                     {
                         pFacelessTerror2->AI()->AttackStart(pPlayer);
                         m_vFacelessTerror.push_back(pFacelessTerror2->GetObjectGuid());
@@ -164,11 +177,11 @@ public:
     {
         if (m_uiCheckIfAddsAreDead_Timer < uiDiff)
         {
-            if (const auto map{m_creature->GetMap()})
+            if (const auto map{ m_creature->GetMap() })
             {
                 for (const auto& guid : m_vFacelessTerror)
                 {
-                    if (Creature * pCreature{map->GetCreature(guid)})
+                    if (Creature* pCreature{ map->GetCreature(guid) })
                     {
                         if (!pCreature->IsAlive())
                         {
@@ -205,13 +218,13 @@ public:
     {
         if (!m_vFacelessTerror.empty())
         {
-            if (const auto map{m_creature->GetMap()})
+            if (const auto map{ m_creature->GetMap() })
             {
                 for (const auto& guid : m_vFacelessTerror)
                 {
-                    if (Creature * pCreature{map->GetCreature(guid)})
+                    if (Creature* pCreature{ map->GetCreature(guid) })
                     {
-                        if (TemporarySummon * tmpSumm{static_cast<TemporarySummon*>(pCreature)})
+                        if (TemporarySummon* tmpSumm{ static_cast<TemporarySummon*>(pCreature) })
                         {
                             tmpSumm->UnSummon();
                         }
@@ -255,13 +268,19 @@ public:
     }
 };
 
-CreatureAI* GetAI_boss_hargesh_doomcaller(Creature* pCreature) { return new boss_hargesh_doomcallerAI(pCreature); }
+CreatureAI* GetAI_boss_hargesh_doomcaller(Creature* pCreature)
+{
+    return new boss_hargesh_doomcallerAI(pCreature);
+}
 
 
 class npc_faceless_terrorAI : public ScriptedAI
 {
 public:
-    explicit npc_faceless_terrorAI(Creature* pCreature) : ScriptedAI(pCreature) { npc_faceless_terrorAI::Reset(); }
+    explicit npc_faceless_terrorAI(Creature* pCreature) : ScriptedAI(pCreature)
+    {
+        npc_faceless_terrorAI::Reset();
+    }
 
 private:
     bool m_bCalledEvade{};
@@ -278,14 +297,14 @@ public:
     {
         if (m_uiRaidWipeCheck_Timer < uiDiff)
         {
-            Map::PlayerList const& PlayerList{m_creature->GetMap()->GetPlayers()};
+            Map::PlayerList const& PlayerList{ m_creature->GetMap()->GetPlayers() };
             for (const auto& itr : PlayerList)
             {
-                if (Player * pPlayer{itr.getSource()})
+                if (Player* pPlayer{ itr.getSource() })
                 {
-                    if (Creature * pCreature{GetClosestCreatureWithEntry(pPlayer, NPC_HARGESH_DOOMCALLER, 250.f)})
+                    if (Creature* pCreature{ GetClosestCreatureWithEntry(pPlayer, NPC_HARGESH_DOOMCALLER, 250.f) })
                     {
-                        if (boss_hargesh_doomcallerAI * hargesh_doomcaller{dynamic_cast<boss_hargesh_doomcallerAI*>(pCreature->AI())})
+                        if (boss_hargesh_doomcallerAI* hargesh_doomcaller{ dynamic_cast<boss_hargesh_doomcallerAI*>(pCreature->AI()) })
                         {
                             hargesh_doomcaller->ScriptedAI::EnterEvadeMode();
                             m_bCalledEvade = true;
@@ -320,7 +339,10 @@ public:
     }
 };
 
-CreatureAI* GetAI_npc_faceless_terror(Creature* pCreature) { return new npc_faceless_terrorAI(pCreature); }
+CreatureAI* GetAI_npc_faceless_terror(Creature* pCreature)
+{
+    return new npc_faceless_terrorAI(pCreature);
+}
 
 
 void AddSC_boss_hargesh_doomcaller()

@@ -33,18 +33,21 @@ EndContentData */
 
 enum
 {
-    SAY_DORIUS_AGGRO_1 = -1000993,
-    SAY_DORIUS_AGGRO_2 = -1000994,
+    SAY_DORIUS_AGGRO_1              = -1000993,
+    SAY_DORIUS_AGGRO_2              = -1000994,
 
-    NPC_DARK_IRON_STEELSHIFTER = 8337,
-    MAX_STEELSHIFTERS = 4,
+    NPC_DARK_IRON_STEELSHIFTER      = 8337,
+    MAX_STEELSHIFTERS               = 4,
 
-    QUEST_ID_SUNTARA_STONES = 3367,
+    QUEST_ID_SUNTARA_STONES         = 3367,
 };
 
 struct npc_dorius_stonetenderAI : public npc_escortAI
 {
-    npc_dorius_stonetenderAI(Creature* pCreature) : npc_escortAI(pCreature) { Reset(); }
+    npc_dorius_stonetenderAI(Creature* pCreature) : npc_escortAI(pCreature)
+    {
+        Reset();
+    }
 
     void Reset() override {}
 
@@ -65,30 +68,33 @@ struct npc_dorius_stonetenderAI : public npc_escortAI
         m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_NPC);
     }
 
-    void Aggro(Unit* pWho) override { DoScriptText(urand(0, 1) ? SAY_DORIUS_AGGRO_1 : SAY_DORIUS_AGGRO_2, m_creature, pWho); }
+    void Aggro(Unit* pWho) override
+    {
+        DoScriptText(urand(0, 1) ? SAY_DORIUS_AGGRO_1 : SAY_DORIUS_AGGRO_2, m_creature, pWho);
+    }
 
     void WaypointReached(uint32 uiPointId) override
     {
         switch (uiPointId)
         {
-        case 20:
-            // ToDo: research if there is any text here!
-            float fX, fY, fZ;
-            for (uint8 i = 0; i < MAX_STEELSHIFTERS; ++i)
-            {
-                m_creature->GetNearPoint(m_creature, fX, fY, fZ, 0, 15.0f, i * M_PI_F / 2);
-                m_creature->SummonCreature(NPC_DARK_IRON_STEELSHIFTER, fX, fY, fZ, 0, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 60000);
-            }
-            break;
-        case 33:
-            // ToDo: research if there is any event and text here!
-            if (Player* pPlayer = GetPlayerForEscort())
-                pPlayer->GroupEventHappens(QUEST_ID_SUNTARA_STONES, m_creature);
-            m_creature->SetFlag(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_DEAD | UNIT_DYNFLAG_TAPPED);
-            m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-            m_creature->SetStandState(UNIT_STAND_STATE_DEAD);
-            m_creature->SummonGameObject(175704, -6386.89f, -1984.05f, 246.73f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 120000, true);
-            break;
+            case 20:
+                // ToDo: research if there is any text here!
+                float fX, fY, fZ;
+                for (uint8 i = 0; i < MAX_STEELSHIFTERS; ++i)
+                {
+                    m_creature->GetNearPoint(m_creature, fX, fY, fZ, 0, 15.0f, i * M_PI_F / 2);
+                    m_creature->SummonCreature(NPC_DARK_IRON_STEELSHIFTER, fX, fY, fZ, 0, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 60000);
+                }
+                break;
+            case 33:
+                // ToDo: research if there is any event and text here!
+                if (Player* pPlayer = GetPlayerForEscort())
+                    pPlayer->GroupEventHappens(QUEST_ID_SUNTARA_STONES, m_creature);
+                m_creature->SetFlag(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_DEAD | UNIT_DYNFLAG_TAPPED);
+                m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                m_creature->SetStandState(UNIT_STAND_STATE_DEAD);
+                m_creature->SummonGameObject(175704, -6386.89f, -1984.05f, 246.73f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 120000, true);
+                break;
         }
     }
 
@@ -107,7 +113,10 @@ struct npc_dorius_stonetenderAI : public npc_escortAI
     }
 };
 
-CreatureAI* GetAI_npc_dorius_stonetender(Creature* pCreature) { return new npc_dorius_stonetenderAI(pCreature); }
+CreatureAI* GetAI_npc_dorius_stonetender(Creature* pCreature)
+{
+    return new npc_dorius_stonetenderAI(pCreature);
+}
 
 bool QuestAccept_npc_dorius_stonetender(Player* pPlayer, Creature* pCreature, const Quest* pQuest)
 {
@@ -133,24 +142,24 @@ bool QuestAccept_npc_dorius_stonetender(Player* pPlayer, Creature* pCreature, co
 
 enum ObsidionData
 {
-    QUEST_RISE_OBSIDION = 3566,
+    QUEST_RISE_OBSIDION     = 3566,
 
-    SAY_DORIUS1 = 4393,
-    SAY_DORIUS2 = 4394,
-    SAY_DORIUS3 = 4395,
-    SAY_DORIUS4 = 4396,
-    SAY_DORIUS5 = 4397,
-    SAY_DORIUS6 = 4398,
-    EMOTE_DORIUS7 = 4399,
-    SAY_LATHORIC1 = 4391,
-    SAY_LATHORIC2 = 4392,
+    SAY_DORIUS1             = 4393,
+    SAY_DORIUS2             = 4394,
+    SAY_DORIUS3             = 4395,
+    SAY_DORIUS4             = 4396,
+    SAY_DORIUS5             = 4397,
+    SAY_DORIUS6             = 4398,
+    EMOTE_DORIUS7           = 4399,
+    SAY_LATHORIC1           = 4391,
+    SAY_LATHORIC2           = 4392,
 
-    NPC_DORIUS = 8421,
-    NPC_LATHORIC_THE_BLACK = 8391,
-    NPC_OBSIDION = 8400,
+    NPC_DORIUS              = 8421,
+    NPC_LATHORIC_THE_BLACK  = 8391,
+    NPC_OBSIDION            = 8400,
 
-    SPELL_GROUND_SMASH = 12734,
-    SPELL_KNOCK_AWAY = 10101
+    SPELL_GROUND_SMASH      = 12734,
+    SPELL_KNOCK_AWAY        = 10101
 };
 
 struct npc_obsidionAI : public ScriptedAI
@@ -203,7 +212,10 @@ struct npc_obsidionAI : public ScriptedAI
             Reset();
     }
 
-    void JustRespawned() override { Reset(); }
+    void JustRespawned() override
+    {
+        Reset();
+    }
 
     void UpdateAI(uint32 const uiDiff) override
     {
@@ -215,7 +227,7 @@ struct npc_obsidionAI : public ScriptedAI
         {
             if (m_nextText == SAY_LATHORIC1)
             {
-                if (Creature* dorius = m_creature->GetMap()->GetCreature(m_Dorius))
+               if (Creature* dorius = m_creature->GetMap()->GetCreature(m_Dorius))
                     if (dorius->GetEntry() != NPC_LATHORIC_THE_BLACK)
                         dorius->UpdateEntry(NPC_LATHORIC_THE_BLACK);
             }
@@ -230,7 +242,7 @@ struct npc_obsidionAI : public ScriptedAI
                     if (m_nextText > SAY_DORIUS6)
                         m_nextText = SAY_LATHORIC1;
                     if (m_nextText == SAY_DORIUS1)
-                        m_nextText += 10;
+                        m_nextText += 10; 
                     m_uiTalkTimer = 6000;
                 }
                 else
@@ -317,11 +329,14 @@ bool QuestAccept_npc_dying_archaeologist(Player* pPlayer, Creature* pCreature, Q
     return false;
 }
 
-CreatureAI* GetAI_npc_dorius(Creature* pCreature) { return new npc_obsidionAI(pCreature); }
+CreatureAI* GetAI_npc_dorius(Creature* pCreature)
+{
+    return new npc_obsidionAI(pCreature);
+}
 
 void AddSC_searing_gorge()
 {
-    Script* newscript;
+    Script *newscript;
 
     newscript = new Script;
     newscript->Name = "npc_dorius_stonetender";

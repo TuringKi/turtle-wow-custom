@@ -22,13 +22,13 @@
 #ifndef LOCKEDQUEUE_H
 #define LOCKEDQUEUE_H
 
-#include <assert.h>
 #include <deque>
 #include <mutex>
+#include <assert.h>
 #include "Errors.h"
 
-template <class T, class LockType, typename StorageType = std::deque<T>>
-class LockedQueue
+template <class T, class LockType, typename StorageType=std::deque<T> >
+    class LockedQueue
 {
     //! Lock access to the queue.
     LockType _lock;
@@ -39,86 +39,101 @@ class LockedQueue
     //! Cancellation flag.
     /*volatile*/ bool _canceled;
 
-public:
-    //! Create a LockedQueue.
-    LockedQueue() : _canceled(false) {}
+    public:
 
-    //! Destroy a LockedQueue.
-    virtual ~LockedQueue() {}
+        //! Create a LockedQueue.
+        LockedQueue()
+            : _canceled(false)
+        {
+        }
 
-    //! Adds an item to the queue.
-    void add(const T& item)
-    {
-        std::unique_lock<LockType> g(this->_lock);
-        _queue.push_back(item);
-    }
+        //! Destroy a LockedQueue.
+        virtual ~LockedQueue()
+        {
+        }
 
-    //! Gets the next result in the queue, if any.
-    bool next(T& result)
-    {
-        std::unique_lock<LockType> g(this->_lock);
+        //! Adds an item to the queue.
+        void add(const T& item)
+        {
+            std::unique_lock<LockType> g(this->_lock);
+            _queue.push_back(item);
+        }
 
-        if (_queue.empty())
-            return false;
+        //! Gets the next result in the queue, if any.
+        bool next(T& result)
+        {
+            std::unique_lock<LockType> g(this->_lock);
 
-        result = _queue.front();
-        _queue.pop_front();
+            if (_queue.empty())
+                return false;
 
-        return true;
-    }
+            result = _queue.front();
+            _queue.pop_front();
 
-    template <class Checker>
-    bool next(T& result, Checker& check)
-    {
-        std::unique_lock<LockType> g(this->_lock);
+            return true;
+        }
 
-        if (_queue.empty())
-            return false;
+        template<class Checker>
+        bool next(T& result, Checker& check)
+        {
+            std::unique_lock<LockType> g(this->_lock);
 
-        result = _queue.front();
-        if (!check.Process(result))
-            return false;
+            if (_queue.empty())
+                return false;
 
-        _queue.pop_front();
-        return true;
-    }
+            result = _queue.front();
+            if(!check.Process(result))
+                return false;
 
-    //! Peeks at the top of the queue. Remember to unlock after use.
-    T& peek()
-    {
-        lock();
+            _queue.pop_front();
+            return true;
+        }
 
-        T& result = _queue.front();
+        //! Peeks at the top of the queue. Remember to unlock after use.
+        T& peek()
+        {
+            lock();
 
-        return result;
-    }
+            T& result = _queue.front();
 
-    //! Cancels the queue.
-    void cancel()
-    {
-        std::unique_lock<LockType> g(this->_lock);
-        _canceled = true;
-    }
+            return result;
+        }
 
-    //! Checks if the queue is cancelled.
-    bool cancelled()
-    {
-        std::unique_lock<LockType> g(this->_lock);
-        return _canceled;
-    }
+        //! Cancels the queue.
+        void cancel()
+        {
+            std::unique_lock<LockType> g(this->_lock);
+            _canceled = true;
+        }
 
-    //! Locks the queue for access.
-    void lock() { this->_lock.lock(); }
+        //! Checks if the queue is cancelled.
+        bool cancelled()
+        {
+            std::unique_lock<LockType> g(this->_lock);
+            return _canceled;
+        }
 
-    //! Unlocks the queue.
-    void unlock() { this->_lock.unlock(); }
+        //! Locks the queue for access.
+        void lock()
+        {
+            this->_lock.lock();
+        }
 
-    bool empty_unsafe() { return _queue.empty(); }
-    ///! Checks if we're empty or not with locks held
-    bool empty()
-    {
-        std::unique_lock<LockType> g(this->_lock);
-        return _queue.empty();
-    }
+        //! Unlocks the queue.
+        void unlock()
+        {
+            this->_lock.unlock();
+        }
+
+        bool empty_unsafe()
+        {
+            return _queue.empty();
+        }
+        ///! Checks if we're empty or not with locks held
+        bool empty()
+        {
+            std::unique_lock<LockType> g(this->_lock);
+            return _queue.empty();
+        }
 };
 #endif

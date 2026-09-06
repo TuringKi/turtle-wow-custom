@@ -13,7 +13,6 @@ private:
     constexpr static uint32_t GOSSIP_TEXT_NOT_IMPRESSED_EVENT_COMPLETE = 2593004;
 
     static npc_captain_blackanvil* GetBlackanvilAI(Creature* creature);
-
 public:
     explicit npc_captain_blackanvil(Creature* pCreature);
 

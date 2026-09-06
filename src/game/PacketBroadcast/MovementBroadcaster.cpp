@@ -1,8 +1,8 @@
-#include "MovementBroadcaster.h"
-#include "Player.h"
-#include "PlayerBroadcaster.h"
 #include "Timer.h"
+#include "MovementBroadcaster.h"
+#include "PlayerBroadcaster.h"
 #include "World.h"
+#include "Player.h"
 
 MovementBroadcaster::MovementBroadcaster(std::size_t threads, std::chrono::milliseconds frequency) : m_num_threads(threads), m_sleep_timer(frequency)
 {
@@ -33,14 +33,14 @@ void MovementBroadcaster::StartThreads()
     for (std::size_t i = 0; i < m_num_threads; ++i)
     {
         auto mb = new MovementBroadcasterWorker(i, this);
-        m_threads.emplace_back(new std::thread([mb, i]() { mb->run(); }),
-                               [mb](std::thread* thread)
-                               {
-                                   if (thread->joinable())
-                                       thread->join();
-                                   delete thread;
-                                   delete mb;
-                               });
+        m_threads.emplace_back(new std::thread(
+                                [mb, i](){mb->run();
+        }),[mb](std::thread *thread) {
+            if (thread->joinable())
+                thread->join();
+            delete thread;
+            delete mb;
+        });
     }
 }
 
@@ -67,7 +67,10 @@ void MovementBroadcaster::RemovePlayer(const std::shared_ptr<PlayerBroadcaster>&
         m_thread_players[index].erase(it);
 }
 
-void MovementBroadcasterWorker::run() { m_broadcaster->Work(m_threadId); }
+void MovementBroadcasterWorker::run()
+{
+    m_broadcaster->Work(m_threadId);
+}
 
 void MovementBroadcaster::Work(std::size_t thread_id)
 {
@@ -80,10 +83,13 @@ void MovementBroadcaster::Work(std::size_t thread_id)
         stats.num_packets = num_packets;
         stats.update_time = WorldTimer::getMSTimeDiffToNow(begin_time);
 
-        if (sWorld.getConfig(CONFIG_UINT32_PERFLOG_SLOW_PACKET_BCAST) && stats.update_time > sWorld.getConfig(CONFIG_UINT32_PERFLOG_SLOW_PACKET_BCAST))
-            sLog.out(LOG_PERFORMANCE, "MovementBroadcaster thread %02u: %04ums to process queue [%u packets]", thread_id, stats.update_time, num_packets);
+        if (sWorld.getConfig(CONFIG_UINT32_PERFLOG_SLOW_PACKET_BCAST) &&
+            stats.update_time > sWorld.getConfig(CONFIG_UINT32_PERFLOG_SLOW_PACKET_BCAST))
+            sLog.out(LOG_PERFORMANCE, "MovementBroadcaster thread %02u: %04ums to process queue [%u packets]",
+                thread_id, stats.update_time, num_packets);
 
-        if (sWorld.getConfig(CONFIG_UINT32_PBCAST_DIFF_LOWER_VISIBILITY_DISTANCE) && stats.update_time > sWorld.getConfig(CONFIG_UINT32_PBCAST_DIFF_LOWER_VISIBILITY_DISTANCE))
+        if (sWorld.getConfig(CONFIG_UINT32_PBCAST_DIFF_LOWER_VISIBILITY_DISTANCE) &&
+            stats.update_time > sWorld.getConfig(CONFIG_UINT32_PBCAST_DIFF_LOWER_VISIBILITY_DISTANCE))
             IdentifySlowMap(thread_id);
         else
             stats.slow_instance = -1;
@@ -163,7 +169,8 @@ void MovementBroadcaster::UpdateConfiguration(std::size_t new_threads_count, std
             RegisterPlayer(broadcaster);
     }
 
-    sLog.out(LOG_PERFORMANCE, "[MovementBroadcaster] Changing number of threads from %u to %u in %ums", old_num_threads, new_threads_count, WorldTimer::getMSTimeDiffToNow(begin_time));
+    sLog.out(LOG_PERFORMANCE, "[MovementBroadcaster] Changing number of threads from %u to %u in %ums",
+        old_num_threads, new_threads_count, WorldTimer::getMSTimeDiffToNow(begin_time));
 }
 
 MovementBroadcaster::~MovementBroadcaster()

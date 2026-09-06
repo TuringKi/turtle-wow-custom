@@ -21,7 +21,7 @@
 
 // stop warning spam from ACE includes
 #ifdef _WIN32
-#pragma warning(disable : 4996)
+#  pragma warning( disable : 4996 )
 #endif
 
 #include <string>
@@ -30,8 +30,8 @@
 #include "Platform/Define.h"
 
 #ifndef _WIN32
-#include <dirent.h>
 #include <stddef.h>
+#include <dirent.h>
 #endif
 
 using namespace std;
@@ -48,7 +48,7 @@ namespace MMAP
         {
             if (*filter == '*')
             {
-                if (*++filter == '\0') // wildcard at end of filter means all remaing chars match
+                if (*++filter == '\0')  // wildcard at end of filter means all remaing chars match
                     return true;
 
                 while (true)
@@ -56,12 +56,12 @@ namespace MMAP
                     if (*filter == *str)
                         break;
                     if (*str == '\0')
-                        return false; // reached end of string without matching next filter character
+                        return false;   // reached end of string without matching next filter character
                     str++;
                 }
             }
             else if (*filter != *str)
-                return false; // mismatch
+                return false;           // mismatch
 
             filter++;
             str++;
@@ -124,6 +124,6 @@ namespace MMAP
 
         return LISTFILE_OK;
     }
-} // namespace MMAP
+}
 
 #endif

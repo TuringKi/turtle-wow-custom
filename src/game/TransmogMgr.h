@@ -19,10 +19,10 @@
 #ifndef TRANSMOG_MGR_H
 #define TRANSMOG_MGR_H
 
-#include <unordered_set>
 #include "Common.h"
-#include "Platform/Define.h"
 #include "SharedDefines.h"
+#include "Platform/Define.h"
+#include <unordered_set>
 
 typedef std::vector<uint32> TransmogContainer;
 
@@ -33,38 +33,39 @@ class Item;
 
 class TransmogMgr
 {
-public:
-    explicit TransmogMgr(Player* owner);
+    public:
+        explicit TransmogMgr(Player* owner);
 
-    // General
-    void LoadFromDB(QueryResult* result);
+        // General
+        void LoadFromDB(QueryResult* result);
 
-    void HandleAddonMessages(std::string msg);
+		void HandleAddonMessages(std::string msg);
 
-    void ApplyTransmog(std::string msg);
-    uint8 ApplyTransmog(uint8 slot, uint32 sourceItemID, uint32 slotId);
+		void ApplyTransmog(std::string msg);
+		uint8  ApplyTransmog(uint8 slot, uint32 sourceItemID, uint32 slotId);
 
-    std::string GetTransmogStatus();
+		std::string GetTransmogStatus();
 
-    // Helpers
-    bool HasTransmog(uint32 newItemId);
-    void AddToCollection(uint32 itemId);
-    void RemoveFromCollection(uint32 itemId);
-    bool ItemIsValidTransmogForDest(uint32 item, ItemPrototype const* destItemProto);
+        // Helpers
+        bool HasTransmog(uint32 newItemId);
+        void AddToCollection(uint32 itemId);
+        void RemoveFromCollection(uint32 itemId);
+        bool ItemIsValidTransmogForDest(uint32 item, ItemPrototype const* destItemProto);
 
-    void RemoveTransmog(Item* item);
+        void RemoveTransmog(Item* item);
 
-    const std::unordered_set<uint32>& GetTransmogs() const { return _transmogs; }
+        const std::unordered_set<uint32>& GetTransmogs() const { return _transmogs; }
+        
+		std::vector<uint32> GetAvailableTransmogs(uint32 destItemId);
+		void SendAvailableTransmogs(uint8 InventorySlotId, uint32 destItemId);
+        
+		uint8 ServerSlotToClientInventorySlotId(uint8 InventorySlotId);
 
-    std::vector<uint32> GetAvailableTransmogs(uint8 InventorySlotId, uint8 invType, uint32 destItemId);
-    void SendAvailableTransmogs(uint8 InventorySlotId, uint8 invType, uint32 destItemId);
-
-    uint8 ServerSlotToClientInventorySlotId(uint8 InventorySlotId);
-
-private:
-    Player* _owner;
-    std::string prefix;
-    std::unordered_set<uint32> _transmogs{};
+    private:
+        Player* _owner;
+        std::string prefix;
+        std::unordered_set<uint32> _transmogs{};
+        
 };
 
 #endif

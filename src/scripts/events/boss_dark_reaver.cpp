@@ -28,7 +28,7 @@ enum EventStates
 };
 
 // I can't do math so this will suffice.
-const int8 quikmafs[4][2] = {{5, 0}, {-5, 0}, {0, 5}, {0, -5}};
+const int8 quikmafs[4][2] = { {5,0},{-5,0},{0,5},{0,-5} };
 
 constexpr auto AGGRO_TEXT_1 = "Mortals shall not defile these lands!";
 constexpr auto AGGRO_TEXT_2 = "You desecrate the Master's lands with your filthy footsteps!";
@@ -45,7 +45,10 @@ constexpr auto LEASH_TEXT_2 = "Leave and never again enter these lands!";
 
 struct boss_dark_reaverAI : public ScriptedAI
 {
-    boss_dark_reaverAI(Creature* c) : ScriptedAI(c) { Reset(); }
+    boss_dark_reaverAI(Creature* c) : ScriptedAI(c)
+    {
+        Reset();
+    }
 
     uint32 Cleave_Timer;
     uint32 Summon_Announce_Timer;
@@ -77,7 +80,7 @@ struct boss_dark_reaverAI : public ScriptedAI
         LastHealthPercentage = 100;
     }
 
-    void Aggro(Unit* who) override
+    void Aggro(Unit *who) override
     {
         m_creature->MonsterYell(urand(0, 1) ? AGGRO_TEXT_1 : AGGRO_TEXT_2);
 
@@ -87,10 +90,10 @@ struct boss_dark_reaverAI : public ScriptedAI
     void DespawnAdds()
     {
         // Despawn Lurking Shadow and Forlorn Spirit NPCs
-        std::list<Creature*> lCreature;
+        std::list<Creature *> lCreature;
         m_creature->GetCreatureListWithEntryInGrid(lCreature, MOB_LURKING_SHADOW, 200.0f);
         m_creature->GetCreatureListWithEntryInGrid(lCreature, MOB_FORLORN_SPIRIT, 200.0f);
-        for (std::list<Creature*>::iterator itr = lCreature.begin(); itr != lCreature.end(); ++itr)
+        for (std::list<Creature *>::iterator itr = lCreature.begin(); itr != lCreature.end(); ++itr)
             (*itr)->ForcedDespawn();
     }
 
@@ -100,7 +103,10 @@ struct boss_dark_reaverAI : public ScriptedAI
         DespawnAdds();
     }
 
-    void JustRespawned() override { SetDefaults(); }
+    void JustRespawned() override
+    {
+        SetDefaults();
+    }
 
     void JustReachedHome() override
     {
@@ -216,9 +222,14 @@ struct boss_dark_reaverAI : public ScriptedAI
 
             for (uint8 i = 0; i < 4; ++i)
             {
-                if (Creature* spawn = me->SummonCreature(MOB_FORLORN_SPIRIT, x + quikmafs[i][0], y + quikmafs[i][1], z, o, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT,
-                                                         5000 // OOC Despawn time
-                                                         ))
+                if (Creature* spawn = me->SummonCreature(MOB_FORLORN_SPIRIT,
+                    x + quikmafs[i][0],
+                    y + quikmafs[i][1],
+                    z,
+                    o,
+                    TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT,
+                    5000 // OOC Despawn time
+                ))
                 {
 
                     spawn->AddAura(SPELL_GHOST_VISUAL);
@@ -253,9 +264,14 @@ struct boss_dark_reaverAI : public ScriptedAI
             if (!randomTarget)
                 randomTarget = me->GetVictim();
 
-            if (Creature* lurkingShadow = me->SummonCreature(MOB_LURKING_SHADOW, randomTarget->GetPositionX(), randomTarget->GetPositionY(), randomTarget->GetPositionZ(), randomTarget->GetAngle(randomTarget->GetPositionX(), randomTarget->GetPositionY()), TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT,
-                                                             5000 // OOC Despawn time
-                                                             ))
+            if (Creature* lurkingShadow = me->SummonCreature(MOB_LURKING_SHADOW,
+                                     randomTarget->GetPositionX(),
+                                     randomTarget->GetPositionY(),
+                                     randomTarget->GetPositionZ(),
+                                     randomTarget->GetAngle(randomTarget->GetPositionX(), randomTarget->GetPositionY()),
+                                     TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT,
+                                     5000 // OOC Despawn time
+            ))
             {
                 lurkingShadow->GetThreatManager().addThreatDirectly(randomTarget, 10000.0f);
                 lurkingShadow->SetInCombatWith(randomTarget);
@@ -299,15 +315,24 @@ struct boss_dark_reaverAI : public ScriptedAI
     }
 };
 
-CreatureAI* GetAI_boss_dark_reaver(Creature* creature) { return new boss_dark_reaverAI(creature); }
+CreatureAI* GetAI_boss_dark_reaver(Creature *creature)
+{
+    return new boss_dark_reaverAI(creature);
+}
 
 struct lurking_shadowAI : public ScriptedAI
 {
-    lurking_shadowAI(Creature* c) : ScriptedAI(c) { Reset(); }
+    lurking_shadowAI(Creature *c) : ScriptedAI(c)
+    {
+        Reset();
+    }
 
     int8 currentClass;
 
-    void Reset() override { currentClass = -1; }
+    void Reset() override
+    {
+        currentClass = -1;
+    }
 
     void SetClassIfNeeded(Unit* pWho)
     {
@@ -324,7 +349,10 @@ struct lurking_shadowAI : public ScriptedAI
         currentClass = pWho->ToPlayer()->GetClass();
     }
 
-    void Aggro(Unit* pWho) override { SetClassIfNeeded(pWho); }
+    void Aggro(Unit* pWho) override
+    {
+        SetClassIfNeeded(pWho);
+    }
 
     void DamageTaken(Unit* source, uint32& damage) override
     {
@@ -339,14 +367,20 @@ struct lurking_shadowAI : public ScriptedAI
         SetClassIfNeeded(source);
     }
 
-    void UpdateAI(const uint32 diff) override { DoMeleeAttackIfReady(); }
+    void UpdateAI(const uint32 diff) override
+    {
+        DoMeleeAttackIfReady();
+    }
 };
 
-CreatureAI* GetAI_lurking_shadow(Creature* creature) { return new lurking_shadowAI(creature); }
+CreatureAI* GetAI_lurking_shadow(Creature *creature)
+{
+    return new lurking_shadowAI(creature);
+}
 
 void AddSC_boss_dark_reaver()
 {
-    Script* newscript;
+    Script *newscript;
 
     newscript = new Script;
     newscript->Name = "boss_dark_reaver";

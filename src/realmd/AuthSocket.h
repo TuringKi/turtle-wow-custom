@@ -26,10 +26,10 @@
 #ifndef _AUTHSOCKET_H
 #define _AUTHSOCKET_H
 
+#include "Common.h"
 #include "Auth/BigNumber.h"
 #include "Auth/Sha1.h"
 #include "ByteBuffer.h"
-#include "Common.h"
 
 #include "BufferedSocket.h"
 
@@ -41,120 +41,120 @@ struct PINData
 
 enum LockFlag
 {
-    NONE = 0x00,
-    IP_LOCK = 0x01,
-    FIXED_PIN = 0x02,
-    TOTP = 0x04,
-    ALWAYS_ENFORCE = 0x08,
-    GEO_COUNTRY = 0x10,
-    GEO_CITY = 0x20
+    NONE            = 0x00,
+    IP_LOCK         = 0x01,
+    FIXED_PIN       = 0x02,
+    TOTP            = 0x04,
+    ALWAYS_ENFORCE  = 0x08,
+    GEO_COUNTRY     = 0x10,
+    GEO_CITY        = 0x20
 };
 
 /// Handle login commands
-class AuthSocket : public BufferedSocket
+class AuthSocket: public BufferedSocket
 {
-public:
-    const static int s_BYTE_SIZE = 32;
+    public:
+        const static int s_BYTE_SIZE = 32;
 
-    AuthSocket();
-    ~AuthSocket();
-
-
-    bool ReadProxyHeader();
-
-    void OnAccept();
-    void OnRead();
-    void SendProof(Sha1Hash sha);
-    void LoadRealmlist(ByteBuffer& pkt);
-    bool VerifyPinData(uint32 pin, const PINData& clientData);
-    bool ValidateToken(std::string const& secretString, PINData& data);
-
-    bool _HandleLogonChallenge();
-    bool _HandleLogonProof();
-    bool _HandleReconnectChallenge();
-    bool _HandleReconnectProof();
-    bool _HandleRealmList();
-    // data transfer handle for patch
-
-    bool _HandleXferResume();
-    bool _HandleXferCancel();
-    bool _HandleXferAccept();
-
-    void _SetVSFields(const std::string& rI);
+        AuthSocket();
+        ~AuthSocket();
 
 
-    struct ProxyV1Header
-    {
-        char line[108];
-    };
+        bool ReadProxyHeader();
+
+        void OnAccept();
+        void OnRead();
+        void SendProof(Sha1Hash sha);
+        void LoadRealmlist(ByteBuffer &pkt);
+        bool VerifyPinData(uint32 pin, const PINData& clientData);
+        bool ValidateToken(std::string const& secretString, PINData& data);
+
+        bool _HandleLogonChallenge();
+        bool _HandleLogonProof();
+        bool _HandleReconnectChallenge();
+        bool _HandleReconnectProof();
+        bool _HandleRealmList();
+        //data transfer handle for patch
+
+        bool _HandleXferResume();
+        bool _HandleXferCancel();
+        bool _HandleXferAccept();
+
+        void _SetVSFields(const std::string& rI);
 
 
-    ProxyV1Header proxyHeader;
+        struct ProxyV1Header
+        {
+            char line[108];
+        };
 
-    bool _proxyIpReceived = false;
 
-private:
-    enum eStatus
-    {
-        STATUS_CHALLENGE,
-        STATUS_LOGON_PROOF,
-        STATUS_RECON_PROOF,
-        STATUS_PATCH, // unused in CMaNGOS
-        STATUS_AUTHED,
-        STATUS_CLOSED
-    };
+        ProxyV1Header proxyHeader;
 
-    bool VerifyVersion(uint8 const* a, int32 aLength, uint8 const* versionProof, bool isReconnect);
+        bool _proxyIpReceived = false;
 
-    BigNumber N, s, g, v;
-    BigNumber b, B;
-    BigNumber K;
-    BigNumber _reconnectProof;
+    private:
+        enum eStatus
+        {
+            STATUS_CHALLENGE,
+            STATUS_LOGON_PROOF,
+            STATUS_RECON_PROOF,
+            STATUS_PATCH,      // unused in CMaNGOS
+            STATUS_AUTHED,
+            STATUS_CLOSED
+        };
 
-    bool promptPin;
+        bool VerifyVersion(uint8 const* a, int32 aLength, uint8 const* versionProof, bool isReconnect);
 
-    eStatus _status;
+        BigNumber N, s, g, v;
+        BigNumber b, B;
+        BigNumber K;
+        BigNumber _reconnectProof;
 
-    std::string _login;
-    std::string _safelogin;
-    std::string securityInfo;
-    std::string _lastIP;
-    std::string _email;
+        bool promptPin;
 
-    uint32 _joindateStamp = 0;
+        eStatus _status;
 
-    BigNumber serverSecuritySalt;
-    LockFlag lockFlags;
-    uint32 gridSeed;
-    uint32_t _geoUnlockPIN;
+        std::string _login;
+        std::string _safelogin;
+        std::string securityInfo;
+        std::string _lastIP;
+        std::string _email;
 
-    static constexpr uint32 Win = 'Win';
-    static constexpr uint32 OSX = 'OSX';
+        uint32 _joindateStamp = 0;
 
-    static constexpr uint32 X86 = 'x86';
-    static constexpr uint32 PPC = 'PPC';
+        BigNumber serverSecuritySalt;
+        LockFlag lockFlags;
+        uint32 gridSeed;
+        uint32_t _geoUnlockPIN;
 
-    uint32 _os;
-    uint32 _platform;
-    uint32 _accountId;
-    uint32 _lastRealmListRequest;
+        static constexpr uint32 Win = 'Win';
+        static constexpr uint32 OSX = 'OSX';
 
-    // Since GetLocaleByName() is _NOT_ bijective, we have to store the locale as a string. Otherwise we can't differ
-    // between enUS and enGB, which is important for the patch system
-    std::string _localizationName;
-    uint16 _build;
+        static constexpr uint32 X86 = 'x86';
+        static constexpr uint32 PPC = 'PPC';
 
-    AccountTypes GetSecurityOn(uint32 realmId) const;
-    void LoadAccountSecurityLevels(uint32 accountId);
-    bool GeographicalLockCheck();
+        uint32 _os;
+        uint32 _platform;
+        uint32 _accountId;
+        uint32 _lastRealmListRequest;
 
-    AccountTypes _accountDefaultSecurityLevel;
-    typedef std::map<uint32, AccountTypes> AccountSecurityMap;
-    AccountSecurityMap _accountSecurityOnRealm;
+        // Since GetLocaleByName() is _NOT_ bijective, we have to store the locale as a string. Otherwise we can't differ
+        // between enUS and enGB, which is important for the patch system
+        std::string _localizationName;
+        uint16 _build;
 
-    ACE_HANDLE patch_;
+        AccountTypes GetSecurityOn(uint32 realmId) const;
+        void LoadAccountSecurityLevels(uint32 accountId);
+        bool GeographicalLockCheck();
 
-    void InitPatch();
+        AccountTypes _accountDefaultSecurityLevel;
+        typedef std::map<uint32, AccountTypes> AccountSecurityMap;
+        AccountSecurityMap _accountSecurityOnRealm;
+
+        ACE_HANDLE patch_;
+
+        void InitPatch();
 };
 #endif
 /// @}

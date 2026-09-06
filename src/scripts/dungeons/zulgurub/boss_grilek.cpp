@@ -24,12 +24,15 @@ EndScriptData */
 #include "scriptPCH.h"
 #include "zulgurub.h"
 
-#define SPELL_AVARTAR 24646 // The Enrage Spell
+#define SPELL_AVARTAR 24646                  //The Enrage Spell
 #define SPELL_GROUNDTREMOR 6524
 
 struct boss_grilekAI : public ScriptedAI
 {
-    boss_grilekAI(Creature* pCreature) : ScriptedAI(pCreature) { Reset(); }
+    boss_grilekAI(Creature* pCreature) : ScriptedAI(pCreature)
+    {
+        Reset();
+    }
 
     uint32 Avartar_Timer;
     uint32 GroundTremor_Timer;
@@ -42,11 +45,11 @@ struct boss_grilekAI : public ScriptedAI
 
     void UpdateAI(const uint32 diff) override
     {
-        // Return since we have no target
+        //Return since we have no target
         if (!m_creature->SelectHostileTarget() || !m_creature->GetVictim())
             return;
 
-        // Avartar_Timer
+        //Avartar_Timer
         if (Avartar_Timer < diff)
         {
 
@@ -62,26 +65,27 @@ struct boss_grilekAI : public ScriptedAI
 
             Avartar_Timer = urand(25000, 35000);
         }
-        else
-            Avartar_Timer -= diff;
+        else Avartar_Timer -= diff;
 
-        // GroundTremor_Timer
+        //GroundTremor_Timer
         if (GroundTremor_Timer < diff)
         {
             DoCastSpellIfCan(m_creature->GetVictim(), SPELL_GROUNDTREMOR);
             GroundTremor_Timer = urand(12000, 16000);
         }
-        else
-            GroundTremor_Timer -= diff;
+        else GroundTremor_Timer -= diff;
 
         DoMeleeAttackIfReady();
     }
 };
-CreatureAI* GetAI_boss_grilek(Creature* pCreature) { return new boss_grilekAI(pCreature); }
+CreatureAI* GetAI_boss_grilek(Creature* pCreature)
+{
+    return new boss_grilekAI(pCreature);
+}
 
 void AddSC_boss_grilek()
 {
-    Script* newscript;
+    Script *newscript;
     newscript = new Script;
     newscript->Name = "boss_grilek";
     newscript->GetAI = &GetAI_boss_grilek;

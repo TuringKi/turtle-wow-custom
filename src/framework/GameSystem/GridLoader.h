@@ -33,37 +33,43 @@
   GridLoader manages the grid (both local and remote).
  */
 
-#include "Grid.h"
 #include "Platform/Define.h"
+#include "Grid.h"
 #include "TypeContainerVisitor.h"
 
-template <class ACTIVE_OBJECT, class WORLD_OBJECT_TYPES, class GRID_OBJECT_TYPES>
+template
+<
+class ACTIVE_OBJECT,
+class WORLD_OBJECT_TYPES,
+class GRID_OBJECT_TYPES
+>
 class GridLoader
 {
-public:
-    /** Loads the grid
-     */
-    template <class LOADER>
-    void Load(Grid<ACTIVE_OBJECT, WORLD_OBJECT_TYPES, GRID_OBJECT_TYPES>& grid, LOADER& loader)
-    {
-        loader.Load(grid);
-    }
+    public:
 
-    /** Stop the grid
-     */
-    template <class STOPER>
-    void Stop(Grid<ACTIVE_OBJECT, WORLD_OBJECT_TYPES, GRID_OBJECT_TYPES>& grid, STOPER& stoper)
-    {
-        stoper.Stop(grid);
-    }
+        /** Loads the grid
+         */
+        template<class LOADER>
+        void Load(Grid<ACTIVE_OBJECT,WORLD_OBJECT_TYPES, GRID_OBJECT_TYPES> &grid, LOADER &loader)
+        {
+            loader.Load(grid);
+        }
 
-    /** Unloads the grid
-     */
-    template <class UNLOADER>
-    void Unload(Grid<ACTIVE_OBJECT, WORLD_OBJECT_TYPES, GRID_OBJECT_TYPES>& grid, UNLOADER& unloader)
-    {
-        unloader.Unload(grid);
-    }
+        /** Stop the grid
+         */
+        template<class STOPER>
+        void Stop(Grid<ACTIVE_OBJECT,WORLD_OBJECT_TYPES, GRID_OBJECT_TYPES> &grid, STOPER &stoper)
+        {
+            stoper.Stop(grid);
+        }
+
+        /** Unloads the grid
+         */
+        template<class UNLOADER>
+        void Unload(Grid<ACTIVE_OBJECT,WORLD_OBJECT_TYPES, GRID_OBJECT_TYPES> &grid, UNLOADER &unloader)
+        {
+            unloader.Unload(grid);
+        }
 };
 
 #endif

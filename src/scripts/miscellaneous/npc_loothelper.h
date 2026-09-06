@@ -6,7 +6,6 @@ class npc_loothelperAI : public ScriptedAI
 private:
     uint32_t lootEntry = 0;
     bool visibleToPlayers = false;
-
 public:
     npc_loothelperAI(Creature* pCreature);
 

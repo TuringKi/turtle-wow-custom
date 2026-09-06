@@ -46,7 +46,9 @@ struct npc_piznikAI : public ScriptedAI
         EventTimer = 0;
     }
 
-    void Reset() override {}
+    void Reset() override
+    {
+    }
 
     void JustRespawned() override
     {
@@ -56,19 +58,19 @@ struct npc_piznikAI : public ScriptedAI
 
     void JustSummoned(Creature* pSummoned) override
     {
-        pSummoned->GetMotionMaster()->MovePoint(2, 959.93f, -261.39f, -5.75f, MOVE_PATHFINDING);
+        pSummoned->GetMotionMaster()->MovePoint(2, 959.93f, -261.39f, -5.75f,MOVE_PATHFINDING);
         pSummoned->SetHomePosition(959.931335f, -261.39f, -5.74659f, 5.32f);
     }
 
     void JustDied(Unit* /*pKiller*/) override
     {
         if (InEvent)
-            if (Player* pPlayer = m_creature->GetMap()->GetPlayer(pGuid))
+            if (Player *pPlayer = m_creature->GetMap()->GetPlayer(pGuid))
                 pPlayer->FailQuest(QUEST_GERENOS_ORDERS);
         InEvent = false;
     }
 
-    void StartEvent(Player* plr)
+    void StartEvent(Player *plr)
     {
         if (InEvent)
             return;
@@ -83,15 +85,15 @@ struct npc_piznikAI : public ScriptedAI
     void AttackStart(Unit* pWho) override
     {
         if (InEvent)
-            return;
+             return;
 
         ScriptedAI::AttackStart(pWho);
     }
     void UpdateAI(const uint32 uiDiff) override
     {
         if (m_creature->SelectHostileTarget() || m_creature->GetVictim())
-            DoMeleeAttackIfReady();
-        else if (InEvent)
+                DoMeleeAttackIfReady();
+        else if(InEvent)
         {
             if (EventPhase == EVENT_PHASE_INIT)
             {
@@ -115,7 +117,7 @@ struct npc_piznikAI : public ScriptedAI
             }
             if (EventTimer > 180000 && EventPhase == EVENT_PHASE_END)
             {
-                if (Player* pPlayer = m_creature->GetMap()->GetPlayer(pGuid))
+                if (Player *pPlayer = m_creature->GetMap()->GetPlayer(pGuid))
                     pPlayer->GroupEventHappens(QUEST_GERENOS_ORDERS, m_creature);
                 InEvent = false;
                 m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PVP);
@@ -131,13 +133,16 @@ struct npc_piznikAI : public ScriptedAI
     ObjectGuid pGuid;
 };
 
-CreatureAI* GetAI_npc_piznik(Creature* pCreature) { return new npc_piznikAI(pCreature); }
+CreatureAI* GetAI_npc_piznik(Creature* pCreature)
+{
+    return new npc_piznikAI(pCreature);
+}
 
-bool QuestAccept_npc_piznik(Player* pPlayer, Creature* pCreature, const Quest* pQuest)
+bool QuestAccept_npc_piznik(Player *pPlayer, Creature *pCreature, const Quest *pQuest)
 {
     if (pQuest->GetQuestId() == QUEST_GERENOS_ORDERS)
     {
-        if (npc_piznikAI* pPiznik = dynamic_cast<npc_piznikAI*>(pCreature->AI()))
+        if (npc_piznikAI *pPiznik = dynamic_cast<npc_piznikAI*>(pCreature->AI()))
             pPiznik->StartEvent(pPlayer);
     }
     return true;
@@ -149,7 +154,7 @@ bool QuestAccept_npc_piznik(Player* pPlayer, Creature* pCreature, const Quest* p
 
 void AddSC_stonetalon_mountains()
 {
-    Script* newscript;
+    Script *newscript;
 
     newscript = new Script;
     newscript->Name = "npc_piznik";

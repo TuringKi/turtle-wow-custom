@@ -28,11 +28,11 @@
 
 class SpellModMgr
 {
-public:
-    SpellModMgr();
-    ~SpellModMgr();
+    public:
+        SpellModMgr();
+        ~SpellModMgr();
 
-    void LoadSpellMods();
+        void LoadSpellMods();
 };
 
 extern SpellModMgr sSpellModMgr;

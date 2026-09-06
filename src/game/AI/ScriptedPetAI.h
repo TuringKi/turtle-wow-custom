@@ -1,7 +1,7 @@
 /*
- * Copyright (C) 2012-2012 Anathema Engine project <http://valkyrie-wow.com/>
- * Copyright (C) 2005-2012 MaNGOS <http://getmangos.com/>
- */
+* Copyright (C) 2012-2012 Anathema Engine project <http://valkyrie-wow.com/>
+* Copyright (C) 2005-2012 MaNGOS <http://getmangos.com/>
+*/
 
 #ifndef SCRIPTED_PETAI_H
 #define SCRIPTED_PETAI_H
@@ -33,7 +33,7 @@ public:
 
     virtual void ResetCreature() {}
 
-    virtual void UpdatePetAI(const uint32 uiDiff); // while in combat
+    virtual void UpdatePetAI(const uint32 uiDiff);      // while in combat
 
     virtual void UpdatePetOOCAI(const uint32 uiDiff) {} // when not in combat
 

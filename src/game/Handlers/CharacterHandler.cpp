@@ -19,38 +19,47 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#include "AccountMgr.h"
-#include "Anticheat.h"
-#include "Auth/md5.h"
-#include "Chat.h"
 #include "Common.h"
-#include "Config.hpp"
 #include "Database/DatabaseEnv.h"
-#include "Database/DatabaseImpl.h"
-#include "Group.h"
+#include "WorldPacket.h"
+#include "SharedDefines.h"
+#include "WorldSession.h"
+#include "Opcodes.h"
+#include "Log.h"
+#include "World.h"
+#include "ObjectMgr.h"
+#include "Player.h"
+#include "Handlers/LoginQueryHolder.h"
 #include "Guild.h"
 #include "GuildMgr.h"
-#include "Language.h"
-#include "Log.h"
-#include "Logging/DatabaseLogger.hpp"
-#include "Mail.h"
-#include "MasterPlayer.h"
-#include "ObjectAccessor.h"
-#include "ObjectMgr.h"
-#include "Opcodes.h"
-#include "Player.h"
-#include "PlayerBroadcaster.h"
-#include "SharedDefines.h"
-#include "SocialMgr.h"
 #include "UpdateMask.h"
+#include "Auth/md5.h"
+#include "AccountMgr.h"
+#include "ObjectAccessor.h"
+#include "Group.h"
+#include "Database/DatabaseImpl.h"
+#include "SocialMgr.h"
 #include "Util.h"
-#include "World.h"
-#include "WorldPacket.h"
-#include "WorldSession.h"
+#include "Language.h"
+#include "Chat.h"
+#include "ScriptObjects.h"
+#include "Anticheat.h"
+#include "MasterPlayer.h"
+#include "PlayerBroadcaster.h"
+#include "Mail.h"
 #include "miscellaneous/feature_transmog.h"
+#include "Config.hpp"
+#include "Logging/DatabaseLogger.hpp"
+#ifdef ENABLE_ELUNA
+#include "LuaEngine.h"
+#endif
 
+#ifdef BUILD_LEGACY_PLAYERBOTS
 #include "PlayerbotAIConfig.h"
+#endif
+#ifdef BUILD_LEGACY_PLAYERBOTS
 #include "playerbot.h"
+#endif
 
 // config option SkipCinematics supported values
 enum CinematicsSkipMode
@@ -61,24 +70,10 @@ enum CinematicsSkipMode
 };
 
 
-class LoginQueryHolder : public SqlQueryHolder
-{
-private:
-    uint32 m_accountId;
-    ObjectGuid m_guid;
+// LoginQueryHolder class moved to Handlers/LoginQueryHolder.h
+// so the bot module can construct holders for synthetic bot logins. Initialize() definition stays here.
 
-public:
-    LoginQueryHolder(uint32 accountId, ObjectGuid guid) : SqlQueryHolder(guid.GetCounter()), m_accountId(accountId), m_guid(guid) {}
-    ~LoginQueryHolder()
-    {
-        // Queries should NOT be deleted by user
-        DeleteAllResults();
-    }
-    ObjectGuid GetGuid() const { return m_guid; }
-    uint32 GetAccountId() const { return m_accountId; }
-    bool Initialize();
-};
-
+#ifdef BUILD_LEGACY_PLAYERBOTS
 class PlayerbotLoginQueryHolder : public LoginQueryHolder
 {
 private:
@@ -93,6 +88,7 @@ public:
     PlayerbotHolder* GetPlayerbotHolder() { return playerbotHolder; }
 };
 
+#endif
 bool LoginQueryHolder::Initialize()
 {
     SetSize(MAX_PLAYER_LOGIN_QUERY);
@@ -101,20 +97,19 @@ bool LoginQueryHolder::Initialize()
 
     // NOTE: all fields in `characters` must be read to prevent lost character data at next save in case wrong DB structure.
     // !!! NOTE: including unused `zone`,`online`
-    res &= SetPQuery(PLAYER_LOGIN_QUERY_LOADFROM,
-                     "SELECT guid, account, name, race, class, gender, level, xp, money, playerBytes, playerBytes2, playerFlags, "
+    res &= SetPQuery(PLAYER_LOGIN_QUERY_LOADFROM,            "SELECT guid, account, name, race, class, gender, level, xp, money, playerBytes, playerBytes2, playerFlags, "
                      "position_x, position_y, position_z, map, orientation, taximask, cinematic, totaltime, leveltime, rest_bonus, logout_time, is_logout_resting, resettalents_multiplier, "
                      "resettalents_time, trans_x, trans_y, trans_z, trans_o, transguid, extra_flags, stable_slots, at_login, zone, online, death_expire_time, taxi_path, "
                      "honorRankPoints, honorHighestRank, honorStanding, honorLastWeekHK, honorLastWeekCP, honorStoredHK, honorStoredDK, "
                      "watchedFaction, drunk, health, power1, power2, power3, power4, power5, exploredZones, equipmentCache, ammoId, actionBars, "
-                     "world_phase_mask, customFlags, city_protector, ignore_titles, mortality_status, total_deaths, xp_gain FROM characters WHERE guid = '%u'",
-                     m_guid.GetCounter());
+                     "world_phase_mask, customFlags, city_protector, ignore_titles, mortality_status, total_deaths, xp_gain, extraBonusTalentCount FROM characters WHERE guid = '%u'", m_guid.GetCounter());
     res &= SetPQuery(PLAYER_LOGIN_QUERY_LOADGROUP, "SELECT groupId FROM group_member WHERE memberGuid ='%u'", m_guid.GetCounter());
     res &= SetPQuery(PLAYER_LOGIN_QUERY_LOADBOUNDINSTANCES, "SELECT id, permanent, map, resettime FROM character_instance LEFT JOIN instance ON instance = id WHERE guid = '%u'", m_guid.GetCounter());
     res &= SetPQuery(PLAYER_LOGIN_QUERY_LOADAURAS, "SELECT caster_guid,item_guid,spell,stackcount,remaincharges,basepoints0,basepoints1,basepoints2,periodictime0,periodictime1,periodictime2,maxduration,remaintime,effIndexMask FROM character_aura WHERE guid = '%u'", m_guid.GetCounter());
     res &= SetPQuery(PLAYER_LOGIN_QUERY_LOADSPELLS, "SELECT spell,active,disabled FROM character_spell WHERE guid = '%u'", m_guid.GetCounter());
     res &= SetPQuery(PLAYER_LOGIN_QUERY_LOADQUESTSTATUS, "SELECT quest,status,rewarded,explored,timer,mobcount1,mobcount2,mobcount3,mobcount4,itemcount1,itemcount2,itemcount3,itemcount4,reward_choice FROM character_queststatus WHERE guid = '%u'", m_guid.GetCounter());
     res &= SetPQuery(PLAYER_LOGIN_QUERY_LOADHONORCP, "SELECT victimType,victim,cp,date,type FROM character_honor_cp WHERE guid = '%u'", m_guid.GetCounter());
+    res &= SetPQuery(PLAYER_LOGIN_QUERY_LOADPVPCURRENCY,     "SELECT honor,conquest,weekly_honor,week_begin_day FROM character_pvp_currency WHERE guid = '%u'", m_guid.GetCounter());
     res &= SetPQuery(PLAYER_LOGIN_QUERY_LOADREPUTATION, "SELECT faction,standing,flags FROM character_reputation WHERE guid = '%u'", m_guid.GetCounter());
     res &= SetPQuery(PLAYER_LOGIN_QUERY_LOADTRANSMOGS, "SELECT itemId FROM character_transmogs WHERE guid = '%u'", m_guid.GetCounter());
     res &= SetPQuery(PLAYER_LOGIN_QUERY_LOADINVENTORY, "SELECT * FROM (SELECT creatorGuid, giftCreatorGuid, count, duration, charges, flags, enchantments, randomPropertyId, transmogrifyId, durability, text, bag, slot, item, itemEntry, generated_loot FROM character_inventory JOIN item_instance ON character_inventory.item = item_instance.guid WHERE character_inventory.guid = '%u') as t ORDER BY bag,slot", m_guid.GetCounter());
@@ -142,9 +137,9 @@ bool LoginQueryHolder::Initialize()
 class CharacterHandler
 {
 public:
-    void HandleCharEnumCallback(QueryResult* result, uint32 account)
+    void HandleCharEnumCallback(QueryResult * result, uint32 account)
     {
-        WorldSession* session = sWorld.FindSession(account);
+        WorldSession * session = sWorld.FindSession(account);
         if (!session)
         {
             delete result;
@@ -152,11 +147,10 @@ public:
         }
         session->HandleCharEnum(result);
     }
-    void HandlePlayerLoginCallback(QueryResult* /*dummy*/, SqlQueryHolder* holder)
+    void HandlePlayerLoginCallback(QueryResult * /*dummy*/, SqlQueryHolder * holder)
     {
-        if (!holder)
-            return;
-        WorldSession* session = sWorld.FindSession(((LoginQueryHolder*)holder)->GetAccountId());
+        if (!holder) return;
+        WorldSession *session = sWorld.FindSession(((LoginQueryHolder*)holder)->GetAccountId());
         if (!session)
         {
             delete holder;
@@ -164,14 +158,17 @@ public:
         }
         ObjectGuid guid = ((LoginQueryHolder*)holder)->GetGuid();
         session->HandlePlayerLogin((LoginQueryHolder*)holder);
+#ifdef BUILD_LEGACY_PLAYERBOTS
         Player* player = sObjectMgr.GetPlayer(guid);
         if (player && !player->GetPlayerbotAI())
         {
             player->SetPlayerbotMgr(new PlayerbotMgr(player));
             sRandomPlayerbotMgr.OnPlayerLogin(player);
         }
+#endif
     }
 
+#ifdef BUILD_LEGACY_PLAYERBOTS
     void HandlePlayerBotLoginCallback(QueryResult* dummy, SqlQueryHolder* holder)
     {
         if (!holder)
@@ -227,10 +224,12 @@ public:
             playerbotHolder->LogoutPlayerBot(bot->GetObjectGuid().GetRawValue());
         }
     }
+#endif
 
 } chrHandler;
 
 
+#ifdef BUILD_LEGACY_PLAYERBOTS
 void PlayerbotHolder::AddPlayerBot(uint64 playerGuid, uint32 masterAccountId)
 {
     // has bot already been added?
@@ -254,9 +253,10 @@ void PlayerbotHolder::AddPlayerBot(uint64 playerGuid, uint32 masterAccountId)
     CharacterDatabase.DelayQueryHolder(&chrHandler, &CharacterHandler::HandlePlayerBotLoginCallback, holder);
 }
 
+#endif
 bool WorldSession::HasHighLevelCharacter() const { return _characterMaxLevel >= sWorld.getConfig(CONFIG_UINT32_HIGH_LEVEL_CHARACTER); }
 
-void WorldSession::HandleCharEnum(QueryResult* result)
+void WorldSession::HandleCharEnum(QueryResult * result)
 {
     WorldPacket data(SMSG_CHAR_ENUM, 100); // we guess size
 
@@ -297,7 +297,7 @@ void WorldSession::HandleCharEnum(QueryResult* result)
     SendPacket(&data);
 }
 
-void WorldSession::HandleCharEnumOpcode(WorldPacket& /*recv_data*/)
+void WorldSession::HandleCharEnumOpcode(WorldPacket & /*recv_data*/)
 {
     /// get all the data necessary for loading all characters (along with their pets) on the account
     CharacterDatabase.AsyncPQuery(&chrHandler, &CharacterHandler::HandleCharEnumCallback, GetAccountId(),
@@ -314,7 +314,7 @@ void WorldSession::HandleCharEnumOpcode(WorldPacket& /*recv_data*/)
                                   GetAccountId());
 }
 
-void WorldSession::HandleCharCreateOpcode(WorldPacket& recv_data)
+void WorldSession::HandleCharCreateOpcode(WorldPacket & recv_data)
 {
     std::string name;
     uint8 race_, class_;
@@ -328,6 +328,9 @@ void WorldSession::HandleCharCreateOpcode(WorldPacket& recv_data)
     uint8 gender, skin, face, hairStyle, hairColor, facialHair, outfitId;
     recv_data >> gender >> skin >> face;
     recv_data >> hairStyle >> hairColor >> facialHair >> outfitId;
+
+    uint32 challengeMask;
+    recv_data >> challengeMask;
 
     WorldPacket data(SMSG_CHAR_CREATE, 1); // returned with diff.values in all cases
 
@@ -488,6 +491,10 @@ void WorldSession::HandleCharCreateOpcode(WorldPacket& recv_data)
 
     pNewChar->SetAtLoginFlag(AT_LOGIN_FIRST); // First login
 
+    // Challenge spells are given on first login and not on character creation
+    if (challengeMask)
+        pNewChar->SetPlayerVariable(PlayerVariables::PendingChallengeMask, std::to_string(challengeMask));
+
     // Player created, save it now
     if (!pNewChar->SaveToDB(false, true, false))
     {
@@ -509,11 +516,15 @@ void WorldSession::HandleCharCreateOpcode(WorldPacket& recv_data)
     std::string IP_str = GetRemoteAddress();
     BASIC_LOG("Account: %d (IP: %s) Create Character:[%s] (guid: %u)", GetAccountId(), IP_str.c_str(), name.c_str(), pNewChar->GetGUIDLow());
     sLog.out(LOG_CHAR, "[%s:%u@%s] Create Character:[%s] (guid: %u)", GetUsername().c_str(), GetAccountId(), IP_str.c_str(), name.c_str(), pNewChar->GetGUIDLow());
-    sDBLogger.LogCharAction({pNewChar->GetGUIDLow(), GetAccountId(), LogCharAction::ActionCreate, {}});
+    sDBLogger.LogCharAction({ pNewChar->GetGUIDLow(), GetAccountId(), LogCharAction::ActionCreate, {} });
+    ScriptRegistry<PlayerScript>::ForEachEnabledHook(PLAYERHOOK_ON_CREATE, [&](PlayerScript* script)
+    {
+        script->OnCreate(pNewChar.get());
+    });
     sObjectMgr.IncreaseActivePlayersCount(team);
 }
 
-void WorldSession::HandleCharDeleteOpcode(WorldPacket& recv_data)
+void WorldSession::HandleCharDeleteOpcode(WorldPacket & recv_data)
 {
     ObjectGuid guid;
     recv_data >> guid;
@@ -566,25 +577,30 @@ void WorldSession::HandleCharDeleteOpcode(WorldPacket& recv_data)
     std::string IP_str = GetRemoteAddress();
     BASIC_LOG("Account: %d (IP: %s) Delete Character:[%s] (guid: %u)", GetAccountId(), IP_str.c_str(), name.c_str(), lowguid);
     sLog.out(LOG_CHAR, "[%s:%u@%s] Delete Character:[%s] (guid: %u)", GetUsername().c_str(), GetAccountId(), IP_str.c_str(), name.c_str(), lowguid);
-    sDBLogger.LogCharAction({lowguid, GetAccountId(), LogCharAction::ActionDelete, {}});
+    sDBLogger.LogCharAction({ lowguid, GetAccountId(), LogCharAction::ActionDelete, {} });
 
     // If the character is online (ALT-F4 logout for example)
     if (Player* onlinePlayer = sObjectAccessor.FindPlayer(guid))
         onlinePlayer->GetSession()->LogoutPlayer(true);
 
     Player::DeleteFromDB(guid, GetAccountId());
+    ScriptRegistry<PlayerScript>::ForEachEnabledHook(PLAYERHOOK_ON_DELETE, [&](PlayerScript* script)
+    {
+        script->OnDelete(guid, GetAccountId());
+    });
 
     WorldPacket data(SMSG_CHAR_DELETE, 1);
     data << (uint8)CHAR_DELETE_SUCCESS;
     SendPacket(&data);
 }
 
-void WorldSession::HandlePlayerLoginOpcode(WorldPacket& recv_data)
+void WorldSession::HandlePlayerLoginOpcode(WorldPacket & recv_data)
 {
     ObjectGuid playerGuid;
     recv_data >> playerGuid;
 
-    if (PlayerLoading() || GetPlayer() != nullptr || !playerGuid.IsPlayer() || sWorld.IsCharacterLocked(playerGuid.GetCounter()))
+    if (PlayerLoading() || GetPlayer() != nullptr ||
+        !playerGuid.IsPlayer() || sWorld.IsCharacterLocked(playerGuid.GetCounter()))
     {
         WorldPacket data(SMSG_CHARACTER_LOGIN_FAILED, 1);
         data << (uint8)1;
@@ -594,7 +610,7 @@ void WorldSession::HandlePlayerLoginOpcode(WorldPacket& recv_data)
 
     DEBUG_LOG("WORLD: Recvd Player Logon Message");
 
-    LoginQueryHolder* holder = new LoginQueryHolder(GetAccountId(), playerGuid);
+    LoginQueryHolder *holder = new LoginQueryHolder(GetAccountId(), playerGuid);
     if (!holder->Initialize())
     {
         delete holder; // delete all unprocessed queries
@@ -604,9 +620,9 @@ void WorldSession::HandlePlayerLoginOpcode(WorldPacket& recv_data)
     CharacterDatabase.DelayQueryHolderUnsafe(&chrHandler, &CharacterHandler::HandlePlayerLoginCallback, holder);
 }
 
-// This is what most initial priority is given.
-// These values should stay in match with CONFIG_UINT32_PRIORITY_QUEUE_PRIORITY_PER_TICK to make sure whatever bonuses we give is in line.
-// Should probably in future also take last login time into account.. ?
+//This is what most initial priority is given.
+//These values should stay in match with CONFIG_UINT32_PRIORITY_QUEUE_PRIORITY_PER_TICK to make sure whatever bonuses we give is in line.
+//Should probably in future also take last login time into account.. ?
 uint32 WorldSession::GetBasePriority() const
 {
     const uint32 donatorSettings = sWorld.getConfig(CONFIG_UINT32_PRIORITY_QUEUE_DONATOR_SETTINGS);
@@ -639,7 +655,7 @@ uint32 WorldSession::GetBasePriority() const
 void WorldSession::LoginPlayer(ObjectGuid loginPlayerGuid)
 {
     ASSERT(loginPlayerGuid.IsPlayer());
-    LoginQueryHolder* holder = new LoginQueryHolder(GetAccountId(), loginPlayerGuid);
+    LoginQueryHolder *holder = new LoginQueryHolder(GetAccountId(), loginPlayerGuid);
     if (!holder->Initialize())
     {
         delete holder; // delete all unprocessed queries
@@ -649,7 +665,56 @@ void WorldSession::LoginPlayer(ObjectGuid loginPlayerGuid)
     CharacterDatabase.DelayQueryHolderUnsafe(&chrHandler, &CharacterHandler::HandlePlayerLoginCallback, holder);
 }
 
-void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder)
+// Post-login event that fixes other players/bots rendering "naked" (base/underwear model) to a
+// freshly logged-in client.
+//
+// CAUSE: While the player watches the intro cinematic, the surrounding players/bots are sent to the
+// client and their character models are built BEFORE the client has received the item display data
+// (DisplayInfoID, delivered via SMSG_ITEM_QUERY_SINGLE_RESPONSE) for their equipped gear. The 1.12
+// client does NOT re-render an already-created character model when those item-query responses
+// arrive afterwards, so the equipment never appears. Gear of the SAME class as the viewer renders
+// fine only because the client already cached that item data from drawing the viewer's own
+// character. The display otherwise corrects only on a full visibility reset (hearthstone/relog),
+// which destroys and re-creates the objects after the item data is cached.
+//
+// FIX: once the cinematic has finished (by which point the item-query responses have been received
+// and cached), force the client to destroy and re-create the players/bots it has in view, so their
+// models are rebuilt with the now-available equipment data. See Player::RefreshVisiblePlayersForClient.
+class RefreshVisiblePlayersEvent : public BasicEvent
+{
+public:
+    explicit RefreshVisiblePlayersEvent(ObjectGuid playerGuid, uint32 attempt = 0)
+        : BasicEvent(), m_playerGuid(playerGuid), m_attempt(attempt) {}
+
+    bool Execute(uint64 /*e_time*/, uint32 /*p_time*/) override
+    {
+        Player* player = ObjectAccessor::FindPlayer(m_playerGuid);
+        if (!player || !player->IsInWorld())
+            return true;
+
+        // Wait until the login cinematic has finished. Refreshing during the cinematic recreates
+        // objects the client hasn't fully received yet, which makes them vanish.
+        if (player->watching_cinematic_entry != 0)
+        {
+            if (m_attempt + 1 < kMaxAttempts)
+                player->m_Events.AddEvent(new RefreshVisiblePlayersEvent(m_playerGuid, m_attempt + 1),
+                                          player->m_Events.CalculateTime(kRetryMs));
+            return true;
+        }
+
+        // Cinematic done: one refresh of the players/bots the client has in view.
+        player->RefreshVisiblePlayersForClient();
+        return true;
+    }
+
+private:
+    static constexpr uint32 kMaxAttempts = 60; // cinematic-wait cap (~120s)
+    static constexpr uint32 kRetryMs     = 2000;
+    ObjectGuid m_playerGuid;
+    uint32 m_attempt;
+};
+
+void WorldSession::HandlePlayerLogin(LoginQueryHolder *holder)
 {
     // The following fixes a crash. Use case:
     // Session1 created, requests login, kicked.
@@ -665,7 +730,7 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder)
     ASSERT(playerGuid.IsPlayer());
 
     // If the character is online (ALT-F4 logout for example)
-    Player* pCurrChar = sObjectAccessor.FindPlayer(playerGuid);
+    Player *pCurrChar = sObjectAccessor.FindPlayer(playerGuid);
     MasterPlayer* pCurrMasterPlayer = sObjectAccessor.FindMasterPlayer(playerGuid);
     bool alreadyOnline = false;
     if (pCurrChar)
@@ -678,6 +743,32 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder)
             m_playerLoading = false;
             return;
         }
+
+        // If this character is currently in-world as a bot (PlayerbotAI
+        // attached), cleanly detach
+        // the AI BEFORE transferring session ownership. Without this, the
+        // bot's PlayerbotAI keeps ticking on what's now the real-player's
+        // Player object via Player::UpdatePlayerbotHooks → fights with the
+        // login handshake, drives movement / casts / packets the client
+        // doesn't expect → loading screen never finishes (10+ min hang
+        // observed; client eventually gives up). Reproduces deterministically
+        // when:
+        //   1. Char A is being run as a bot
+        //   2. Master logs off
+        //   3. User immediately logs into Char A as a real player
+        // The take-over path below transfers the Player object cleanly; we
+        // just have to make sure the bot brain stops first.
+        if (Script_IsAIControlled(pCurrChar))
+        {
+            sLog.outInfo("[BOT] HandlePlayerLogin: char %s (guid %u) currently driven by a module - "
+                         "asking it to let go before real-player session take-over",
+                         pCurrChar->GetName(), playerGuid.GetCounter());
+            ScriptRegistry<PlayerScript>::ForEachEnabledHook(PLAYERHOOK_ON_RELEASE_TO_CLIENT, [&](PlayerScript* script)
+            {
+                script->OnReleaseToClient(pCurrChar);
+            });
+        }
+
         pCurrChar->GetSession()->SetPlayer(nullptr);
         pCurrChar->SetSession(this);
 
@@ -727,9 +818,16 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder)
         m_antiCheat->NewPlayer();
     }
 
+    // Attach a PlayerbotMgr to real-player sessions. Bots (synthetic sessions
+    // with m_playerbotAI set during AddPlayerBot) skip this. Real players get
+    // a mgr so .bot commands work (otherwise the user hits "you cannot control
+    // bots yet").
+    // The module attaches its own controller from PlayerScript::OnLogin, further
+    // down this function - nothing between here and there asks for it.
 
-    // WE DO NOT NEED TO SEND ALL POSSIBLE TRANSMOGS TO ANY PLAYER ON LOGIN
-    // AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAHHh
+
+    //WE DO NOT NEED TO SEND ALL POSSIBLE TRANSMOGS TO ANY PLAYER ON LOGIN
+    //AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAHHh
     /*if (sWorld.getConfig(CONFIG_BOOL_TRANSMOG_ENABLED))
     {
         std::vector<uint32> entries;
@@ -809,6 +907,30 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder)
         SendNotification("WARNING: %s", warning);
     }
 
+    // --- Beginners guild (custom): put new guildless real players into the
+    //     configured welcome guild on their first login. Bots are excluded
+    //     through GetPlayerbotAI, and only up to level 5. ---
+    if (sConfig.GetBoolDefault("BeginnersGuilds", false)
+        && pCurrChar->GetGuildId() == 0
+        && !Script_IsAIControlled(pCurrChar)
+        && pCurrChar->GetLevel() <= 5)
+    {
+        // Random bots sit on RNDBOT accounts. Their session carries no username
+        // - GetUsername() is empty - so look the account name up by id instead,
+        // which is reliable, and exclude the bots that way.
+        std::string beginnersAccName;
+        sAccountMgr.GetName(GetAccountId(), beginnersAccName);
+        if (beginnersAccName.rfind("RNDBOT", 0) != 0)
+        {
+            uint32 beginnersGuildId = (pCurrChar->GetTeam() == HORDE)
+                ? sConfig.GetIntDefault("BeginnersGuildHorde", 0)
+                : sConfig.GetIntDefault("BeginnersGuildAlliance", 0);
+            if (beginnersGuildId)
+                if (Guild* beginnersGuild = sGuildMgr.GetGuildById(beginnersGuildId))
+                    beginnersGuild->AddMember(pCurrChar->GetObjectGuid(), beginnersGuild->GetLowestRank());
+        }
+    }
+
     if (Guild* guild = sGuildMgr.GetGuildById(pCurrChar->GetGuildId()))
     {
         WorldPacket data(SMSG_GUILD_EVENT, (2 + guild->GetMOTD().size() + 1));
@@ -831,6 +953,7 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder)
     GetMasterPlayer()->SendInitialActionButtons();
 
     // Show only player accounts cinematic at first log on
+    bool showedIntroCinematic = false;
     if (!sWorld.getConfig(CONFIG_BOOL_PTR))
     {
         AccountMgr AccountMgr;
@@ -841,7 +964,10 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder)
                 pCurrChar->SetCinematic(1);
 
                 if (ChrRacesEntry const* rEntry = sChrRacesStore.LookupEntry(pCurrChar->GetRace()))
+                {
                     pCurrChar->SendCinematicStart(rEntry->CinematicSequence);
+                    showedIntroCinematic = true;
+                }
             }
         }
     }
@@ -865,7 +991,7 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder)
     else
         sObjectAccessor.AddObject(pCurrChar);
 
-    // DEBUG_LOG("Player %s added to Map.",pCurrChar->GetName());
+    //DEBUG_LOG("Player %s added to Map.",pCurrChar->GetName());
     pCurrChar->GetSocial()->SendFriendList();
     pCurrChar->GetSocial()->SendIgnoreList();
 
@@ -886,7 +1012,7 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder)
     pCurrChar->SetInGameTime(WorldTimer::getMSTime());
 
     // announce group about member online (must be after add to player list to receive announce to self)
-    if (Group* group = pCurrChar->GetGroup())
+    if (Group *group = pCurrChar->GetGroup())
         group->UpdatePlayerOnlineStatus(pCurrChar);
 
     // friend status
@@ -930,6 +1056,45 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder)
     {
         pCurrChar->ContinueTaxiFlight();
         pCurrChar->LoadPet();
+    }
+
+    auto maskVar = pCurrChar->GetPlayerVariable(PlayerVariables::PendingChallengeMask);
+    // Bot sessions must never go through challenge setup — they predate TurtleWoW's hardcore
+    // system and have no concept of it. Skip and clear any stale mask so it doesn't re-fire.
+    const std::string& remoteAddr = pCurrChar->GetSession()->GetRemoteAddress();
+    const bool isBotSession = (remoteAddr == "disconnected/bot" || remoteAddr == "<BOT>");
+    if (isBotSession)
+    {
+        if (maskVar)
+            pCurrChar->SetPlayerVariable(PlayerVariables::PendingChallengeMask, "0");
+    }
+    else if (maskVar && *maskVar != "0")
+    {
+        uint32 challengeMask = std::stoul(*maskVar);
+
+        static constexpr uint32 challengeSpells[] = {
+            SPELL_HARDCORE,         // bit 0
+            SPELL_SLOW_AND_STEADY,  // bit 1
+            SPELL_WAR_MODE,         // bit 2
+            SPELL_VARGANT_MODE,     // bit 3
+            SPELL_CRAFTMASTER,      // bit 4
+            SPELL_LUNATIC,          // bit 5
+            SPELL_BOARING_MODE,     // bit 6
+            SPELL_EXHAUSTION_MODE,  // bit 7
+            SPELL_BREWMASTER,       // bit 8
+            SPELL_HEROIC,           // bit 9
+        };
+
+        for (uint32 i = 0; i < (sizeof(challengeSpells) / sizeof(challengeSpells[0])); ++i)
+        {
+            if (challengeMask & (1u << i))
+                pCurrChar->LearnSpell(challengeSpells[i], false);
+        }
+
+        if (challengeMask & 0x1) // Hardcore
+            pCurrChar->SetupHardcoreMode();
+
+        pCurrChar->SetPlayerVariable(PlayerVariables::PendingChallengeMask, "0");
     }
 
     // Set FFA PvP for non GM in non-rest mode
@@ -980,11 +1145,12 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder)
 
     std::string IP_str = GetRemoteAddress();
 
-    sLog.out(LOG_CHAR, "[%s:%u@%s] Login Character:[%s] (guid: %u)%s", GetUsername().c_str(), GetAccountId(), IP_str.c_str(), pCurrChar->GetName(), pCurrChar->GetGUIDLow(), alreadyOnline ? " Player was already online" : "");
+    sLog.out(LOG_CHAR, "[%s:%u@%s] Login Character:[%s] (guid: %u)%s",
+             GetUsername().c_str(), GetAccountId(), IP_str.c_str(), pCurrChar->GetName(), pCurrChar->GetGUIDLow(), alreadyOnline ? " Player was already online" : "");
     if (!alreadyOnline && !pCurrChar->IsStandingUp() && !pCurrChar->HasUnitState(UNIT_STAT_STUNNED))
         pCurrChar->SetStandState(UNIT_STAND_STATE_STAND);
 
-    sDBLogger.LogCharAction({pCurrChar->GetGUIDLow(), GetAccountId(), LogCharAction::ActionLogin, {}});
+    sDBLogger.LogCharAction({ pCurrChar->GetGUIDLow(), GetAccountId(), LogCharAction::ActionLogin, {} });
 
     m_playerLoading = false;
     m_clientMoverGuid = pCurrChar->GetObjectGuid();
@@ -1010,14 +1176,16 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder)
         std::string message = "Greetings! Use this to improve your look!\n\nSafe travels,\nTurtle WoW Team";
         Item* ToMailItem = Item::CreateItem(itemEntry, 1, pCurrChar);
         ToMailItem->SaveToDB();
-        MailDraft(subject, sObjectMgr.CreateItemText(message)).AddItem(ToMailItem).SendMailTo(pCurrChar, MailSender(MAIL_CREATURE, uint32(51550), MAIL_STATIONERY_DEFAULT), MAIL_CHECK_MASK_COPIED, 0, 30 * DAY);
+        MailDraft(subject, sObjectMgr.CreateItemText(message))
+            .AddItem(ToMailItem)
+            .SendMailTo(pCurrChar, MailSender(MAIL_CREATURE, uint32(51550), MAIL_STATIONERY_DEFAULT), MAIL_CHECK_MASK_COPIED, 0, 30 * DAY);
 
         pCurrChar->RemoveCustomFlag(CUSTOM_PLAYER_FLAG_BROKEN_GOBLIN);
     }
 
 
     // Chinese Lunar Festivale
-    // if (sWorld.getConfig(CONFIG_BOOL_SEA_NETWORK) && !pCurrChar->HasCustomFlag(CUSTOM_PLAYER_FLAG_RECEIVED_LUNAR_GIFT))
+    //if (sWorld.getConfig(CONFIG_BOOL_SEA_NETWORK) && !pCurrChar->HasCustomFlag(CUSTOM_PLAYER_FLAG_RECEIVED_LUNAR_GIFT))
     //{
     //    uint32 itemEntry = 91790;
     //
@@ -1055,18 +1223,36 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder)
     pCurrChar->RecallPvPGear();
 
     // Update warden speeds
-    // if (GetWarden())
-    // for (int i = 0; i < MAX_MOVE_TYPE; ++i)
-    // GetWarden()->SendSpeedChange(UnitMoveType(i), pCurrChar->GetSpeed(UnitMoveType(i)));
+    //if (GetWarden())
+        //for (int i = 0; i < MAX_MOVE_TYPE; ++i)
+            //GetWarden()->SendSpeedChange(UnitMoveType(i), pCurrChar->GetSpeed(UnitMoveType(i)));
 
-    // if (sWorld.getConfig(CONFIG_BOOL_TRANSMOG_ENABLED))
-    // sTransmog.LoadTransmog(pCurrChar);
+    //if (sWorld.getConfig(CONFIG_BOOL_TRANSMOG_ENABLED))
+        //sTransmog.LoadTransmog(pCurrChar);
 
 
     ALL_SESSION_SCRIPTS(this, OnLogin(pCurrChar));
+
+    // Only on the FIRST login (the one that plays the intro cinematic) is the client's item cache
+    // cold enough to render nearby players/bots naked; subsequent logins already have the gear data
+    // cached and render fine. So schedule the equipment-refresh only when the cinematic was shown,
+    // to avoid an unnecessary destroy/recreate "blink" on every subsequent login.
+    if (showedIntroCinematic)
+        pCurrChar->m_Events.AddEvent(new RefreshVisiblePlayersEvent(pCurrChar->GetObjectGuid()),
+                                     pCurrChar->m_Events.CalculateTime(3000));
+    ScriptRegistry<PlayerScript>::ForEachEnabledHook(PLAYERHOOK_ON_LOGIN, [&](PlayerScript* script)
+    {
+        script->OnLogin(pCurrChar);
+    });
+
+#ifdef ENABLE_ELUNA
+    if (showedIntroCinematic)
+        if (Eluna* e = pCurrChar->GetEluna())
+            e->OnFirstLogin(pCurrChar);
+#endif
 }
 
-void WorldSession::HandleSetFactionAtWarOpcode(WorldPacket& recv_data)
+void WorldSession::HandleSetFactionAtWarOpcode(WorldPacket & recv_data)
 {
     DEBUG_LOG("WORLD: Received CMSG_SET_FACTION_ATWAR");
 
@@ -1079,7 +1265,7 @@ void WorldSession::HandleSetFactionAtWarOpcode(WorldPacket& recv_data)
     GetPlayer()->GetReputationMgr().SetAtWar(repListID, flag);
 }
 
-void WorldSession::HandleTutorialFlagOpcode(WorldPacket& recv_data)
+void WorldSession::HandleTutorialFlagOpcode(WorldPacket & recv_data)
 {
     uint32 iFlag;
     recv_data >> iFlag;
@@ -1087,7 +1273,7 @@ void WorldSession::HandleTutorialFlagOpcode(WorldPacket& recv_data)
     uint32 wInt = (iFlag / 32);
     if (wInt >= 8)
     {
-        // sLog.outError("CHEATER? Account:[%d] Guid[%u] tried to send wrong CMSG_TUTORIAL_FLAG", GetAccountId(),GetGUID());
+        //sLog.outError("CHEATER? Account:[%d] Guid[%u] tried to send wrong CMSG_TUTORIAL_FLAG", GetAccountId(),GetGUID());
         return;
     }
     uint32 rInt = (iFlag % 32);
@@ -1096,22 +1282,22 @@ void WorldSession::HandleTutorialFlagOpcode(WorldPacket& recv_data)
     tutflag |= (1 << rInt);
     SetTutorialInt(wInt, tutflag);
 
-    // DEBUG_LOG("Received Tutorial Flag Set {%u}.", iFlag);
+    //DEBUG_LOG("Received Tutorial Flag Set {%u}.", iFlag);
 }
 
-void WorldSession::HandleTutorialClearOpcode(WorldPacket& /*recv_data*/)
+void WorldSession::HandleTutorialClearOpcode(WorldPacket & /*recv_data*/)
 {
     for (uint32 iI = 0; iI < 8; ++iI)
         SetTutorialInt(iI, 0xFFFFFFFF);
 }
 
-void WorldSession::HandleTutorialResetOpcode(WorldPacket& /*recv_data*/)
+void WorldSession::HandleTutorialResetOpcode(WorldPacket & /*recv_data*/)
 {
     for (uint32 iI = 0; iI < 8; iI++)
         SetTutorialInt(iI, 0x00000000);
 }
 
-void WorldSession::HandleSetWatchedFactionOpcode(WorldPacket& recv_data)
+void WorldSession::HandleSetWatchedFactionOpcode(WorldPacket & recv_data)
 {
     DEBUG_LOG("WORLD: Received CMSG_SET_WATCHED_FACTION");
     int32 repId;
@@ -1119,7 +1305,7 @@ void WorldSession::HandleSetWatchedFactionOpcode(WorldPacket& recv_data)
     GetPlayer()->SetInt32Value(PLAYER_FIELD_WATCHED_FACTION_INDEX, repId);
 }
 
-void WorldSession::HandleSetFactionInactiveOpcode(WorldPacket& recv_data)
+void WorldSession::HandleSetFactionInactiveOpcode(WorldPacket & recv_data)
 {
     DEBUG_LOG("WORLD: Received CMSG_SET_FACTION_INACTIVE");
     uint32 replistid;
@@ -1129,13 +1315,13 @@ void WorldSession::HandleSetFactionInactiveOpcode(WorldPacket& recv_data)
     _player->GetReputationMgr().SetInactive(replistid, inactive);
 }
 
-void WorldSession::HandleShowingHelmOpcode(WorldPacket& /*recv_data*/)
+void WorldSession::HandleShowingHelmOpcode(WorldPacket & /*recv_data*/)
 {
     DEBUG_LOG("CMSG_SHOWING_HELM for %s", _player->GetName());
     _player->ToggleFlag(PLAYER_FLAGS, PLAYER_FLAGS_HIDE_HELM);
 }
 
-void WorldSession::HandleShowingCloakOpcode(WorldPacket& /*recv_data*/)
+void WorldSession::HandleShowingCloakOpcode(WorldPacket & /*recv_data*/)
 {
     DEBUG_LOG("CMSG_SHOWING_CLOAK for %s", _player->GetName());
     _player->ToggleFlag(PLAYER_FLAGS, PLAYER_FLAGS_HIDE_CLOAK);
@@ -1181,12 +1367,16 @@ void WorldSession::HandleCharRenameOpcode(WorldPacket& recv_data)
 
     // make sure that the character belongs to the current account, that rename at login is enabled
     // and that there is no character with the desired new name
-    CharacterDatabase.AsyncPQuery(&WorldSession::HandleChangePlayerNameOpcodeCallBack, GetAccountId(), newname, "SELECT guid, name FROM characters WHERE guid = %u AND account = %u AND (at_login & %u) = %u AND NOT EXISTS (SELECT NULL FROM characters WHERE name = '%s')", guid.GetCounter(), GetAccountId(), AT_LOGIN_RENAME, AT_LOGIN_RENAME, escaped_newname.c_str());
+    CharacterDatabase.AsyncPQuery(&WorldSession::HandleChangePlayerNameOpcodeCallBack,
+                                  GetAccountId(), newname,
+                                  "SELECT guid, name FROM characters WHERE guid = %u AND account = %u AND (at_login & %u) = %u AND NOT EXISTS (SELECT NULL FROM characters WHERE name = '%s')",
+                                  guid.GetCounter(), GetAccountId(), AT_LOGIN_RENAME, AT_LOGIN_RENAME, escaped_newname.c_str()
+                                 );
 }
 
-void WorldSession::HandleChangePlayerNameOpcodeCallBack(QueryResult* result, uint32 accountId, std::string newname)
+void WorldSession::HandleChangePlayerNameOpcodeCallBack(QueryResult *result, uint32 accountId, std::string newname)
 {
-    WorldSession* session = sWorld.FindSession(accountId);
+    WorldSession * session = sWorld.FindSession(accountId);
     if (!session)
     {
         delete result;
@@ -1213,7 +1403,7 @@ void WorldSession::HandleChangePlayerNameOpcodeCallBack(QueryResult* result, uin
 
     sLog.out(LOG_CHAR, "[%s:%u@%s] Character:[%s] (guid:%u) Changed name to: %s", session->GetUsername().c_str(), session->GetAccountId(), session->GetRemoteAddress().c_str(), oldname.c_str(), guidLow, newname.c_str());
 
-    sDBLogger.LogCharAction({guidLow, session->GetAccountId(), LogCharAction::ActionRename, CharActionRenameEntry{0, oldname, newname}});
+    sDBLogger.LogCharAction({ guidLow, session->GetAccountId(), LogCharAction::ActionRename, CharActionRenameEntry{0, oldname, newname} });
 
     WorldPacket data(SMSG_CHAR_RENAME, 1 + 8 + (newname.size() + 1));
     data << uint8(RESPONSE_SUCCESS);

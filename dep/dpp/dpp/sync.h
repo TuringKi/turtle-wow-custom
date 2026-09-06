@@ -19,14 +19,13 @@
  *
  ************************************************************************************/
 #pragma once
-#include <dpp/exception.h>
 #include <dpp/export.h>
 #include <dpp/snowflake.h>
 #include <future>
 #include <utility>
+#include <dpp/exception.h>
 
-namespace dpp
-{
+namespace dpp {
 
     /**
      * @brief Call a D++ REST function synchronously.
@@ -52,43 +51,30 @@ namespace dpp
      * @return An instantiated object of type T
      * @throw dpp::rest_exception On failure of the method call, an exception is thrown
      */
-    template <typename T, class F, class... Ts>
-    T sync(class cluster* c, F func, Ts&&... args)
-    {
+    template<typename T, class F, class... Ts> T sync(class cluster* c, F func, Ts&&... args) {
         std::promise<T> _p;
         std::future<T> _f = _p.get_future();
         /* (obj ->* func) is the obscure syntax for calling a method pointer on an object instance */
-        (c->*func)(std::forward<Ts>(args)...,
-                   [&_p](const auto& cc)
-                   {
-                       try
-                       {
-                           if (cc.is_error())
-                           {
-                               throw dpp::rest_exception(cc.get_error().message);
-                           }
-                           else
-                           {
-                               try
-                               {
-                                   _p.set_value(std::get<T>(cc.value));
-                               }
-                               catch (const std::exception& e)
-                               {
-                                   throw dpp::rest_exception(e.what());
-                               }
-                           }
-                       }
-                       catch (const dpp::rest_exception&)
-                       {
-                           _p.set_exception(std::current_exception());
-                       }
-                   });
+        (c ->* func)(std::forward<Ts>(args)..., [&_p](const auto& cc) {
+            try {
+                if (cc.is_error()) {
+                    throw dpp::rest_exception(cc.get_error().message);
+                } else {
+                    try {
+                        _p.set_value(std::get<T>(cc.value));
+                    } catch (const std::exception& e) {
+                        throw dpp::rest_exception(e.what());
+                    }
+                }
+            } catch (const dpp::rest_exception&) {
+                _p.set_exception(std::current_exception());
+            }
+        });
 
-        /* Blocking calling thread until rest request is completed.
+        /* Blocking calling thread until rest request is completed. 
          * Exceptions encountered on the other thread are re-thrown.
          */
         return _f.get();
     }
 
-}; // namespace dpp
+};

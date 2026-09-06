@@ -1,26 +1,26 @@
 /*
- * Copyright (C) 2017 Elysium Project <https://github.com/elysium-project>
- *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
- */
+* Copyright (C) 2017 Elysium Project <https://github.com/elysium-project>
+*
+* This program is free software; you can redistribute it and/or modify
+* it under the terms of the GNU General Public License as published by
+* the Free Software Foundation; either version 2 of the License, or
+* (at your option) any later version.
+*
+* This program is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+* GNU General Public License for more details.
+*
+* You should have received a copy of the GNU General Public License
+* along with this program; if not, write to the Free Software
+* Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+*/
 
 #include "AuraRemovalMgr.h"
-#include "Database/DatabaseEnv.h"
-#include "Player.h"
 #include "Policies/Singleton.h"
+#include "Database/DatabaseEnv.h"
 #include "Policies/SingletonImp.h"
+#include "Player.h"
 
 AuraRemovalManager sAuraRemovalMgr;
 
@@ -39,7 +39,7 @@ void AuraRemovalManager::LoadFromDB()
         {
             Field* fields = result->Fetch();
 
-            uint32 mapId = fields[0].GetUInt32();
+            uint32 mapId  = fields[0].GetUInt32();
             uint32 auraId = fields[1].GetUInt32();
             bool enabled = (bool)fields[2].GetUInt8();
             uint32 flags = fields[3].GetUInt32();
@@ -47,9 +47,9 @@ void AuraRemovalManager::LoadFromDB()
             ++count;
 
             if (enabled)
-                m_data[mapId].emplace_back(AuraRemovalEntry{auraId, flags});
-        }
-        while (result->NextRow());
+                m_data[mapId].emplace_back(AuraRemovalEntry{ auraId, flags });
+
+        } while (result->NextRow());
 
 
         delete result;

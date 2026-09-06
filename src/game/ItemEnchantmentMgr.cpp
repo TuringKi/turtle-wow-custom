@@ -19,25 +19,27 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#include "ItemEnchantmentMgr.h"
-#include <functional>
-#include <list>
 #include <stdlib.h>
-#include <vector>
+#include <functional>
+#include "ItemEnchantmentMgr.h"
 #include "Database/DatabaseEnv.h"
 #include "Log.h"
 #include "ObjectMgr.h"
+#include <list>
+#include <vector>
 #include "Util.h"
 #include "World.h"
 
 struct EnchStoreItem
 {
-    uint32 ench;
-    float chance;
+    uint32  ench;
+    float   chance;
 
-    EnchStoreItem() : ench(0), chance(0) {}
+    EnchStoreItem()
+        : ench(0), chance(0) {}
 
-    EnchStoreItem(uint32 _ench, float _chance) : ench(_ench), chance(_chance) {}
+    EnchStoreItem(uint32 _ench, float _chance)
+        : ench(_ench), chance(_chance) {}
 };
 
 typedef std::vector<EnchStoreItem> EnchStoreList;
@@ -47,7 +49,7 @@ static EnchantmentStore RandomItemEnch;
 
 void LoadRandomEnchantmentsTable()
 {
-    RandomItemEnch.clear(); // for reload case
+    RandomItemEnch.clear();                                 // for reload case
 
     EnchantmentStore::const_iterator tab;
     uint32 entry, ench;
@@ -75,8 +77,7 @@ void LoadRandomEnchantmentsTable()
 
 uint32 GetItemEnchantMod(uint32 entry)
 {
-    if (!entry)
-        return 0;
+    if (!entry) return 0;
 
     EnchantmentStore::const_iterator tab = RandomItemEnch.find(entry);
 
@@ -94,11 +95,10 @@ uint32 GetItemEnchantMod(uint32 entry)
     {
         fCount += ench_iter.chance;
 
-        if (fCount > dRoll)
-            return ench_iter.ench;
+        if (fCount > dRoll) return ench_iter.ench;
     }
 
-    // we could get here only if sum of all enchantment chances is lower than 100%
+    //we could get here only if sum of all enchantment chances is lower than 100%
     dRoll = (irand(0, (int)floor(fCount * 100) + 1)) / 100.0f;
     fCount = 0;
 
@@ -106,8 +106,7 @@ uint32 GetItemEnchantMod(uint32 entry)
     {
         fCount += ench_iter.chance;
 
-        if (fCount > dRoll)
-            return ench_iter.ench;
+        if (fCount > dRoll) return ench_iter.ench;
     }
 
     return 0;

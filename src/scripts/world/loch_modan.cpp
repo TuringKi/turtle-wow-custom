@@ -35,12 +35,12 @@ enum MiranData
 {
     QUEST_PROTECTING_THE_SHIPMENT = 309,
 
-    SAY_MIRAN_1 = 510,
-    SAY_DARK_IRON_DWARF = 1936,
-    SAY_MIRAN_2 = 511,
-    SAY_MIRAN_3 = 498,
+    SAY_MIRAN_1           = 510,
+    SAY_DARK_IRON_DWARF   = 1936,
+    SAY_MIRAN_2           = 511,
+    SAY_MIRAN_3           = 498,
 
-    NPC_DARK_IRON_DWARF = 2149
+    NPC_DARK_IRON_DWARF   = 2149
 };
 
 struct Location
@@ -48,11 +48,18 @@ struct Location
     float m_fX, m_fY, m_fZ, m_fO;
 };
 
-static const Location m_afAmbushSpawn[] = {{-5691.93f, -3745.91f, 319.159f, 2.21f}, {-5706.98f, -3745.39f, 318.728f, 1.04f}};
-
-struct npc_miranAI : public npc_escortAI
+static const Location m_afAmbushSpawn[] =
 {
-    npc_miranAI(Creature* pCreature) : npc_escortAI(pCreature) { Reset(); }
+    { -5691.93f, -3745.91f, 319.159f, 2.21f},
+    { -5706.98f, -3745.39f, 318.728f, 1.04f}
+};
+
+struct npc_miranAI: public npc_escortAI
+{
+    npc_miranAI(Creature* pCreature): npc_escortAI(pCreature)
+    {
+        Reset();
+    }
 
     uint8 m_uiDwarves;
 
@@ -66,16 +73,16 @@ struct npc_miranAI : public npc_escortAI
     {
         switch (uiPointId)
         {
-        case 19:
-            DoScriptText(SAY_MIRAN_1, m_creature);
-            m_creature->SummonCreature(NPC_DARK_IRON_DWARF, m_afAmbushSpawn[0].m_fX, m_afAmbushSpawn[0].m_fY, m_afAmbushSpawn[0].m_fZ, m_afAmbushSpawn[0].m_fO, TEMPSUMMON_TIMED_DESPAWN, 180 * IN_MILLISECONDS);
-            m_creature->SummonCreature(NPC_DARK_IRON_DWARF, m_afAmbushSpawn[1].m_fX, m_afAmbushSpawn[1].m_fY, m_afAmbushSpawn[1].m_fZ, m_afAmbushSpawn[1].m_fO, TEMPSUMMON_TIMED_DESPAWN, 180 * IN_MILLISECONDS);
-            break;
-        case 23:
-            DoScriptText(SAY_MIRAN_3, m_creature);
-            if (Player* pPlayer = GetPlayerForEscort())
-                pPlayer->GroupEventHappens(QUEST_PROTECTING_THE_SHIPMENT, m_creature);
-            break;
+            case 19:
+                DoScriptText(SAY_MIRAN_1, m_creature);
+                m_creature->SummonCreature(NPC_DARK_IRON_DWARF, m_afAmbushSpawn[0].m_fX, m_afAmbushSpawn[0].m_fY, m_afAmbushSpawn[0].m_fZ, m_afAmbushSpawn[0].m_fO, TEMPSUMMON_TIMED_DESPAWN, 180 * IN_MILLISECONDS);
+                m_creature->SummonCreature(NPC_DARK_IRON_DWARF, m_afAmbushSpawn[1].m_fX, m_afAmbushSpawn[1].m_fY, m_afAmbushSpawn[1].m_fZ, m_afAmbushSpawn[1].m_fO, TEMPSUMMON_TIMED_DESPAWN, 180 * IN_MILLISECONDS);
+                break;
+            case 23:
+                DoScriptText(SAY_MIRAN_3, m_creature);
+                if (Player* pPlayer = GetPlayerForEscort())
+                    pPlayer->GroupEventHappens(QUEST_PROTECTING_THE_SHIPMENT, m_creature);
+                break;
         }
     }
 
@@ -111,7 +118,10 @@ bool QuestAccept_npc_miran(Player* pPlayer, Creature* pCreature, const Quest* pQ
     return true;
 }
 
-CreatureAI* GetAI_npc_miran(Creature* pCreature) { return new npc_miranAI(pCreature); }
+CreatureAI* GetAI_npc_miran(Creature* pCreature)
+{
+    return new npc_miranAI(pCreature);
+}
 
 //-----------------------------------------------------------------------------
 // Quest event implementation (Resupplying the Excavation id:273).
@@ -121,21 +131,22 @@ CreatureAI* GetAI_npc_miran(Creature* pCreature) { return new npc_miranAI(pCreat
 enum SaeanData
 {
     QUEST_RESUPPLYING_THE_EXCAVATION = 273,
-
-    NPC_SAEAN = 1380,
-    NPC_MIRAN = 1379,
-    NPC_HULDAR = 2057,
+ 
+    NPC_SAEAN              = 1380,
+    NPC_MIRAN              = 1379,
+    NPC_HULDAR             = 2057,
     NPC_DARK_IRON_AMBUSHER = 1981,
 
-    FACTION_HOSTILE = 54
+    FACTION_HOSTILE        = 54
 };
 
-struct point3o
+struct point3o { float x, y, z, o; };
+
+static const point3o darkIronAmbusherSpawns[] =
 {
-    float x, y, z, o;
+    { -5759.852051f, -3441.279053f, 305.573212f, 2.174024f },
+    { -5757.629883f, -3437.680908f, 304.265106f, 2.610265f }
 };
-
-static const point3o darkIronAmbusherSpawns[] = {{-5759.852051f, -3441.279053f, 305.573212f, 2.174024f}, {-5757.629883f, -3437.680908f, 304.265106f, 2.610265f}};
 
 struct npc_saeanAI : public ScriptedAI
 {
@@ -155,7 +166,7 @@ struct npc_saeanAI : public ScriptedAI
         m_eventStarted = false;
     }
 
-    void Reset() override {}
+    void Reset() override { }
 
     // called when Saean summons his guards
     void JustSummoned(Creature* pSummoned) override
@@ -176,15 +187,20 @@ struct npc_saeanAI : public ScriptedAI
     }
 };
 
-CreatureAI* GetAI_npc_saean(Creature* pCreature) { return new npc_saeanAI(pCreature); }
+CreatureAI* GetAI_npc_saean(Creature* pCreature)
+{
+    return new npc_saeanAI(pCreature);
+}
 
 //-----------------------------------------------------------------------------
 // Miran and Huldar are ambushed when Area Trigger id:171 is triggered and if quest 273 is active
 bool AreaTrigger_at_huldar_miran(Player* pPlayer, AreaTriggerEntry const* /*pAt*/)
 {
     // If player is dead, GM mode is ON, quest complete or no quest
-    if (!pPlayer->IsAlive() || pPlayer->IsGameMaster() || pPlayer->GetQuestStatus(QUEST_RESUPPLYING_THE_EXCAVATION) == QUEST_STATUS_COMPLETE || pPlayer->GetQuestStatus(QUEST_RESUPPLYING_THE_EXCAVATION) == QUEST_STATUS_NONE)
-        return false;
+    if (!pPlayer->IsAlive() || pPlayer->IsGameMaster() ||
+        pPlayer->GetQuestStatus(QUEST_RESUPPLYING_THE_EXCAVATION) == QUEST_STATUS_COMPLETE ||
+        pPlayer->GetQuestStatus(QUEST_RESUPPLYING_THE_EXCAVATION) == QUEST_STATUS_NONE)
+    return false;
 
     // rare case: set quest completed on directly trigger,
     // because if NPCs are not available, killed by someone or died in previous event,
@@ -264,7 +280,7 @@ bool AreaTrigger_at_huldar_miran(Player* pPlayer, AreaTriggerEntry const* /*pAt*
             }
         }
     }
-
+    
     return true;
 }
 

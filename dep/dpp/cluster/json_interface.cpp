@@ -2,7 +2,7 @@
  *
  * D++, A Lightweight C++ library for Discord
  *
- * Copyright 2022 Craig Edwards and D++ contributors
+ * Copyright 2022 Craig Edwards and D++ contributors 
  * (https://github.com/brainboxdotcc/DPP/graphs/contributors)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -19,11 +19,10 @@
  *
  ************************************************************************************/
 
-#include <dpp/exception.h>
 #include <dpp/json_interface.h>
+#include <dpp/exception.h>
 
-namespace dpp
-{
+namespace dpp {
 
 
 };

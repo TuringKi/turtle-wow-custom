@@ -14,13 +14,14 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#include "naxxramas.h"
 #include "scriptPCH.h"
+#include "naxxramas.h"
 
-static float const aZombieSummonLoc[3][3] = {
-    {3267.9f, -3172.1f, 297.42f},
-    {3253.2f, -3132.3f, 297.42f},
-    {3308.3f, -3185.8f, 297.42f},
+static float const aZombieSummonLoc[3][3] =
+{
+    { 3267.9f, -3172.1f, 297.42f },
+    { 3253.2f, -3132.3f, 297.42f },
+    { 3308.3f, -3185.8f, 297.42f },
 };
 
 enum GluthData
@@ -74,7 +75,7 @@ struct boss_gluthAI : public ScriptedAI
 
     uint32 five_percent;
     bool decimate_hit;
-
+    
     void Reset() override
     {
         m_events.Reset();
@@ -101,7 +102,7 @@ struct boss_gluthAI : public ScriptedAI
 
     void MoveInLineOfSight(Unit* pWho) override
     {
-        // He should aggro just at the edge of the sewer pipe players jump from
+        // He should aggro just at the edge of the sewer pipe players jump from 
         if (pWho->GetTypeId() == TYPEID_PLAYER && !m_creature->IsInCombat() && m_creature->IsWithinDistInMap(pWho, 49.0f) && !pWho->HasAuraType(SPELL_AURA_FEIGN_DEATH))
             AttackStart(pWho);
 
@@ -112,7 +113,7 @@ struct boss_gluthAI : public ScriptedAI
     {
         if (m_pInstance)
             m_pInstance->SetData(TYPE_GLUTH, IN_PROGRESS);
-
+        
         m_events.ScheduleEvent(EVENT_MORTAL_WOUND, MORTAL_WOUND_CD);
         m_events.ScheduleEvent(EVENT_DECIMATE, DECIMATE_CD);
         m_events.ScheduleEvent(EVENT_FRENZY, FRENZY_CD);
@@ -152,7 +153,7 @@ struct boss_gluthAI : public ScriptedAI
         }
     }
 
-    void UpdateAI(uint32 const uiDiff) override
+    void UpdateAI(uint32 const uiDiff)  override
     {
         if (!m_creature->SelectHostileTarget() || !m_creature->GetVictim())
             return;
@@ -162,7 +163,7 @@ struct boss_gluthAI : public ScriptedAI
         {
             switch (l_EventId)
             {
-            case EVENT_MORTAL_WOUND:
+                case EVENT_MORTAL_WOUND:
                 {
                     // Mortal wound current target every
                     if (DoCastSpellIfCan(m_creature->GetVictim(), SPELL_MORTALWOUND) == CAST_OK)
@@ -172,7 +173,7 @@ struct boss_gluthAI : public ScriptedAI
 
                     break;
                 }
-            case EVENT_DECIMATE:
+                case EVENT_DECIMATE:
                 {
                     // Decimate every DECIMATE_CD ms
                     // All the decimate logic is handled in SpellHit, so we dont put any players on
@@ -192,7 +193,7 @@ struct boss_gluthAI : public ScriptedAI
 
                     break;
                 }
-            case EVENT_FRENZY:
+                case EVENT_FRENZY:
                 {
                     // Frenzy every FRENZY_CD ms
                     if (DoCastSpellIfCan(m_creature, SPELL_FRENZY) == CAST_OK)
@@ -205,14 +206,14 @@ struct boss_gluthAI : public ScriptedAI
 
                     break;
                 }
-            case EVENT_SUMMON:
+                case EVENT_SUMMON:
                 {
                     // Summon an add every SUMMON_CD ms
                     SummonAdd();
                     m_events.Repeat(SUMMON_CD);
                     break;
                 }
-            case EVENT_BERSERK:
+                case EVENT_BERSERK:
                 {
                     // Berserk after BERSERK_CD ms
                     if (DoCastSpellIfCan(m_creature, SPELL_BERSERK) == CAST_OK)
@@ -222,7 +223,7 @@ struct boss_gluthAI : public ScriptedAI
 
                     break;
                 }
-            case EVENT_TERRIFYING_ROAR:
+                case EVENT_TERRIFYING_ROAR:
                 {
                     // Fear every FEAR_CD ms
                     if (DoCastSpellIfCan(m_creature, SPELL_TERRIFYING_ROAR) == CAST_OK)
@@ -232,14 +233,14 @@ struct boss_gluthAI : public ScriptedAI
 
                     break;
                 }
-            case EVENT_ZOMBIE_SEARCH:
+                case EVENT_ZOMBIE_SEARCH:
                 {
                     // Every ZOMBIE_SEARCH_CD ms he checks if any zombies are close enough to eat
                     DoSearchZombieChow();
                     m_events.Repeat(ZOMBIE_SEARCH_CD);
                     break;
                 }
-            case EVENT_EVADE_CHECK:
+                case EVENT_EVADE_CHECK:
                 {
                     m_events.Repeat(Seconds(5));
                     float curZ = m_creature->GetPositionZ();
@@ -287,11 +288,10 @@ struct boss_gluthAI : public ScriptedAI
     void SummonAdd()
     {
         // spawn 3 adds after 15s after decimate
-        if (decimate_hit)
+        if (decimate_hit) 
         {
             decimate_hit = false;
-            for (int i = 0; i <= 2; i++)
-            {
+            for (int i = 0; i <= 2; i++) {
                 float x = aZombieSummonLoc[i][0] + frand(-7.0f, 7.0f);
                 float y = aZombieSummonLoc[i][1] + frand(-7.0f, 7.0f);
                 float z = aZombieSummonLoc[i][2];
@@ -389,9 +389,48 @@ struct mob_zombieChow : public ScriptedAI
     }
 };
 
-CreatureAI* GetAI_boss_gluth(Creature* pCreature) { return new boss_gluthAI(pCreature); }
+CreatureAI* GetAI_boss_gluth(Creature* pCreature)
+{
+    return new boss_gluthAI(pCreature);
+}
 
-CreatureAI* GetAI_mob_zombieChow(Creature* pCreature) { return new mob_zombieChow(pCreature); }
+CreatureAI* GetAI_mob_zombieChow(Creature* pCreature)
+{
+    return new mob_zombieChow(pCreature);
+}
+
+namespace
+{
+template <class T>
+SpellScript* GetSpellScript(SpellEntry const*)
+{
+    return new T();
+}
+
+void RegisterSpellScript(char const* name, SpellScript* (*getter)(SpellEntry const*))
+{
+    Script* script = new Script;
+    script->Name = name;
+    script->GetSpellScript = getter;
+    script->RegisterSelf();
+}
+
+struct spell_gluth_decimate : public SpellScript
+{
+    bool OnEffectExecute(Spell* spell, SpellEffectIndex effIdx) const override
+    {
+        if (effIdx != EFFECT_INDEX_0)
+            return true;
+
+        Unit* target = spell->GetUnitTarget();
+        if (!target)
+            return true;
+
+        spell->damage = std::max(0, int32(target->GetHealth() - uint32(target->GetMaxHealth() * 0.05f)));
+        return true;
+    }
+};
+}
 
 void AddSC_boss_gluth()
 {
@@ -405,4 +444,6 @@ void AddSC_boss_gluth()
     NewScript->Name = "mob_zombie_chow";
     NewScript->GetAI = &GetAI_mob_zombieChow;
     NewScript->RegisterSelf();
+
+    RegisterSpellScript("spell_gluth_decimate", &GetSpellScript<spell_gluth_decimate>);
 }

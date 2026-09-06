@@ -22,17 +22,17 @@
 
 enum DaphneStilwellData
 {
-    SAY_DS_START = 2360,
-    SAY_DS_DOWN_1 = 5269,
-    SAY_DS_DOWN_2 = 2369,
-    SAY_DS_DOWN_3 = 2358,
-    SAY_DS_PROLOGUE = 3090,
+    SAY_DS_START        = 2360,
+    SAY_DS_DOWN_1       = 5269,
+    SAY_DS_DOWN_2       = 2369,
+    SAY_DS_DOWN_3       = 2358,
+    SAY_DS_PROLOGUE     = 3090,
 
-    SPELL_SHOOT = 6660,
-    QUEST_TOME_VALOR = 1651,
-    NPC_DEFIAS_RAIDER = 6180,
-    EQUIP_ID_RIFLE = 20728,
-    DAPHNE_SHOOT_CD = 2000
+    SPELL_SHOOT         = 6660,
+    QUEST_TOME_VALOR    = 1651,
+    NPC_DEFIAS_RAIDER   = 6180,
+    EQUIP_ID_RIFLE      = 20728,
+    DAPHNE_SHOOT_CD     = 2000
 };
 
 enum Wave
@@ -42,7 +42,8 @@ enum Wave
     THIRD
 };
 
-constexpr float RaiderCoords[15][3] = {
+constexpr float RaiderCoords[15][3] =
+{
     {-11428.520f, 1612.757f, 72.241f}, // Spawn1
     {-11422.998f, 1616.106f, 74.153f}, // Spawn2
     {-11430.354f, 1618.334f, 72.632f}, // Spawn3
@@ -59,7 +60,7 @@ constexpr float RaiderCoords[15][3] = {
     {-11470.306f, 1533.835f, 50.267f}, // WP2b
     {-11471.954f, 1539.599f, 50.273f}, // WP3b
     {-11465.560f, 1534.399f, 50.649f}, // WP4b
-    {-11467.391f, 1537.989f, 50.726f} // WP5b
+    {-11467.391f, 1537.989f, 50.726f}  // WP5b
 };
 
 struct npc_daphne_stilwellAI : public npc_escortAI
@@ -79,9 +80,15 @@ struct npc_daphne_stilwellAI : public npc_escortAI
 
     GuidList m_lSummonedRaidersGUIDs;
 
-    void SetEventInProgress(bool value) { eventInProgress = value; }
+    void SetEventInProgress(bool value)
+    {
+        eventInProgress = value;
+    }
 
-    bool GetEventInProgress() { return eventInProgress; }
+    bool GetEventInProgress()
+    {
+        return eventInProgress;
+    }
 
     void Reset() override {}
 
@@ -122,7 +129,7 @@ struct npc_daphne_stilwellAI : public npc_escortAI
 
         switch (uiPointId)
         {
-        case 4:
+            case 4:
             {
                 SetEquipmentSlots(false, EQUIP_NO_CHANGE, EQUIP_NO_CHANGE, EQUIP_ID_RIFLE);
                 m_creature->SetSheath(SHEATH_STATE_RANGED);
@@ -130,13 +137,13 @@ struct npc_daphne_stilwellAI : public npc_escortAI
 
                 break;
             }
-        case 7:
+            case 7:
             {
                 DoSendWave(Wave::FIRST);
 
                 break;
             }
-        case 8:
+            case 8:
             {
                 m_creature->SetSheath(SHEATH_STATE_RANGED);
 
@@ -144,7 +151,7 @@ struct npc_daphne_stilwellAI : public npc_escortAI
 
                 break;
             }
-        case 9:
+            case 9:
             {
                 m_creature->SetSheath(SHEATH_STATE_RANGED);
 
@@ -152,19 +159,19 @@ struct npc_daphne_stilwellAI : public npc_escortAI
 
                 break;
             }
-        case 10:
+            case 10:
             {
                 SetRun(false);
 
                 break;
             }
-        case 11:
+            case 11:
             {
                 DoScriptText(SAY_DS_PROLOGUE, m_creature);
 
                 break;
             }
-        case 13:
+            case 13:
             {
                 SetEquipmentSlots(true);
                 m_creature->SetSheath(SHEATH_STATE_UNARMED);
@@ -172,7 +179,7 @@ struct npc_daphne_stilwellAI : public npc_escortAI
 
                 break;
             }
-        case 17:
+            case 17:
             {
                 SetEscortPaused(true);
                 if (Player* pPlayer = GetPlayerForEscort())
@@ -201,7 +208,7 @@ struct npc_daphne_stilwellAI : public npc_escortAI
 
         switch (wave)
         {
-        case Wave::FIRST:
+            case Wave::FIRST:
             {
                 firstWave = true;
 
@@ -215,7 +222,7 @@ struct npc_daphne_stilwellAI : public npc_escortAI
 
                 break;
             }
-        case Wave::SECOND:
+            case Wave::SECOND:
             {
                 secondWave = true;
 
@@ -229,7 +236,7 @@ struct npc_daphne_stilwellAI : public npc_escortAI
 
                 break;
             }
-        case Wave::THIRD:
+            case Wave::THIRD:
             {
                 lastWave = true;
 
@@ -288,32 +295,32 @@ struct npc_daphne_stilwellAI : public npc_escortAI
         {
             switch (uiData)
             {
-            case 0:
+                case 0:
                 {
                     pSummoned->GetMotionMaster()->MovePoint(5, RaiderCoords[uiSecondWPOffset][0], RaiderCoords[uiSecondWPOffset][1], RaiderCoords[uiSecondWPOffset][2]);
                     break;
                 }
-            case 1:
+                case 1:
                 {
                     pSummoned->GetMotionMaster()->MovePoint(5, RaiderCoords[uiSecondWPOffset + 1][0], RaiderCoords[uiSecondWPOffset + 1][1], RaiderCoords[uiSecondWPOffset + 1][2]);
                     break;
                 }
-            case 2:
+                case 2:
                 {
                     pSummoned->GetMotionMaster()->MovePoint(5, RaiderCoords[uiSecondWPOffset + 2][0], RaiderCoords[uiSecondWPOffset + 2][1], RaiderCoords[uiSecondWPOffset + 2][2]);
                     break;
                 }
-            case 3:
+                case 3:
                 {
                     pSummoned->GetMotionMaster()->MovePoint(5, RaiderCoords[uiSecondWPOffset + 3][0], RaiderCoords[uiSecondWPOffset + 3][1], RaiderCoords[uiSecondWPOffset + 3][2]);
                     break;
                 }
-            case 4:
+                case 4:
                 {
                     pSummoned->GetMotionMaster()->MovePoint(5, RaiderCoords[uiSecondWPOffset + 4][0], RaiderCoords[uiSecondWPOffset + 4][1], RaiderCoords[uiSecondWPOffset + 4][2]);
                     break;
                 }
-            default:
+                default:
                 {
                     pSummoned->GetMotionMaster()->MoveIdle();
                     break;
@@ -391,11 +398,14 @@ bool QuestAccept_npc_daphne_stilwell(Player* pPlayer, Creature* pCreature, const
     return true;
 }
 
-CreatureAI* GetAI_npc_daphne_stilwell(Creature* pCreature) { return new npc_daphne_stilwellAI(pCreature); }
+CreatureAI* GetAI_npc_daphne_stilwell(Creature* pCreature)
+{
+    return new npc_daphne_stilwellAI(pCreature);
+}
 
 void AddSC_westfall()
 {
-    Script* newscript;
+    Script *newscript;
 
     newscript = new Script;
     newscript->Name = "npc_daphne_stilwell";

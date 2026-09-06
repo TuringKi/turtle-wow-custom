@@ -1,18 +1,18 @@
 /* This file is part of the ScriptDev2 Project. See AUTHORS file for Copyright information
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
- */
+* This program is free software; you can redistribute it and/or modify
+* it under the terms of the GNU General Public License as published by
+* the Free Software Foundation; either version 2 of the License, or
+* (at your option) any later version.
+*
+* This program is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+* GNU General Public License for more details.
+*
+* You should have received a copy of the GNU General Public License
+* along with this program; if not, write to the Free Software
+* Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+*/
 
 #include <algorithm>
 #include <random>
@@ -123,12 +123,17 @@ static constexpr uint32 ENRAGE_TIMER = 1000 * 60 * 5; // 5 min enrage once p2 st
 static uint32 PolarityShiftTimer(bool initial = false) { return initial ? 1000 * 10 : 1000 * 30; } // Initial polarity shift is 10s, after that every 30 sec
 static uint32 ChainLightningTimer() { return urand(5000, 7000); } // Chain lightning timer. TODO: confirm timers
 
-static constexpr float addPositions[2][4] = {
-    {3449.03f, -2934.74f, 312.18f, 5.41f},
-    {3508.85f, -2994.08f, 312.18f, 2.33f},
+static constexpr float addPositions[2][4] =
+{
+    { 3449.03f, -2934.74f, 312.18f, 5.41f },
+    { 3508.85f, -2994.08f, 312.18f, 2.33f },
 };
 
-static constexpr float teslaCoilPositions[2][3] = {{3487.10f, -2911.50f, 319.526f}, {3527.81f, -2952.38f, 319.526f}};
+static constexpr float teslaCoilPositions[2][3] =
+{
+    { 3487.10f, -2911.50f, 319.526f },
+    { 3527.81f, -2952.38f, 319.526f }
+};
 
 struct npc_tesla_coilAI : public Scripted_NoMovementAI
 {
@@ -267,7 +272,7 @@ struct boss_thaddiusAddsAI : public ScriptedAI
 
     uint32 StaticFiledTimer()
     {
-        // https://www.youtube.com/watch?v=GmE5JufAcT0
+        //https://www.youtube.com/watch?v=GmE5JufAcT0
         //  animation can be seen in video, pretty much exactly every 6 seconds
         return 6000;
     }
@@ -343,7 +348,7 @@ struct boss_thaddiusAddsAI : public ScriptedAI
 
         float otherTankThreat = otherThreat.getThreat(otherVictim);
         float otherAddMyVictimThreat = otherThreat.getThreat(myVictim);
-        // todo: VERIFY NEGATIVE THREAT OK
+        //todo: VERIFY NEGATIVE THREAT OK
         //  set the two entries in feugen's threat table to be equal to the ones in stalagg's
         myThreat.addThreat(otherVictim, otherTankThreat - myOtherTankThreat);
         myThreat.addThreat(myVictim, otherAddMyVictimThreat - myTankThreat);
@@ -380,7 +385,7 @@ struct boss_thaddiusAddsAI : public ScriptedAI
         {
             if (fakeDeathTimer < uiDiff)
             {
-                if (!bothDeath)
+                if(!bothDeath)
                     HandleReviveEvent();
             }
             else
@@ -554,7 +559,7 @@ struct boss_thaddiusAI : public ScriptedAI
     EventMap m_events;
 
     std::random_device m_randDevice;
-    std::mt19937 m_random{m_randDevice()};
+    std::mt19937 m_random{ m_randDevice() };
     uint32 killSayCooldown;
 
     // Helper for CheckSpawnAdds
@@ -1010,7 +1015,10 @@ struct boss_thaddiusAI : public ScriptedAI
 
 struct boss_stalaggAI : public boss_thaddiusAddsAI
 {
-    explicit boss_stalaggAI(Creature* pCreature) : boss_thaddiusAddsAI(pCreature, eSTALAGG) { Reset(); }
+    explicit boss_stalaggAI(Creature* pCreature) : boss_thaddiusAddsAI(pCreature, eSTALAGG)
+    {
+        Reset();
+    }
 
     void Aggro(Unit* pWho) override
     {
@@ -1036,7 +1044,10 @@ struct boss_stalaggAI : public boss_thaddiusAddsAI
 
 struct boss_feugenAI : public boss_thaddiusAddsAI
 {
-    explicit boss_feugenAI(Creature* pCreature) : boss_thaddiusAddsAI(pCreature, eFEUGEN) { Reset(); }
+    explicit boss_feugenAI(Creature* pCreature) : boss_thaddiusAddsAI(pCreature, eFEUGEN)
+    {
+        Reset();
+    }
 
     void Aggro(Unit* pWho) override
     {
@@ -1061,13 +1072,147 @@ struct boss_feugenAI : public boss_thaddiusAddsAI
     }
 };
 
-CreatureAI* GetAI_boss_feugen(Creature* pCreature) { return new boss_feugenAI(pCreature); }
+CreatureAI* GetAI_boss_feugen(Creature* pCreature)
+{
+    return new boss_feugenAI(pCreature);
+}
 
-CreatureAI* GetAI_boss_stalagg(Creature* pCreature) { return new boss_stalaggAI(pCreature); }
+CreatureAI* GetAI_boss_stalagg(Creature* pCreature)
+{
+    return new boss_stalaggAI(pCreature);
+}
 
-CreatureAI* GetAI_npc_tesla_coil(Creature* pCreature) { return new npc_tesla_coilAI(pCreature); }
+CreatureAI* GetAI_npc_tesla_coil(Creature* pCreature)
+{
+    return new npc_tesla_coilAI(pCreature);
+}
 
-CreatureAI* GetAI_boss_thaddius(Creature* pCreature) { return new boss_thaddiusAI(pCreature); }
+CreatureAI* GetAI_boss_thaddius(Creature* pCreature)
+{
+    return new boss_thaddiusAI(pCreature);
+}
+
+namespace
+{
+template <class T>
+SpellScript* GetSpellScript(SpellEntry const*)
+{
+    return new T();
+}
+
+template <class T>
+AuraScript* GetAuraScript(SpellEntry const*)
+{
+    return new T();
+}
+
+void RegisterSpellScript(char const* name, SpellScript* (*getter)(SpellEntry const*))
+{
+    Script* script = new Script;
+    script->Name = name;
+    script->GetSpellScript = getter;
+    script->RegisterSelf();
+}
+
+void RegisterAuraScript(char const* name, AuraScript* (*getter)(SpellEntry const*))
+{
+    Script* script = new Script;
+    script->Name = name;
+    script->GetAuraScript = getter;
+    script->RegisterSelf();
+}
+
+struct spell_thaddius_positive_charge : public SpellScript
+{
+    bool OnEffectExecute(Spell* spell, SpellEffectIndex effIdx) const override
+    {
+        if (effIdx == EFFECT_INDEX_0)
+            if (Unit* target = spell->GetUnitTarget(); target && target->HasAura(28059))
+                spell->damage = 0;
+
+        return true;
+    }
+};
+
+struct spell_thaddius_negative_charge : public SpellScript
+{
+    bool OnEffectExecute(Spell* spell, SpellEffectIndex effIdx) const override
+    {
+        if (effIdx == EFFECT_INDEX_0)
+            if (Unit* target = spell->GetUnitTarget(); target && target->HasAura(28084))
+                spell->damage = 0;
+
+        return true;
+    }
+};
+
+struct spell_thaddius_magnetic_pull : public SpellScript
+{
+    bool OnEffectExecute(Spell* spell, SpellEffectIndex effIdx) const override
+    {
+        Unit* target = spell->GetUnitTarget();
+        if (!target)
+            return false;
+
+        float speedXY = float(spell->m_spellInfo->EffectMiscValue[effIdx]) * 0.1f;
+        float speedZ = target->GetDistance(spell->m_caster) / speedXY * 0.5f * 20.0f;
+        target->KnockBackFrom(spell->m_caster, -speedXY, speedZ);
+        return false;
+    }
+};
+
+struct spell_thaddius_charge : public AuraScript
+{
+    explicit spell_thaddius_charge(uint32 chargeAura, uint32 sameChargeBonus) : m_chargeAura(chargeAura), m_sameChargeBonus(sameChargeBonus) {}
+
+    void OnPeriodicTrigger(Aura* aura, Unit* caster, Unit* target, WorldObject* /*targetObject*/, SpellEntry const*& /*spellInfo*/) override
+    {
+        if (!caster || target->GetMap()->GetId() != 533)
+            return;
+
+        int32 numStacks = 0;
+        Map::PlayerList const& playerList = target->GetMap()->GetPlayers();
+        for (const auto& itr : playerList)
+        {
+            Player* player = itr.getSource();
+            if (!player || player->GetObjectGuid() == target->GetObjectGuid() || player->IsDead())
+                continue;
+
+            if (player->HasAura(m_chargeAura) && caster->GetDistance2d(player) < 13.0f)
+                ++numStacks;
+        }
+
+        if (numStacks > 0)
+        {
+            if (!target->HasAura(m_sameChargeBonus))
+                target->AddAura(m_sameChargeBonus);
+            target->GetAura(m_sameChargeBonus, EFFECT_INDEX_0)->GetHolder()->SetStackAmount(numStacks);
+        }
+        else
+            target->RemoveAurasDueToSpell(m_sameChargeBonus);
+    }
+
+    void OnBeforeApply(Aura* aura, bool apply) override
+    {
+        if (!apply)
+            aura->GetTarget()->RemoveAurasDueToSpell(m_sameChargeBonus);
+    }
+
+private:
+    uint32 m_chargeAura;
+    uint32 m_sameChargeBonus;
+};
+
+struct spell_thaddius_positive_charge_aura : public spell_thaddius_charge
+{
+    spell_thaddius_positive_charge_aura() : spell_thaddius_charge(28059, 29659) {}
+};
+
+struct spell_thaddius_negative_charge_aura : public spell_thaddius_charge
+{
+    spell_thaddius_negative_charge_aura() : spell_thaddius_charge(28084, 29660) {}
+};
+}
 
 void AddSC_boss_thaddius()
 {
@@ -1092,4 +1237,10 @@ void AddSC_boss_thaddius()
     pNewScript->Name = "npc_tesla_coil";
     pNewScript->GetAI = &GetAI_npc_tesla_coil;
     pNewScript->RegisterSelf();
+
+    RegisterSpellScript("spell_thaddius_positive_charge", &GetSpellScript<spell_thaddius_positive_charge>);
+    RegisterSpellScript("spell_thaddius_negative_charge", &GetSpellScript<spell_thaddius_negative_charge>);
+    RegisterSpellScript("spell_thaddius_magnetic_pull", &GetSpellScript<spell_thaddius_magnetic_pull>);
+    RegisterAuraScript("spell_thaddius_positive_charge_aura", &GetAuraScript<spell_thaddius_positive_charge_aura>);
+    RegisterAuraScript("spell_thaddius_negative_charge_aura", &GetAuraScript<spell_thaddius_negative_charge_aura>);
 }

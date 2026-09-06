@@ -23,9 +23,9 @@
 #define MANGOS_DBCSTORES_H
 
 #include "Common.h"
-#include "DBCStructure.h"
 #include "Database/DBCStore.h"
 #include "Map.h"
+#include "DBCStructure.h"
 
 #include <list>
 
@@ -43,8 +43,8 @@ uint32 GetVirtualMapForMapAndZone(uint32 mapid, uint32 zoneId);
 
 // [-ZERO] bool IsTotemCategoryCompatiableWith(uint32 itemTotemCategoryId, uint32 requiredTotemCategoryId);
 
-bool Zone2MapCoordinates(float& x, float& y, uint32 zone);
-bool Map2ZoneCoordinates(float& x, float& y, uint32 zone);
+bool Zone2MapCoordinates(float& x,float& y,uint32 zone);
+bool Map2ZoneCoordinates(float& x,float& y,uint32 zone);
 
 uint32 GetTalentInspectBitPosInTab(uint32 talentId);
 uint32 GetTalentTabInspectBitSize(uint32 talentTabId);
@@ -73,8 +73,6 @@ extern DBCStorage<DurabilityCostsEntry> sDurabilityCostsStore;
 extern DBCStorage<DurabilityQualityEntry> sDurabilityQualityStore;
 extern DBCStorage<EmotesEntry> sEmotesStore;
 extern DBCStorage<EmotesTextEntry> sEmotesTextStore;
-extern DBCStorage<FactionEntry> sFactionStore;
-extern DBCStorage<FactionTemplateEntry> sFactionTemplateStore;
 
 extern DBCStorage<GameObjectDisplayInfoEntry> sGameObjectDisplayInfoStore;
 
@@ -92,17 +90,18 @@ extern DBCStorage<SpellDurationEntry> sSpellDurationStore;
 extern DBCStorage<SpellFocusObjectEntry> sSpellFocusObjectStore;
 extern DBCStorage<SpellItemEnchantmentEntry> sSpellItemEnchantmentStore;
 extern DBCStorage<SpellCategoryEntry> sSpellCategoryStore;
+extern DBCStorage<SpellDbcEntry> sSpellStore;
 extern SpellCategoriesStore sSpellCategoriesStore;
 extern PetFamilySpellsStore sPetFamilySpellsStore;
-extern DBCStorage<SpellRadiusEntry> sSpellRadiusStore;
-extern DBCStorage<SpellRangeEntry> sSpellRangeStore;
-extern DBCStorage<SpellIconEntry> sSpellIconStore;
-extern DBCStorage<SpellShapeshiftFormEntry> sSpellShapeshiftFormStore;
-extern DBCStorage<SpellVisualEntry> sSpellVisualStore;
-extern DBCStorage<StableSlotPricesEntry> sStableSlotPricesStore;
-extern DBCStorage<TalentEntry> sTalentStore;
-extern DBCStorage<TalentTabEntry> sTalentTabStore;
-extern DBCStorage<TaxiPathEntry> sTaxiPathStore;
+extern DBCStorage <SpellRadiusEntry>             sSpellRadiusStore;
+extern DBCStorage <SpellRangeEntry>              sSpellRangeStore;
+extern DBCStorage <SpellIconEntry>               sSpellIconStore;
+extern DBCStorage <SpellShapeshiftFormEntry>     sSpellShapeshiftFormStore;
+extern DBCStorage <SpellVisualEntry>             sSpellVisualStore;
+extern DBCStorage <StableSlotPricesEntry>        sStableSlotPricesStore;
+extern DBCStorage <TalentEntry>                  sTalentStore;
+extern DBCStorage <TalentTabEntry>               sTalentTabStore;
+extern DBCStorage <TaxiPathEntry>                sTaxiPathStore;
 extern TaxiMask sTaxiNodesMask;
 extern TaxiPathSetBySource sTaxiPathSetBySource;
 extern TaxiPathNodesByPath sTaxiPathNodesByPath;
@@ -110,9 +109,9 @@ extern DBCStorage<WMOAreaTableEntry> sWMOAreaTableStore;
 // extern DBCStorage <WorldMapAreaEntry>           sWorldMapAreaStore; -- use Zone2MapCoordinates and Map2ZoneCoordinates
 // extern DBCStorage <WorldMapOverlayEntry>         sWorldMapOverlayStore;
 extern DBCStorage<WorldSafeLocsEntry> sWorldSafeLocsStore;
-extern DBCStorage<MapEntry> sMapStore;
 
 void LoadDBCStores(std::string const& dataPath);
+void LoadSpellDBCStore(std::string const& dataPath);
 
 
 char const* GetRaceName(uint8 race, uint8 locale);

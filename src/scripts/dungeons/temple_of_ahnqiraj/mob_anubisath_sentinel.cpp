@@ -112,16 +112,24 @@ struct aqsentinelAI : public ScriptedAI
     void MoveInLineOfSight(Unit* pWho) override
     {
         // Increase aggro radius
-        if (pWho->GetTypeId() == TYPEID_PLAYER && !m_creature->IsInCombat() && m_creature->IsWithinDistInMap(pWho, 45.0f) && m_creature->IsWithinLOSInMap(pWho) && !pWho->HasAuraType(SPELL_AURA_FEIGN_DEATH) && !pWho->HasAuraType(SPELL_AURA_MOD_UNATTACKABLE))
+        if (pWho->GetTypeId() == TYPEID_PLAYER
+            && !m_creature->IsInCombat()
+            && m_creature->IsWithinDistInMap(pWho, 45.0f)
+            && m_creature->IsWithinLOSInMap(pWho)
+            && !pWho->HasAuraType(SPELL_AURA_FEIGN_DEATH)
+            && !pWho->HasAuraType(SPELL_AURA_MOD_UNATTACKABLE))
         {
             AttackStart(pWho);
         }
         ScriptedAI::MoveInLineOfSight(pWho);
     }
 
-    void ClearBuddyList() { nearby.clear(); }
+    void ClearBuddyList()
+    {
+        nearby.clear();
+    }
 
-    void AddBuddyToList(Creature* buddy)
+    void AddBuddyToList(Creature *buddy)
     {
         if (buddy == m_creature)
             return;
@@ -160,7 +168,7 @@ struct aqsentinelAI : public ScriptedAI
         }
     }
 
-    void CallBuddiesToAttack(Unit* who)
+    void CallBuddiesToAttack(Unit *who)
     {
         for (const auto& guid : nearby)
         {
@@ -201,10 +209,10 @@ struct aqsentinelAI : public ScriptedAI
                 }
             }
         }
-        return 0; // should never happen
+        return 0;                                           // should never happen
     }
 
-    void GetOtherSentinels(Unit* who)
+    void GetOtherSentinels(Unit *who)
     {
         std::vector<bool> chosenAbilities(9);
         selectAbility(pickAbilityRandom(chosenAbilities));
@@ -222,6 +230,7 @@ struct aqsentinelAI : public ScriptedAI
                     sentinelAI->gatherOthersWhenAggro = false;
                     sentinelAI->selectAbility(pickAbilityRandom(chosenAbilities));
                 }
+
             }
         }
 
@@ -249,7 +258,10 @@ struct aqsentinelAI : public ScriptedAI
         m_bEnraged = false;
     }
 
-    void GainSentinelAbility(uint32 id) { m_creature->AddAura(id); }
+    void GainSentinelAbility(uint32 id)
+    {
+        m_creature->AddAura(id);
+    }
 
     // Threat reduction for Knock Away
     void SpellHitTarget(Unit* pTarget, const SpellEntry* pSpell) override
@@ -300,7 +312,7 @@ struct aqsentinelAI : public ScriptedAI
 
     void UpdateAI(const uint32 uiDiff) override
     {
-        // Return since we have no target
+        //Return since we have no target
         if (!m_creature->SelectHostileTarget() || !m_creature->GetVictim())
             return;
 
@@ -327,11 +339,14 @@ struct aqsentinelAI : public ScriptedAI
         DoMeleeAttackIfReady();
     }
 };
-CreatureAI* GetAI_mob_anubisath_sentinelAI(Creature* pCreature) { return new aqsentinelAI(pCreature); }
+CreatureAI* GetAI_mob_anubisath_sentinelAI(Creature* pCreature)
+{
+    return new aqsentinelAI(pCreature);
+}
 
 void AddSC_mob_anubisath_sentinel()
 {
-    Script* newscript;
+    Script *newscript;
     newscript = new Script;
     newscript->Name = "mob_anubisath_sentinel";
     newscript->GetAI = &GetAI_mob_anubisath_sentinelAI;

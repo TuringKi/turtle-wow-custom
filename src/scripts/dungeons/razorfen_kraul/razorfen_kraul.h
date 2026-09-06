@@ -19,27 +19,27 @@ enum
 
 class instance_razorfen_kraul : public ScriptedInstance
 {
-public:
-    instance_razorfen_kraul(Map* pMap);
-    ~instance_razorfen_kraul() override {}
+    public:
+        instance_razorfen_kraul(Map* pMap);
+        ~instance_razorfen_kraul() override {}
 
-    void Initialize() override;
+        void Initialize() override;
 
-    void OnObjectCreate(GameObject* pGo) override;
-    void OnCreatureCreate(Creature* pCreature) override;
+        void OnObjectCreate(GameObject* pGo) override;
+        void OnCreatureCreate(Creature* pCreature) override;
 
-    void SetData(uint32 uiType, uint32 uiData) override;
-    uint32 GetData(uint32 uiType) override;
+        void SetData(uint32 uiType, uint32 uiData) override;
+        uint32 GetData(uint32 uiType) override;
 
-    const char* Save() override { return m_strInstData.c_str(); }
-    void Load(const char* chrIn) override;
+        const char* Save() override { return m_strInstData.c_str(); }
+        void Load(const char* chrIn) override;
 
-protected:
-    uint32 m_auiEncounter[RFK_MAX_ENCOUNTER];
-    std::string m_strInstData;
+    protected:
+        uint32 m_auiEncounter[RFK_MAX_ENCOUNTER];
+        std::string m_strInstData;
 
-    uint8 m_uiWardKeepersRemaining;
-    uint64 m_uiAgathelosWardGUID;
-    uint64 m_uiAgathelosGUID;
+        uint8 m_uiWardKeepersRemaining;
+        uint64 m_uiAgathelosWardGUID;
+        uint64 m_uiAgathelosGUID;
 };
 #endif

@@ -21,15 +21,15 @@ SDComment:
 SDCategory: Molten Core
 EndScriptData */
 
-#include "molten_core.h"
 #include "scriptPCH.h"
+#include "molten_core.h"
 
-#define EMOTE_SERVICE -1409000
+#define EMOTE_SERVICE               -1409000
 
-#define SPELL_INFERNO 19695
-#define SPELL_IGNITEMANA 19659
-#define SPELL_LIVINGBOMB 20475
-#define SPELL_ARMAGEDDOM 20478
+#define SPELL_INFERNO               19695
+#define SPELL_IGNITEMANA            19659
+#define SPELL_LIVINGBOMB            20475
+#define SPELL_ARMAGEDDOM            20478
 
 struct boss_baron_geddonAI : public ScriptedAI
 {
@@ -87,14 +87,14 @@ struct boss_baron_geddonAI : public ScriptedAI
         if (m_bArmageddon)
             return;
 
-        // If we are <5% hp cast Armageddom
+        //If we are <5% hp cast Armageddom
         if (!m_bArmageddon)
         {
             if (m_creature->GetHealthPercent() < 5.0f)
             {
                 m_creature->InterruptNonMeleeSpells(true);
                 SetCombatMovement(false);
-                // m_creature->SetTargetGuid(ObjectGuid());
+                //m_creature->SetTargetGuid(ObjectGuid());
                 m_creature->CastSpell(m_creature, SPELL_ARMAGEDDOM, true);
                 DoScriptText(EMOTE_SERVICE, m_creature);
                 m_bArmageddon = true;
@@ -164,27 +164,27 @@ struct boss_baron_geddonAI : public ScriptedAI
                 int Damage = 0;
                 switch (InfCount)
                 {
-                case 0:
-                case 1:
-                    Damage = 500;
-                    break;
-                case 2:
-                case 3:
-                    Damage = 1000;
-                    break;
-                case 4:
-                case 5:
-                    Damage = 1500;
-                    break;
-                case 6:
-                case 7:
-                    Damage = 2000;
-                    break;
-                case 8:
-                    Damage = 2500;
-                    m_bInferno = false;
-                    m_creature->ClearUnitState(UNIT_STAT_ROOT);
-                    break;
+                    case 0:
+                    case 1:
+                        Damage = 500;
+                        break;
+                    case 2:
+                    case 3:
+                        Damage = 1000;
+                        break;
+                    case 4:
+                    case 5:
+                        Damage = 1500;
+                        break;
+                    case 6:
+                    case 7:
+                        Damage = 2000;
+                        break;
+                    case 8:
+                        Damage = 2500;
+                        m_bInferno = false;
+                        m_creature->ClearUnitState(UNIT_STAT_ROOT);
+                        break;
                 }
                 m_creature->CastCustomSpell(m_creature, 19698, &Damage, nullptr, nullptr, true);
                 InfCount++;
@@ -199,11 +199,14 @@ struct boss_baron_geddonAI : public ScriptedAI
     }
 };
 
-CreatureAI* GetAI_boss_baron_geddon(Creature* pCreature) { return new boss_baron_geddonAI(pCreature); }
+CreatureAI* GetAI_boss_baron_geddon(Creature* pCreature)
+{
+    return new boss_baron_geddonAI(pCreature);
+}
 
 void AddSC_boss_baron_geddon()
 {
-    Script* newscript;
+    Script *newscript;
     newscript = new Script;
     newscript->Name = "boss_baron_geddon";
     newscript->GetAI = &GetAI_boss_baron_geddon;

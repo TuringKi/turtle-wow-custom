@@ -2,14 +2,15 @@
 
 using namespace std;
 
-struct boss_black_brideAI final : ScriptedAI
-{
-    explicit boss_black_brideAI(Creature* c) : ScriptedAI(c) { boss_black_brideAI::Reset(); }
+struct boss_black_brideAI final : ScriptedAI {
+    explicit boss_black_brideAI(Creature *c) : ScriptedAI(c) {
+        boss_black_brideAI::Reset();
+    }
 
-    void Reset() override {}
+    void Reset() override {
+    }
 
-    void Aggro(Unit* target) override
-    {
+    void Aggro(Unit *target) override {
         _lastUpdateTick = 0;
         _lastEventProcessedAt = 0;
 
@@ -20,25 +21,22 @@ struct boss_black_brideAI final : ScriptedAI
         me->MonsterSendTextToZone("Come and meet your end.", CHAT_MSG_MONSTER_YELL);
     }
 
-    void JustDied(Unit* killer) override { me->MonsterSendTextToZone("D-Damien, my.. my love.", CHAT_MSG_MONSTER_SAY); }
+    void JustDied(Unit *killer) override {
+        me->MonsterSendTextToZone("D-Damien, my.. my love.", CHAT_MSG_MONSTER_SAY);
+    }
 
-    void UpdateAI(uint32 diff) override
-    {
+    void UpdateAI(uint32 diff) override {
         _lastUpdateTick += diff;
 
-        if (!me->SelectHostileTarget() || !me->GetVictim())
-        {
+        if (!me->SelectHostileTarget() || !me->GetVictim()) {
             return;
         }
 
         _eventQueue.Update(diff);
 
-        switch (const auto nextEvent = PopEvent(); nextEvent)
-        {
-        case eBlackBrideEvents::EventCastLichSlap:
-            {
-                if (!EventCastLichSlapPredicate())
-                {
+        switch (const auto nextEvent = PopEvent(); nextEvent) {
+            case eBlackBrideEvents::EventCastLichSlap: {
+                if (!EventCastLichSlapPredicate()) {
                     _eventQueue.Repeat(Milliseconds(400));
                     break;
                 }
@@ -46,10 +44,8 @@ struct boss_black_brideAI final : ScriptedAI
                 EventCastLichSlapHandler();
                 break;
             }
-        case eBlackBrideEvents::EventCastScreamsOfThePast:
-            {
-                if (!EventCastScreamsOfThePastPredicate())
-                {
+            case eBlackBrideEvents::EventCastScreamsOfThePast: {
+                if (!EventCastScreamsOfThePastPredicate()) {
                     _eventQueue.Repeat(Milliseconds(400));
                     break;
                 }
@@ -57,10 +53,8 @@ struct boss_black_brideAI final : ScriptedAI
                 EventCastScreamsOfThePastHandler();
                 break;
             }
-        case eBlackBrideEvents::EventCastShadowBoltVolley:
-            {
-                if (!EventCastShadowBoltVolleyPredicate())
-                {
+            case eBlackBrideEvents::EventCastShadowBoltVolley: {
+                if (!EventCastShadowBoltVolleyPredicate()) {
                     _eventQueue.Repeat(Milliseconds(400));
                     break;
                 }
@@ -68,8 +62,7 @@ struct boss_black_brideAI final : ScriptedAI
                 EventCastShadowBoltVolleyHandler();
                 break;
             }
-        case eBlackBrideEvents::EventNone:
-            {
+            case eBlackBrideEvents::EventNone: {
                 DoMeleeAttackIfReady();
                 break;
             }
@@ -80,8 +73,7 @@ private:
     /**
      * \brief Contains all spell IDs for spells cast by the Black Bride.
      */
-    enum eBlackBrideSpells
-    {
+    enum eBlackBrideSpells {
         SpellLichSlap = 28873,
         SpellScreamsOfThePast = 7074,
         SpellShadowBoltVolley = 17228,
@@ -90,8 +82,7 @@ private:
     /**
      * \brief Contains all script events for spell casts etc. for the Black Bride.
      */
-    enum class eBlackBrideEvents
-    {
+    enum class eBlackBrideEvents {
         EventNone,
         EventCastLichSlap,
         EventCastScreamsOfThePast,
@@ -107,18 +98,16 @@ private:
      * \brief Attempts to pop an event from the event queue.
      * \return The event to execute, or EventNone if no action should be taken.
      */
-    [[nodiscard]] eBlackBrideEvents PopEvent()
-    {
+    [[nodiscard]]
+    eBlackBrideEvents PopEvent() {
         // If we're popping events too quickly, return EventNone.
-        if (_lastUpdateTick - _lastEventProcessedAt < _minimumTicksBetweenEvents)
-        {
+        if (_lastUpdateTick - _lastEventProcessedAt < _minimumTicksBetweenEvents) {
             return eBlackBrideEvents::EventNone;
         }
 
         const auto poppedEvent = static_cast<eBlackBrideEvents>(_eventQueue.ExecuteEvent());
         // If we successfully popped an event, update the tick counter.
-        if (poppedEvent != eBlackBrideEvents::EventNone)
-        {
+        if (poppedEvent != eBlackBrideEvents::EventNone) {
             _lastEventProcessedAt = _lastUpdateTick;
         }
         return poppedEvent;
@@ -128,13 +117,15 @@ private:
      * \brief Predicate for the EventCastLichSlap event.
      * \return True if the event handler should fire, false if we should requeue the event.
      */
-    [[nodiscard]] bool EventCastLichSlapPredicate() const { return !me->IsNonMeleeSpellCasted(); }
+    [[nodiscard]]
+    bool EventCastLichSlapPredicate() const {
+        return !me->IsNonMeleeSpellCasted();
+    }
 
     /**
      * \brief Event handler for the EventCastLichSlap event.
      */
-    void EventCastLichSlapHandler()
-    {
+    void EventCastLichSlapHandler() {
         DoCast(me->GetVictim(), SpellLichSlap);
         me->MonsterSendTextToZone("Your touch defiles me, I am only his!", CHAT_MSG_MONSTER_YELL);
         _eventQueue.ScheduleEvent(static_cast<uint32_t>(eBlackBrideEvents::EventCastLichSlap), Seconds(16), Seconds(18));
@@ -144,13 +135,15 @@ private:
      * \brief Predicate for the EventCastScreamsOfThePast event.
      * \return True if the event handler should fire, false if we should requeue the event.
      */
-    [[nodiscard]] bool EventCastScreamsOfThePastPredicate() const { return !me->IsNonMeleeSpellCasted(); }
+    [[nodiscard]]
+    bool EventCastScreamsOfThePastPredicate() const {
+        return !me->IsNonMeleeSpellCasted();
+    }
 
     /**
      * \brief Event handler for the EventCastScreamsOfThePast event.
      */
-    void EventCastScreamsOfThePastHandler()
-    {
+    void EventCastScreamsOfThePastHandler() {
         DoCast(me->GetVictim(), SpellScreamsOfThePast);
         me->MonsterSendTextToZone("I would've done anything for your love.", CHAT_MSG_MONSTER_YELL);
         _eventQueue.ScheduleEvent(static_cast<uint32_t>(eBlackBrideEvents::EventCastScreamsOfThePast), Seconds(20));
@@ -160,24 +153,27 @@ private:
      * \brief Predicate for the EventCastShadowBoltVolley event.
      * \return True if the event handler should fire, false if we should requeue the event.
      */
-    [[nodiscard]] bool EventCastShadowBoltVolleyPredicate() const { return !me->IsNonMeleeSpellCasted(); }
+    [[nodiscard]]
+    bool EventCastShadowBoltVolleyPredicate() const {
+        return !me->IsNonMeleeSpellCasted();
+    }
 
     /**
      * \brief Event handler for the EventCastShadowBoltVolley event.
      */
-    void EventCastShadowBoltVolleyHandler()
-    {
+    void EventCastShadowBoltVolleyHandler() {
         DoCast(me->GetVictim(), SpellShadowBoltVolley);
         me->MonsterSendTextToZone("Infidels!", CHAT_MSG_MONSTER_YELL);
         _eventQueue.ScheduleEvent(static_cast<uint32_t>(eBlackBrideEvents::EventCastShadowBoltVolley), Seconds(15));
     }
 };
 
-CreatureAI* GetAI_boss_black_bride(Creature* pCreature) { return new boss_black_brideAI(pCreature); }
+CreatureAI *GetAI_boss_black_bride(Creature *pCreature) {
+    return new boss_black_brideAI(pCreature);
+}
 
-void AddSC_boss_black_bride()
-{
-    Script* newscript = new Script;
+void AddSC_boss_black_bride() {
+    Script *newscript = new Script;
     newscript->Name = "boss_black_bride";
     newscript->GetAI = &GetAI_boss_black_bride;
     newscript->RegisterSelf();

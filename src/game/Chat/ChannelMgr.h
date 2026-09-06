@@ -22,41 +22,49 @@
 #ifndef MANGOSSERVER_CHANNELMGR_H
 #define MANGOSSERVER_CHANNELMGR_H
 
-#include "AbstractPlayer.h"
-#include "Channel.h"
 #include "Common.h"
-#include "ObjectGuid.h"
+#include "Channel.h"
 #include "Policies/Singleton.h"
+#include "ObjectGuid.h"
+#include "AbstractPlayer.h"
 
 #include <map>
 #include <string>
 
 class ChannelMgr
 {
-public:
-    typedef std::map<std::wstring, Channel*> ChannelMap;
-    ChannelMgr() { CreateDefaultChannels(); }
-    ~ChannelMgr();
+    public:
+        typedef std::map<std::wstring,Channel*> ChannelMap;
+        ChannelMgr()
+        {
+            CreateDefaultChannels();
+        }
+        ~ChannelMgr();
 
-    Channel* GetOrCreateChannel(std::string const& name, bool allowAreaDependantChans = true);
-    Channel* GetChannel(std::string const& name, PlayerPointer p, bool pkt = true);
-    void LeftChannel(std::string const& name);
-    void CreateDefaultChannels();
-    static void AnnounceBothFactionsChannel(std::string const& channelName, ObjectGuid playerGuid, char const* message);
+        Channel *GetOrCreateChannel(std::string const& name, bool allowAreaDependantChans = true);
+        Channel *GetChannel(std::string const& name, PlayerPointer p, bool pkt = true);
+        // bot passes Player*; PlayerPointer is a smart-ish wrapper.
+        Channel* GetChannel(std::string const& name, Player* p, bool pkt = true);
+        // cmangos camelCase aliases.
+        ChannelMap const& GetChannels() const { return channels; }
+        Channel* GetJoinChannel(std::string const& name, uint32 /*channelId*/ = 0) { return GetOrCreateChannel(name); }
+        Channel* GetJoinChannel(const char* name, uint32 channelId = 0) { return GetJoinChannel(std::string(name ? name : ""), channelId); }
+        void LeftChannel(std::string const& name);
+        void CreateDefaultChannels();
+        static void AnnounceBothFactionsChannel(std::string const& channelName, ObjectGuid playerGuid, char const* message);
 
-protected:
-    Team m_team = ALLIANCE;
-
-private:
-    ChannelMap channels;
+    protected:
+        Team m_team = ALLIANCE;
+    private:
+        ChannelMap channels;
 };
 
-class AllianceChannelMgr : public ChannelMgr
+class AllianceChannelMgr : public ChannelMgr 
 {
 public:
     AllianceChannelMgr();
 };
-class HordeChannelMgr : public ChannelMgr
+class HordeChannelMgr    : public ChannelMgr 
 {
 public:
     HordeChannelMgr();

@@ -19,9 +19,9 @@
 #include <vector>
 
 #include "MapTree.h"
-#include "ModelInstance.h"
 #include "VMapManager2.h"
 #include "WorldModel.h"
+#include "ModelInstance.h"
 
 using namespace std;
 
@@ -38,10 +38,16 @@ namespace VMAP
     }
 
     // declared in src/shared/vmap/VMapManager2.h
-    void VMapManager2::getInstanceMapTree(InstanceTreeMap& instanceMapTree) { instanceMapTree = iInstanceMapTrees; }
+    void VMapManager2::getInstanceMapTree(InstanceTreeMap& instanceMapTree)
+    {
+        instanceMapTree = iInstanceMapTrees;
+    }
 
     // declared in src/shared/vmap/WorldModel.h
-    void WorldModel::getGroupModels(vector<GroupModel>& outGroupModels) { outGroupModels = groupModels; }
+    void WorldModel::getGroupModels(vector<GroupModel>& outGroupModels)
+    {
+        outGroupModels = groupModels;
+    }
 
     // declared in src/shared/vmap/WorldModel.h
     void GroupModel::getMeshData(vector<Vector3>& outVertices, vector<MeshTriangle>& outTriangles, WmoLiquid*& liquid)
@@ -50,7 +56,7 @@ namespace VMAP
         memcpy(outVertices.data(), vertices.data(), vertices.size() * sizeof(Vector3));
 
         outTriangles.resize(triangles.size());
-        memcpy(outTriangles.data(), triangles.data(), triangles.size() * sizeof(MeshTriangle));
+		memcpy(outTriangles.data(), triangles.data(), triangles.size() * sizeof(MeshTriangle));
 
         liquid = iLiquid;
     }
@@ -62,4 +68,4 @@ namespace VMAP
         tilesY = iTilesY;
         corner = iCorner;
     }
-} // namespace VMAP
+}

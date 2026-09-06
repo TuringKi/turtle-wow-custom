@@ -21,8 +21,8 @@ SDComment:
 SDCategory: Scarlet Monastery
 EndScriptData */
 
-#include "scarlet_monastery.h"
 #include "scriptPCH.h"
+#include "scarlet_monastery.h"
 
 enum AshbringerEventMisc
 {
@@ -41,29 +41,29 @@ enum AshbringerEventMisc
     NPC_HIGHLORD_MOGRAINE = 16062,
 
     SAY_AND_SO_IT_BEG = -1999928,
-    SAY_ASHBRINGER = -1999916,
-    SAY_KNEEL_BEFORE = -1999917,
-    SAY_MY_LORD = -1999918,
-    GO_CHAPPEL_DOOR = 104591,
+    SAY_ASHBRINGER    = -1999916,
+    SAY_KNEEL_BEFORE  = -1999917,
+    SAY_MY_LORD       = -1999918,
+    GO_CHAPPEL_DOOR   = 104591,
 
-    SAY_COMMANDER1 = -1999920,
-    SAY_COMMANDER2 = -1999921,
-    SAY_COMMANDER3 = -1999922,
+    SAY_COMMANDER1  = -1999920,
+    SAY_COMMANDER2  = -1999921,
+    SAY_COMMANDER3  = -1999922,
     SAY_ASHBRINGER1 = -1999923,
     SAY_ASHBRINGER2 = -1999924,
     SAY_ASHBRINGER3 = -1999925,
 
-    YELL_COMMANDER = -1999926,
+    YELL_COMMANDER  = -1999926,
     YELL_WHITEMANE = 2973,
 
-    SPELL_FORGIVENESS = 28697,
+    SPELL_FORGIVENESS     = 28697,
     SPELL_MOGRAINE_COMETH = 28688,
 
     STAGE_MOGRAINE_NOT_STARTED = 0,
     STAGE_MOGRAINE_IN_PROGRESS = 1,
-    STAGE_MOGRAINE_DIED_ONCE = 2,
-    STAGE_MOGRAINE_REVIVED = 3,
-    STAGE_MOGRAINE_DONE = 4,
+    STAGE_MOGRAINE_DIED_ONCE   = 2,
+    STAGE_MOGRAINE_REVIVED     = 3,
+    STAGE_MOGRAINE_DONE        = 4,
 };
 
 enum eEvents
@@ -84,7 +84,12 @@ enum eEvents
 
 struct instance_scarlet_monastery : ScriptedInstance
 {
-    explicit instance_scarlet_monastery(Map* pMap) : ScriptedInstance(pMap), m_ashbringerActive(false) { instance_scarlet_monastery::Initialize(); }
+    explicit instance_scarlet_monastery(Map* pMap) : 
+        ScriptedInstance(pMap),
+        m_ashbringerActive(false)
+    {
+        instance_scarlet_monastery::Initialize();
+    }
 
     uint32 m_auiEncounter[INSTANCE_SM_MAX_ENCOUNTER];
 
@@ -92,7 +97,7 @@ struct instance_scarlet_monastery : ScriptedInstance
     uint64 m_uiWhitemaneGUID;
     uint64 m_uiVorrelGUID;
     uint64 m_uiDoorHighInquisitorGUID;
-
+    
     bool m_ashbringerActive;
     uint32 m_ashbringerCheckTimer;
     std::set<ObjectGuid> m_ashbringerReactedNpcs;
@@ -117,15 +122,15 @@ struct instance_scarlet_monastery : ScriptedInstance
     {
         switch (pCreature->GetEntry())
         {
-        case NPC_COMMANDER_MOGRAINE:
-            m_uiMograineGUID = pCreature->GetGUID();
-            break;
-        case NPC_INQUISITOR_WHITEMANE:
-            m_uiWhitemaneGUID = pCreature->GetGUID();
-            break;
-        case 3981:
-            m_uiVorrelGUID = pCreature->GetGUID();
-            break;
+            case NPC_COMMANDER_MOGRAINE:
+                m_uiMograineGUID = pCreature->GetGUID();
+                break;
+            case NPC_INQUISITOR_WHITEMANE:
+                m_uiWhitemaneGUID = pCreature->GetGUID();
+                break;
+            case 3981:
+                m_uiVorrelGUID = pCreature->GetGUID();
+                break;
         }
     }
 
@@ -139,16 +144,16 @@ struct instance_scarlet_monastery : ScriptedInstance
     {
         switch (pCreature->GetEntry())
         {
-        case NPC_COMMANDER_MOGRAINE:
-            if (Creature* pWhitemane = GetCreature(m_uiWhitemaneGUID))
-                if (pWhitemane->IsDead())
-                    SetData(TYPE_MOGRAINE_AND_WHITE_EVENT, STAGE_MOGRAINE_DONE);
-            break;
-        case NPC_INQUISITOR_WHITEMANE:
-            if (Creature* pMograine = GetCreature(m_uiMograineGUID))
-                if (pMograine->IsDead())
-                    SetData(TYPE_MOGRAINE_AND_WHITE_EVENT, STAGE_MOGRAINE_DONE);
-            break;
+            case NPC_COMMANDER_MOGRAINE:
+                if (Creature* pWhitemane = GetCreature(m_uiWhitemaneGUID))
+                    if (pWhitemane->IsDead())
+                        SetData(TYPE_MOGRAINE_AND_WHITE_EVENT, STAGE_MOGRAINE_DONE);
+                break;
+            case NPC_INQUISITOR_WHITEMANE:
+                if (Creature* pMograine = GetCreature(m_uiMograineGUID))
+                    if (pMograine->IsDead())
+                        SetData(TYPE_MOGRAINE_AND_WHITE_EVENT, STAGE_MOGRAINE_DONE);
+                break;
         }
     }
 
@@ -156,14 +161,14 @@ struct instance_scarlet_monastery : ScriptedInstance
     {
         switch (data)
         {
-        case DATA_MOGRAINE:
-            return m_uiMograineGUID;
-        case DATA_WHITEMANE:
-            return m_uiWhitemaneGUID;
-        case DATA_VORREL:
-            return m_uiVorrelGUID;
-        case DATA_DOOR_WHITEMANE:
-            return m_uiDoorHighInquisitorGUID;
+            case DATA_MOGRAINE:
+                return m_uiMograineGUID;
+            case DATA_WHITEMANE:
+                return m_uiWhitemaneGUID;
+            case DATA_VORREL:
+                return m_uiVorrelGUID;
+            case DATA_DOOR_WHITEMANE:
+                return m_uiDoorHighInquisitorGUID;
         }
 
         return 0;
@@ -248,18 +253,18 @@ struct instance_scarlet_monastery : ScriptedInstance
     {
         switch (urand(0, 6))
         {
-        case 0:
-            return 12378;
-        case 1:
-            return 12379;
-        case 2:
-            return 12380;
-        case 3:
-            return 12381;
-        case 4:
-            return 12382;
-        case 5:
-            return 12383;
+            case 0:
+                return 12378;
+            case 1:
+                return 12379;
+            case 2:
+                return 12380;
+            case 3:
+                return 12381;
+            case 4:
+                return 12382;
+            case 5:
+                return 12383;
         }
         return 12384;
     }
@@ -284,34 +289,34 @@ struct instance_scarlet_monastery : ScriptedInstance
         case NPC_SCARLET_MONK:
         case NPC_SCARLET_CHAMPION:
         case NPC_SCARLET_CHAPLAIN:
+        {
+            auto it = m_ashbringerReactedNpcs.find(receiver->GetObjectGuid());
+            if (it == m_ashbringerReactedNpcs.end())
+                m_ashbringerReactedNpcs.insert(receiver->GetObjectGuid());
+            else
+                return;
+            receiver->StopMoving(true);
+            receiver->SetFacingToObject(pCaster);
+            receiver->SetStandState(UNIT_STAND_STATE_KNEEL);
+            receiver->AddUnitState(UNIT_STAT_ROOT);
+            if (!m_ashbringerSayTimer && urand(0,1))
             {
-                auto it = m_ashbringerReactedNpcs.find(receiver->GetObjectGuid());
-                if (it == m_ashbringerReactedNpcs.end())
-                    m_ashbringerReactedNpcs.insert(receiver->GetObjectGuid());
-                else
-                    return;
-                receiver->StopMoving(true);
-                receiver->SetFacingToObject(pCaster);
-                receiver->SetStandState(UNIT_STAND_STATE_KNEEL);
-                receiver->AddUnitState(UNIT_STAT_ROOT);
-                if (!m_ashbringerSayTimer && urand(0, 1))
-                {
-                    m_ashbringerSayTimer = 2000;
-                    DoScriptText(GetRandomScarletText(), receiver);
-                }
-                break;
+                m_ashbringerSayTimer = 2000;
+                DoScriptText(GetRandomScarletText(), receiver);
             }
+            break;
+        }
         case NPC_COMMANDER_MOGRAINE:
-            {
-                auto it = m_ashbringerReactedNpcs.find(receiver->GetObjectGuid());
-                if (it == m_ashbringerReactedNpcs.end())
-                    m_ashbringerReactedNpcs.insert(receiver->GetObjectGuid());
-                else
-                    return;
-                receiver->SetFacingToObject(pCaster);
-                m_events.ScheduleEvent(EVENT_KNEEL, Seconds(1));
-                break;
-            }
+        {
+            auto it = m_ashbringerReactedNpcs.find(receiver->GetObjectGuid());
+            if (it == m_ashbringerReactedNpcs.end())
+                m_ashbringerReactedNpcs.insert(receiver->GetObjectGuid());
+            else
+                return;
+            receiver->SetFacingToObject(pCaster);
+            m_events.ScheduleEvent(EVENT_KNEEL, Seconds(1));
+            break;
+        }
         default:
             return;
         }
@@ -333,74 +338,74 @@ struct instance_scarlet_monastery : ScriptedInstance
                 Creature* pHighlord = GetClosestCreatureWithEntry(pMograine, NPC_HIGHLORD_MOGRAINE, 1000.0f);
                 switch (eventId)
                 {
-                case EVENT_KNEEL:
-                    pMograine->SetSheath(SHEATH_STATE_UNARMED);
-                    pMograine->SetStandState(UNIT_STAND_STATE_KNEEL);
-                    m_events.ScheduleEvent(EVENT_TALK1, Seconds(2));
-                    break;
-                case EVENT_TALK1:
-                    DoScriptText(SAY_COMMANDER1, pMograine);
-                    m_events.ScheduleEvent(EVENT_SUMMON, Seconds(10));
-                    break;
-                case EVENT_SUMMON:
-                    if (Creature* pC = pMograine->SummonCreature(NPC_HIGHLORD_MOGRAINE, 1065.130737f, 1399.350586f, 30.763723f, 6.282961f, TEMPSUMMON_TIMED_DESPAWN, 400000))
-                    {
-                        pC->SetFactionTemporary(35, TEMPFACTION_RESTORE_RESPAWN);
-                        pC->SetObjectScale(2.0f);
-                        pC->CastSpell(pC, SPELL_MOGRAINE_COMETH, true);
-                        pC->GetMotionMaster()->MovePoint(0, 1148.0f, 1398.71f, 32.0f, 0, 2.7f);
-                    }
-                    m_events.ScheduleEvent(EVENT_TALK2, Seconds(30));
-                    break;
-                case EVENT_TALK2:
-                    if (pHighlord)
-                    {
-                        pHighlord->HandleEmote(EMOTE_ONESHOT_POINT);
-                        DoScriptText(SAY_ASHBRINGER1, pHighlord);
-                        pMograine->SetFacingToObject(pHighlord);
-                    }
-                    m_events.ScheduleEvent(EVENT_STAND, Seconds(4));
-                    break;
-                case EVENT_STAND:
-                    pMograine->SetStandState(UNIT_STAND_STATE_STAND);
-                    m_events.ScheduleEvent(EVENT_TALK3, Seconds(2));
-                    break;
-                case EVENT_TALK3:
-                    DoScriptText(SAY_COMMANDER2, pMograine);
-                    m_events.ScheduleEvent(EVENT_TALK4, Seconds(4));
-                    break;
-                case EVENT_TALK4:
-                    if (pHighlord)
-                        DoScriptText(SAY_ASHBRINGER2, pHighlord);
-                    m_events.ScheduleEvent(EVENT_ROAR, Seconds(11));
-                    break;
-                case EVENT_ROAR:
-                    if (pHighlord)
-                        pHighlord->HandleEmote(EMOTE_ONESHOT_BATTLEROAR);
-                    m_events.ScheduleEvent(EVENT_TALK5, Seconds(4));
-                    break;
-                case EVENT_TALK5:
-                    pMograine->SetSheath(SHEATH_STATE_UNARMED);
-                    pMograine->HandleEmote(EMOTE_ONESHOT_BEG);
-                    DoScriptText(SAY_COMMANDER3, pMograine);
-                    m_events.ScheduleEvent(EVENT_SPELL, Seconds(3));
-                    break;
-                case EVENT_SPELL:
-                    if (pHighlord)
-                        pHighlord->CastSpell(pMograine, SPELL_FORGIVENESS, false);
-                    m_events.ScheduleEvent(EVENT_FORGIVEN, Seconds(4));
-                    break;
-                case EVENT_FORGIVEN:
-                    if (pHighlord)
-                        DoScriptText(SAY_ASHBRINGER3, pHighlord);
-                    m_events.ScheduleEvent(EVENT_DESPAWN, Seconds(5));
-                    break;
-                case EVENT_DESPAWN:
-                    if (pHighlord)
-                    {
-                        ((TemporarySummon*)pHighlord)->UnSummon();
-                    }
-                    break;
+                    case EVENT_KNEEL:
+                        pMograine->SetSheath(SHEATH_STATE_UNARMED);
+                        pMograine->SetStandState(UNIT_STAND_STATE_KNEEL);
+                        m_events.ScheduleEvent(EVENT_TALK1, Seconds(2));
+                        break;
+                    case EVENT_TALK1:
+                        DoScriptText(SAY_COMMANDER1, pMograine);
+                        m_events.ScheduleEvent(EVENT_SUMMON, Seconds(10));
+                        break;
+                    case EVENT_SUMMON:
+                        if (Creature* pC = pMograine->SummonCreature(NPC_HIGHLORD_MOGRAINE, 1065.130737f, 1399.350586f, 30.763723f, 6.282961f, TEMPSUMMON_TIMED_DESPAWN, 400000))
+                        {
+                            pC->SetFactionTemporary(35, TEMPFACTION_RESTORE_RESPAWN);
+                            pC->SetObjectScale(2.0f);
+                            pC->CastSpell(pC, SPELL_MOGRAINE_COMETH, true);
+                            pC->GetMotionMaster()->MovePoint(0, 1148.0f, 1398.71f, 32.0f, 0, 2.7f);
+                        }
+                        m_events.ScheduleEvent(EVENT_TALK2, Seconds(30));
+                        break;
+                    case EVENT_TALK2:
+                        if (pHighlord)
+                        {
+                            pHighlord->HandleEmote(EMOTE_ONESHOT_POINT);
+                            DoScriptText(SAY_ASHBRINGER1, pHighlord);
+                            pMograine->SetFacingToObject(pHighlord);
+                        }
+                        m_events.ScheduleEvent(EVENT_STAND, Seconds(4));
+                        break;
+                    case EVENT_STAND:
+                        pMograine->SetStandState(UNIT_STAND_STATE_STAND);
+                        m_events.ScheduleEvent(EVENT_TALK3, Seconds(2));
+                        break;
+                    case EVENT_TALK3:
+                        DoScriptText(SAY_COMMANDER2, pMograine);
+                        m_events.ScheduleEvent(EVENT_TALK4, Seconds(4));
+                        break;
+                    case EVENT_TALK4:
+                        if(pHighlord)
+                            DoScriptText(SAY_ASHBRINGER2, pHighlord);
+                        m_events.ScheduleEvent(EVENT_ROAR, Seconds(11));
+                        break;
+                    case EVENT_ROAR:
+                        if (pHighlord)
+                            pHighlord->HandleEmote(EMOTE_ONESHOT_BATTLEROAR);
+                        m_events.ScheduleEvent(EVENT_TALK5, Seconds(4));
+                        break;
+                    case EVENT_TALK5:
+                        pMograine->SetSheath(SHEATH_STATE_UNARMED);
+                        pMograine->HandleEmote(EMOTE_ONESHOT_BEG);
+                        DoScriptText(SAY_COMMANDER3, pMograine);
+                        m_events.ScheduleEvent(EVENT_SPELL, Seconds(3));
+                        break;
+                    case EVENT_SPELL:
+                        if (pHighlord)
+                            pHighlord->CastSpell(pMograine, SPELL_FORGIVENESS, false);
+                        m_events.ScheduleEvent(EVENT_FORGIVEN, Seconds(4));
+                        break;
+                    case EVENT_FORGIVEN:
+                        if (pHighlord)
+                            DoScriptText(SAY_ASHBRINGER3, pHighlord);
+                        m_events.ScheduleEvent(EVENT_DESPAWN, Seconds(5));
+                        break;
+                    case EVENT_DESPAWN:
+                        if (pHighlord)
+                        {
+                            ((TemporarySummon*)pHighlord)->UnSummon();
+                        }
+                        break;
                 }
             }
             m_ashbringerSayTimer -= std::min(m_ashbringerSayTimer, diff);
@@ -434,7 +439,20 @@ struct instance_scarlet_monastery : ScriptedInstance
                     anyAshbringerEquipped = true;
                     m_ashbringerActive = true;
                     std::list<Creature*> ScarletList;
-                    GetCreatureListWithEntryInGrid(ScarletList, pPlayer, {NPC_SCARLET_MYRIDON, NPC_SCARLET_DEFENDER, NPC_SCARLET_CENTURION, NPC_SCARLET_SORCERER, NPC_SCARLET_WIZARD, NPC_SCARLET_ABBOT, NPC_SCARLET_MONK, NPC_SCARLET_CHAMPION, NPC_SCARLET_CHAPLAIN, NPC_FAIRBANKS, NPC_COMMANDER_MOGRAINE}, 2000.0f);
+                    GetCreatureListWithEntryInGrid(ScarletList, pPlayer,
+                    { 
+                        NPC_SCARLET_MYRIDON,
+                        NPC_SCARLET_DEFENDER,
+                        NPC_SCARLET_CENTURION,
+                        NPC_SCARLET_SORCERER,
+                        NPC_SCARLET_WIZARD,
+                        NPC_SCARLET_ABBOT,
+                        NPC_SCARLET_MONK, 
+                        NPC_SCARLET_CHAMPION,
+                        NPC_SCARLET_CHAPLAIN,
+                        NPC_FAIRBANKS,
+                        NPC_COMMANDER_MOGRAINE
+                    }, 2000.0f);
 
                     for (Creature* pCreature : ScarletList)
                     {
@@ -456,11 +474,14 @@ struct instance_scarlet_monastery : ScriptedInstance
     }
 };
 
-InstanceData* GetInstanceData_instance_scarlet_monastery(Map* pMap) { return new instance_scarlet_monastery(pMap); }
+InstanceData* GetInstanceData_instance_scarlet_monastery(Map* pMap)
+{
+    return new instance_scarlet_monastery(pMap);
+}
 
 void AddSC_instance_scarlet_monastery()
 {
-    Script* newscript;
+    Script *newscript;
     newscript = new Script;
     newscript->Name = "instance_scarlet_monastery";
     newscript->GetInstanceData = &GetInstanceData_instance_scarlet_monastery;

@@ -1,18 +1,18 @@
 /* Copyright (C) 2006 - 2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
- */
+* This program is free software; you can redistribute it and/or modify
+* it under the terms of the GNU General Public License as published by
+* the Free Software Foundation; either version 2 of the License, or
+* (at your option) any later version.
+*
+* This program is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+* GNU General Public License for more details.
+*
+* You should have received a copy of the GNU General Public License
+* along with this program; if not, write to the Free Software
+* Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+*/
 
 /* ScriptData
 SDName: Boss_jandicebarov
@@ -37,12 +37,15 @@ enum
 
 struct boss_jandicebarovAI : public ScriptedAI
 {
-    boss_jandicebarovAI(Creature* pCreature) : ScriptedAI(pCreature) { Reset(); }
+    boss_jandicebarovAI(Creature* pCreature) : ScriptedAI(pCreature)
+    {
+        Reset();
+    }
 
     uint32 CurseOfBlood_Timer;
     uint32 Illusion_Timer;
     uint32 damageTaken;
-    // uint32 Illusioncounter;
+    //uint32 Illusioncounter;
     std::vector<uint64> IllusionGUIDS;
 
     uint32 Invisible_Timer;
@@ -53,7 +56,7 @@ struct boss_jandicebarovAI : public ScriptedAI
     {
         CurseOfBlood_Timer = 10000;
         Illusion_Timer = 15000;
-        Invisible_Timer = 3000; // Too much too low?
+        Invisible_Timer = 3000;                             //Too much too low?
         Invisible = false;
         damageTaken = 0;
         checkForDamage = false;
@@ -80,10 +83,10 @@ struct boss_jandicebarovAI : public ScriptedAI
             else
                 sLog.outString("Cannot find creature %u", *itr);
         }
-        IllusionGUIDS.clear();
+        IllusionGUIDS.clear(); 
     }
 
-    void JustDied(Unit* pKiller) override
+    void JustDied(Unit *pKiller) override
     {
         UnsummonIllusions();
         m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
@@ -109,7 +112,7 @@ struct boss_jandicebarovAI : public ScriptedAI
     {
         if (Invisible && Invisible_Timer < diff)
         {
-            // Become visible again
+            //Become visible again
             m_creature->SetFactionTemplateId(14);
             m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
             m_creature->SetVisibility(VISIBILITY_ON);
@@ -120,15 +123,15 @@ struct boss_jandicebarovAI : public ScriptedAI
         else if (Invisible)
         {
             Invisible_Timer -= diff;
-            // Do nothing while invisible
+            //Do nothing while invisible
             return;
         }
 
-        // Return since we have no target
+        //Return since we have no target
         if (!m_creature->SelectHostileTarget() || !m_creature->GetVictim())
             return;
 
-        // CurseOfBlood_Timer
+        //CurseOfBlood_Timer
         if (CurseOfBlood_Timer < diff)
         {
             DoCastSpellIfCan(m_creature->GetVictim(), SPELL_CURSEOFBLOOD);
@@ -137,10 +140,10 @@ struct boss_jandicebarovAI : public ScriptedAI
         else
             CurseOfBlood_Timer -= diff;
 
-        // Illusion_Timer
+        //Illusion_Timer
         if (!Invisible && Illusion_Timer < diff)
         {
-            // Inturrupt any spell casting
+            //Inturrupt any spell casting
             m_creature->InterruptNonMeleeSpells(false);
             m_creature->SetFactionTemplateId(35);
             m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
@@ -151,10 +154,10 @@ struct boss_jandicebarovAI : public ScriptedAI
             Invisible = true;
             Invisible_Timer = 3000;
 
-            // 25 seconds until we should cast this agian
+            //25 seconds until we should cast this agian
             Illusion_Timer = 25000;
 
-            // Summon 10 Illusions attacking random gamers
+            //Summon 10 Illusions attacking random gamers
             Unit* target = nullptr;
             for (int i = 0; i < 10; ++i)
             {
@@ -173,7 +176,10 @@ struct boss_jandicebarovAI : public ScriptedAI
 
 struct mob_illusionofjandicebarovAI : public ScriptedAI
 {
-    mob_illusionofjandicebarovAI(Creature* pCreature) : ScriptedAI(pCreature) { Reset(); }
+    mob_illusionofjandicebarovAI(Creature* pCreature) : ScriptedAI(pCreature)
+    {
+        Reset();
+    }
 
     uint32 Cleave_Timer;
 
@@ -185,11 +191,11 @@ struct mob_illusionofjandicebarovAI : public ScriptedAI
 
     void UpdateAI(const uint32 diff) override
     {
-        // Return since we have no target
+        //Return since we have no target
         if (!m_creature->SelectHostileTarget() || !m_creature->GetVictim())
             return;
 
-        // Cleave_Timer
+        //Cleave_Timer
         if (Cleave_Timer < diff)
         {
             if (DoCastSpellIfCan(m_creature->GetVictim(), SPELL_CLEAVE) == CAST_OK)
@@ -202,13 +208,19 @@ struct mob_illusionofjandicebarovAI : public ScriptedAI
     }
 };
 
-CreatureAI* GetAI_boss_jandicebarov(Creature* pCreature) { return new boss_jandicebarovAI(pCreature); }
+CreatureAI* GetAI_boss_jandicebarov(Creature* pCreature)
+{
+    return new boss_jandicebarovAI(pCreature);
+}
 
-CreatureAI* GetAI_mob_illusionofjandicebarov(Creature* pCreature) { return new mob_illusionofjandicebarovAI(pCreature); }
+CreatureAI* GetAI_mob_illusionofjandicebarov(Creature* pCreature)
+{
+    return new mob_illusionofjandicebarovAI(pCreature);
+}
 
 void AddSC_boss_jandicebarov()
 {
-    Script* newscript;
+    Script *newscript;
     newscript = new Script;
     newscript->Name = "boss_jandice_barov";
     newscript->GetAI = &GetAI_boss_jandicebarov;

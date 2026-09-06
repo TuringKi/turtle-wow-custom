@@ -51,9 +51,9 @@ bool checkDirectories(bool debugOutput)
     {
         printf("'mmaps' directory does not exist\n");
 #ifndef WIN32
-        mkdir("mmaps", 0777);
+		mkdir("mmaps", 0777);
 #else
-        _mkdir("mmaps");
+		_mkdir("mmaps");
 #endif
     }
 
@@ -94,7 +94,20 @@ void printUsage()
     printf("Please read readme file for more information and examples.\n");
 }
 
-bool handleArgs(int argc, char** argv, int& mapnum, int& tileX, int& tileY, float& maxAngle, bool& skipLiquid, bool& skipContinents, bool& skipJunkMaps, bool& skipBattlegrounds, bool& debugOutput, bool& silent, bool& bigBaseUnit, bool& quick, char*& offMeshInputPath)
+bool handleArgs(int argc, char** argv,
+                int& mapnum,
+                int& tileX,
+                int& tileY,
+                float& maxAngle,
+                bool& skipLiquid,
+                bool& skipContinents,
+                bool& skipJunkMaps,
+                bool& skipBattlegrounds,
+                bool& debugOutput,
+                bool& silent,
+                bool& bigBaseUnit,
+                bool &quick,
+                char*& offMeshInputPath)
 {
     char* param = nullptr;
     for (int i = 1; i < argc; ++i)
@@ -202,14 +215,14 @@ bool handleArgs(int argc, char** argv, int& mapnum, int& tileX, int& tileY, floa
         {
             silent = true;
         }
-        else if (strcmp(argv[i], "--force") == 0)
-        {
-            gForceOutput = true;
-        }
-        else if (strcmp(argv[i], "--doNotFilterDeepWater") == 0)
-        {
+		else if (strcmp(argv[i], "--force") == 0)
+		{
+			gForceOutput = true;
+		}
+		else if (strcmp(argv[i], "--doNotFilterDeepWater") == 0)
+		{
             gDoNotFilterDeepWater = true;
-        }
+		}
         else if (strcmp(argv[i], "--quick") == 0)
         {
             quick = true;
@@ -235,14 +248,14 @@ bool handleArgs(int argc, char** argv, int& mapnum, int& tileX, int& tileY, floa
 
             offMeshInputPath = param;
         }
-        else if (strcmp(argv[i], "--settingsInput") == 0)
-        {
-            param = argv[++i];
-            if (!param)
-                return false;
+		else if (strcmp(argv[i], "--settingsInput") == 0)
+		{
+		    param = argv[++i];
+		    if (!param)
+			    return false;
 
             gMapSettingsFilename = param;
-        }
+		}
         else if ((strcmp(argv[i], "-?") == 0) || (strcmp(argv[i], "/?") == 0) || (strcmp(argv[i], "-h") == 0))
         {
             printUsage();
@@ -276,10 +289,20 @@ int main(int argc, char** argv)
     int mapnum = -1;
     float maxAngle = 60.0f;
     int tileX = -1, tileY = -1;
-    bool skipLiquid = false, skipContinents = false, skipJunkMaps = true, skipBattlegrounds = false, debugOutput = false, silent = false, bigBaseUnit = false, quick = false;
+    bool skipLiquid = false,
+         skipContinents = false,
+         skipJunkMaps = true,
+         skipBattlegrounds = false,
+         debugOutput = false,
+         silent = false,
+         bigBaseUnit = false,
+         quick = false;
     char* offMeshInputPath = nullptr;
 
-    bool validParam = handleArgs(argc, argv, mapnum, tileX, tileY, maxAngle, skipLiquid, skipContinents, skipJunkMaps, skipBattlegrounds, debugOutput, silent, bigBaseUnit, quick, offMeshInputPath);
+    bool validParam = handleArgs(argc, argv, mapnum,
+                                 tileX, tileY, maxAngle,
+                                 skipLiquid, skipContinents, skipJunkMaps, skipBattlegrounds,
+                                 debugOutput, silent, bigBaseUnit, quick, offMeshInputPath);
 
     if (!validParam)
         return silent ? -1 : finish("You have specified invalid parameters (use -? for more help)", -1);
@@ -310,9 +333,9 @@ int main(int argc, char** argv)
     else if (mapnum >= 0)
     {
         builder.buildMap(uint32(mapnum));
-        builder.StartupAsyncBuilders();
-        builder.WaitForAllTilesToBeBuild();
-        builder.ShutdownAsyncBuilders();
+		builder.StartupAsyncBuilders();
+		builder.WaitForAllTilesToBeBuild();
+		builder.ShutdownAsyncBuilders();
     }
     else
     {

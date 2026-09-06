@@ -15,23 +15,23 @@
  */
 
 
-#include "naxxramas.h"
 #include "scriptPCH.h"
+#include "naxxramas.h"
 
 enum
 {
     // No emotes in vanilla afaik
-    // EMOTE_AURA_BLOCKING = -1533143,
-    // EMOTE_AURA_FADING   = -1533145,
-    // EMOTE_AURA_WANE     = -1533144,
+    //EMOTE_AURA_BLOCKING = -1533143,
+    //EMOTE_AURA_FADING   = -1533145,
+    //EMOTE_AURA_WANE     = -1533144,
 
-    SPELL_CORRUPTED_MIND = 29201, // this triggers the following spells on targets (based on class): 29185, 29194, 29196, 29198
-    SPELL_POISON_AURA = 29865,
+    SPELL_CORRUPTED_MIND  = 29201, // this triggers the following spells on targets (based on class): 29185, 29194, 29196, 29198
+    SPELL_POISON_AURA     = 29865,
     SPELL_INEVITABLE_DOOM = 29204,
-    SPELL_REMOVE_CURSE = 30281, // He periodically removes all curses on himself
-    SPELL_FUNGAL_BLOOM = 29232, // Cast by spores
+    SPELL_REMOVE_CURSE    = 30281, // He periodically removes all curses on himself
+    SPELL_FUNGAL_BLOOM    = 29232, // Cast by spores
 
-    NPC_SPORE = 16286,
+    NPC_SPORE             = 16286,
 };
 
 enum Events
@@ -49,7 +49,11 @@ enum Events
 // it simply seems like one of 2 (potentially 4) location is chosed at random on pull, after that it's
 // constantly spawning there throughout the fight.
 // Presumably spell 29234 was used, it has a radius of 70yd. Can't figure out exactly how it would have been used though.
-static constexpr float SporeLocs[2][3] = {{2951.0f, -4016.0f, 274.0f}, {2870.0f, -3978.0f, 274.0f}};
+static constexpr float SporeLocs[2][3] = 
+{
+    {2951.0f, -4016.0f, 274.0f},
+    {2870.0f, -3978.0f, 274.0f}
+};
 
 static constexpr uint8 MAX_STALKS_UP = 6;
 struct EyeStalkInfo
@@ -68,7 +72,9 @@ struct EyeStalkInfo
 
 struct mob_rottingMaggotAI : public ScriptedAI
 {
-    mob_rottingMaggotAI(Creature* pCreature, bool isDiseased) : ScriptedAI(pCreature), isDiseased(isDiseased)
+    mob_rottingMaggotAI(Creature* pCreature, bool isDiseased) :
+        ScriptedAI(pCreature),
+        isDiseased(isDiseased)
     {
         m_pInstance = (instance_naxxramas*)pCreature->GetInstanceData();
         m_creature->SetNoCallAssistance(true);
@@ -80,15 +86,21 @@ struct mob_rottingMaggotAI : public ScriptedAI
 
     instance_naxxramas* m_pInstance;
 
-    void Reset() override {}
+    void Reset() override
+    {
+    }
 
     void MoveInLineOfSight(Unit* pWho) override
     {
         if (!pWho)
             return;
 
-        if (pWho->GetTypeId() == TYPEID_PLAYER && !m_creature->IsInCombat() && m_creature->IsWithinDistInMap(pWho, 1.5f) // Custom, tiny aggro radius
-            && m_creature->IsWithinLOSInMap(pWho) && !pWho->HasAuraType(SPELL_AURA_FEIGN_DEATH) && !pWho->HasAuraType(SPELL_AURA_MOD_UNATTACKABLE))
+        if (pWho->GetTypeId() == TYPEID_PLAYER
+            && !m_creature->IsInCombat()
+            && m_creature->IsWithinDistInMap(pWho, 1.5f) // Custom, tiny aggro radius
+            && m_creature->IsWithinLOSInMap(pWho)
+            && !pWho->HasAuraType(SPELL_AURA_FEIGN_DEATH)
+            && !pWho->HasAuraType(SPELL_AURA_MOD_UNATTACKABLE))
         {
             m_creature->SetNoCallAssistance(true);
 
@@ -137,7 +149,8 @@ struct mob_rottingMaggotAI : public ScriptedAI
 
 struct mob_eyeStalkAI : public ScriptedAI
 {
-    mob_eyeStalkAI(Creature* pCreature) : ScriptedAI(pCreature)
+    mob_eyeStalkAI(Creature* pCreature) :
+        ScriptedAI(pCreature)
     {
         m_pInstance = (instance_naxxramas*)pCreature->GetInstanceData();
         m_creature->SetNoCallAssistance(true);
@@ -170,7 +183,12 @@ struct mob_eyeStalkAI : public ScriptedAI
         if (!pWho)
             return;
 
-        if (pWho->GetTypeId() == TYPEID_PLAYER && !m_creature->IsInCombat() && m_creature->IsWithinDistInMap(pWho, 19.0f) && m_creature->IsWithinLOSInMap(pWho) && !pWho->HasAuraType(SPELL_AURA_FEIGN_DEATH) && !pWho->HasAuraType(SPELL_AURA_MOD_UNATTACKABLE))
+        if (pWho->GetTypeId() == TYPEID_PLAYER
+            && !m_creature->IsInCombat()
+            && m_creature->IsWithinDistInMap(pWho, 19.0f)
+            && m_creature->IsWithinLOSInMap(pWho)
+            && !pWho->HasAuraType(SPELL_AURA_FEIGN_DEATH)
+            && !pWho->HasAuraType(SPELL_AURA_MOD_UNATTACKABLE))
         {
             m_creature->SetNoCallAssistance(true);
 
@@ -264,11 +282,11 @@ struct boss_loathebAI : public ScriptedAI
     void Aggro(Unit* pWho) override
     {
         numDooms = 0;
-        events.ScheduleEvent(EVENT_SUMMON_SPORE, Seconds(13));
-        events.ScheduleEvent(EVENT_CORRUPTED_MIND, Seconds(5));
-        events.ScheduleEvent(EVENT_POISON_AURA, Seconds(5));
+        events.ScheduleEvent(EVENT_SUMMON_SPORE,    Seconds(13));
+        events.ScheduleEvent(EVENT_CORRUPTED_MIND,  Seconds(5));
+        events.ScheduleEvent(EVENT_POISON_AURA,     Seconds(5));
         events.ScheduleEvent(EVENT_INEVITABLE_DOOM, Minutes(2));
-        events.ScheduleEvent(EVENT_REMOVE_CURSE, Seconds(5));
+        events.ScheduleEvent(EVENT_REMOVE_CURSE,    Seconds(5));
         if (m_pInstance)
             m_pInstance->SetData(TYPE_LOATHEB, IN_PROGRESS);
     }
@@ -329,34 +347,34 @@ struct boss_loathebAI : public ScriptedAI
             switch (eyeStalk.currentState)
             {
             case EyeStalkInfo::COOLDOWN:
+            {
+                // Summoning a new eye
+                if (eyeStalk.timer < diff)
                 {
-                    // Summoning a new eye
-                    if (eyeStalk.timer < diff)
+                    if (availableEyeLocs.empty())
                     {
-                        if (availableEyeLocs.empty())
-                        {
-                            sLog.outError("boss_loatheb.cpp - availableEyeLocs size 0, should not happen!");
-                            return;
-                        }
-                        uint8 availableIndex = urand(0, availableEyeLocs.size() - 1);
-                        uint8 newEyeIdx = availableEyeLocs[availableIndex];
-                        availableEyeLocs.erase(availableEyeLocs.begin() + availableIndex);
-
-                        eyeStalk.myIndex = newEyeIdx;
-                        const float* pos = eyeStalkPossitions[newEyeIdx];
-
-                        Creature* pStalk = m_creature->SummonCreature(NPC_EyeStalk, pos[0], pos[1], pos[2], pos[3], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 5000);
-                        if (!pStalk)
-                        {
-                            sLog.outError("Heigans WhackAStalk failed to summon eye stalk");
-                            return;
-                        }
-                        eyeStalk.guid = pStalk->GetObjectGuid();
-                        eyeStalk.currentState = EyeStalkInfo::UP;
-                        eyeStalk.timer = urand(15000, 20000);
+                        sLog.outError("boss_loatheb.cpp - availableEyeLocs size 0, should not happen!");
+                        return;
                     }
-                    break;
+                    uint8 availableIndex = urand(0, availableEyeLocs.size() - 1);
+                    uint8 newEyeIdx = availableEyeLocs[availableIndex];
+                    availableEyeLocs.erase(availableEyeLocs.begin() + availableIndex);
+
+                    eyeStalk.myIndex = newEyeIdx;
+                    const float* pos = eyeStalkPossitions[newEyeIdx];
+
+                    Creature* pStalk = m_creature->SummonCreature(NPC_EyeStalk, pos[0], pos[1], pos[2], pos[3], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 5000);
+                    if (!pStalk)
+                    {
+                        sLog.outError("Heigans WhackAStalk failed to summon eye stalk");
+                        return;
+                    }
+                    eyeStalk.guid = pStalk->GetObjectGuid();
+                    eyeStalk.currentState = EyeStalkInfo::UP;
+                    eyeStalk.timer = urand(15000, 20000);
                 }
+                break;
+            }
             case EyeStalkInfo::UP:
                 // Initiating unsummon
                 if (eyeStalk.timer < diff)
@@ -420,7 +438,7 @@ struct boss_loathebAI : public ScriptedAI
         }
     }
 
-    void SpellHit(WorldObject*, const SpellEntry* pSpell) override
+    void SpellHit(WorldObject*, const SpellEntry* pSpell) override 
     {
         /* Loatheb does not automatically remove Vampiric Embrace before TBC, source: https://wowpedia.fandom.com/wiki/Loatheb_(Classic)
            Shadow priests are excellent for healing groups with current talents (as of 4 January 2007) as shown by Death and Taxes,
@@ -428,7 +446,7 @@ struct boss_loathebAI : public ScriptedAI
            Movie: http://www.youtube.com/watch?v=raaLqFelbCk.
            This was hotfixed later, and Loatheb dispels the Vampiric Embrace off of himself shortly after applied.
            Vampiric Embrace triggers the Corrupted Mind debuff.
-
+        
         if (pSpell->Id == 15286) // vamperic embrace
         {
             DoCastSpellIfCan(m_creature, SPELL_REMOVE_CURSE);
@@ -446,7 +464,7 @@ struct boss_loathebAI : public ScriptedAI
 
         if (!m_creature->SelectHostileTarget() || !m_creature->GetVictim())
             return;
-
+        
         if (!m_pInstance->HandleEvadeOutOfHome(m_creature))
             return;
 
@@ -505,11 +523,72 @@ struct boss_loathebAI : public ScriptedAI
     }
 };
 
-CreatureAI* GetAI_boss_loatheb(Creature* pCreature) { return new boss_loathebAI(pCreature); }
+CreatureAI* GetAI_boss_loatheb(Creature* pCreature)
+{
+    return new boss_loathebAI(pCreature);
+}
 
-CreatureAI* GetAI_mob_rottingMaggot(Creature* pCreature) { return new mob_rottingMaggotAI(pCreature, false); }
-CreatureAI* GetAI_mob_diseasedMaggot(Creature* pCreature) { return new mob_rottingMaggotAI(pCreature, true); }
-CreatureAI* GetAI_mob_eyeStalk(Creature* pCreature) { return new mob_eyeStalkAI(pCreature); }
+CreatureAI* GetAI_mob_rottingMaggot(Creature* pCreature)
+{
+    return new mob_rottingMaggotAI(pCreature, false);
+}
+CreatureAI* GetAI_mob_diseasedMaggot(Creature* pCreature)
+{
+    return new mob_rottingMaggotAI(pCreature, true);
+}
+CreatureAI* GetAI_mob_eyeStalk(Creature* pCreature)
+{
+    return new mob_eyeStalkAI(pCreature);
+}
+
+namespace
+{
+template <class T>
+SpellScript* GetSpellScript(SpellEntry const*)
+{
+    return new T();
+}
+
+void RegisterSpellScript(char const* name, SpellScript* (*getter)(SpellEntry const*))
+{
+    Script* script = new Script;
+    script->Name = name;
+    script->GetSpellScript = getter;
+    script->RegisterSelf();
+}
+
+struct spell_loatheb_corrupted_mind : public SpellScript
+{
+    bool OnEffectExecute(Spell* spell, SpellEffectIndex /*effIdx*/) const override
+    {
+        Unit* target = spell->GetUnitTarget();
+        if (!target)
+            return false;
+
+        uint32 spellId = 0;
+        switch (target->GetClass())
+        {
+            case CLASS_PRIEST:
+            case CLASS_DRUID:
+                spellId = 29194;
+                break;
+            case CLASS_PALADIN:
+                spellId = 29196;
+                break;
+            case CLASS_SHAMAN:
+                spellId = 29198;
+                break;
+            default:
+                break;
+        }
+
+        if (spellId)
+            spell->m_caster->CastSpell(target, spellId, true);
+
+        return false;
+    }
+};
+}
 
 void AddSC_boss_loatheb()
 {
@@ -533,4 +612,6 @@ void AddSC_boss_loatheb()
     NewScript->Name = "mob_eye_stalk";
     NewScript->GetAI = &GetAI_mob_eyeStalk;
     NewScript->RegisterSelf();
+
+    RegisterSpellScript("spell_loatheb_corrupted_mind", &GetSpellScript<spell_loatheb_corrupted_mind>);
 }

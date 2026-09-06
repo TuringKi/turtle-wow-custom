@@ -105,7 +105,8 @@ constexpr std::uint8_t MAX_OPEN_PORTALS = 20;
 constexpr std::uint8_t MAX_SPAWNED_CONSTRUCTS = 50;
 constexpr std::uint8_t MAX_ACTIVE_DEVICES = 30;
 
-constexpr float sentryLocs[4][4] = {
+constexpr float sentryLocs[4][4] =
+{
     {-9613.08f, -2828.02f, 10.7f, 1.145f},
     {-9617.7f, -2743.983f, 14.8f, 5.265f},
     {-9572.8427f, -2840.13f, 10.0f, 1.41f},

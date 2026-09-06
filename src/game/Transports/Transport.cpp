@@ -16,25 +16,28 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Transport.h"
-#include "Cell.h"
-#include "CellImpl.h"
 #include "Common.h"
-#include "DBCStores.h"
-#include "GameObjectAI.h"
-#include "GameObjectModel.h"
+#include "Transport.h"
 #include "MapManager.h"
-#include "MapReference.h"
-#include "ObjectAccessor.h"
 #include "ObjectMgr.h"
 #include "Path.h"
-#include "Player.h"
 #include "ScriptMgr.h"
-#include "Totem.h"
-#include "World.h"
 #include "WorldPacket.h"
+#include "DBCStores.h"
+#include "World.h"
+#include "GameObjectAI.h"
+#include "MapReference.h"
+#include "Player.h"
+#include "Cell.h"
+#include "CellImpl.h"
+#include "Totem.h"
+#include "GameObjectModel.h"
+#include "ObjectAccessor.h"
+#include "ScriptObjects.h"
 
-Transport::Transport() : GameObject(), _transportInfo(nullptr), _isMoving(true), _pendingStop(false), _passengerTeleportItr(_passengers.begin()), _pathProgress(0)
+Transport::Transport() : GameObject(),
+    _transportInfo(nullptr), _isMoving(true), _pendingStop(false),
+    _passengerTeleportItr(_passengers.begin()), _pathProgress(0)
 {
     // the path progress is the only value that seem to matter
     m_updateFlag = UPDATEFLAG_TRANSPORT;
@@ -77,7 +80,8 @@ bool Transport::Create(uint32 guidlow, uint32 entry, uint32 mapid, float x, floa
 
     if (!IsPositionValid())
     {
-        sLog.outError("Transport (GUID: %u) not created. Suggested coordinates isn't valid (X: %f Y: %f)", guidlow, x, y);
+        sLog.outError("Transport (GUID: %u) not created. Suggested coordinates isn't valid (X: %f Y: %f)",
+                      guidlow, x, y);
         return false;
     }
 
@@ -158,14 +162,14 @@ void Transport::Update(uint32 update_diff, uint32 /*time_diff*/)
         if (_pathProgress >= _currentFrame->ArriveTime && _pathProgress < _currentFrame->DepartureTime)
         {
             SetMoving(false);
-            break; // its a stop frame and we are waiting
+            break;  // its a stop frame and we are waiting
         }
 
         // not waiting anymore
         SetMoving(true);
 
         if (_pathProgress >= _currentFrame->DepartureTime && _pathProgress < _currentFrame->NextArriveTime)
-            break; // found current waypoint
+            break;  // found current waypoint
 
         MoveToNextWaypoint();
 
@@ -219,6 +223,14 @@ void Transport::AddPassenger(WorldObject* passenger)
             passenger->m_movementInfo.t_pos.o = passenger->GetOrientation();
             CalculatePassengerOffset(passenger->m_movementInfo.t_pos.x, passenger->m_movementInfo.t_pos.y, passenger->m_movementInfo.t_pos.z, &passenger->m_movementInfo.t_pos.o);
         }
+
+        if (Player* player = passenger->ToPlayer())
+        {
+            ScriptRegistry<TransportScript>::ForEach([&](TransportScript* script)
+            {
+                script->OnAddPassenger(this, player);
+            });
+        }
     }
 }
 
@@ -242,6 +254,14 @@ void Transport::RemovePassenger(WorldObject* passenger)
 
     if (erased)
     {
+        if (Player* player = passenger->ToPlayer())
+        {
+            ScriptRegistry<TransportScript>::ForEach([&](TransportScript* script)
+            {
+                script->OnRemovePassenger(this, player);
+            });
+        }
+
         passenger->SetTransport(nullptr);
         passenger->m_movementInfo.ClearTransportData();
         DEBUG_LOG("Object %s removed from transport %s.", passenger->GetName(), GetName());
@@ -251,6 +271,12 @@ void Transport::RemovePassenger(WorldObject* passenger)
 void Transport::UpdatePosition(float x, float y, float z, float o)
 {
     Relocate(x, y, z, o);
+
+    uint32 waypointId = _transportInfo && _currentFrame != GetKeyFrames().end() ? _currentFrame->Node->index : 0;
+    ScriptRegistry<TransportScript>::ForEach([&](TransportScript* script)
+    {
+        script->OnRelocate(this, waypointId, GetMapId(), x, y, z);
+    });
 
     Map* pOldMap = GetMap();
     for (auto const& pMap : m_maps)
@@ -308,7 +334,7 @@ bool Transport::TeleportTransport(uint32 newMapid, float x, float y, float z, fl
 {
     bool const differentMap = newMapid != GetMapId();
     Map const* oldMap = GetMap();
-
+    
     if (differentMap)
     {
         std::unordered_set<Map*> mapsCopy = m_maps;
@@ -332,16 +358,16 @@ bool Transport::TeleportTransport(uint32 newMapid, float x, float y, float z, fl
 
         switch (obj->GetTypeId())
         {
-        case TYPEID_UNIT:
-            // Units teleport on transport not implemented.
-            RemovePassenger(obj);
-            break;
-        case TYPEID_GAMEOBJECT:
+            case TYPEID_UNIT:
+                // Units teleport on transport not implemented.
+                RemovePassenger(obj);
+                break;
+            case TYPEID_GAMEOBJECT:
             {
                 MANGOS_ASSERT(false && "clients before wotlk do not support boarding gameobject on transport");
                 break;
             }
-        case TYPEID_PLAYER:
+            case TYPEID_PLAYER:
             {
                 // Remove some auras to prevent undermap
                 Player* player = obj->ToPlayer();
@@ -371,15 +397,16 @@ bool Transport::TeleportTransport(uint32 newMapid, float x, float y, float z, fl
                         sMapMgr.ScheduleInstanceSwitch(player, newInstanceId);
                 }
                 else
-                    player->TeleportTo(newMapid, destX, destY, destZ, destO, TELE_TO_NOT_LEAVE_TRANSPORT);
+                    player->TeleportTo(newMapid, destX, destY, destZ, destO,
+                        TELE_TO_NOT_LEAVE_TRANSPORT);
 
                 break;
             }
-        case TYPEID_DYNAMICOBJECT:
-            obj->AddObjectToRemoveList();
-            break;
-        default:
-            break;
+            case TYPEID_DYNAMICOBJECT:
+                obj->AddObjectToRemoveList();
+                break;
+            default:
+                break;
         }
     }
 
@@ -427,30 +454,32 @@ void Transport::UpdatePassengerPosition(WorldObject* passenger)
     }
     switch (passenger->GetTypeId())
     {
-    case TYPEID_UNIT:
+        case TYPEID_UNIT:
         {
             Creature* creature = passenger->ToCreature();
             passenger->GetMap()->CreatureRelocation(creature, x, y, z, o);
             break;
         }
-    case TYPEID_PLAYER:
-        // relocate only passengers in world and skip any player that might be still logging in/teleporting
-        if (passenger->IsInWorld())
-            passenger->GetMap()->PlayerRelocation(passenger->ToPlayer(), x, y, z, o);
+        case TYPEID_PLAYER:
+            //relocate only passengers in world and skip any player that might be still logging in/teleporting
+            if (passenger->IsInWorld())
+                passenger->GetMap()->PlayerRelocation(passenger->ToPlayer(), x, y, z, o);
 
-        break;
-    case TYPEID_GAMEOBJECT:
-        // passenger->GetMap()->GameObjectRelocation(passenger->ToGameObject(), x, y, z, o, false);
-        break;
-    case TYPEID_DYNAMICOBJECT:
-        // passenger->GetMap()->DynamicObjectRelocation(passenger->ToDynObject(), x, y, z, o);
-        break;
-    default:
-        break;
+            break;
+        case TYPEID_GAMEOBJECT:
+            //passenger->GetMap()->GameObjectRelocation(passenger->ToGameObject(), x, y, z, o, false);
+            break;
+        case TYPEID_DYNAMICOBJECT:
+            //passenger->GetMap()->DynamicObjectRelocation(passenger->ToDynObject(), x, y, z, o);
+            break;
+        default:
+            break;
     }
 }
 
-void Transport::DoEventIfAny(KeyFrame const& node, bool departure) {}
+void Transport::DoEventIfAny(KeyFrame const& node, bool departure)
+{
+}
 
 void Transport::BuildUpdate(UpdateDataMapType& data_map)
 {

@@ -17,11 +17,11 @@
 #ifndef MANGOS_GUARD_MGR_H
 #define MANGOS_GUARD_MGR_H
 
-#include <unordered_map>
 #include "Common.h"
+#include "SharedDefines.h"
 #include "Platform/Define.h"
 #include "Policies/Singleton.h"
-#include "SharedDefines.h"
+#include <unordered_map>
 
 #define GUARD_POST_MAX_CHARGES 10
 
@@ -39,16 +39,15 @@ struct AreaGuardInfo
 
 class GuardMgr
 {
-public:
-    GuardMgr();
-    ~GuardMgr() {}
-    void Update(uint32 diff);
-    uint32 GetTextId(uint32 factionTemplateId, uint32 areaId, uint32 displayId) const;
-    bool SummonGuard(Creature* pCivilian, Player* pEnemy);
-
-private:
-    std::unordered_map<uint32, AreaGuardInfo> m_mAreaGuardInfo;
-    uint32 m_uiRechargeTimer;
+    public:
+        GuardMgr();
+        ~GuardMgr() {}
+        void Update(uint32 diff);
+        uint32 GetTextId(uint32 factionTemplateId, uint32 areaId, uint32 displayId) const;
+        bool SummonGuard(Creature* pCivilian, Player* pEnemy);
+    private:
+        std::unordered_map<uint32, AreaGuardInfo> m_mAreaGuardInfo;
+        uint32 m_uiRechargeTimer;
 };
 
 extern GuardMgr sGuardMgr;

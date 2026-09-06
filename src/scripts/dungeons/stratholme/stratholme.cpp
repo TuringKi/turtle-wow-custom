@@ -5,11 +5,11 @@ mob_restless_soul
 mobs_spectral_ghostly_citizen
 EndContentData */
 
-#include "stratholme.h"
 #include "scriptPCH.h"
+#include "stratholme.h"
 
-#define SAY_CRYSTAL_DESTROYED -1900116
-#define SAY_ALL_CRYSTALS_DESTROYED -1900115
+#define SAY_CRYSTAL_DESTROYED         -1900116
+#define SAY_ALL_CRYSTALS_DESTROYED    -1900115
 
 /*######
 ## go_gauntlet_gate (this is the _first_ of the gauntlet gates, two exist)
@@ -67,7 +67,7 @@ bool GOOpen_go_stratholme_postbox(Player* pPlayer, GameObject* pGo)
 ## mob_freed_soul
 ######*/
 
-// Possibly more of these quotes around.
+//Possibly more of these quotes around.
 #define SAY_ZAPPED0 -1329000
 #define SAY_ZAPPED1 -1329001
 #define SAY_ZAPPED2 -1329002
@@ -75,43 +75,52 @@ bool GOOpen_go_stratholme_postbox(Player* pPlayer, GameObject* pGo)
 
 struct mob_freed_soulAI : public ScriptedAI
 {
-    mob_freed_soulAI(Creature* pCreature) : ScriptedAI(pCreature) { Reset(); }
+    mob_freed_soulAI(Creature* pCreature) : ScriptedAI(pCreature)
+    {
+        Reset();
+    }
 
     void Reset() override
     {
         switch (urand(0, 3))
         {
-        case 0:
-            DoScriptText(SAY_ZAPPED0, m_creature);
-            break;
-        case 1:
-            DoScriptText(SAY_ZAPPED1, m_creature);
-            break;
-        case 2:
-            DoScriptText(SAY_ZAPPED2, m_creature);
-            break;
-        case 3:
-            DoScriptText(SAY_ZAPPED3, m_creature);
-            break;
+            case 0:
+                DoScriptText(SAY_ZAPPED0, m_creature);
+                break;
+            case 1:
+                DoScriptText(SAY_ZAPPED1, m_creature);
+                break;
+            case 2:
+                DoScriptText(SAY_ZAPPED2, m_creature);
+                break;
+            case 3:
+                DoScriptText(SAY_ZAPPED3, m_creature);
+                break;
         }
     }
 };
 
-CreatureAI* GetAI_mob_freed_soul(Creature* pCreature) { return new mob_freed_soulAI(pCreature); }
+CreatureAI* GetAI_mob_freed_soul(Creature* pCreature)
+{
+    return new mob_freed_soulAI(pCreature);
+}
 
 /*######
 ## mob_restless_soul
 ######*/
 
-#define SPELL_EGAN_BLASTER 17368
-#define SPELL_SOUL_FREED 17370
+#define SPELL_EGAN_BLASTER  17368
+#define SPELL_SOUL_FREED    17370
 #define QUEST_RESTLESS_SOUL 5282
-#define ENTRY_RESTLESS 11122
-#define ENTRY_FREED 11136
+#define ENTRY_RESTLESS      11122
+#define ENTRY_FREED         11136
 
 struct mob_restless_soulAI : public ScriptedAI
 {
-    mob_restless_soulAI(Creature* pCreature) : ScriptedAI(pCreature) { Reset(); }
+    mob_restless_soulAI(Creature* pCreature) : ScriptedAI(pCreature)
+    {
+        Reset();
+    }
 
     uint64 Tagger;
     uint32 Die_Timer;
@@ -136,7 +145,7 @@ struct mob_restless_soulAI : public ScriptedAI
         }
     }
 
-    void JustSummoned(Creature* summoned) override
+    void JustSummoned(Creature *summoned) override
     {
         summoned->CastSpell(summoned, SPELL_SOUL_FREED, false);
         if (Unit* temp = m_creature->GetMap()->GetUnit(Tagger))
@@ -159,13 +168,15 @@ struct mob_restless_soulAI : public ScriptedAI
                     temp->KilledMonsterCredit(m_creature->GetEntry(), m_creature->GetGUID());
                 m_creature->DealDamage(m_creature, m_creature->GetHealth(), nullptr, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, nullptr, false);
             }
-            else
-                Die_Timer -= diff;
+            else Die_Timer -= diff;
         }
     }
 };
 
-CreatureAI* GetAI_mob_restless_soul(Creature* pCreature) { return new mob_restless_soulAI(pCreature); }
+CreatureAI* GetAI_mob_restless_soul(Creature* pCreature)
+{
+    return new mob_restless_soulAI(pCreature);
+}
 
 /*######
 ## mobs_spectral_ghostly_citizen
@@ -173,8 +184,8 @@ CreatureAI* GetAI_mob_restless_soul(Creature* pCreature) { return new mob_restle
 
 enum
 {
-    SPELL_HAUNTING_PHANTOM = 16336,
-    SPELL_SLAP = 6754
+    SPELL_HAUNTING_PHANTOM  = 16336,
+    SPELL_SLAP              = 6754
 };
 
 struct mobs_spectral_ghostly_citizenAI : public ScriptedAI
@@ -212,7 +223,7 @@ struct mobs_spectral_ghostly_citizenAI : public ScriptedAI
                 float x, y, z;
                 m_creature->GetRandomPoint(m_creature->GetPositionX(), m_creature->GetPositionY(), m_creature->GetPositionZ(), 20.0f, x, y, z);
 
-                // 100%, 50%, 33%, 25% chance to spawn
+                //100%, 50%, 33%, 25% chance to spawn
                 uint32 j = urand(1, i);
                 if (j == 1)
                     m_creature->SummonCreature(ENTRY_RESTLESS, x, y, z, 0, TEMPSUMMON_CORPSE_DESPAWN, 600000);
@@ -226,8 +237,7 @@ struct mobs_spectral_ghostly_citizenAI : public ScriptedAI
         {
             if (Die_Timer < diff)
                 m_creature->DealDamage(m_creature, m_creature->GetHealth(), nullptr, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, nullptr, false);
-            else
-                Die_Timer -= diff;
+            else Die_Timer -= diff;
         }
 
         if (!m_creature->SelectHostileTarget() || !m_creature->GetVictim())
@@ -238,8 +248,7 @@ struct mobs_spectral_ghostly_citizenAI : public ScriptedAI
             m_creature->CastSpell(m_creature->GetVictim(), SPELL_HAUNTING_PHANTOM, false);
             cast_Haunting = 20000;
         }
-        else
-            cast_Haunting -= diff;
+        else cast_Haunting -= diff;
 
         DoMeleeAttackIfReady();
     }
@@ -248,35 +257,38 @@ struct mobs_spectral_ghostly_citizenAI : public ScriptedAI
     {
         switch (emote)
         {
-        case TEXTEMOTE_DANCE:
-            if (m_creature->IsInCombat() && !hasEvadedOnce)
-            {
-                EnterEvadeMode();
-                hasEvadedOnce = true;
-            }
-            else
-                m_creature->HandleEmoteCommand(EMOTE_STATE_DANCE);
-            break;
-        case TEXTEMOTE_RUDE:
-            if (m_creature->CanReachWithMeleeAutoAttack(pPlayer))
-                m_creature->CastSpell(pPlayer, SPELL_SLAP, false);
-            else
-                m_creature->HandleEmoteCommand(EMOTE_ONESHOT_RUDE);
-            break;
-        case TEXTEMOTE_WAVE:
-            m_creature->HandleEmoteCommand(EMOTE_ONESHOT_WAVE);
-            break;
-        case TEXTEMOTE_BOW:
-            m_creature->HandleEmoteCommand(EMOTE_ONESHOT_BOW);
-            break;
-        case TEXTEMOTE_KISS:
-            m_creature->HandleEmoteCommand(EMOTE_ONESHOT_FLEX);
-            break;
+            case TEXTEMOTE_DANCE:
+                if (m_creature->IsInCombat() && !hasEvadedOnce)
+                {
+                    EnterEvadeMode();
+                    hasEvadedOnce = true;
+                }
+                else
+                    m_creature->HandleEmoteCommand(EMOTE_STATE_DANCE);
+                break;
+            case TEXTEMOTE_RUDE:
+                if (m_creature->CanReachWithMeleeAutoAttack(pPlayer))
+                    m_creature->CastSpell(pPlayer, SPELL_SLAP, false);
+                else
+                    m_creature->HandleEmoteCommand(EMOTE_ONESHOT_RUDE);
+                break;
+            case TEXTEMOTE_WAVE:
+                m_creature->HandleEmoteCommand(EMOTE_ONESHOT_WAVE);
+                break;
+            case TEXTEMOTE_BOW:
+                m_creature->HandleEmoteCommand(EMOTE_ONESHOT_BOW);
+                break;
+            case TEXTEMOTE_KISS:
+                m_creature->HandleEmoteCommand(EMOTE_ONESHOT_FLEX);
+                break;
         }
     }
 };
 
-CreatureAI* GetAI_mobs_spectral_ghostly_citizen(Creature* pCreature) { return new mobs_spectral_ghostly_citizenAI(pCreature); }
+CreatureAI* GetAI_mobs_spectral_ghostly_citizen(Creature* pCreature)
+{
+    return new mobs_spectral_ghostly_citizenAI(pCreature);
+}
 
 /*######
 ## mobs_cristal_zuggurat
@@ -335,7 +347,7 @@ struct mobs_cristal_zugguratAI : public ScriptedAI
         }
 
         for (const auto& guid : m_acolytes)
-            if (Creature* pCreature = m_pInstance->instance->GetCreature(guid))
+            if (Creature *pCreature = m_pInstance->instance->GetCreature(guid))
                 if (pCreature && pCreature->IsAlive())
                     return;
 
@@ -343,7 +355,10 @@ struct mobs_cristal_zugguratAI : public ScriptedAI
     }
 };
 
-CreatureAI* GetAI_mobs_cristal_zuggurat(Creature* pCreature) { return new mobs_cristal_zugguratAI(pCreature); }
+CreatureAI* GetAI_mobs_cristal_zuggurat(Creature* pCreature)
+{
+    return new mobs_cristal_zugguratAI(pCreature);
+}
 
 /*######
 ## mobs_rat_pestifere
@@ -355,10 +370,10 @@ struct AI_mobs_rat_pestifere : public ScriptedAI
     {
         switch (urand(1, 3))
         {
-        case 2:
-            m_creature->SetDisplayId(1418);
-            break;
-            //        case 3:    m_creature->SetDisplayId(00000000000);    break;
+            case 2:
+                m_creature->SetDisplayId(1418);
+                break;
+                //        case 3:    m_creature->SetDisplayId(00000000000);    break;
         }
         Reset();
     }
@@ -426,185 +441,187 @@ struct AI_mobs_rat_pestifere : public ScriptedAI
         {
             switch (m_idRat)
             {
-            case 1:
+                case 1:
                 {
                     switch (m_mvt_id)
                     {
-                    case 1:
-                        Deplacement(3631.9f, -3330, 123.7f);
-                        break;
-                    case 2:
-                        Deplacement(3629.8f, -3331.2f, 123.2f);
-                        break;
-                    case 3:
-                        Deplacement(3619.5f, -3332.9f, 123.5f);
-                        break;
-                    case 4:
-                        Deplacement(3617.3f, -3331.8f, 123.7f);
-                        break;
-                    case 5:
-                        Deplacement(3615.7f, -3329.3f, 123.8f);
-                        break;
-                    default:
-                        m_idRat = 0;
+                        case 1:
+                            Deplacement(3631.9f, -3330, 123.7f);
+                            break;
+                        case 2:
+                            Deplacement(3629.8f, -3331.2f, 123.2f);
+                            break;
+                        case 3:
+                            Deplacement(3619.5f, -3332.9f, 123.5f);
+                            break;
+                        case 4:
+                            Deplacement(3617.3f, -3331.8f, 123.7f);
+                            break;
+                        case 5:
+                            Deplacement(3615.7f, -3329.3f, 123.8f);
+                            break;
+                        default:
+                            m_idRat = 0;
                     }
                     break;
                 }
-            case 2:
+                case 2:
                 {
                     switch (m_mvt_id)
                     {
-                    case 1:
-                        Deplacement(3631.3f, -3330, 123.7f);
-                        break;
-                    case 2:
-                        Deplacement(3629.1f, -3331.8f, 123.1f);
-                        break;
-                    case 3:
-                        Deplacement(3619.5f, -3333.5f, 123.5f);
-                        break;
-                    case 4:
-                        Deplacement(2615.5f, -3331.5f, 123.8f);
-                        break;
-                    default:
-                        m_idRat = 0;
+                        case 1:
+                            Deplacement(3631.3f, -3330, 123.7f);
+                            break;
+                        case 2:
+                            Deplacement(3629.1f, -3331.8f, 123.1f);
+                            break;
+                        case 3:
+                            Deplacement(3619.5f, -3333.5f, 123.5f);
+                            break;
+                        case 4:
+                            Deplacement(2615.5f, -3331.5f, 123.8f);
+                            break;
+                        default:
+                            m_idRat = 0;
                     }
                     break;
                 }
-            case 3:
+                case 3:
                 {
                     switch (m_mvt_id)
                     {
-                    case 1:
-                        Deplacement(3632.7f, -3330, 123.7f);
-                        break;
-                    case 2:
-                        Deplacement(3627.2f, -3333.5f, 123);
-                        break;
-                    case 3:
-                        Deplacement(3615.2f, -3333.5f, 123.8f);
-                        break;
-                    default:
-                        m_idRat = 0;
+                        case 1:
+                            Deplacement(3632.7f, -3330, 123.7f);
+                            break;
+                        case 2:
+                            Deplacement(3627.2f, -3333.5f, 123);
+                            break;
+                        case 3:
+                            Deplacement(3615.2f, -3333.5f, 123.8f);
+                            break;
+                        default:
+                            m_idRat = 0;
                     }
                     break;
                 }
-            case 4:
+                case 4:
                 {
                     switch (m_mvt_id)
                     {
-                    case 1:
-                        Deplacement(3631.9f, -3341.5f, 123.8f);
-                        break;
-                    case 2:
-                        Deplacement(3623.2f, -3335.2f, 123.1f);
-                        break;
-                    case 3:
-                        Deplacement(3615.2f, -3335.2f, 123.8f);
-                        break;
-                    default:
-                        m_idRat = 0;
+                        case 1:
+                            Deplacement(3631.9f, -3341.5f, 123.8f);
+                            break;
+                        case 2:
+                            Deplacement(3623.2f, -3335.2f, 123.1f);
+                            break;
+                        case 3:
+                            Deplacement(3615.2f, -3335.2f, 123.8f);
+                            break;
+                        default:
+                            m_idRat = 0;
                     }
                     break;
                 }
-            case 5:
+                case 5:
                 {
                     switch (m_mvt_id)
                     {
-                    case 1:
-                        Deplacement(3632.3f, -3341.5f, 123.8f);
-                        break;
-                    case 2:
-                        Deplacement(3625.1f, -3336.6f, 123.4f);
-                        break;
-                    case 3:
-                        Deplacement(3625.1f, -3336.6f, 124);
-                        break;
-                    default:
-                        m_idRat = 0;
+                        case 1:
+                            Deplacement(3632.3f, -3341.5f, 123.8f);
+                            break;
+                        case 2:
+                            Deplacement(3625.1f, -3336.6f, 123.4f);
+                            break;
+                        case 3:
+                            Deplacement(3625.1f, -3336.6f, 124);
+                            break;
+                        default:
+                            m_idRat = 0;
                     }
                     break;
                 }
-            case 6:
+                case 6:
                 {
                     switch (m_mvt_id)
                     {
-                    case 1:
-                        Deplacement(3632.7f, -3341.5f, 123.8f);
-                        break;
-                    case 2:
-                        Deplacement(3630.1f, -3340.1f, 124.3f);
-                        break;
-                    case 3:
-                        Deplacement(3619, -337.6f, 123.7f);
-                        break;
-                    case 4:
-                        Deplacement(3616.8f, -3337.2f, 123.9f);
-                        break;
-                    case 5:
-                        Deplacement(3615.1f, -3338.1f, 124.2f);
-                        break;
-                    default:
-                        m_idRat = 0;
+                        case 1:
+                            Deplacement(3632.7f, -3341.5f, 123.8f);
+                            break;
+                        case 2:
+                            Deplacement(3630.1f, -3340.1f, 124.3f);
+                            break;
+                        case 3:
+                            Deplacement(3619, -337.6f, 123.7f);
+                            break;
+                        case 4:
+                            Deplacement(3616.8f, -3337.2f, 123.9f);
+                            break;
+                        case 5:
+                            Deplacement(3615.1f, -3338.1f, 124.2f);
+                            break;
+                        default:
+                            m_idRat = 0;
                     }
                     break;
                 }
-            case 7:
+                case 7:
                 {
                     switch (m_mvt_id)
                     {
-                    case 1:
-                        Deplacement(3613, -3337.3f, 124.3f);
-                        break;
-                    default:
-                        m_idRat = 0;
+                        case 1:
+                            Deplacement(3613, -3337.3f, 124.3f);
+                            break;
+                        default:
+                            m_idRat = 0;
                     }
                     break;
                 }
-            case 8:
+                case 8:
                 {
                     switch (m_mvt_id)
                     {
-                    case 1:
-                        Deplacement(3613, -3335.2f, 124);
-                        break;
-                    default:
-                        m_idRat = 0;
+                        case 1:
+                            Deplacement(3613, -3335.2f, 124);
+                            break;
+                        default:
+                            m_idRat = 0;
                     }
                     break;
                 }
-            case 9:
+                case 9:
                 {
                     switch (m_mvt_id)
                     {
-                    case 1:
-                        Deplacement(3613, -3333.7f, 123.9f);
-                        break;
-                    default:
-                        m_idRat = 0;
+                        case 1:
+                            Deplacement(3613, -3333.7f, 123.9f);
+                            break;
+                        default:
+                            m_idRat = 0;
                     }
                     break;
                 }
-            case 10:
+                case 10:
                 {
                     switch (m_mvt_id)
                     {
-                    case 1:
-                        Deplacement(3613, -3331.4f, 123.92f);
-                        break;
-                    default:
-                        m_idRat = 0;
+                        case 1:
+                            Deplacement(3613, -3331.4f, 123.92f);
+                            break;
+                        default:
+                            m_idRat = 0;
                     }
                     break;
                 }
             }
         }
-        else
-            m_mvt_timer -= diff;
+        else m_mvt_timer -= diff;
     }
 };
 
-CreatureAI* GetAI_mobs_rat_pestifere(Creature* pCreature) { return new AI_mobs_rat_pestifere(pCreature); }
+CreatureAI* GetAI_mobs_rat_pestifere(Creature* pCreature)
+{
+    return new AI_mobs_rat_pestifere(pCreature);
+}
 
 /*######
 ## npc_Aurius
@@ -648,11 +665,11 @@ struct npc_auriusAI : public ScriptedAI
             m_creature->SetStandState(UNIT_STAND_STATE_DEAD);
             m_creature->AddUnitState(UNIT_STAT_FEIGN_DEATH);
             m_creature->CombatStop();
-            // m_creature->RemoveAllAuras();
-            // m_creature->DeleteThreatList();
-            // m_creature->LoadCreatureAddon();
-            // m_creature->GetMotionMaster()->MovementExpired();
-            // m_creature->GetMotionMaster()->MoveIdle();
+            //m_creature->RemoveAllAuras();
+            //m_creature->DeleteThreatList();
+            //m_creature->LoadCreatureAddon();
+            //m_creature->GetMotionMaster()->MovementExpired();
+            //m_creature->GetMotionMaster()->MoveIdle();
             m_creature->RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_IMMUNE_OR_LOST_SELECTION);
             m_creature->InterruptNonMeleeSpells(true);
             m_creature->GetHostileRefManager().deleteReferences();
@@ -685,13 +702,13 @@ struct npc_auriusAI : public ScriptedAI
     {
         switch (ui_entry)
         {
-        case NPC_AURIUS_1:
+            case NPC_AURIUS_1:
             {
                 switch (m_pInstance->GetData(TYPE_BARON))
                 {
-                case IN_PROGRESS:
-                case FAIL:
-                case DONE:
+                    case IN_PROGRESS :
+                    case FAIL :
+                    case DONE :
                     {
                         if ((m_pInstance->GetData(TYPE_EVENT_AURIUS)) != NOT_STARTED)
                             m_creature->SetVisibility(VISIBILITY_OFF);
@@ -700,11 +717,11 @@ struct npc_auriusAI : public ScriptedAI
                 }
                 break;
             }
-        case NPC_AURIUS_2:
+            case NPC_AURIUS_2:
             {
                 switch (m_pInstance->GetData(TYPE_BARON))
                 {
-                case IN_PROGRESS:
+                    case IN_PROGRESS :
                     {
                         if (((m_pInstance->GetData(TYPE_EVENT_AURIUS)) == IN_PROGRESS) && (m_creature->GetStandState() != UNIT_STAND_STATE_DEAD))
                         {
@@ -715,10 +732,11 @@ struct npc_auriusAI : public ScriptedAI
                                 else
                                     m_creature->AI()->AttackStart(pTarget);
                             }
+
                         }
                         break;
                     }
-                case FAIL:
+                    case FAIL :
                     {
                         if ((m_pInstance->GetData(TYPE_EVENT_AURIUS)) == IN_PROGRESS)
                         {
@@ -728,7 +746,7 @@ struct npc_auriusAI : public ScriptedAI
                         }
                         break;
                     }
-                case DONE:
+                    case DONE :
                     {
                         if ((m_pInstance->GetData(TYPE_EVENT_AURIUS)) == IN_PROGRESS)
                         {
@@ -746,7 +764,10 @@ struct npc_auriusAI : public ScriptedAI
     }
 };
 
-CreatureAI* GetAI_npc_aurius(Creature* pCreature) { return new npc_auriusAI(pCreature); }
+CreatureAI* GetAI_npc_aurius(Creature* pCreature)
+{
+    return new npc_auriusAI(pCreature);
+}
 
 bool QuestComplete_npc_aurius(Player* pPlayer, Creature* pCreature, Quest const* pQuest)
 {
@@ -762,7 +783,7 @@ bool QuestComplete_npc_aurius(Player* pPlayer, Creature* pCreature, Quest const*
 ## SUPPLY CRATE
 ######*/
 
-struct go_supply_crateAI : public GameObjectAI
+struct go_supply_crateAI: public GameObjectAI
 {
     go_supply_crateAI(GameObject* pGo) : GameObjectAI(pGo) {}
 
@@ -772,19 +793,19 @@ struct go_supply_crateAI : public GameObjectAI
 
         switch (urand(0, 2))
         {
-        case 0: // Plagued Rat
+            case 0: // Plagued Rat
             {
                 for (uint8 i = 0; i < maxplagued; ++i)
                     pUser->SummonCreature(10441, pUser->GetPositionX() + float(urand(0, 2)), pUser->GetPositionY() + float(urand(0, 2)), pUser->GetPositionZ(), 1, TEMPSUMMON_DEAD_DESPAWN, HOUR * IN_MILLISECONDS);
                 break;
             }
-        case 1: // Plagued Insect
+            case 1: // Plagued Insect
             {
                 for (uint8 i = 0; i < maxplagued; ++i)
                     pUser->SummonCreature(10461, pUser->GetPositionX() + float(urand(0, 2)), pUser->GetPositionY() + float(urand(0, 2)), pUser->GetPositionZ(), 1, TEMPSUMMON_DEAD_DESPAWN, HOUR * IN_MILLISECONDS);
                 break;
             }
-        case 2: // Plagued Maggot
+            case 2: // Plagued Maggot
             {
                 for (uint8 i = 0; i < maxplagued; ++i)
                     pUser->SummonCreature(10536, pUser->GetPositionX() + float(urand(0, 2)), pUser->GetPositionY() + float(urand(0, 2)), pUser->GetPositionZ(), 1, TEMPSUMMON_DEAD_DESPAWN, HOUR * IN_MILLISECONDS);
@@ -797,7 +818,36 @@ struct go_supply_crateAI : public GameObjectAI
     }
 };
 
-GameObjectAI* GetAIgo_supply_crate(GameObject* pGo) { return new go_supply_crateAI(pGo); }
+GameObjectAI* GetAIgo_supply_crate(GameObject *pGo)
+{
+    return new go_supply_crateAI(pGo);
+}
+
+struct spell_haunting_phantoms : public AuraScript
+{
+    void OnBeforeApply(Aura* aura, bool apply) override
+    {
+        if (apply && aura->GetEffIndex() == EFFECT_INDEX_0)
+            aura->SetPeriodicTimer(urand(30, 90) * IN_MILLISECONDS);
+    }
+
+    void OnPeriodicDummy(Aura* aura) override
+    {
+        Unit* target = aura->GetTarget();
+        if (!target->GetMap()->IsDungeon())
+            return;
+
+        if (urand(0, 1))
+            target->CastSpell(target, 16334, true);
+        else
+            target->CastSpell(target, 16335, true);
+    }
+};
+
+AuraScript* GetScript_HauntingPhantoms(SpellEntry const*)
+{
+    return new spell_haunting_phantoms();
+}
 
 void AddSC_stratholme()
 {
@@ -847,5 +897,10 @@ void AddSC_stratholme()
     newscript = new Script;
     newscript->Name = "go_supply_crate";
     newscript->GOGetAI = &GetAIgo_supply_crate;
+    newscript->RegisterSelf();
+
+    newscript = new Script;
+    newscript->Name = "spell_haunting_phantoms";
+    newscript->GetAuraScript = &GetScript_HauntingPhantoms;
     newscript->RegisterSelf();
 }

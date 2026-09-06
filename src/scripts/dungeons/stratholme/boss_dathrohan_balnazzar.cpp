@@ -20,21 +20,21 @@
 enum
 {
     SPELL_CRUSADERSHAMMER = 17286,
-    SPELL_CRUSADERSTRIKE = 17281,
-    SPELL_HOLYSTRIKE = 17284,
+    SPELL_CRUSADERSTRIKE  = 17281,
+    SPELL_HOLYSTRIKE      = 17284,
 
     SPELL_BALNAZZARTRANSFORM = 17288,
 
-    SPELL_SHADOWSHOCK = 17399,
-    SPELL_MINDBLAST = 17287,
+    SPELL_SHADOWSHOCK   = 17399,
+    SPELL_MINDBLAST     = 17287,
     SPELL_PSYCHICSCREAM = 13704,
-    SPELL_SLEEP = 12098,
-    SPELL_MINDCONTROL = 17405,
+    SPELL_SLEEP         = 12098,
+    SPELL_MINDCONTROL   = 17405,
 
-    NPC_DATHROHAN = 10812,
-    NPC_BALNAZZAR = 10813,
+    NPC_DATHROHAN      = 10812,
+    NPC_BALNAZZAR      = 10813,
     NPC_SKEL_BERSERKER = 10391,
-    NPC_SKEL_GUARDIAN = 10390
+    NPC_SKEL_GUARDIAN  = 10390
 };
 
 struct SummonDef
@@ -42,7 +42,8 @@ struct SummonDef
     float m_fX{}, m_fY{}, m_fZ{}, m_fOrient{};
 };
 
-SummonDef m_aSummonPoint[] = {
+SummonDef m_aSummonPoint[] =
+{
     {3444.156f, -3090.626f, 135.002f, 2.240f}, // G1 front, left
     {3449.123f, -3087.009f, 135.002f, 2.240f}, // G1 front, right
     {3446.246f, -3093.466f, 135.002f, 2.240f}, // G1 back left
@@ -81,12 +82,15 @@ SummonDef m_aSummonPoint[] = {
     {3624.995f, -3091.916f, 134.122f, 3.784f}, // G8 front, left
     {3621.302f, -3087.330f, 134.122f, 3.784f}, // G8 front, right
     {3627.975f, -3089.901f, 134.122f, 3.784f}, // G8 back left
-    {3624.338f, -3084.979f, 134.122f, 3.784f} // G8 back, right
+    {3624.338f, -3084.979f, 134.122f, 3.784f}  // G8 back, right
 };
 
 struct boss_dathrohan_balnazzarAI : public ScriptedAI
 {
-    boss_dathrohan_balnazzarAI(Creature* pCreature) : ScriptedAI(pCreature) { boss_dathrohan_balnazzarAI::Reset(); }
+    boss_dathrohan_balnazzarAI(Creature* pCreature) : ScriptedAI(pCreature)
+    {
+        boss_dathrohan_balnazzarAI::Reset();
+    }
 
     uint32 m_uiCrusadersHammer_Timer{};
     uint32 m_uiCrusaderStrike_Timer{};
@@ -133,22 +137,26 @@ struct boss_dathrohan_balnazzarAI : public ScriptedAI
     void JustDied(Unit*) override
     {
         m_creature->MonsterSay("Damn you mortals! All my plans of revenge, all my hate... all burned to ash...");
-
+        
         static uint32 uiCount = sizeof(m_aSummonPoint) / sizeof(SummonDef);
 
         for (uint8 i = 0; i < uiCount; ++i)
         {
             switch (urand(0, 1))
             {
-            case 0:
+                case 0:
                 {
-                    m_creature->SummonCreature(NPC_SKEL_BERSERKER, m_aSummonPoint[i].m_fX, m_aSummonPoint[i].m_fY, m_aSummonPoint[i].m_fZ, m_aSummonPoint[i].m_fOrient, TEMPSUMMON_DEAD_DESPAWN, HOUR * IN_MILLISECONDS);
+                    m_creature->SummonCreature(NPC_SKEL_BERSERKER,
+                        m_aSummonPoint[i].m_fX, m_aSummonPoint[i].m_fY, m_aSummonPoint[i].m_fZ, m_aSummonPoint[i].m_fOrient,
+                        TEMPSUMMON_DEAD_DESPAWN, HOUR * IN_MILLISECONDS);
 
                     break;
                 }
-            case 1:
+                case 1:
                 {
-                    m_creature->SummonCreature(NPC_SKEL_GUARDIAN, m_aSummonPoint[i].m_fX, m_aSummonPoint[i].m_fY, m_aSummonPoint[i].m_fZ, m_aSummonPoint[i].m_fOrient, TEMPSUMMON_DEAD_DESPAWN, HOUR * IN_MILLISECONDS);
+                    m_creature->SummonCreature(NPC_SKEL_GUARDIAN,
+                        m_aSummonPoint[i].m_fX, m_aSummonPoint[i].m_fY, m_aSummonPoint[i].m_fZ, m_aSummonPoint[i].m_fOrient,
+                        TEMPSUMMON_DEAD_DESPAWN, HOUR * IN_MILLISECONDS);
 
                     break;
                 }
@@ -158,18 +166,20 @@ struct boss_dathrohan_balnazzarAI : public ScriptedAI
         // Summon SC Attunement Boss
         if (!m_bScarletCitadelBossSpawned)
         {
-            Map::PlayerList const& PlayerList{m_creature->GetMap()->GetPlayers()};
+            Map::PlayerList const& PlayerList{ m_creature->GetMap()->GetPlayers() };
             if (!PlayerList.isEmpty())
             {
-                constexpr uint32 QUEST_SEEK_HELP_ELSEWHERE{20001};
-                constexpr uint32 QUEST_TO_WAKE_THE_ASHBRINGER{20002};
-                constexpr uint32 ITEM_ORB_OF_PURE_LIGHT{82000};
+                constexpr uint32 QUEST_SEEK_HELP_ELSEWHERE{ 20001 };
+                constexpr uint32 QUEST_TO_WAKE_THE_ASHBRINGER{ 20002 };
+                constexpr uint32 ITEM_ORB_OF_PURE_LIGHT{ 82000 };
 
                 for (const auto& itr : PlayerList)
                 {
-                    if (Player * pPlayer{itr.getSource()})
+                    if (Player* pPlayer{ itr.getSource() })
                     {
-                        if ((pPlayer->GetQuestStatus(QUEST_TO_WAKE_THE_ASHBRINGER) == QUEST_STATUS_INCOMPLETE) && (pPlayer->GetQuestStatus(QUEST_SEEK_HELP_ELSEWHERE) == QUEST_STATUS_COMPLETE) && pPlayer->HasItemCount(ITEM_ORB_OF_PURE_LIGHT))
+                        if ((pPlayer->GetQuestStatus(QUEST_TO_WAKE_THE_ASHBRINGER) == QUEST_STATUS_INCOMPLETE) &&
+                            (pPlayer->GetQuestStatus(QUEST_SEEK_HELP_ELSEWHERE) == QUEST_STATUS_COMPLETE) &&
+                            pPlayer->HasItemCount(ITEM_ORB_OF_PURE_LIGHT))
                         {
                             m_creature->SummonCreature(2000092, 3433.235107f, -3049.212402f, 136.506256f, 4.664114f);
                             m_bScarletCitadelBossSpawned = true;
@@ -181,7 +191,10 @@ struct boss_dathrohan_balnazzarAI : public ScriptedAI
         }
     }
 
-    void Aggro(Unit* /*pWho*/) override { m_creature->MonsterYell("Today you have unmade what took me years to create! For this you shall all die by my hand!"); }
+    void Aggro(Unit* /*pWho*/) override
+    {
+        m_creature->MonsterYell("Today you have unmade what took me years to create! For this you shall all die by my hand!");
+    }
 
     void UpdateAI(const uint32 uiDiff) override
     {
@@ -325,7 +338,7 @@ struct boss_dathrohan_balnazzarAI : public ScriptedAI
             // DeepSleep
             if (m_uiDeepSleep_Timer < uiDiff)
             {
-                if (Unit* pTarget = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 1))
+                if (Unit *pTarget = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 1))
                 {
                     if (!pTarget->HasAura(SPELL_SLEEP))
                     {
@@ -346,7 +359,7 @@ struct boss_dathrohan_balnazzarAI : public ScriptedAI
             // MindControl
             if (m_uiMindControl_Timer < uiDiff)
             {
-                if (Unit* pTarget = m_creature->SelectAttackingTarget(ATTACKING_TARGET_TOPAGGRO, 1)) // ATTACKING_TARGET_RANDOM=>ATTACKING_TARGET_TOPAGGRO ,0 => 1 Alita
+                if (Unit *pTarget = m_creature->SelectAttackingTarget(ATTACKING_TARGET_TOPAGGRO, 1)) //ATTACKING_TARGET_RANDOM=>ATTACKING_TARGET_TOPAGGRO ,0 => 1 Alita
                 {
                     if (pTarget != nullptr && !pTarget->HasAura(SPELL_SLEEP))
                     {
@@ -365,11 +378,14 @@ struct boss_dathrohan_balnazzarAI : public ScriptedAI
     }
 };
 
-CreatureAI* GetAI_boss_dathrohan_balnazzar(Creature* pCreature) { return new boss_dathrohan_balnazzarAI(pCreature); }
+CreatureAI* GetAI_boss_dathrohan_balnazzar(Creature* pCreature)
+{
+    return new boss_dathrohan_balnazzarAI(pCreature);
+}
 
 void AddSC_boss_dathrohan_balnazzar()
 {
-    Script* newscript;
+    Script *newscript;
     newscript = new Script;
     newscript->Name = "boss_dathrohan_balnazzar";
     newscript->GetAI = &GetAI_boss_dathrohan_balnazzar;

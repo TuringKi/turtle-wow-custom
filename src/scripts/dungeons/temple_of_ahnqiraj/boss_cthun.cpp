@@ -25,9 +25,9 @@
 ** Rewritten by Gemt
 */
 
-#include <algorithm>
 #include "scriptPCH.h"
 #include "temple_of_ahnqiraj.h"
+#include <algorithm>
 
 enum eCreatures
 {
@@ -42,18 +42,17 @@ enum eCreatures
     MOB_SMALL_PORTAL = 15904,
     MOB_GIANT_PORTAL = 15910,
 
-    PUNT_CREATURE = 15922, // invisible viscidus trigger, used in stomach
+    PUNT_CREATURE = 15922, //invisible viscidus trigger, used in stomach
 };
 
-enum eSpells
-{
+enum eSpells {
     // Phase 1 spells
     SPELL_FREEZE_ANIMATION = 16245, // Dummy spell to avoid the eye gazing around during dark glare
     SPELL_ROTATE_TRIGGER = 26137,
     SPELL_ROTATE_NEGATIVE_360 = 26136,
     SPELL_ROTATE_POSITIVE_360 = 26009,
     SPELL_DARK_GLARE = 26029,
-
+    
     // Shared spells
     SPELL_GREEN_EYE_BEAM = 26134,
 
@@ -66,15 +65,15 @@ enum eSpells
 
     // spellid 26100 has a more correct knockback effect for giant tentacles, but wrong dmg values
 
-    // SPELL_PUNT_UPWARD               = 16716, // Used to knock people up from stomach. Remove manually after port as it's the wrong spell and applies slowfall
+    //SPELL_PUNT_UPWARD               = 16716, // Used to knock people up from stomach. Remove manually after port as it's the wrong spell and applies slowfall
     SPELL_MASSIVE_GROUND_RUPTURE = 26100, // currently unused, ~1k physical huge knockback, not sure who should do it, if any
     SPELL_GROUND_RUPTURE_PHYSICAL = 26139, // used by small tentacles
-    SPELL_HAMSTRING = 26141, // 26211 is in DBC with more correct ID?
-    SPELL_MIND_FLAY = 26143,
-    SPELL_GROUND_RUPTURE_NATURE = 26478, // used by giant tentacles
-
-    // C'thun spells
-
+    SPELL_HAMSTRING = 26141, //26211 is in DBC with more correct ID?
+    SPELL_MIND_FLAY = 26143, 
+    SPELL_GROUND_RUPTURE_NATURE = 26478, //used by giant tentacles
+    
+    //C'thun spells
+    
     SPELL_CARAPACE_OF_CTHUN = 26156, // Makes C'thun invulnerable
     SPELL_DIGESTIVE_ACID_TELEPORT = 26220, // Not yet used, seems to port C'thun instead of player no matter what.
     SPELL_TRANSFORM = 26232, // Initiates the p1->p2 transform
@@ -82,32 +81,62 @@ enum eSpells
     SPELL_MOUTH_TENTACLE = 26332, // Spawns the tentacle that "eats" you to stomach and mounts the player on it.
 };
 
-static const std::vector<uint32> allTentacleTypes({MOB_EYE_TENTACLE, MOB_CLAW_TENTACLE, MOB_GIANT_CLAW_TENTACLE, MOB_GIANT_EYE_TENTACLE, MOB_FLESH_TENTACLE, MOB_SMALL_PORTAL, MOB_GIANT_PORTAL});
+static const std::vector<uint32> allTentacleTypes
+({ MOB_EYE_TENTACLE, MOB_CLAW_TENTACLE, MOB_GIANT_CLAW_TENTACLE, MOB_GIANT_EYE_TENTACLE, MOB_FLESH_TENTACLE, MOB_SMALL_PORTAL, MOB_GIANT_PORTAL});
 
 static constexpr uint32 CANNOT_CAST_SPELL_MASK = (UNIT_FLAG_SILENCED | UNIT_FLAG_PACIFIED | UNIT_FLAG_STUNNED | UNIT_FLAG_CONFUSED | UNIT_FLAG_FLEEING);
+    
+static constexpr float stomachPortPosition[4] =
+{
+    -8562.0f, 2037.0f, -96.0f, 5.05f
+};
 
-static constexpr float stomachPortPosition[4] = {-8562.0f, 2037.0f, -96.0f, 5.05f};
+static constexpr float fleshTentaclePositions[2][4] =
+{
+    { -8571.0f, 1990.0f, -98.0f, 1.22f },
+    { -8525.0f, 1994.0f, -98.0f, 2.12f }
+};
 
-static constexpr float fleshTentaclePositions[2][4] = {{-8571.0f, 1990.0f, -98.0f, 1.22f}, {-8525.0f, 1994.0f, -98.0f, 2.12f}};
 
-
-static constexpr float eyeTentaclePositions[8][3] = {{-8547.269531f, 1986.939941f, 100.490351f}, {-8556.047852f, 2008.144653f, 100.598129f}, {-8577.246094f, 2016.939941f, 100.320351f}, {-8598.457031f, 2008.178467f, 100.320351f}, {-8607.269531f, 1986.987671f, 100.490351f}, {-8598.525391f, 1965.769043f, 100.490351f}, {-8577.340820f, 1956.940063f, 100.536636f}, {-8556.115234f, 1965.667725f, 100.598129f}};
+static constexpr float eyeTentaclePositions[8][3] =
+{
+    { -8547.269531f, 1986.939941f, 100.490351f },
+    { -8556.047852f, 2008.144653f, 100.598129f },
+    { -8577.246094f, 2016.939941f, 100.320351f },
+    { -8598.457031f, 2008.178467f, 100.320351f },
+    { -8607.269531f, 1986.987671f, 100.490351f },
+    { -8598.525391f, 1965.769043f, 100.490351f },
+    { -8577.340820f, 1956.940063f, 100.536636f },
+    { -8556.115234f, 1965.667725f, 100.598129f }
+};
 
 using SpellTarSelectFunction = std::function<Unit*(Creature*)>;
 
 class SpellTimer
 {
 public:
-    SpellTimer(Creature* creature, uint32 spellID, uint32 initialCD, std::function<uint32()> resetCD, bool triggeredSpell, SpellTarSelectFunction targetSelectFunc, bool retryOnFail = false) : m_creature(creature), spellID(spellID), cooldown(initialCD), resetCD(resetCD), triggered(triggeredSpell), retryOnFail(retryOnFail), timeSinceLast(std::numeric_limits<uint32>::max()), targetSelectFunc(targetSelectFunc) {}
+    SpellTimer(Creature* creature, 
+        uint32 spellID, 
+        uint32 initialCD, 
+        std::function<uint32()> resetCD,
+        bool triggeredSpell, 
+        SpellTarSelectFunction targetSelectFunc, 
+        bool retryOnFail = false) :
+        m_creature(creature),
+        spellID(spellID),
+        cooldown(initialCD),
+        resetCD(resetCD),
+        triggered(triggeredSpell),
+        retryOnFail(retryOnFail),
+        timeSinceLast(std::numeric_limits<uint32>::max()),
+        targetSelectFunc(targetSelectFunc)
+    {}
 
-    virtual void Reset(int custom = -1)
-    {
-        if (custom >= 0)
-        {
+    virtual void Reset(int custom = -1) {
+        if (custom >= 0) {
             cooldown = static_cast<uint32>(custom);
         }
-        else
-        {
+        else {
             if (!resetCD)
                 cooldown = 0;
             else
@@ -116,25 +145,19 @@ public:
     }
 
     // Returns true when the cooldown reaches < diff, a cast is attempted, and cooldown is reset
-    virtual bool Update(uint32 diff)
-    {
-        if (cooldown < diff)
-        {
+    virtual bool Update(uint32 diff) {
+        if (cooldown < diff) {
             Unit* target = targetSelectFunc(m_creature);
             bool didCast = false;
-            if (target)
-            {
-                if (m_creature->AI()->DoCastSpellIfCan(target, spellID, triggered ? CF_TRIGGERED : 0) == CAST_OK)
-                {
+            if (target) {
+                if(m_creature->AI()->DoCastSpellIfCan(target, spellID, triggered ? CF_TRIGGERED : 0) == CAST_OK) {
                     didCast = true;
                 }
             }
-            if (retryOnFail && !didCast)
-            {
+            if (retryOnFail && !didCast) {
                 return false;
             }
-            else
-            {
+            else {
                 if (!resetCD)
                     cooldown = 0;
                 else
@@ -143,15 +166,16 @@ public:
                 return true;
             }
         }
-        else
-        {
+        else {
             cooldown -= diff;
             timeSinceLast += diff;
         }
         return false;
     }
 
-    uint32 TimeSinceLast() { return timeSinceLast; }
+    uint32 TimeSinceLast() {
+        return timeSinceLast;
+    }
 
 protected:
     Creature* m_creature;
@@ -162,45 +186,45 @@ protected:
     bool retryOnFail;
     uint32 timeSinceLast;
     SpellTarSelectFunction targetSelectFunc;
+
 };
 
-class OnlyOnceSpellTimer : public SpellTimer
-{
+class OnlyOnceSpellTimer : public SpellTimer {
 public:
-    OnlyOnceSpellTimer(Creature* creature, uint32 spellID, uint32 initialCD, std::function<uint32()> resetCD, bool triggeredSpell, SpellTarSelectFunction targetSelectFunc, bool retryOnFail = false) : SpellTimer(creature, spellID, initialCD, resetCD, triggeredSpell, targetSelectFunc, retryOnFail), didOnce(false) {}
+    OnlyOnceSpellTimer(Creature* creature, uint32 spellID, uint32 initialCD, std::function<uint32()> resetCD,
+        bool triggeredSpell, SpellTarSelectFunction targetSelectFunc, bool retryOnFail=false) :
+        SpellTimer(creature, spellID, initialCD, resetCD, triggeredSpell, targetSelectFunc, retryOnFail),
+        didOnce(false)
+        {}
 
-    void Reset(int custom = -1) override
-    {
+    void Reset(int custom = -1) override {
         SpellTimer::Reset(custom);
         didOnce = false;
     }
 
-    bool Update(uint32 diff) override
-    {
-        if (!didOnce)
-        {
-            if (SpellTimer::Update(diff))
-            {
+    bool Update(uint32 diff) override {
+        if (!didOnce) {
+            if (SpellTimer::Update(diff)) {
                 didOnce = true;
             }
         }
-        else
-        {
+        else {
             timeSinceLast += diff;
         }
         return didOnce;
     }
 
-    bool DidCast() { return didOnce; }
-
+    bool DidCast() {
+        return didOnce;
+    }
 private:
     bool didOnce;
+    
 };
 
 static Player* SelectRandomAliveNotStomach(instance_temple_of_ahnqiraj* instance)
 {
-    if (!instance)
-        return nullptr;
+    if (!instance) return nullptr;
     std::list<Player*> temp;
     std::list<Player*>::iterator j;
     const Map::PlayerList& PlayerList = instance->GetMap()->GetPlayers();
@@ -211,8 +235,7 @@ static Player* SelectRandomAliveNotStomach(instance_temple_of_ahnqiraj* instance
         {
             if (Player* player = itr.getSource())
             {
-                if (!player->IsDead() && !player->IsGameMaster() && player->IsInCombat() && !instance->PlayerInStomach(player))
-                {
+                if (!player->IsDead() && !player->IsGameMaster() && player->IsInCombat() && !instance->PlayerInStomach(player)) {
                     temp.push_back(player);
                 }
             }
@@ -224,8 +247,7 @@ static Player* SelectRandomAliveNotStomach(instance_temple_of_ahnqiraj* instance
 
     j = temp.begin();
 
-    if (temp.size() > 1)
-    {
+    if (temp.size() > 1) {
         advance(j, urand(0, temp.size() - 1));
     }
 
@@ -233,74 +255,78 @@ static Player* SelectRandomAliveNotStomach(instance_temple_of_ahnqiraj* instance
 }
 
 // Helper functions for SpellTimer users
-static Unit* selectSelfFunc(Creature* c) { return c; }
-static Unit* selectTargetFunc(Creature* c) { return c->GetVictim(); }
+static Unit* selectSelfFunc(Creature* c) {
+    return c;
+}
+static Unit* selectTargetFunc(Creature* c) {
+    return c->GetVictim();
+}
 
 // ================== PHASE 1 CONSTANTS ==================
-static constexpr uint32 P1_EYE_TENTACLE_RESPAWN_TIMER = 45000;
-static constexpr uint32 SPELL_ROTATE_TRIGGER_CASTTIME = 3000;
-static constexpr uint32 GREEN_BEAM_PHASE_DURATION = 45000;
-static constexpr uint32 DARK_GLARE_PHASE_DURATION = 38000;
-static constexpr uint32 DARK_GLARE_COOLING_DOWN = 1000;
-static constexpr int32 MAX_INITIAL_PULLER_HITS = 3; // How many times will c'thun target the initial
-                                                    // puller with green beam before random target.
-static constexpr int32 P1_GREEN_BEAM_COOLDOWN = 3000; // Green beam has a 2 sec cast time. If this number is > 2000,
-                                                      // the cooldown will be P1_GREEN_BEAM_COOLDOWN - 2000
-static const uint32 P1_CLAW_TENTACLE_RESPAWN_TIMER = 8000; // checked against old footage & current fight
+static constexpr uint32 P1_EYE_TENTACLE_RESPAWN_TIMER   = 45000;
+static constexpr uint32 SPELL_ROTATE_TRIGGER_CASTTIME   = 3000;
+static constexpr uint32 GREEN_BEAM_PHASE_DURATION       = 45000;
+static constexpr uint32 DARK_GLARE_PHASE_DURATION       = 38000; 
+static constexpr uint32 DARK_GLARE_COOLING_DOWN         = 1000;
+static constexpr int32  MAX_INITIAL_PULLER_HITS         = 3;     // How many times will c'thun target the initial 
+                                                                 // puller with green beam before random target.
+static constexpr int32  P1_GREEN_BEAM_COOLDOWN          = 3000;  // Green beam has a 2 sec cast time. If this number is > 2000, 
+                                                                 // the cooldown will be P1_GREEN_BEAM_COOLDOWN - 2000
+static const uint32 P1_CLAW_TENTACLE_RESPAWN_TIMER      = 8000;  // checked against old footage & current fight
 // =======================================================
 
 // ================= TRANSITION CONSTANTS ================
-static constexpr uint32 EYE_DEAD_TO_BODY_EMERGE_DELAY = 4000;
-static constexpr uint32 CTHUN_EMERGE_ANIM_DURATION = 8000;
+static constexpr uint32 EYE_DEAD_TO_BODY_EMERGE_DELAY   = 4000;
+static constexpr uint32 CTHUN_EMERGE_ANIM_DURATION      = 8000;
 // =======================================================
 
 // ================== PHASE 2 CONSTANTS ==================
-static constexpr uint32 P2_EYE_TENTACLE_RESPAWN_TIMER = 30000;
-static constexpr uint32 GIANT_CLAW_RESPAWN_TIMER = 60000;
-static constexpr uint32 STOMACH_GRAB_COOLDOWN = 10000;
-static constexpr uint32 GIANT_EYE_RESPAWN_TIMER = 60000;
-static constexpr uint32 STOMACH_GRAB_DURATION = 3250;
-static constexpr uint32 WEAKNESS_DURATION = 45000;
-static constexpr uint32 P2_FIRST_GIANT_CLAW_SPAWN = 8000;
-static constexpr uint32 P2_FIRST_EYE_TENTACLE_SPAWN = 38000;
-static constexpr uint32 P2_FIRST_GIANT_EYE_SPAWN = 38000;
-static constexpr uint32 P2_FIRST_STOMACH_GRAB = 18000 - STOMACH_GRAB_DURATION;
+static constexpr uint32 P2_EYE_TENTACLE_RESPAWN_TIMER   = 30000;
+static constexpr uint32 GIANT_CLAW_RESPAWN_TIMER        = 60000;
+static constexpr uint32 STOMACH_GRAB_COOLDOWN           = 10000;
+static constexpr uint32 GIANT_EYE_RESPAWN_TIMER         = 60000;
+static constexpr uint32 STOMACH_GRAB_DURATION           = 3250;
+static constexpr uint32 WEAKNESS_DURATION               = 45000;
+static constexpr uint32 P2_FIRST_GIANT_CLAW_SPAWN       = 8000;
+static constexpr uint32 P2_FIRST_EYE_TENTACLE_SPAWN     = 38000;
+static constexpr uint32 P2_FIRST_GIANT_EYE_SPAWN        = 38000;
+static constexpr uint32 P2_FIRST_STOMACH_GRAB           = 18000 - STOMACH_GRAB_DURATION;
 // =======================================================
 
 // ======================= MISC ==========================
-static constexpr uint32 GROUND_RUPTURE_DELAY = 0; // ms after spawn that the ground rupture will be cast
-static constexpr uint32 HAMSTRING_INITIAL_COOLDOWN = 2000; // Claw tentacle hamstring cooldown after spawn/tp
+static constexpr uint32 GROUND_RUPTURE_DELAY = 0;             // ms after spawn that the ground rupture will be cast
+static constexpr uint32 HAMSTRING_INITIAL_COOLDOWN = 2000;          // Claw tentacle hamstring cooldown after spawn/tp
 static uint32 hamstringResetCooldownFunc() { return 5000; } // Claw tentacle hamstring cooldown after use
 static uint32 trashResetCooldownFunc() { return urand(6000, 12000); }
 static uint32 groundTremorResetCooldownFunc() { return urand(6000, 12000); }
 static constexpr uint32 CLAW_TENTACLE_EVADE_PORT_COOLDOWN = 5000; // How long does a claw tentacle evade before TPing to new target
 
-static constexpr uint32 TENTACLE_BIRTH_DURATION = 3000; // Duration of birth animation and /afk before tentacles start doing stuff
+static constexpr uint32 TENTACLE_BIRTH_DURATION                = 3000; // Duration of birth animation and /afk before tentacles start doing stuff
 
-static constexpr uint32 GIANT_EYE_BEAM_COOLDOWN = 2500; // How often will giant eye tentacles cast green beam
-static constexpr uint32 GIANT_EYE_INITIAL_GREEN_BEAM_COOLDOWN = 0; // How long will giant eye wait after spawn before casting UPDATE: use TENTACLE_BIRTH_DURATION
-static constexpr uint32 MIND_FLAY_COOLDOWN_ON_RESIST = 1500; // How long do we wait if Eye Tentacle MF resists before retrying cast
-static constexpr uint32 MIND_FLAY_INITIAL_WAIT_DURATION = 0; // How long do we wait after Eye tentacle has spawned until first MF UPDATE: use TENTACLE_BIRTH_DURATION
-static constexpr uint32 TELEPORT_BURIED_DURATION = 1000; // How long will a claw tentacle say underground before re-emerging on teleport.
+static constexpr uint32 GIANT_EYE_BEAM_COOLDOWN                = 2500; // How often will giant eye tentacles cast green beam
+static constexpr uint32 GIANT_EYE_INITIAL_GREEN_BEAM_COOLDOWN  = 0;    // How long will giant eye wait after spawn before casting UPDATE: use TENTACLE_BIRTH_DURATION 
+static constexpr uint32 MIND_FLAY_COOLDOWN_ON_RESIST           = 1500; // How long do we wait if Eye Tentacle MF resists before retrying cast
+static constexpr uint32 MIND_FLAY_INITIAL_WAIT_DURATION        = 0;    // How long do we wait after Eye tentacle has spawned until first MF UPDATE: use TENTACLE_BIRTH_DURATION 
+static constexpr uint32 TELEPORT_BURIED_DURATION               = 1000; // How long will a claw tentacle say underground before re-emerging on teleport.
 // =======================================================
 
 // ================== THE PULL ===========================
 /* if defined, the encounter does not pull all players in combat on aggro, but
- *  rather aggros the initial puller and then places everyone else in combat
- *  12 seconds later. Sources: https://pastebin.com/BiC33bU5
- *
- *  If not defined, the current logic is to target the intial puller 3 times with the
- *  beam before going on a random target. More research should be done to better understand
- *  how the pull worked *after* the later nerfs, and also when it was implemented.
- *
- *  The one thing that is certain is that in all kills with videos around the time it first became
- *  "killable" (april 24th 2006), the 12seconds delayed combat was how it worked.
- *  In later kills, towards the end of 2006, people were put in combat as soon as the first beam *hit*
- *  the initial puller, but how many times it would hit the initial puller is currently unknown.
- *
- *  A suggested way to make the pull slightly more challenging is tuning DELAYED_COMBAT_DURATION to
- *  somewhere between 6 and 9 seconds.
- */
+*  rather aggros the initial puller and then places everyone else in combat 
+*  12 seconds later. Sources: https://pastebin.com/BiC33bU5
+*  
+*  If not defined, the current logic is to target the intial puller 3 times with the 
+*  beam before going on a random target. More research should be done to better understand
+*  how the pull worked *after* the later nerfs, and also when it was implemented.
+*  
+*  The one thing that is certain is that in all kills with videos around the time it first became
+*  "killable" (april 24th 2006), the 12seconds delayed combat was how it worked.
+*  In later kills, towards the end of 2006, people were put in combat as soon as the first beam *hit*
+*  the initial puller, but how many times it would hit the initial puller is currently unknown.
+*
+*  A suggested way to make the pull slightly more challenging is tuning DELAYED_COMBAT_DURATION to 
+*  somewhere between 6 and 9 seconds.
+*/
 // #define USE_POSTFIX_PRENERF_PULL_LOGIC
 #ifdef USE_POSTFIX_PRENERF_PULL_LOGIC
 static constexpr uint32 DELAYED_COMBAT_DURATION = 9000;
@@ -314,7 +340,8 @@ struct cthunTentacle : public ScriptedAI
     instance_temple_of_ahnqiraj* m_pInstance;
     float defaultOrientation;
 
-    cthunTentacle(Creature* pCreature) : ScriptedAI(pCreature)
+    cthunTentacle(Creature* pCreature) :
+        ScriptedAI(pCreature)
     {
         m_pInstance = dynamic_cast<instance_temple_of_ahnqiraj*>(pCreature->GetInstanceData());
         if (!m_pInstance)
@@ -340,22 +367,18 @@ struct cthunTentacle : public ScriptedAI
 
     bool UpdateCthunTentacle(uint32 diff)
     {
-        if (!m_pInstance)
-            return false;
+        if (!m_pInstance) return false;
 
-        if (!m_pInstance->GetPlayerInMap(true, false))
-        {
-            if (TemporarySummon* tmpS = dynamic_cast<TemporarySummon*>(m_creature))
-            {
+        if (!m_pInstance->GetPlayerInMap(true, false)) {
+            if (TemporarySummon* tmpS = dynamic_cast<TemporarySummon*>(m_creature)) {
                 tmpS->UnSummon();
             }
-            else
-            {
+            else {
                 sLog.outError("CThunTentacle could not cast creature to TemporarySummon*");
             }
-            // EnterEvadeMode();
-            // m_creature->OnLeaveCombat();
-            // Reset();
+            //EnterEvadeMode();
+            //m_creature->OnLeaveCombat();
+            //Reset();
             return false;
         }
 
@@ -366,18 +389,16 @@ struct cthunTentacle : public ScriptedAI
         m_creature->SetRooted(true);
         return true;
     }
-
+    
     bool UpdateMelee(bool resetOrientation)
     {
-        if (!SelectHostileTargetMelee())
-        {
+        if (!SelectHostileTargetMelee()) {
             DoStopAttack();
-            if (resetOrientation)
+            if(resetOrientation)
                 m_creature->SetOrientation(defaultOrientation);
             return false;
         }
-        else
-        {
+        else {
             DoMeleeAttackIfReady();
             return true;
         }
@@ -398,8 +419,7 @@ struct cthunTentacle : public ScriptedAI
         // but it also means we do have a valid target already, even if it's not melee.
         // DoMeleeAttack, which is typically called on true return, will check
         // m_creature->IsNonMeleeSpellCasted(false) internally anyway.
-        if (m_creature->IsNonMeleeSpellCasted(false))
-        {
+        if (m_creature->IsNonMeleeSpellCasted(false)) {
             return true;
         }
 
@@ -445,12 +465,13 @@ struct cthunTentacle : public ScriptedAI
                 target = m_creature->GetThreatManager().getHostileTarget();
             }
         }
-
+        
 
         if (target)
         {
             // Nostalrius : Correction bug sheep/fear
-            if (!m_creature->HasUnitState(UNIT_STAT_STUNNED | UNIT_STAT_PENDING_STUNNED | UNIT_STAT_FEIGN_DEATH | UNIT_STAT_CONFUSED | UNIT_STAT_FLEEING) && (!m_creature->HasAuraType(SPELL_AURA_MOD_FEAR) || m_creature->HasAuraType(SPELL_AURA_PREVENTS_FLEEING)) && !m_creature->HasAuraType(SPELL_AURA_MOD_CONFUSE))
+            if (!m_creature->HasUnitState(UNIT_STAT_STUNNED | UNIT_STAT_PENDING_STUNNED | UNIT_STAT_FEIGN_DEATH | UNIT_STAT_CONFUSED | UNIT_STAT_FLEEING) 
+                && (!m_creature->HasAuraType(SPELL_AURA_MOD_FEAR) || m_creature->HasAuraType(SPELL_AURA_PREVENTS_FLEEING)) && !m_creature->HasAuraType(SPELL_AURA_MOD_CONFUSE))
             {
                 m_creature->SetInFront(target);
                 AttackStart(target);
@@ -465,37 +486,32 @@ struct cthunPortalTentacle : public cthunTentacle
 {
 private:
     uint32 birthTimer;
-
 public:
     ObjectGuid portalGuid;
     OnlyOnceSpellTimer groundRuptureTimer;
 
-    cthunPortalTentacle(Creature* pCreature, uint32 groundRuptSpellId, uint32 portalId) : cthunTentacle(pCreature), groundRuptureTimer(pCreature, groundRuptSpellId, GROUND_RUPTURE_DELAY, 0, true, selectSelfFunc)
+    cthunPortalTentacle(Creature* pCreature, uint32 groundRuptSpellId, uint32 portalId) :
+        cthunTentacle(pCreature),
+        groundRuptureTimer(pCreature, groundRuptSpellId, GROUND_RUPTURE_DELAY, 0, true, selectSelfFunc)
     {
-        Creature* pPortal = DoSpawnCreature(portalId, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 500); // TEMPSUMMON_DEAD_DESPAWN, 120000
-        if (pPortal)
-        {
+        Creature* pPortal = DoSpawnCreature(portalId, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 500); //TEMPSUMMON_DEAD_DESPAWN, 120000
+        if (pPortal) {
             pPortal->SetInCombatWithZone();
             portalGuid = pPortal->GetGUID();
             FixPortalPosition();
         }
-        else
-        {
+        else {
             sLog.outError("cthunPortalTentacle failed to spawn portal with entry %d", portalId);
         }
     }
 
-    void DespawnPortal()
-    {
-        if (Creature* pCreature = m_creature->GetMap()->GetCreature(portalGuid))
-        {
-            if (TemporarySummon* ts = dynamic_cast<TemporarySummon*>(pCreature))
-            {
+    void DespawnPortal() {
+        if (Creature* pCreature = m_creature->GetMap()->GetCreature(portalGuid)) {
+            if (TemporarySummon* ts = dynamic_cast<TemporarySummon*>(pCreature)) {
                 ts->UnSummon();
                 portalGuid = 0;
             }
-            else
-            {
+            else {
                 sLog.outError("Unable to despawn cthunPortalTentacle portal, could not cast to temporarySummon*");
             }
         }
@@ -507,27 +523,26 @@ public:
         groundRuptureTimer.Reset();
         birthTimer = TENTACLE_BIRTH_DURATION;
         m_creature->AttackStop(true);
-        // DoStopAttack(true);
+        //DoStopAttack(true);
     }
 
-    void JustDied(Unit*) override { DespawnPortal(); }
+    void JustDied(Unit*) override
+    {
+        DespawnPortal();
+    }
 
     bool UpdatePortalTentacle(uint32 diff)
     {
-        if (!cthunTentacle::UpdateCthunTentacle(diff))
-        {
+        if (!cthunTentacle::UpdateCthunTentacle(diff)) {
             DespawnPortal();
-            // m_creature->ForcedDespawn(500);
+            //m_creature->ForcedDespawn(500);
             return false;
         }
 
-        if (groundRuptureTimer.Update(diff))
-        {
-            if (birthTimer > diff)
-            {
+        if (groundRuptureTimer.Update(diff)) {
+            if (birthTimer > diff) {
                 // Only want to cast it once, and it cant be done in ctor because groundRupture interrupts the animation.
-                if (birthTimer == TENTACLE_BIRTH_DURATION)
-                {
+                if (birthTimer == TENTACLE_BIRTH_DURATION) {
                     DoCastSpellIfCan(m_creature, SPELL_TENTACLE_BIRTH);
                 }
                 birthTimer -= diff;
@@ -536,8 +551,7 @@ public:
         return birthTimer <= diff;
     }
 
-    void FixPortalPosition()
-    {
+    void FixPortalPosition() {
         Unit* pPortal = nullptr;
         if (portalGuid && m_pInstance)
             pPortal = m_pInstance->GetCreature(portalGuid);
@@ -551,19 +565,14 @@ public:
 
         uint32 portalEntry = pPortal->GetEntry();
         float radius;
-        switch (portalEntry)
-        {
-        case MOB_SMALL_PORTAL:
-            radius = 3.0f;
-            break;
-        case MOB_GIANT_PORTAL:
-            radius = 8.0f;
-            break;
+        switch (portalEntry) {
+        case MOB_SMALL_PORTAL: radius = 3.0f; break;
+        case MOB_GIANT_PORTAL: radius = 8.0f; break;
         default:
             radius = 3.0f;
             sLog.outError("C'thun FixPortalPosition unknown portalID %d", portalEntry);
         }
-        // Searching for best z-coordinate to place the portal
+        //Searching for best z-coordinate to place the portal
         float centerX = m_creature->GetPositionX();
         float centerY = m_creature->GetPositionY();
         float useZ = m_creature->GetPositionZ();
@@ -578,8 +587,7 @@ public:
             float z = m_creature->GetMap()->GetHeight(x, y, useZ);
             float deviation = abs(useZ - z);
             // Any deviation >= 0.5 we consider outliers as we dont want to handle sloped terrain
-            if (deviation < 0.5f)
-            {
+            if (deviation < 0.5f) {
                 if (z > highZ)
                     highZ = z;
                 avg_height += z;
@@ -588,12 +596,12 @@ public:
         }
         avg_height /= inliers;
         // Only move portal up if the average height is higher than the creatures height
-        if (avg_height > useZ)
-        {
+        if (avg_height > useZ) {
             useZ = highZ;
         }
         pPortal->NearLandTo(m_creature->GetPositionX(), m_creature->GetPositionY(), useZ, 0);
     }
+
 };
 
 struct clawTentacle : public cthunPortalTentacle
@@ -603,15 +611,19 @@ struct clawTentacle : public cthunPortalTentacle
     uint32 teleportBuriedTimer;
     uint32 feignDeathTimer;
 
-    enum eClawState
-    {
+    enum eClawState {
         NORMAL,
         FEIGN_IN_PROCES,
         BURRIED,
     };
     eClawState clawState;
 
-    clawTentacle(Creature* pCreature, uint32 groundRuptSpellId, uint32 portalId) : cthunPortalTentacle(pCreature, groundRuptSpellId, portalId), EvadeTimer(0), hamstringTimer(pCreature, SPELL_HAMSTRING, HAMSTRING_INITIAL_COOLDOWN, hamstringResetCooldownFunc, false, selectTargetFunc, true) {}
+    clawTentacle(Creature* pCreature, uint32 groundRuptSpellId, uint32 portalId) :
+        cthunPortalTentacle(pCreature, groundRuptSpellId, portalId),
+        EvadeTimer(0),
+        hamstringTimer(pCreature, SPELL_HAMSTRING, HAMSTRING_INITIAL_COOLDOWN, hamstringResetCooldownFunc, false, selectTargetFunc, true)
+    {
+    }
 
     void Reset() override
     {
@@ -633,8 +645,7 @@ struct clawTentacle : public cthunPortalTentacle
         if (!cthunPortalTentacle::UpdatePortalTentacle(diff))
             return false;
 
-        switch (clawState)
-        {
+        switch (clawState) {
         case NORMAL:
             updateNormal(diff);
             return true;
@@ -654,24 +665,19 @@ struct clawTentacle : public cthunPortalTentacle
     }
 
 private:
-    void updateNormal(uint32 diff)
-    {
+    void updateNormal(uint32 diff) {
 
-        if (UpdateMelee(false))
-        {
+        if (UpdateMelee(false)) {
             EvadeTimer = CLAW_TENTACLE_EVADE_PORT_COOLDOWN;
             hamstringTimer.Update(diff);
         }
-        else
-        {
-            if (EvadeTimer < diff)
-            {
+        else {
+            if (EvadeTimer < diff) {
                 clawState = eClawState::FEIGN_IN_PROCES;
                 feignDeathTimer = 1000;
                 m_creature->CastSpell(m_creature, SPELL_SUBMERGE_VISUAL, false);
             }
-            else
-            {
+            else {
                 EvadeTimer -= diff;
             }
         }
@@ -694,29 +700,23 @@ private:
         */
     }
 
-    void updateFeign(uint32 diff)
-    {
-        if (feignDeathTimer < diff)
-        {
+    void updateFeign(uint32 diff) {
+        if (feignDeathTimer < diff) {
             clawState = eClawState::BURRIED;
             teleportBuriedTimer = TELEPORT_BURIED_DURATION;
             setVisibility(false);
         }
-        else
-        {
+        else {
             feignDeathTimer -= diff;
         }
     }
 
-    void updateBurried(uint32 diff)
-    {
-        if (teleportBuriedTimer < diff)
-        {
+    void updateBurried(uint32 diff) {
+        if (teleportBuriedTimer < diff) {
             // Done being burried, time to teleport on a new target.
             // If we're successfull in selecting a new target, reset will reset
             // all necessary cooldowns, including setting the correct clawState (NORMAL)
-            if (TeleportOnNewRandomTarget())
-            {
+            if (TeleportOnNewRandomTarget()) {
                 DoResetThreat();
                 m_creature->RemoveAurasDueToSpell(SPELL_SUBMERGE_VISUAL);
                 setVisibility(true);
@@ -724,8 +724,7 @@ private:
                 Reset();
             }
         }
-        else
-        {
+        else {
             teleportBuriedTimer -= diff;
         }
     }
@@ -740,8 +739,7 @@ private:
             m_creature->GetRandomPoint(target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), 0.5f, x, y, z);
             m_creature->NearTeleportTo(x, y, z, 0);
 
-            if (Creature* pCreature = m_creature->GetMap()->GetCreature(portalGuid))
-            {
+            if (Creature* pCreature = m_creature->GetMap()->GetCreature(portalGuid)) {
                 FixPortalPosition();
             }
             return true;
@@ -749,30 +747,31 @@ private:
         return false;
     }
 
-    void setVisibility(bool visiblityOn)
-    {
+    void setVisibility(bool visiblityOn) {
         Creature* pCreature = m_creature->GetMap()->GetCreature(portalGuid);
-        if (visiblityOn)
-        {
+        if (visiblityOn) {
             m_creature->SetVisibility(VISIBILITY_ON);
             if (pCreature)
                 pCreature->SetVisibility(VISIBILITY_ON);
         }
-        else
-        {
+        else {
             m_creature->SetVisibility(VISIBILITY_OFF);
             if (pCreature)
                 pCreature->SetVisibility(VISIBILITY_OFF);
         }
     }
 };
-
+    
 struct eye_tentacleAI : public cthunPortalTentacle
 {
     uint32 nextMFAttempt;
     ObjectGuid currentMFTarget;
 
-    eye_tentacleAI(Creature* pCreature) : cthunPortalTentacle(pCreature, SPELL_GROUND_RUPTURE_PHYSICAL, MOB_SMALL_PORTAL) { eye_tentacleAI::Reset(); }
+    eye_tentacleAI(Creature* pCreature) :
+        cthunPortalTentacle(pCreature, SPELL_GROUND_RUPTURE_PHYSICAL, MOB_SMALL_PORTAL)
+    {
+        eye_tentacleAI::Reset();
+    }
 
     void Reset() override
     {
@@ -784,8 +783,7 @@ struct eye_tentacleAI : public cthunPortalTentacle
     void AttackStart(Unit* who) override
     {
         // Prevents AttacStart from stopping the cast animation
-        if (!m_creature->IsNonMeleeSpellCasted(false))
-        {
+        if (!m_creature->IsNonMeleeSpellCasted(false)) {
             ScriptedAI::AttackStart(who);
         }
     }
@@ -795,12 +793,10 @@ struct eye_tentacleAI : public cthunPortalTentacle
         if (!cthunPortalTentacle::UpdatePortalTentacle(diff))
             return;
 
-        if (nextMFAttempt > diff)
-        {
+        if (nextMFAttempt > diff) {
             nextMFAttempt -= diff;
         }
-        else
-        {
+        else {
             nextMFAttempt = 0;
         }
 
@@ -811,15 +807,12 @@ struct eye_tentacleAI : public cthunPortalTentacle
             bool didCast = false;
             // Rough check against common auras that prevent the creature from casting,
             // before getting a random target etc
-            if (!m_creature->HasFlag(UNIT_FIELD_FLAGS, CANNOT_CAST_SPELL_MASK))
-            {
+            if (!m_creature->HasFlag(UNIT_FIELD_FLAGS, CANNOT_CAST_SPELL_MASK)) {
                 // nextMFAttempt acts as a fake gcd in case of resist
-                if (nextMFAttempt == 0)
-                {
+                if (nextMFAttempt == 0) {
                     if (Player* target = SelectRandomAliveNotStomach(m_pInstance))
                     {
-                        if (DoCastSpellIfCan(target, SPELL_MIND_FLAY) == CAST_OK)
-                        {
+                        if (DoCastSpellIfCan(target, SPELL_MIND_FLAY) == CAST_OK) {
                             currentMFTarget = target->GetGUID();
                             m_creature->SetFacingToObject(target);
                             m_creature->SetTargetGuid(currentMFTarget);
@@ -827,20 +820,18 @@ struct eye_tentacleAI : public cthunPortalTentacle
                             nextMFAttempt = MIND_FLAY_COOLDOWN_ON_RESIST;
                         }
                     }
+
                 }
             }
-            if (!didCast)
-            {
+            if (!didCast) {
                 UpdateMelee(false);
             }
+
         }
-        else
-        {
+        else {
             // Stop casting on current target if it's been ported to stomach
-            if (Unit* currentCastTarget = m_creature->GetMap()->GetPlayer(currentMFTarget))
-            {
-                if (m_pInstance->PlayerInStomach(currentCastTarget))
-                {
+            if (Unit* currentCastTarget = m_creature->GetMap()->GetPlayer(currentMFTarget)) {
+                if (m_pInstance->PlayerInStomach(currentCastTarget)) {
                     m_creature->InterruptSpell(CurrentSpellTypes::CURRENT_CHANNELED_SPELL);
                 }
             }
@@ -850,11 +841,21 @@ struct eye_tentacleAI : public cthunPortalTentacle
 
 struct claw_tentacleAI : public clawTentacle
 {
-    claw_tentacleAI(Creature* pCreature) : clawTentacle(pCreature, SPELL_GROUND_RUPTURE_PHYSICAL, MOB_SMALL_PORTAL) { claw_tentacleAI::Reset(); }
+    claw_tentacleAI(Creature* pCreature) :
+        clawTentacle(pCreature, SPELL_GROUND_RUPTURE_PHYSICAL, MOB_SMALL_PORTAL)
+    {
+        claw_tentacleAI::Reset();
+    }
 
-    void Reset() override { clawTentacle::Reset(); }
+    void Reset() override
+    {
+        clawTentacle::Reset();
+    }
 
-    void UpdateAI(const uint32 diff) override { clawTentacle::UpdateClawTentacle(diff); }
+    void UpdateAI(const uint32 diff) override
+    {
+        clawTentacle::UpdateClawTentacle(diff);
+    }
 };
 
 struct giant_claw_tentacleAI : public clawTentacle
@@ -862,7 +863,13 @@ struct giant_claw_tentacleAI : public clawTentacle
     SpellTimer groundTremorTimer;
     SpellTimer trashTimer;
 
-    giant_claw_tentacleAI(Creature* pCreature) : clawTentacle(pCreature, SPELL_GROUND_RUPTURE_NATURE, MOB_GIANT_PORTAL), groundTremorTimer(pCreature, SPELL_GROUND_TREMOR, groundTremorResetCooldownFunc(), groundTremorResetCooldownFunc, true, selectTargetFunc, true), trashTimer(pCreature, eSpells::SPELL_THRASH, trashResetCooldownFunc(), trashResetCooldownFunc, false, selectTargetFunc, true) { giant_claw_tentacleAI::Reset(); }
+    giant_claw_tentacleAI(Creature* pCreature) :
+        clawTentacle(pCreature, SPELL_GROUND_RUPTURE_NATURE, MOB_GIANT_PORTAL),
+        groundTremorTimer(pCreature, SPELL_GROUND_TREMOR, groundTremorResetCooldownFunc(), groundTremorResetCooldownFunc, true, selectTargetFunc, true),
+        trashTimer(pCreature, eSpells::SPELL_THRASH, trashResetCooldownFunc(), trashResetCooldownFunc, false, selectTargetFunc, true)
+    {
+        giant_claw_tentacleAI::Reset();
+    }
 
     void Reset() override
     {
@@ -886,7 +893,11 @@ struct giant_eye_tentacleAI : public cthunPortalTentacle
     uint32 BeamTimer;
     ObjectGuid beamTargetGuid;
     bool isCasting;
-    giant_eye_tentacleAI(Creature* pCreature) : cthunPortalTentacle(pCreature, SPELL_GROUND_RUPTURE_NATURE, MOB_GIANT_PORTAL) { giant_eye_tentacleAI::Reset(); }
+    giant_eye_tentacleAI(Creature* pCreature) :
+        cthunPortalTentacle(pCreature, SPELL_GROUND_RUPTURE_NATURE, MOB_GIANT_PORTAL)
+    {
+        giant_eye_tentacleAI::Reset();
+    }
     void Reset() override
     {
         cthunPortalTentacle::Reset();
@@ -902,24 +913,19 @@ struct giant_eye_tentacleAI : public cthunPortalTentacle
                 return;
         }
 
-        if (!m_creature->GetCurrentSpell(CurrentSpellTypes::CURRENT_GENERIC_SPELL))
-        {
+        if (!m_creature->GetCurrentSpell(CurrentSpellTypes::CURRENT_GENERIC_SPELL)) {
             beamTargetGuid = 0;
             isCasting = false;
         }
 
-        if (BeamTimer < diff)
-        {
+        if (BeamTimer < diff) {
             // Rough check against common auras that prevent the creature from casting,
             // before getting a random target etc
-            if (!m_creature->HasFlag(UNIT_FIELD_FLAGS, CANNOT_CAST_SPELL_MASK))
-            {
-                if (Player* target = SelectRandomAliveNotStomach(m_pInstance))
-                {
+            if (!m_creature->HasFlag(UNIT_FIELD_FLAGS, CANNOT_CAST_SPELL_MASK)) {
+                if (Player* target = SelectRandomAliveNotStomach(m_pInstance)) {
                     // need to check if we can cast before doing so, because if we update target
                     // after initiating the cast, the cast animation dissapear for some reason
-                    if (CanCastSpell(target, sSpellMgr.GetSpellEntry(SPELL_GREEN_EYE_BEAM), false) == CanCastResult::CAST_OK)
-                    {
+                    if (CanCastSpell(target, sSpellMgr.GetSpellEntry(SPELL_GREEN_EYE_BEAM), false) == CanCastResult::CAST_OK) {
                         beamTargetGuid = target->GetObjectGuid();
                         m_creature->SetTargetGuid(target->GetObjectGuid());
                         m_creature->SetFacingToObject(target);
@@ -930,17 +936,13 @@ struct giant_eye_tentacleAI : public cthunPortalTentacle
                 }
             }
         }
-        else
-        {
+        else {
             BeamTimer -= diff;
-            if (m_creature->GetCurrentSpell(CurrentSpellTypes::CURRENT_GENERIC_SPELL))
-            {
+            if (m_creature->GetCurrentSpell(CurrentSpellTypes::CURRENT_GENERIC_SPELL)) {
                 // Stop casting on current target if it's been ported to stomach
                 // and immediately start casting on a new target
-                if (Unit* currentCastTarget = m_creature->GetMap()->GetPlayer(beamTargetGuid))
-                {
-                    if (m_pInstance->PlayerInStomach(currentCastTarget))
-                    {
+                if (Unit* currentCastTarget = m_creature->GetMap()->GetPlayer(beamTargetGuid)) {
+                    if (m_pInstance->PlayerInStomach(currentCastTarget)) {
                         m_creature->InterruptNonMeleeSpells(false);
                         BeamTimer = 0;
                     }
@@ -958,16 +960,25 @@ struct flesh_tentacleAI : public cthunTentacle
 {
     ScriptedInstance* m_pInstance;
 
-    flesh_tentacleAI(Creature* pCreature) : cthunTentacle(pCreature) { flesh_tentacleAI::Reset(); }
+    flesh_tentacleAI(Creature* pCreature) : cthunTentacle(pCreature)
+    {
+        flesh_tentacleAI::Reset();
+    }
+    
+    void Reset()  override
+    {
+        cthunTentacle::Reset();
+    }
 
-    void Reset() override { cthunTentacle::Reset(); }
-
-    void UpdateAI(const uint32 diff) override { UpdateMelee(true); }
+    void UpdateAI(const uint32 diff)  override
+    {
+        UpdateMelee(true);
+    }
 };
 
 struct eye_of_cthunAI : public ScriptedAI
 {
-    // The eye phases can be a bit difficult to decode due to cast time and "cooling down" duration
+    // The eye phases can be a bit difficult to decode due to cast time and "cooling down" duration 
     // of red beam.
     // There should be 45 seconds of "green beam phase"
     // cast time of dark glare is 3 seconds
@@ -986,12 +997,11 @@ struct eye_of_cthunAI : public ScriptedAI
 
     uint32 eyeBeamCooldown;
     uint32 eyeBeamCastCount;
-    // uint32 eyeBeamPhaseDuration;
-    // uint32 darkGlarePhaseDuration;
-
+    //uint32 eyeBeamPhaseDuration;
+    //uint32 darkGlarePhaseDuration;
+    
     ObjectGuid initialPullerGuid;
-    enum CthunEyePhase
-    {
+    enum CthunEyePhase {
         GREEN_BEAM,
         DARK_GLARE_CAST,
         DARK_GLARE,
@@ -1004,7 +1014,8 @@ struct eye_of_cthunAI : public ScriptedAI
     uint32 darkGlareTimer;
     uint32 darkGlareCoolingTimer;
 
-    eye_of_cthunAI(Creature* pCreature) : ScriptedAI(pCreature)
+    eye_of_cthunAI(Creature* pCreature) :
+        ScriptedAI(pCreature)
     {
         SetCombatMovement(false);
 
@@ -1015,14 +1026,13 @@ struct eye_of_cthunAI : public ScriptedAI
         Reset();
     }
 
-    void Pull(Unit* puller)
-    {
+    void Pull(Unit* puller) {
 
         m_creature->SetFactionTemporary(14);
 
         initialPullerGuid = puller->GetObjectGuid();
         CastGreenBeam(puller);
-
+        
         IsAlreadyPulled = true;
     }
 
@@ -1030,10 +1040,8 @@ struct eye_of_cthunAI : public ScriptedAI
     {
         // Just in case someone manages to get through the AggroRadius logic in C'thuns AI
         // we make sure the proper pull-sequence is initiated by calling C'thuns attackstart.
-        if (!m_creature->IsInCombat())
-        {
-            if (Creature* pCthun = m_pInstance->GetSingleCreatureFromStorage(NPC_CTHUN))
-            {
+        if (!m_creature->IsInCombat()) {
+            if (Creature* pCthun = m_pInstance->GetSingleCreatureFromStorage(NPC_CTHUN)) {
                 pCthun->AI()->AttackStart(puller);
             }
         }
@@ -1049,15 +1057,13 @@ struct eye_of_cthunAI : public ScriptedAI
 
         IsAlreadyPulled = false;
 
-        if (m_creature)
-        {
+        if (m_creature) {
             m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_SPAWNING);
             // need to reset the orientation in case of wipe during glare phase
             m_creature->SetOrientation(3.44f);
             RemoveGlarePhaseSpells();
         }
-        else
-        {
+        else {
             sLog.outError("eye_of_cthunAI: Reset called, but m_creature does not exist.");
         }
     }
@@ -1067,65 +1073,54 @@ struct eye_of_cthunAI : public ScriptedAI
         if (!m_pInstance)
             return;
 
-        if (!IsAlreadyPulled)
-        {
+        if (!IsAlreadyPulled) {
             m_creature->SetTargetGuid(0);
             return;
         }
 
         // No combat reset managment. C'thuns body will reset this creature when needed.
-
+        
         // Yes, could easily make all these different timers into just two, but
         // this approach is much easier to understand, debug and tune.
-        switch (currentPhase)
-        {
+        switch (currentPhase) {
         case GREEN_BEAM:
-            if (greenBeamPhaseTimer < diff)
-            {
-                if (EnterDarkGlarePhase())
-                {
+            if (greenBeamPhaseTimer < diff) {
+                if (EnterDarkGlarePhase()) {
                     darkGlareCastTimer = SPELL_ROTATE_TRIGGER_CASTTIME;
                     currentPhase = DARK_GLARE_CAST;
                 }
             }
-            else
-            {
+            else {
                 greenBeamPhaseTimer -= diff;
                 UpdateGreenBeamPhase(diff);
             }
             break;
         case DARK_GLARE_CAST:
-            if (darkGlareCastTimer < diff)
-            {
+            if (darkGlareCastTimer < diff) {
                 currentPhase = DARK_GLARE;
                 darkGlareTimer = DARK_GLARE_PHASE_DURATION;
             }
-            else
-            {
+            else {
                 darkGlareCastTimer -= diff;
             }
             break;
         case DARK_GLARE:
-            if (darkGlareTimer < diff)
-            {
+            if (darkGlareTimer < diff) {
                 RemoveGlarePhaseSpells();
                 currentPhase = DARK_GLARE_COOLING;
                 darkGlareCoolingTimer = DARK_GLARE_COOLING_DOWN;
             }
-            else
-            {
+            else {
                 darkGlareTimer -= diff;
             }
             break;
         case DARK_GLARE_COOLING:
-            if (darkGlareCoolingTimer < diff)
-            {
+            if (darkGlareCoolingTimer < diff) {
                 currentPhase = GREEN_BEAM;
                 greenBeamPhaseTimer = GREEN_BEAM_PHASE_DURATION;
                 eyeBeamCooldown = 0;
             }
-            else
-            {
+            else {
                 darkGlareCoolingTimer -= diff;
             }
             break;
@@ -1133,36 +1128,31 @@ struct eye_of_cthunAI : public ScriptedAI
             sLog.outError("CThun eye update called with incorrect state: %d", currentPhase);
         }
     }
-
+    
     void UpdateGreenBeamPhase(uint32 diff)
     {
         if (m_creature->HasAura(SPELL_FREEZE_ANIMATION))
             m_creature->RemoveAurasDueToSpell(SPELL_FREEZE_ANIMATION);
 
-        if (eyeBeamCooldown < diff)
-        {
+        if (eyeBeamCooldown < diff) {
             Unit* target = nullptr;
 
 #ifdef USE_POSTFIX_PRENERF_PULL_LOGIC
             target = SelectRandomAliveNotStomach(m_pInstance);
 #else
             // We force the initial puller as the target for MAX_INITIAL_PULLER_HITS
-            if (eyeBeamCastCount < MAX_INITIAL_PULLER_HITS)
-            {
+            if (eyeBeamCastCount < MAX_INITIAL_PULLER_HITS) {
                 target = m_pInstance->GetMap()->GetPlayer(initialPullerGuid);
             }
-            else
-            {
+            else {
                 target = SelectRandomAliveNotStomach(m_pInstance);
             }
 #endif
-            if (target)
-            {
+            if (target) {
                 CastGreenBeam(target);
             }
         }
-        else
-        {
+        else {
             eyeBeamCooldown -= diff;
         }
     }
@@ -1175,16 +1165,13 @@ struct eye_of_cthunAI : public ScriptedAI
     bool EnterDarkGlarePhase()
     {
         m_creature->InterruptNonMeleeSpells(false);
-        // Select random target for dark beam to start on and start the trigger
-        if (Unit* target = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 0))
-        {
+        //Select random target for dark beam to start on and start the trigger
+        if (Unit* target = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 0)) {
             // Remove the target focus but allow the boss to face the current victim
             DoStopAttack();
             m_creature->SetFacingToObject(target);
-            if (DoCastSpellIfCan(m_creature, SPELL_ROTATE_TRIGGER) == CAST_OK)
-            {
-                if (!m_creature->HasAura(SPELL_FREEZE_ANIMATION))
-                {
+            if (DoCastSpellIfCan(m_creature, SPELL_ROTATE_TRIGGER) == CAST_OK) {
+                if (!m_creature->HasAura(SPELL_FREEZE_ANIMATION)) {
                     m_creature->CastSpell(m_creature, SPELL_FREEZE_ANIMATION, true);
                 }
                 m_creature->SetTargetGuid(ObjectGuid());
@@ -1193,23 +1180,19 @@ struct eye_of_cthunAI : public ScriptedAI
         }
         return false;
     }
-
-    void RemoveGlarePhaseSpells()
-    {
-        if (m_creature->HasAura(SPELL_ROTATE_NEGATIVE_360))
-        {
+    
+    void RemoveGlarePhaseSpells() {
+        if (m_creature->HasAura(SPELL_ROTATE_NEGATIVE_360)) {
             m_creature->RemoveAurasDueToSpell(SPELL_ROTATE_NEGATIVE_360);
         }
-        else if (m_creature->HasAura(SPELL_ROTATE_POSITIVE_360))
-        {
+        else if (m_creature->HasAura(SPELL_ROTATE_POSITIVE_360)) {
             m_creature->RemoveAurasDueToSpell(SPELL_ROTATE_POSITIVE_360);
         }
     }
 
     bool CastGreenBeam(Unit* target)
     {
-        if (DoCastSpellIfCan(target, SPELL_GREEN_EYE_BEAM) == CAST_OK)
-        {
+        if (DoCastSpellIfCan(target, SPELL_GREEN_EYE_BEAM) == CAST_OK) {
             m_creature->SetTargetGuid(target->GetObjectGuid());
             ++eyeBeamCastCount;
             eyeBeamCooldown = P1_GREEN_BEAM_COOLDOWN;
@@ -1263,7 +1246,9 @@ struct cthunAI : public ScriptedAI
 
     uint32 wipeRespawnEyeTimer;
 
-    cthunAI(Creature* pCreature) : ScriptedAI(pCreature), wipeRespawnEyeTimer(0)
+    cthunAI(Creature* pCreature) : 
+        ScriptedAI(pCreature),
+        wipeRespawnEyeTimer(0)
     {
         SetCombatMovement(false);
 
@@ -1271,8 +1256,7 @@ struct cthunAI : public ScriptedAI
         if (!m_pInstance)
             sLog.outError("SD0: No Instance for cthunAI");
 
-        if (Creature* pPortal = DoSpawnCreature(MOB_CTHUN_PORTAL, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_CORPSE_DESPAWN, 0))
-        {
+        if (Creature* pPortal = DoSpawnCreature(MOB_CTHUN_PORTAL, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_CORPSE_DESPAWN, 0)) {
             pPortal->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_SPAWNING);
         }
 
@@ -1281,11 +1265,9 @@ struct cthunAI : public ScriptedAI
 
     void AttackStart(Unit* who) override
     {
-        if (!m_creature->IsInCombat())
-        {
+        if (!m_creature->IsInCombat()) {
             Creature* pEye = m_pInstance->GetCreature(eyeGuid);
-            if (!pEye)
-            {
+            if (!pEye) {
                 sLog.outError("cthunAI::AggroRadius could not find pEye");
                 return;
             }
@@ -1299,20 +1281,18 @@ struct cthunAI : public ScriptedAI
             m_creature->SetInCombatWithZone();
             pEye->SetInCombatWithZone();
 #endif
-            if (m_pInstance)
-            {
+            if (m_pInstance) {
                 m_pInstance->SetData(TYPE_CTHUN, IN_PROGRESS);
             }
         }
-        else
-        {
+        else {
             ScriptedAI::AttackStart(who);
         }
     }
-
+   
     void JustReachedHome() override
     {
-        if (m_pInstance)
+        if(m_pInstance)
             m_pInstance->SetData(TYPE_CTHUN, FAIL);
     }
 
@@ -1321,14 +1301,11 @@ struct cthunAI : public ScriptedAI
         // Force despawn any tentacles or portals alive.
         std::list<Creature*> creaturesToDespawn;
         GetCreatureListWithEntryInGrid(creaturesToDespawn, m_creature, allTentacleTypes, 2000.0f);
-        for (const auto it : creaturesToDespawn)
-        {
-            if (cthunPortalTentacle* cpt = dynamic_cast<cthunPortalTentacle*>(it->AI()))
-            {
+        for (const auto it : creaturesToDespawn) {
+            if (cthunPortalTentacle* cpt = dynamic_cast<cthunPortalTentacle*>(it->AI())) {
                 cpt->DespawnPortal();
             }
-            if (TemporarySummon* ts = dynamic_cast<TemporarySummon*>(it))
-            {
+            if (TemporarySummon* ts = dynamic_cast<TemporarySummon*>(it)) {
                 ts->UnSummon();
             }
         }
@@ -1344,76 +1321,66 @@ struct cthunAI : public ScriptedAI
         currentPhase = PHASE_EYE_NORMAL;
         if (!m_pInstance)
             return;
-
-        cthunEmergeTimer = CTHUN_EMERGE_ANIM_DURATION;
-        clawTentacleTimer_p1 = P1_CLAW_TENTACLE_RESPAWN_TIMER;
-        eyeTentacleTimer_p1 = P1_EYE_TENTACLE_RESPAWN_TIMER;
+        
+        cthunEmergeTimer        = CTHUN_EMERGE_ANIM_DURATION;
+        clawTentacleTimer_p1    = P1_CLAW_TENTACLE_RESPAWN_TIMER;
+        eyeTentacleTimer_p1     = P1_EYE_TENTACLE_RESPAWN_TIMER;
 
         ResetartUnvulnerablePhase(false);
 
         // Reset visibility
         m_creature->SetVisibility(VISIBILITY_OFF);
         m_creature->InterruptNonMeleeSpells(false);
-        if (m_creature->HasAura(SPELL_CTHUN_VULNERABLE))
-        {
+        if (m_creature->HasAura(SPELL_CTHUN_VULNERABLE)) {
             m_creature->RemoveAurasDueToSpell(SPELL_CTHUN_VULNERABLE);
         }
-        // Demorph should set C'thuns modelId back to burrowed.
+        // Demorph should set C'thuns modelId back to burrowed. 
         // Also removing SPELL_TRANSFORM in case of reset just as he was casting that.
         m_creature->RemoveAurasDueToSpell(SPELL_TRANSFORM);
         m_creature->DeMorph();
 
         m_creature->SetVisibility(VISIBILITY_ON);
         m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_SPAWNING);
-
-
-        // Hack to allow eye-respawning with .respawn chat-command.
+                
+        
+        // Hack to allow eye-respawning with .respawn chat-command. 
         // On regular wipe in p2 it's respawned from UpdateAI()
-        if (!wipeRespawnEyeTimer)
-        {
+        if (!wipeRespawnEyeTimer) {
             CheckRespawnEye();
         }
 
         DespawnTentacles();
-
-        // if (m_pInstance && m_creature->IsAlive())
-        //     m_pInstance->SetData(TYPE_CTHUN, NOT_STARTED);
+        
+        //if (m_pInstance && m_creature->IsAlive())
+        //    m_pInstance->SetData(TYPE_CTHUN, NOT_STARTED);
     }
 
     void CheckRespawnEye()
     {
         Creature* pEye = nullptr;
-        if (m_creature->IsDead())
-        {
+        if (m_creature->IsDead()) {
             // Despawning the eye if something weird has happened and C'thun is dead.
-            if (pEye = m_pInstance->GetCreature(eyeGuid))
-            {
+            if (pEye = m_pInstance->GetCreature(eyeGuid)) {
                 pEye->ForcedDespawn();
             }
         }
-        else
-        {
+        else {
             // Respawning eye if it exists, but is dead.
             // Otherwise attempting to spawn a new eye
-            if (pEye = m_pInstance->GetCreature(eyeGuid))
-            {
+            if (pEye = m_pInstance->GetCreature(eyeGuid)) {
                 eye_of_cthunAI* eyeAI = (eye_of_cthunAI*)pEye->AI();
-                if (!pEye->IsAlive())
-                {
+                if (!pEye->IsAlive()) {
                     pEye->Respawn();
                     eyeAI->Reset(); // todo: remove if we KNOW that creature::respawn() calls Reset()
                 }
-                else
-                {
+                else {
                     eyeAI->EnterEvadeMode();
                 }
             }
-            else if (pEye = DoSpawnCreature(NPC_EYE_OF_C_THUN, 0, 0, 0, 3.44f, TEMPSUMMON_CORPSE_TIMED_DESPAWN, EYE_DEAD_TO_BODY_EMERGE_DELAY))
-            {
+            else if (pEye = DoSpawnCreature(NPC_EYE_OF_C_THUN, 0, 0, 0, 3.44f, TEMPSUMMON_CORPSE_TIMED_DESPAWN, EYE_DEAD_TO_BODY_EMERGE_DELAY)) {
                 eyeGuid = pEye->GetGUID();
             }
-            else
-            {
+            else {
                 sLog.outError("C'thun was unable to summon it's eye");
             }
         }
@@ -1421,24 +1388,21 @@ struct cthunAI : public ScriptedAI
 
     void SummonedCreatureJustDied(Creature* pCreature) override
     {
-        if (pCreature->GetEntry() == MOB_FLESH_TENTACLE)
-        {
+        if (pCreature->GetEntry() == MOB_FLESH_TENTACLE) {
             auto it = std::find(fleshTentacles.begin(), fleshTentacles.end(), pCreature->GetObjectGuid());
             if (it != fleshTentacles.end())
                 fleshTentacles.erase(it);
+
         }
-        else if (pCreature->GetEntry() == NPC_EYE_OF_C_THUN)
-        {
+        else if (pCreature->GetEntry() == NPC_EYE_OF_C_THUN) {
             currentPhase = PHASE_PRE_TRANSITION;
         }
     }
 
     void JustSummoned(Creature* pCreature) override
     {
-        if (pCreature->GetEntry() == MOB_FLESH_TENTACLE)
-        {
-            if (fleshTentacles.size() > 1)
-            {
+        if (pCreature->GetEntry() == MOB_FLESH_TENTACLE) {
+            if (fleshTentacles.size() > 1) {
                 sLog.outError("Flesh tentacle summoned, but there are already %i tentacles up.", fleshTentacles.size());
             }
             fleshTentacles.push_back(pCreature->GetGUID());
@@ -1451,51 +1415,41 @@ struct cthunAI : public ScriptedAI
             return;
 
         // Delaying respawn of eye if it was a wipe so we get the re-emerge animation before spawn
-        if (wipeRespawnEyeTimer > 0)
-        {
+        if (wipeRespawnEyeTimer > 0) {
             wipeRespawnEyeTimer -= std::min(diff, wipeRespawnEyeTimer);
-            if (wipeRespawnEyeTimer < diff)
-            {
+            if (wipeRespawnEyeTimer < diff) {
                 CheckRespawnEye();
                 wipeRespawnEyeTimer = 0;
             }
         }
 
-        if (!inProgress)
-        {
+        if (!inProgress) {
             // Wait with calling aggroRadius until eye has respawned
-            if (!wipeRespawnEyeTimer && AggroRadius())
-            {
+            if (!wipeRespawnEyeTimer && AggroRadius()) {
                 inProgress = true;
             }
-            else
-            {
+            else {
                 return;
             }
         }
         // Not resetting during transition phase, just wait until it's over, then we reset.
-        else if (!m_pInstance->GetPlayerInMap(true, false) && currentPhase != PHASE_TRANSITION && currentPhase != PHASE_PRE_TRANSITION)
-        {
+        else if (!m_pInstance->GetPlayerInMap(true, false) && currentPhase != PHASE_TRANSITION && currentPhase != PHASE_PRE_TRANSITION) {
             inProgress = false;
-            wipeRespawnEyeTimer = 5000;
+            wipeRespawnEyeTimer = 5000; 
             EnterEvadeMode();
             // C'thuns eye will enter evade mode through C'thuns Reset() call
         }
 
 #ifdef USE_POSTFIX_PRENERF_PULL_LOGIC
-        if (!isInCombatWithZone)
-        {
-            if (delayedCombatEntryTimer < diff)
-            {
+        if (!isInCombatWithZone) {
+            if (delayedCombatEntryTimer < diff) {
                 isInCombatWithZone = true;
                 m_creature->SetInCombatWithZone();
-                if (Creature* pEye = m_pInstance->GetCreature(eyeGuid))
-                {
+                if (Creature* pEye = m_pInstance->GetCreature(eyeGuid)) {
                     pEye->SetInCombatWithZone();
                 }
             }
-            else
-            {
+            else {
                 delayedCombatEntryTimer -= diff;
             }
         }
@@ -1503,8 +1457,7 @@ struct cthunAI : public ScriptedAI
 
         m_creature->SetTargetGuid(0);
 
-        switch (currentPhase)
-        {
+        switch (currentPhase) {
         case PHASE_EYE_NORMAL:
             UpdateTentaclesP1(diff);
             break;
@@ -1516,12 +1469,12 @@ struct cthunAI : public ScriptedAI
             break;
         case PHASE_TRANSITION:
             UpdateTransitionPhase(diff);
-
+            
             break;
         case PHASE_CTHUN_INVULNERABLE:
             UpdateInvulnerablePhase(diff);
             CheckIfAllDead();
-
+            
             break;
         case PHASE_CTHUN_WEAKENED:
             UpdateWeakenedPhase(diff);
@@ -1535,12 +1488,11 @@ struct cthunAI : public ScriptedAI
             sLog.outError("C'Thun in bugged state: %i", currentPhase);
         }
     }
-
+    
     void SummonedCreatureDespawn(Creature* pCreature) override
     {
         // Despawn will happen EYE_DEAD_TO_BODY_EMERGE_DELAY time after eye death
-        if (pCreature->GetEntry() == NPC_EYE_OF_C_THUN)
-        {
+        if (pCreature->GetEntry() == NPC_EYE_OF_C_THUN) {
             currentPhase = PHASE_TRANSITION;
 
             ResetartUnvulnerablePhase();
@@ -1551,8 +1503,7 @@ struct cthunAI : public ScriptedAI
             m_creature->SetVisibility(VISIBILITY_ON);
             m_creature->CastSpell(m_creature, SPELL_TRANSFORM, true);
         }
-        else if (pCreature->GetEntry() == MOB_FLESH_TENTACLE)
-        {
+        else if (pCreature->GetEntry() == MOB_FLESH_TENTACLE) {
             auto it = std::find(fleshTentacles.begin(), fleshTentacles.end(), pCreature->GetObjectGuid());
             if (it != fleshTentacles.end())
                 fleshTentacles.erase(it);
@@ -1561,16 +1512,14 @@ struct cthunAI : public ScriptedAI
 
     void JustDied(Unit* pKiller) override
     {
-        if (m_pInstance)
-        {
+        if (m_pInstance) {
             currentPhase = PHASE_CTHUN_DONE;
             m_pInstance->SetData(TYPE_CTHUN, DONE);
             DespawnTentacles();
         }
     }
 
-    void ResetartUnvulnerablePhase(bool spawnFleshTentacles = true)
-    {
+    void ResetartUnvulnerablePhase(bool spawnFleshTentacles = true) {
         giantClawTentacleTimer = P2_FIRST_GIANT_CLAW_SPAWN;
         eyeTentacleTimer = P2_FIRST_EYE_TENTACLE_SPAWN;
         giantEyeTentacleTimer = P2_FIRST_GIANT_EYE_SPAWN;
@@ -1588,13 +1537,13 @@ struct cthunAI : public ScriptedAI
     bool UnitShouldPull(Unit* unit)
     {
         float distToCthun = unit->GetDistance3dToCenter(m_creature);
-        // float distToCthun = pPlayer->GetDistance(m_creature);
+        //float distToCthun = pPlayer->GetDistance(m_creature);
         float zDist = abs(unit->GetPositionZ() - 100.0f);
         // If we're at the same Z axis of cthun, or within the maximum possible pull distance
         if (zDist < 10.0f && distToCthun < 95.0f && unit->IsWithinLOSInMap(m_creature))
         {
-            // xxx: it will still be possible to hide behind one of the pillars in the room to avoid pulling,
-            // but I don't think it's really something to take advantage of anyway
+            //xxx: it will still be possible to hide behind one of the pillars in the room to avoid pulling, 
+            //but I don't think it's really something to take advantage of anyway
             return true;
         }
         return false;
@@ -1603,22 +1552,20 @@ struct cthunAI : public ScriptedAI
     bool AggroRadius()
     {
         // Large aggro radius
-        Map::PlayerList const& PlayerList = m_creature->GetMap()->GetPlayers();
+        Map::PlayerList const &PlayerList = m_creature->GetMap()->GetPlayers();
         for (const auto& itr : PlayerList)
         {
             Player* pPlayer = itr.getSource();
             if (pPlayer && pPlayer->IsAlive() && !pPlayer->IsGameMaster())
             {
-                if (UnitShouldPull(pPlayer))
-                {
+                if (UnitShouldPull(pPlayer)) {
                     AttackStart(pPlayer);
                     return true;
                 }
                 else if (Pet* pPet = pPlayer->GetPet())
                 {
-                    if (UnitShouldPull(pPet))
-                    {
-                        AttackStart(pPlayer); // screw the pet, go straight for the head!
+                    if (UnitShouldPull(pPet)) {
+                        AttackStart(pPlayer); //screw the pet, go straight for the head!
                         return true;
                     }
                 }
@@ -1627,12 +1574,9 @@ struct cthunAI : public ScriptedAI
         return false;
     }
 
-    bool CheckIfAllDead()
-    {
-        if (!SelectRandomAliveNotStomach(m_pInstance))
-        {
-            if (m_pInstance->KillPlayersInStomach())
-            {
+    bool CheckIfAllDead() {
+        if (!SelectRandomAliveNotStomach(m_pInstance)) {
+            if (m_pInstance->KillPlayersInStomach()) {
                 m_creature->OnLeaveCombat();
                 return true;
             }
@@ -1640,20 +1584,16 @@ struct cthunAI : public ScriptedAI
         return false;
     }
 
-    void UpdateTentaclesP1(uint32 diff)
-    {
-        if (SpawnTentacleIfReady(diff, clawTentacleTimer_p1, 0, MOB_CLAW_TENTACLE))
-        {
+    void UpdateTentaclesP1(uint32 diff) {
+        if (SpawnTentacleIfReady(diff, clawTentacleTimer_p1, 0, MOB_CLAW_TENTACLE)) {
             clawTentacleTimer_p1 = P1_CLAW_TENTACLE_RESPAWN_TIMER;
         }
 
-        if (eyeTentacleTimer_p1 < diff)
-        {
+        if (eyeTentacleTimer_p1 < diff) {
             SpawnEyeTentacles();
             eyeTentacleTimer_p1 = P1_EYE_TENTACLE_RESPAWN_TIMER;
         }
-        else
-        {
+        else {
             eyeTentacleTimer_p1 -= diff;
         }
     }
@@ -1663,15 +1603,13 @@ struct cthunAI : public ScriptedAI
         UpdateTentaclesP2(diff);
         UpdateStomachGrab(diff);
 
-        if (cthunEmergeTimer < diff)
-        {
+        if (cthunEmergeTimer < diff) {
             m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_SPAWNING);
             m_creature->SetInCombatWithZone();
 
             currentPhase = PHASE_CTHUN_INVULNERABLE;
         }
-        else
-        {
+        else {
             cthunEmergeTimer -= diff;
         }
     }
@@ -1679,29 +1617,25 @@ struct cthunAI : public ScriptedAI
     void UpdateInvulnerablePhase(uint32 diff)
     {
         // Weaken if both Flesh Tentacles are killed
-        if (fleshTentacles.empty())
-        {
+        if (fleshTentacles.empty()) {
             weaknessTimer = WEAKNESS_DURATION;
 
             DoScriptText(EMOTE_WEAKENED, m_creature);
-            // If there is a grabbed player, release him.
-            if (!StomachEnterTargetGUID.IsEmpty())
-            {
-                if (Player* pPlayer = m_creature->GetMap()->GetPlayer(StomachEnterTargetGUID))
-                {
+            // If there is a grabbed player, release him. 
+            if (!StomachEnterTargetGUID.IsEmpty()) {
+                if (Player* pPlayer = m_creature->GetMap()->GetPlayer(StomachEnterTargetGUID)) {
                     pPlayer->RemoveAurasDueToSpell(SPELL_MOUTH_TENTACLE);
                 }
             }
 
-            // Remove the damage reduction aura
+            //Remove the damage reduction aura
             m_creature->CastSpell(m_creature, SPELL_CTHUN_VULNERABLE, true);
-            // Make him glow all red and nice
+            //Make him glow all red and nice
             m_creature->RemoveAurasDueToSpell(SPELL_CARAPACE_OF_CTHUN);
-
+            
             currentPhase = PHASE_CTHUN_WEAKENED;
         }
-        else
-        {
+        else {
             UpdateTentaclesP2(diff);
 
             UpdateStomachGrab(diff);
@@ -1711,48 +1645,45 @@ struct cthunAI : public ScriptedAI
     void UpdateWeakenedPhase(uint32 diff)
     {
         // If weakend runs out
-        if (weaknessTimer < diff)
-        {
+        if (weaknessTimer < diff) {
             ResetartUnvulnerablePhase();
-            // note: can set visibility off and on again after removing vulnerable spell,
-            //  if it does not visually dissapear
+            //note: can set visibility off and on again after removing vulnerable spell, 
+            // if it does not visually dissapear
             m_creature->RemoveAurasDueToSpell(SPELL_CTHUN_VULNERABLE);
-
+            
             currentPhase = PHASE_CTHUN_INVULNERABLE;
         }
-        else
-        {
+        else {
             weaknessTimer -= diff;
         }
     }
+    
+    void SpawnFleshTentacles() {
 
-    void SpawnFleshTentacles()
-    {
-
-        if (!fleshTentacles.empty())
-        {
+        if (!fleshTentacles.empty()) {
             sLog.outError("SpawnFleshTentacles() called, but there are already %i tentacles up.", fleshTentacles.size());
         }
-        // Spawn 2 flesh tentacles in C'thun stomach
+        //Spawn 2 flesh tentacles in C'thun stomach
         for (const auto& fleshTentaclePosition : fleshTentaclePositions)
         {
-            m_creature->SummonCreature(MOB_FLESH_TENTACLE, fleshTentaclePosition[0], fleshTentaclePosition[1], fleshTentaclePosition[2], fleshTentaclePosition[3], TENTACLE_DESPAWN_FLAG, 1500);
+            m_creature->SummonCreature(MOB_FLESH_TENTACLE,
+                                       fleshTentaclePosition[0],
+                                       fleshTentaclePosition[1],
+                                       fleshTentaclePosition[2],
+                                       fleshTentaclePosition[3],
+                                       TENTACLE_DESPAWN_FLAG, 1500);
         }
+        
     }
-
-    void UpdateStomachGrab(uint32 diff)
-    {
-        if (!StomachEnterTargetGUID.IsEmpty())
-        {
-            if (stomachEnterPortTimer < diff)
-            {
-                if (Player* pPlayer = m_creature->GetMap()->GetPlayer(StomachEnterTargetGUID))
-                {
+    
+    void UpdateStomachGrab(uint32 diff) {
+        if (!StomachEnterTargetGUID.IsEmpty()) {
+            if (stomachEnterPortTimer < diff) {
+                if (Player* pPlayer = m_creature->GetMap()->GetPlayer(StomachEnterTargetGUID)) {
 
                     DoTeleportPlayer(pPlayer, stomachPortPosition[0], stomachPortPosition[1], stomachPortPosition[2], stomachPortPosition[3]);
                     pPlayer->RemoveAurasDueToSpell(SPELL_MOUTH_TENTACLE);
-                    if (m_pInstance)
-                    {
+                    if (m_pInstance) {
                         m_pInstance->AddPlayerToStomach(pPlayer);
                     }
                 }
@@ -1760,16 +1691,13 @@ struct cthunAI : public ScriptedAI
                 StomachEnterTargetGUID = 0;
                 stomachEnterPortTimer = 0;
             }
-            else
-            {
+            else {
                 stomachEnterPortTimer -= diff;
             }
         }
 
-        if (nextStomachEnterGrabTimer < diff)
-        {
-            if (Player* target = SelectRandomAliveNotStomach(m_pInstance))
-            {
+        if (nextStomachEnterGrabTimer < diff) {
+            if (Player* target = SelectRandomAliveNotStomach(m_pInstance)) {
                 target->InterruptNonMeleeSpells(false);
                 target->CastSpell(target, SPELL_MOUTH_TENTACLE, true, nullptr, nullptr, m_creature->GetObjectGuid());
                 stomachEnterPortTimer = STOMACH_GRAB_DURATION;
@@ -1777,24 +1705,22 @@ struct cthunAI : public ScriptedAI
             }
             nextStomachEnterGrabTimer = STOMACH_GRAB_COOLDOWN;
         }
-        else
-        {
+        else {
             nextStomachEnterGrabTimer -= diff;
         }
+
     }
 
     void UpdateTentaclesP2(uint32 diff)
     {
         SpawnTentacleIfReady(diff, giantClawTentacleTimer, GIANT_CLAW_RESPAWN_TIMER, MOB_GIANT_CLAW_TENTACLE);
         SpawnTentacleIfReady(diff, giantEyeTentacleTimer, GIANT_EYE_RESPAWN_TIMER, MOB_GIANT_EYE_TENTACLE);
-
-        if (eyeTentacleTimer < diff)
-        {
+        
+        if (eyeTentacleTimer < diff) {
             SpawnEyeTentacles();
             eyeTentacleTimer = P2_EYE_TENTACLE_RESPAWN_TIMER;
         }
-        else
-        {
+        else {
             eyeTentacleTimer -= diff;
         }
     }
@@ -1802,23 +1728,24 @@ struct cthunAI : public ScriptedAI
     void SpawnEyeTentacles()
     {
 
-        // float centerX = relToThisCreature->GetPositionX();
-        // float centerY = relToThisCreature->GetPositionY();
-        // float radius = 30.0f;
-        // float angle = 360.0f / 8.0f;
+        //float centerX = relToThisCreature->GetPositionX();
+        //float centerY = relToThisCreature->GetPositionY();
+        //float radius = 30.0f;
+        //float angle = 360.0f / 8.0f;
 
         for (const auto& eyeTentaclePosition : eyeTentaclePositions)
         {
-            // float x = centerX + cos(((float)i * angle) * (3.14f / 180.0f)) * radius;
-            // float y = centerY + sin(((float)i * angle) * (3.14f / 180.0f)) * radius;
-            // float z = relToThisCreature->GetMap()->GetHeight(x, y, relToThisCreature->GetPositionZ()) + 0.1f;
-            // sLog.outBasic("{%.6f, %.6f, %.6f},", x, y, z);
+            //float x = centerX + cos(((float)i * angle) * (3.14f / 180.0f)) * radius;
+            //float y = centerY + sin(((float)i * angle) * (3.14f / 180.0f)) * radius;
+            //float z = relToThisCreature->GetMap()->GetHeight(x, y, relToThisCreature->GetPositionZ()) + 0.1f;
+            //sLog.outBasic("{%.6f, %.6f, %.6f},", x, y, z);
 
             float x = eyeTentaclePosition[0];
             float y = eyeTentaclePosition[1];
             float z = eyeTentaclePosition[2];
-            if (Creature* Spawned = m_creature->SummonCreature(MOB_EYE_TENTACLE, x, y, z, 0, TENTACLE_DESPAWN_FLAG, 1500))
-            // TEMPSUMMON_CORPSE_TIMED_DESPAWN, 1500))
+            if (Creature* Spawned = m_creature->SummonCreature(MOB_EYE_TENTACLE, x, y, z, 0,
+                TENTACLE_DESPAWN_FLAG, 1500))
+                //TEMPSUMMON_CORPSE_TIMED_DESPAWN, 1500))
             {
                 Spawned->SetInCombatWithZone();
             }
@@ -1827,19 +1754,18 @@ struct cthunAI : public ScriptedAI
 
     bool SpawnTentacleIfReady(uint32 diff, uint32& timer, uint32 resetTo, uint32 id)
     {
-        if (timer < diff)
-        {
+        if (timer < diff) {
             if (Unit* target = SelectRandomAliveNotStomach(m_pInstance))
             {
-                if (target->GetPositionZ() < -30.0f)
-                {
+                if (target->GetPositionZ() < -30.0f) {
                     sLog.outError("Cthun trying to spawn %i <-30.0f", id);
                 }
                 float x;
                 float y;
                 float z;
                 m_creature->GetRandomPoint(target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), 0.5f, x, y, z);
-                if (Creature* Spawned = m_creature->SummonCreature(id, x, y, z, 0, TENTACLE_DESPAWN_FLAG, 1500))
+                if (Creature* Spawned = m_creature->SummonCreature(id, x, y, z, 0, 
+                    TENTACLE_DESPAWN_FLAG, 1500))
                 {
                     Spawned->AI()->AttackStart(target);
                 }
@@ -1847,34 +1773,54 @@ struct cthunAI : public ScriptedAI
                 return true;
             }
         }
-        else
-        {
+        else {
             timer -= diff;
         }
         return false;
     }
 };
 
-// GetAIs
-CreatureAI* GetAI_eye_of_cthun(Creature* pCreature) { return new eye_of_cthunAI(pCreature); }
+//GetAIs
+CreatureAI* GetAI_eye_of_cthun(Creature* pCreature)
+{
+    return new eye_of_cthunAI(pCreature);
+}
 
-CreatureAI* GetAI_cthun(Creature* pCreature) { return new cthunAI(pCreature); }
+CreatureAI* GetAI_cthun(Creature* pCreature)
+{
+    return new cthunAI(pCreature);
+}
 
-CreatureAI* GetAI_eye_tentacle(Creature* pCreature) { return new eye_tentacleAI(pCreature); }
+CreatureAI* GetAI_eye_tentacle(Creature* pCreature)
+{
+    return new eye_tentacleAI(pCreature);
+}
 
-CreatureAI* GetAI_claw_tentacle(Creature* pCreature) { return new claw_tentacleAI(pCreature); }
+CreatureAI* GetAI_claw_tentacle(Creature* pCreature)
+{
+    return new claw_tentacleAI(pCreature);
+}
 
-CreatureAI* GetAI_giant_claw_tentacle(Creature* pCreature) { return new giant_claw_tentacleAI(pCreature); }
+CreatureAI* GetAI_giant_claw_tentacle(Creature* pCreature)
+{
+    return new giant_claw_tentacleAI(pCreature);
+}
 
-CreatureAI* GetAI_giant_eye_tentacle(Creature* pCreature) { return new giant_eye_tentacleAI(pCreature); }
+CreatureAI* GetAI_giant_eye_tentacle(Creature* pCreature)
+{
+    return new giant_eye_tentacleAI(pCreature);
+}
 
-CreatureAI* GetAI_flesh_tentacle(Creature* pCreature) { return new flesh_tentacleAI(pCreature); }
+CreatureAI* GetAI_flesh_tentacle(Creature* pCreature)
+{
+    return new flesh_tentacleAI(pCreature);
+}
 
 void AddSC_boss_cthun()
 {
-    Script* newscript;
+    Script *newscript;
 
-    // Eye
+    //Eye
     newscript = new Script;
     newscript->Name = "boss_eye_of_cthun";
     newscript->GetAI = &GetAI_eye_of_cthun;

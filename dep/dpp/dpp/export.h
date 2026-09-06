@@ -30,37 +30,37 @@
  * from C++98. Ugh.
  */
 #if (!defined(__cplusplus) || (defined(_MSC_VER) && (!defined(_MSVC_LANG) || _MSVC_LANG < 201703L)) || (!defined(_MSC_VER) && __cplusplus < 201703L))
-#error "D++ Requires a C++17 compatible C++ compiler. Please ensure that you have enabled C++17 in your compiler flags."
+	#error "D++ Requires a C++17 compatible C++ compiler. Please ensure that you have enabled C++17 in your compiler flags."
 #endif
 
 #ifndef DPP_STATIC
-/* Dynamic linked build as shared object or dll */
-#ifdef DPP_BUILD
-/* Building the library */
-#ifdef _WIN32
-#include <dpp/win32_safe_warnings.h>
-#define DPP_EXPORT __declspec(dllexport)
+	/* Dynamic linked build as shared object or dll */
+	#ifdef DPP_BUILD
+		/* Building the library */
+		#ifdef _WIN32
+			#include <dpp/win32_safe_warnings.h>
+			#define DPP_EXPORT __declspec(dllexport)
+		#else
+			#define DPP_EXPORT
+		#endif
+	#else
+		/* Including the library */
+		#ifdef _WIN32
+			#define DPP_EXPORT __declspec(dllimport)
+		#else
+			#define DPP_EXPORT
+		#endif
+	#endif
 #else
-#define DPP_EXPORT
-#endif
-#else
-/* Including the library */
-#ifdef _WIN32
-#define DPP_EXPORT __declspec(dllimport)
-#else
-#define DPP_EXPORT
-#endif
-#endif
-#else
-/* Static linked build */
-#if defined(_WIN32) && defined(DPP_BUILD)
-#include <dpp/win32_safe_warnings.h>
-#endif
-#define DPP_EXPORT
+	/* Static linked build */
+	#if defined(_WIN32) && defined(DPP_BUILD)
+		#include <dpp/win32_safe_warnings.h>
+	#endif
+	#define DPP_EXPORT
 #endif
 
 #ifndef _WIN32
-#define SOCKET int
+	#define SOCKET int
 #else
-#include <WinSock2.h>
+	#include <WinSock2.h>
 #endif

@@ -30,7 +30,6 @@ private:
 
     static constexpr const char* GOSSIP_ITEM_KRUG_SKULLSPLIT_1 = "Continue.";
     static constexpr const char* GOSSIP_ITEM_KRUG_SKULLSPLIT_2 = "Very well, let's go!";
-
 public:
     npc_krug_skullsplit(Creature* pCreature) : ScriptedAI(pCreature)
     {
@@ -57,7 +56,10 @@ public:
         m_thunderClapTimer.Reset();
     }
 
-    FieldDutyPaperEventStatus GetEventStatus() { return eEventStatus; }
+    FieldDutyPaperEventStatus GetEventStatus()
+    {
+        return eEventStatus;
+    }
 
     void ResetEvent()
     {
@@ -77,7 +79,7 @@ public:
         ResetOtherNPCsPosition();
         InitTimer = 2000;
 
-        // m_creature->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
+        //m_creature->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
     }
 
     void StartEvent()
@@ -90,7 +92,15 @@ public:
             m_uiSpeechNum = 0;
             m_bIsDoingSpeech = true;
 
-            Creature* pHunterKiller = m_creature->SummonCreature(Silithus::CreatureEntries::HIVEREGAL_HUNTERKILLER, Silithus::Locations::HUNTERKILLER_SPAWN.x, Silithus::Locations::HUNTERKILLER_SPAWN.y, Silithus::Locations::HUNTERKILLER_SPAWN.z, Silithus::Locations::HUNTERKILLER_SPAWN.orientation, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 450000, true);
+            Creature* pHunterKiller = m_creature->SummonCreature(
+                Silithus::CreatureEntries::HIVEREGAL_HUNTERKILLER,
+                Silithus::Locations::HUNTERKILLER_SPAWN.x,
+                Silithus::Locations::HUNTERKILLER_SPAWN.y,
+                Silithus::Locations::HUNTERKILLER_SPAWN.z,
+                Silithus::Locations::HUNTERKILLER_SPAWN.orientation,
+                TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT,
+                450000,
+                true);
             if (pHunterKiller)
             {
                 pHunterKiller->SetRespawnDelay(460);
@@ -155,7 +165,10 @@ public:
         }
     }
 
-    void JustDied(Unit* pKiller) override { ResetEvent(); }
+    void JustDied(Unit* pKiller) override
+    {
+        ResetEvent();
+    }
 
     void UpdateAI(const uint32 uiDiff) override
     {
@@ -289,12 +302,14 @@ public:
         if (npc_krug_skullsplit* pKrugSkullSplitAI = dynamic_cast<npc_krug_skullsplit*>(pCreature->AI()))
             eEventStatus = pKrugSkullSplitAI->GetEventStatus();
 
-        if ((pPlayer->GetQuestStatus(Silithus::QuestEntries::FIELD_DUTY) == QUEST_STATUS_INCOMPLETE) && (eEventStatus == EVENT_NOT_STARTED))
+        if ((pPlayer->GetQuestStatus(Silithus::QuestEntries::FIELD_DUTY) == QUEST_STATUS_INCOMPLETE)
+            && (eEventStatus == EVENT_NOT_STARTED))
         {
             pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_KRUG_SKULLSPLIT_1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
             pPlayer->SEND_GOSSIP_MENU(pPlayer->GetGossipTextId(pCreature), pCreature->GetGUID());
         }
-        else if ((pPlayer->GetQuestStatus(Silithus::QuestEntries::FIELD_DUTY) == QUEST_STATUS_INCOMPLETE) && (eEventStatus == EVENT_COMPLETE))
+        else if ((pPlayer->GetQuestStatus(Silithus::QuestEntries::FIELD_DUTY) == QUEST_STATUS_INCOMPLETE)
+            && (eEventStatus == EVENT_COMPLETE))
         {
             if (pCreature->IsQuestGiver())
                 pPlayer->PrepareQuestMenu(pCreature->GetGUID());
@@ -322,7 +337,10 @@ public:
         return true;
     }
 
-    static CreatureAI* GetAI(Creature* creature) { return new npc_krug_skullsplit(creature); }
+    static CreatureAI* GetAI(Creature* creature)
+    {
+        return new npc_krug_skullsplit(creature);
+    }
 
     static void register_script()
     {

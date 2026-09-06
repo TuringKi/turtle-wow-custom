@@ -16,15 +16,21 @@
  */
 
 #include "MovementPacketSender.h"
-#include "MoveSpline.h"
-#include "Opcodes.h"
 #include "Player.h"
+#include "Opcodes.h"
 #include "WorldPacket.h"
 #include "WorldSession.h"
+#include "MoveSpline.h"
 
 // Spline packets are for units controlled by the server. "Force speed change" (wrongly named opcodes) and "move set speed" packets are for units controlled by a player.
-OpcodesList const moveTypeToOpcode[MAX_MOVE_TYPE][3] = {
-    {SMSG_SPLINE_SET_WALK_SPEED, SMSG_FORCE_WALK_SPEED_CHANGE, MSG_MOVE_SET_WALK_SPEED}, {SMSG_SPLINE_SET_RUN_SPEED, SMSG_FORCE_RUN_SPEED_CHANGE, MSG_MOVE_SET_RUN_SPEED}, {SMSG_SPLINE_SET_RUN_BACK_SPEED, SMSG_FORCE_RUN_BACK_SPEED_CHANGE, MSG_MOVE_SET_RUN_BACK_SPEED}, {SMSG_SPLINE_SET_SWIM_SPEED, SMSG_FORCE_SWIM_SPEED_CHANGE, MSG_MOVE_SET_SWIM_SPEED}, {SMSG_SPLINE_SET_SWIM_BACK_SPEED, SMSG_FORCE_SWIM_BACK_SPEED_CHANGE, MSG_MOVE_SET_SWIM_BACK_SPEED}, {SMSG_SPLINE_SET_TURN_RATE, SMSG_FORCE_TURN_RATE_CHANGE, MSG_MOVE_SET_TURN_RATE},
+OpcodesList const moveTypeToOpcode[MAX_MOVE_TYPE][3] =
+{
+    { SMSG_SPLINE_SET_WALK_SPEED,        SMSG_FORCE_WALK_SPEED_CHANGE,           MSG_MOVE_SET_WALK_SPEED },
+    { SMSG_SPLINE_SET_RUN_SPEED,         SMSG_FORCE_RUN_SPEED_CHANGE,            MSG_MOVE_SET_RUN_SPEED },
+    { SMSG_SPLINE_SET_RUN_BACK_SPEED,    SMSG_FORCE_RUN_BACK_SPEED_CHANGE,       MSG_MOVE_SET_RUN_BACK_SPEED },
+    { SMSG_SPLINE_SET_SWIM_SPEED,        SMSG_FORCE_SWIM_SPEED_CHANGE,           MSG_MOVE_SET_SWIM_SPEED },
+    { SMSG_SPLINE_SET_SWIM_BACK_SPEED,   SMSG_FORCE_SWIM_BACK_SPEED_CHANGE,      MSG_MOVE_SET_SWIM_BACK_SPEED },
+    { SMSG_SPLINE_SET_TURN_RATE,         SMSG_FORCE_TURN_RATE_CHANGE,            MSG_MOVE_SET_TURN_RATE },
 };
 
 void MovementPacketSender::AddSpeedChangeToController(Unit* unit, UnitMoveType mtype, float newRate)
@@ -36,7 +42,7 @@ void MovementPacketSender::AddSpeedChangeToController(Unit* unit, UnitMoveType m
         return;
     }
 
-    float newSpeedFlat = newRate * baseMoveSpeed[mtype];
+    float newSpeedFlat = newRate * baseMoveSpeed[mtype]; 
     uint32 mCounter = unit->GetMovementCounterAndInc();
     PlayerMovementPendingChange pendingChange;
     pendingChange.movementCounter = mCounter;
@@ -63,20 +69,14 @@ MovementChangeType MovementPacketSender::GetChangeTypeByMoveType(UnitMoveType mo
 {
     switch (moveType)
     {
-    case MOVE_WALK:
-        return SPEED_CHANGE_WALK;
-    case MOVE_RUN:
-        return SPEED_CHANGE_RUN;
-    case MOVE_RUN_BACK:
-        return SPEED_CHANGE_RUN_BACK;
-    case MOVE_SWIM:
-        return SPEED_CHANGE_SWIM;
-    case MOVE_SWIM_BACK:
-        return SPEED_CHANGE_SWIM_BACK;
-    case MOVE_TURN_RATE:
-        return RATE_CHANGE_TURN;
-    default:
-        ASSERT(false && "MovementPacketSender::SendSpeedChangeToController Unsupported UnitMoveType");
+        case MOVE_WALK:         return SPEED_CHANGE_WALK;
+        case MOVE_RUN:          return SPEED_CHANGE_RUN;
+        case MOVE_RUN_BACK:     return SPEED_CHANGE_RUN_BACK;
+        case MOVE_SWIM:         return SPEED_CHANGE_SWIM;
+        case MOVE_SWIM_BACK:    return SPEED_CHANGE_SWIM_BACK;
+        case MOVE_TURN_RATE:    return RATE_CHANGE_TURN;
+        default:
+            ASSERT(false && "MovementPacketSender::SendSpeedChangeToController Unsupported UnitMoveType");
     }
 }
 
@@ -84,20 +84,14 @@ UnitMoveType MovementPacketSender::GetMoveTypeByChangeType(MovementChangeType mo
 {
     switch (moveType)
     {
-    case SPEED_CHANGE_WALK:
-        return MOVE_WALK;
-    case SPEED_CHANGE_RUN:
-        return MOVE_RUN;
-    case SPEED_CHANGE_RUN_BACK:
-        return MOVE_RUN_BACK;
-    case SPEED_CHANGE_SWIM:
-        return MOVE_SWIM;
-    case SPEED_CHANGE_SWIM_BACK:
-        return MOVE_SWIM_BACK;
-    case RATE_CHANGE_TURN:
-        return MOVE_TURN_RATE;
-    default:
-        ASSERT(false && "MovementPacketSender::SendSpeedChangeToController Unsupported MovementChangeType");
+        case SPEED_CHANGE_WALK:         return MOVE_WALK;
+        case SPEED_CHANGE_RUN:          return MOVE_RUN;
+        case SPEED_CHANGE_RUN_BACK:     return MOVE_RUN_BACK;
+        case SPEED_CHANGE_SWIM:         return MOVE_SWIM;
+        case SPEED_CHANGE_SWIM_BACK:    return MOVE_SWIM_BACK;
+        case RATE_CHANGE_TURN:          return MOVE_TURN_RATE;
+        default:
+            ASSERT(false && "MovementPacketSender::SendSpeedChangeToController Unsupported MovementChangeType");
     }
 }
 
@@ -160,7 +154,7 @@ void MovementPacketSender::SendTeleportToController(Unit* unit, float x, float y
 
     WorldPacket data(MSG_MOVE_TELEPORT_ACK, 41);
     data << unit->GetPackGUID();
-    data << mCounter; // this value increments every time
+    data << mCounter;                                      // this value increments every time
     data << mi;
     mover->GetSession()->SendPacket(&data);
 }
@@ -204,10 +198,10 @@ void MovementPacketSender::SendKnockBackToController(Unit* unit, float vcos, flo
     WorldPacket data(SMSG_MOVE_KNOCK_BACK, (8 + 4 + 4 + 4 + 4 + 4));
     data << unit->GetPackGUID();
     data << mCounter;
-    data << float(vcos); // x direction
-    data << float(vsin); // y direction
-    data << float(speedXY); // Horizontal speed
-    data << float(speedZ); // Z Movement speed (vertical)
+    data << float(vcos);                                    // x direction
+    data << float(vsin);                                    // y direction
+    data << float(speedXY);                                 // Horizontal speed
+    data << float(speedZ);                                  // Z Movement speed (vertical)
     mover->GetSession()->SendPacket(&data);
 }
 
@@ -242,21 +236,13 @@ void MovementPacketSender::AddMovementFlagChangeToController(Unit* unit, Movemen
     MovementChangeType movementChangeType;
     switch (mFlag)
     {
-    case MOVEFLAG_ROOT:
-        movementChangeType = ROOT;
-        break;
-    case MOVEFLAG_WATERWALKING:
-        movementChangeType = WATER_WALK;
-        break;
-    case MOVEFLAG_HOVER:
-        movementChangeType = SET_HOVER;
-        break;
-    case MOVEFLAG_SAFE_FALL:
-        movementChangeType = FEATHER_FALL;
-        break;
-    default:
-        sLog.outError("MovementPacketSender::AddMovementFlagChangeToController: Unsupported MovementFlag (%d), data not sent to client.", mFlag);
-        return;
+        case MOVEFLAG_ROOT:                 movementChangeType = ROOT; break;
+        case MOVEFLAG_WATERWALKING:         movementChangeType = WATER_WALK; break;
+        case MOVEFLAG_HOVER:                movementChangeType = SET_HOVER; break;
+        case MOVEFLAG_SAFE_FALL:            movementChangeType = FEATHER_FALL; break;
+        default:
+            sLog.outError("MovementPacketSender::AddMovementFlagChangeToController: Unsupported MovementFlag (%d), data not sent to client.", mFlag);
+            return;
     }
 
     uint32 mCounter = unit->GetMovementCounterAndInc();
@@ -275,21 +261,13 @@ void MovementPacketSender::SendMovementFlagChangeToController(Unit* unit, Player
     uint16 opcode;
     switch (pendingChange.movementChangeType)
     {
-    case ROOT:
-        opcode = pendingChange.apply ? SMSG_FORCE_MOVE_ROOT : SMSG_FORCE_MOVE_UNROOT;
-        break;
-    case WATER_WALK:
-        opcode = pendingChange.apply ? SMSG_MOVE_WATER_WALK : SMSG_MOVE_LAND_WALK;
-        break;
-    case SET_HOVER:
-        opcode = pendingChange.apply ? SMSG_MOVE_SET_HOVER : SMSG_MOVE_UNSET_HOVER;
-        break;
-    case FEATHER_FALL:
-        opcode = pendingChange.apply ? SMSG_MOVE_FEATHER_FALL : SMSG_MOVE_NORMAL_FALL;
-        break;
-    default:
-        sLog.outError("MovementPacketSender::SendMovementFlagChangeToController: Unsupported movement change (%u), data not sent to client.", pendingChange.movementChangeType);
-        return;
+        case ROOT: opcode = pendingChange.apply ? SMSG_FORCE_MOVE_ROOT : SMSG_FORCE_MOVE_UNROOT; break;
+        case WATER_WALK: opcode = pendingChange.apply ? SMSG_MOVE_WATER_WALK : SMSG_MOVE_LAND_WALK; break;
+        case SET_HOVER: opcode = pendingChange.apply ? SMSG_MOVE_SET_HOVER : SMSG_MOVE_UNSET_HOVER; break;
+        case FEATHER_FALL: opcode = pendingChange.apply ? SMSG_MOVE_FEATHER_FALL : SMSG_MOVE_NORMAL_FALL; break;
+        default:
+            sLog.outError("MovementPacketSender::SendMovementFlagChangeToController: Unsupported movement change (%u), data not sent to client.", pendingChange.movementChangeType);
+            return;
     }
 
     WorldPacket data(opcode, unit->GetPackGUID().size() + 4);
@@ -310,21 +288,13 @@ void MovementPacketSender::SendMovementFlagChangeToObservers(Unit* unit, Movemen
     uint16 opcode;
     switch (mFlag)
     {
-    case MOVEFLAG_ROOT:
-        opcode = apply ? MSG_MOVE_ROOT : MSG_MOVE_UNROOT;
-        break;
-    case MOVEFLAG_WATERWALKING:
-        opcode = MSG_MOVE_WATER_WALK;
-        break;
-    case MOVEFLAG_HOVER:
-        opcode = MSG_MOVE_HOVER;
-        break;
-    case MOVEFLAG_SAFE_FALL:
-        opcode = MSG_MOVE_FEATHER_FALL;
-        break;
-    default:
-        sLog.outError("MovementPacketSender::SendMovementFlagChangeToObservers: Unsupported MovementFlag (%d), data not sent to client.", mFlag);
-        return;
+        case MOVEFLAG_ROOT:                 opcode = apply ? MSG_MOVE_ROOT : MSG_MOVE_UNROOT; break;
+        case MOVEFLAG_WATERWALKING:         opcode = MSG_MOVE_WATER_WALK; break;
+        case MOVEFLAG_HOVER:                opcode = MSG_MOVE_HOVER; break;
+        case MOVEFLAG_SAFE_FALL:            opcode = MSG_MOVE_FEATHER_FALL; break;
+        default:
+            sLog.outError("MovementPacketSender::SendMovementFlagChangeToObservers: Unsupported MovementFlag (%d), data not sent to client.", mFlag);
+            return;
     }
 
     WorldPacket data(opcode, 64);
@@ -338,21 +308,13 @@ void MovementPacketSender::SendMovementFlagChangeToAll(Unit* unit, MovementFlags
     uint16 opcode;
     switch (mFlag)
     {
-    case MOVEFLAG_ROOT:
-        opcode = apply ? SMSG_SPLINE_MOVE_ROOT : SMSG_SPLINE_MOVE_UNROOT;
-        break;
-    case MOVEFLAG_WATERWALKING:
-        opcode = apply ? SMSG_SPLINE_MOVE_WATER_WALK : SMSG_SPLINE_MOVE_LAND_WALK;
-        break;
-    case MOVEFLAG_SAFE_FALL:
-        opcode = apply ? SMSG_SPLINE_MOVE_FEATHER_FALL : SMSG_SPLINE_MOVE_NORMAL_FALL;
-        break;
-    case MOVEFLAG_HOVER:
-        opcode = apply ? SMSG_SPLINE_MOVE_SET_HOVER : SMSG_SPLINE_MOVE_UNSET_HOVER;
-        break;
-    default:
-        sLog.outError("MovementPacketSender::SendMovementFlagChangeToAll: Unsupported MovementFlag (%d), data not sent to client.", mFlag);
-        return;
+        case MOVEFLAG_ROOT:             opcode = apply ? SMSG_SPLINE_MOVE_ROOT              : SMSG_SPLINE_MOVE_UNROOT; break;
+        case MOVEFLAG_WATERWALKING:     opcode = apply ? SMSG_SPLINE_MOVE_WATER_WALK        : SMSG_SPLINE_MOVE_LAND_WALK; break;
+        case MOVEFLAG_SAFE_FALL:        opcode = apply ? SMSG_SPLINE_MOVE_FEATHER_FALL      : SMSG_SPLINE_MOVE_NORMAL_FALL; break;
+        case MOVEFLAG_HOVER:            opcode = apply ? SMSG_SPLINE_MOVE_SET_HOVER         : SMSG_SPLINE_MOVE_UNSET_HOVER; break;
+        default:
+            sLog.outError("MovementPacketSender::SendMovementFlagChangeToAll: Unsupported MovementFlag (%d), data not sent to client.", mFlag);
+            return;
     }
 
     WorldPacket data(opcode, unit->GetPackGUID().size() + 4);

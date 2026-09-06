@@ -1,8 +1,8 @@
 /**
  @file LineSegment.h
-
+  
  @maintainer Morgan McGuire, http://graphics.cs.williams.edu
-
+ 
  @created 2003-02-08
  @edited  2008-02-02
  */
@@ -10,97 +10,110 @@
 #ifndef G3D_LINESEGMENT_H
 #define G3D_LINESEGMENT_H
 
-#include "G3D/Vector3.h"
 #include "G3D/platform.h"
+#include "G3D/Vector3.h"
 
-namespace G3D
-{
+namespace G3D {
+
+/**
+ An finite segment of an infinite 3D line.
+ */
+class LineSegment {
+protected:
+
+    Point3             _point;
+
+    /** Not normalized */
+    Vector3             direction;
+
+    LineSegment(const Point3& __point, const Vector3& _direction) : _point(__point), direction(_direction) {
+    }
+
+public:
+
+    LineSegment() : _point(Point3::zero()), direction(Vector3::zero()) {}
+
+    LineSegment(class BinaryInput& b);
+    
+    void serialize(class BinaryOutput& b) const;
+    
+    void deserialize(class BinaryInput& b);
+
+    virtual ~LineSegment() {}
+    
+    /**
+     * Constructs a line from two (not equal) points.
+     */
+    static LineSegment fromTwoPoints(const Point3 &point1, const Point3 &point2) {
+        return LineSegment(point1, point2 - point1);
+    }
+
+    /** Call with 0 or 1 */
+    Point3 point(int i) const;
+
+    Point3 midpoint() const {
+        return _point + direction * 0.5f;
+    }
+
+    inline float length() const {
+        return direction.magnitude();
+    }
 
     /**
-     An finite segment of an infinite 3D line.
+     * Returns the closest point on the line segment to point.
      */
-    class LineSegment
-    {
-    protected:
-        Point3 _point;
+    Point3 closestPoint(const Point3 &point) const;
 
-        /** Not normalized */
-        Vector3 direction;
+    /**
+     Returns the distance between point and the line
+     */
+    double distance(const Point3& p) const {
+        return (closestPoint(p) - p).magnitude();
+    }
 
-        LineSegment(const Point3& __point, const Vector3& _direction) : _point(__point), direction(_direction) {}
+    double distanceSquared(const Point3& p) const {
+        return (closestPoint(p) - p).squaredMagnitude();
+    }
 
-    public:
-        LineSegment() : _point(Point3::zero()), direction(Vector3::zero()) {}
+    /** Returns true if some part of this segment is inside the sphere */
+    bool intersectsSolidSphere(const class Sphere& s) const;
 
-        LineSegment(class BinaryInput& b);
+    Point3 randomPoint() const;
 
-        void serialize(class BinaryOutput& b) const;
-
-        void deserialize(class BinaryInput& b);
-
-        virtual ~LineSegment() {}
-
-        /**
-         * Constructs a line from two (not equal) points.
-         */
-        static LineSegment fromTwoPoints(const Point3& point1, const Point3& point2) { return LineSegment(point1, point2 - point1); }
-
-        /** Call with 0 or 1 */
-        Point3 point(int i) const;
-
-        Point3 midpoint() const { return _point + direction * 0.5f; }
-
-        inline float length() const { return direction.magnitude(); }
-
-        /**
-         * Returns the closest point on the line segment to point.
-         */
-        Point3 closestPoint(const Point3& point) const;
-
-        /**
-         Returns the distance between point and the line
-         */
-        double distance(const Point3& p) const { return (closestPoint(p) - p).magnitude(); }
-
-        double distanceSquared(const Point3& p) const { return (closestPoint(p) - p).squaredMagnitude(); }
-
-        /** Returns true if some part of this segment is inside the sphere */
-        bool intersectsSolidSphere(const class Sphere& s) const;
-
-        Point3 randomPoint() const;
-    };
+};
 
 
-    class LineSegment2D
-    {
-    private:
-        Point2 m_origin;
+class LineSegment2D {
+private:
 
-        /** Not normalized */
-        Vector2 m_direction;
+    Point2         m_origin;
 
-        /** Length of m_direction */
-        float m_length;
+    /** Not normalized */
+    Vector2         m_direction;
 
-    public:
-        LineSegment2D() {}
+    /** Length of m_direction */
+    float           m_length;
 
-        static LineSegment2D fromTwoPoints(const Point2& p0, const Vector2& p1);
+public:
+    
+    LineSegment2D() {}
 
-        /** Returns the intersection of these segements (including
-           testing endpoints), or Point2::inf() if they do not intersect. */
-        Point2 intersection(const LineSegment2D& other) const;
+    static LineSegment2D fromTwoPoints(const Point2& p0, const Vector2& p1);
 
-        Point2 point(int i) const;
+    /** Returns the intersection of these segements (including 
+       testing endpoints), or Point2::inf() if they do not intersect. */
+    Point2 intersection(const LineSegment2D& other) const;
 
-        Point2 closestPoint(const Point2& Q) const;
+    Point2 point(int i) const;
 
-        float distance(const Point2& p) const;
+    Point2 closestPoint(const Point2& Q) const;
 
-        float length() const;
-    };
+    float distance(const Point2& p) const;
 
-} // namespace G3D
+    float length() const;
+};
+
+} // namespace
 
 
 #endif

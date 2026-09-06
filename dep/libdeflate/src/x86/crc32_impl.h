@@ -32,15 +32,15 @@
 
 /* PCLMUL implementation */
 #if HAVE_PCLMUL_INTRIN
-#define crc32_x86_pclmul crc32_x86_pclmul
-#define SUFFIX _pclmul
-#if HAVE_PCLMUL_NATIVE
-#define ATTRIBUTES
-#else
-#define ATTRIBUTES _target_attribute("pclmul")
-#endif
-#define FOLD_PARTIAL_VECS 0
-#include "crc32_pclmul_template.h"
+#  define crc32_x86_pclmul	crc32_x86_pclmul
+#  define SUFFIX			 _pclmul
+#  if HAVE_PCLMUL_NATIVE
+#    define ATTRIBUTES
+#  else
+#    define ATTRIBUTES		_target_attribute("pclmul")
+#  endif
+#  define FOLD_PARTIAL_VECS	0
+#  include "crc32_pclmul_template.h"
 #endif
 
 /*
@@ -57,15 +57,15 @@
  * enabled yet.  That would require that this be moved to its own .c file.
  */
 #if HAVE_PCLMUL_INTRIN && HAVE_AVX_INTRIN
-#define crc32_x86_pclmul_avx crc32_x86_pclmul_avx
-#define SUFFIX _pclmul_avx
-#if HAVE_PCLMUL_NATIVE && HAVE_AVX_NATIVE
-#define ATTRIBUTES
-#else
-#define ATTRIBUTES _target_attribute("pclmul,avx")
-#endif
-#define FOLD_PARTIAL_VECS 1
-#include "crc32_pclmul_template.h"
+#  define crc32_x86_pclmul_avx	crc32_x86_pclmul_avx
+#  define SUFFIX			 _pclmul_avx
+#  if HAVE_PCLMUL_NATIVE && HAVE_AVX_NATIVE
+#    define ATTRIBUTES
+#  else
+#    define ATTRIBUTES		_target_attribute("pclmul,avx")
+#  endif
+#  define FOLD_PARTIAL_VECS	1
+#  include "crc32_pclmul_template.h"
 #endif
 
 /*
@@ -73,23 +73,24 @@
  * Otherwise choose the best implementation at runtime.
  */
 #if defined(crc32_x86_pclmul_avx) && HAVE_PCLMUL_NATIVE && HAVE_AVX_NATIVE
-#define DEFAULT_IMPL crc32_x86_pclmul_avx
+#define DEFAULT_IMPL	crc32_x86_pclmul_avx
 #else
-static inline crc32_func_t arch_select_crc32_func(void)
+static inline crc32_func_t
+arch_select_crc32_func(void)
 {
-    const u32 features MAYBE_UNUSED = get_x86_cpu_features();
+	const u32 features MAYBE_UNUSED = get_x86_cpu_features();
 
 #ifdef crc32_x86_pclmul_avx
-    if (HAVE_PCLMUL(features) && HAVE_AVX(features))
-        return crc32_x86_pclmul_avx;
+	if (HAVE_PCLMUL(features) && HAVE_AVX(features))
+		return crc32_x86_pclmul_avx;
 #endif
 #ifdef crc32_x86_pclmul
-    if (HAVE_PCLMUL(features))
-        return crc32_x86_pclmul;
+	if (HAVE_PCLMUL(features))
+		return crc32_x86_pclmul;
 #endif
-    return NULL;
+	return NULL;
 }
-#define arch_select_crc32_func arch_select_crc32_func
+#define arch_select_crc32_func	arch_select_crc32_func
 #endif
 
 #endif /* LIB_X86_CRC32_IMPL_H */

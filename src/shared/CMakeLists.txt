@@ -221,6 +221,9 @@ target_include_directories(shared
   PUBLIC ${CMAKE_BINARY_DIR}/src/shared # For the generated revision.h.
 )
 
+if(BUILD_ELUNA)
+  target_compile_definitions(shared PUBLIC ENABLE_ELUNA)
+endif()
 
 if(USE_DISCORD_BOT)
     target_link_libraries(shared PUBLIC

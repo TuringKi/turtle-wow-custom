@@ -165,9 +165,15 @@ void trigger_field_duty_alliance::SetEventStateWaitingForStart()
     }
 }
 
-void trigger_field_duty_alliance::SetEventStateDialogInProgress() { m_eventState = Silithus::EventState::DIALOG_IN_PROGRESS; }
+void trigger_field_duty_alliance::SetEventStateDialogInProgress()
+{
+    m_eventState = Silithus::EventState::DIALOG_IN_PROGRESS;
+}
 
-void trigger_field_duty_alliance::SetEventStateFinished() { m_eventState = Silithus::EventState::FINISHED; }
+void trigger_field_duty_alliance::SetEventStateFinished()
+{
+    m_eventState = Silithus::EventState::FINISHED;
+}
 
 Creature* trigger_field_duty_alliance::SpawnCaptainBlackanvil()
 {
@@ -175,7 +181,11 @@ Creature* trigger_field_duty_alliance::SpawnCaptainBlackanvil()
     {
         blackanvil->m_creature->DisappearAndDie();
     }
-    const auto blackanvil = m_creature->SummonCreature(Silithus::Creatures::ENTRY_CAPTAIN_BLACKANVIL, Silithus::Locations::SPAWN_CAPTAIN_BLACKANVIL, TEMPSUMMON_DEAD_DESPAWN, 0);
+    const auto blackanvil = m_creature->SummonCreature(
+        Silithus::Creatures::ENTRY_CAPTAIN_BLACKANVIL,
+        Silithus::Locations::SPAWN_CAPTAIN_BLACKANVIL,
+        TEMPSUMMON_DEAD_DESPAWN,
+        0);
     m_cachedBlackanvilGuid = blackanvil->GetGUID();
     blackanvil->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
     blackanvil->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
@@ -190,20 +200,37 @@ Creature* trigger_field_duty_alliance::SpawnHiveZoraAbomination()
     {
         abomination->m_creature->DisappearAndDie();
     }
-    const auto abomination = m_creature->SummonCreature(Silithus::Creatures::ENTRY_HIVEZORA_ABOMINATION, Silithus::Locations::SPAWN_HIVEZORA_ABOMINATION, TEMPSUMMON_DEAD_DESPAWN, 0);
+    const auto abomination = m_creature->SummonCreature(
+        Silithus::Creatures::ENTRY_HIVEZORA_ABOMINATION,
+        Silithus::Locations::SPAWN_HIVEZORA_ABOMINATION,
+        TEMPSUMMON_DEAD_DESPAWN,
+        0);
     m_cachedAbominationGuid = abomination->GetGUID();
     return abomination;
 }
 
-void trigger_field_duty_alliance::UpdateEventState(const uint32_t delta) {}
+void trigger_field_duty_alliance::UpdateEventState(const uint32_t delta)
+{
+}
 
-trigger_field_duty_alliance::trigger_field_duty_alliance(Creature* pCreature) : ScriptedAI(pCreature) { trigger_field_duty_alliance::Reset(); }
+trigger_field_duty_alliance::trigger_field_duty_alliance(Creature* pCreature) : ScriptedAI(pCreature)
+{
+    trigger_field_duty_alliance::Reset();
+}
 
-void trigger_field_duty_alliance::Reset() {}
+void trigger_field_duty_alliance::Reset()
+{
+}
 
-Silithus::EventState::EventState trigger_field_duty_alliance::EventState() const { return m_eventState; }
+Silithus::EventState::EventState trigger_field_duty_alliance::EventState() const
+{
+    return m_eventState;
+}
 
-void trigger_field_duty_alliance::StartEvent() { SetEventStateDialogInProgress(); }
+void trigger_field_duty_alliance::StartEvent()
+{
+    SetEventStateDialogInProgress();
+}
 
 void trigger_field_duty_alliance::UpdateAI(const uint32_t delta)
 {
@@ -682,7 +709,10 @@ void trigger_field_duty_alliance::UpdateAI(const uint32_t delta)
     }
 }
 
-CreatureAI* trigger_field_duty_alliance::GetAI(Creature* pCreature) { return new trigger_field_duty_alliance(pCreature); }
+CreatureAI* trigger_field_duty_alliance::GetAI(Creature* pCreature)
+{
+    return new trigger_field_duty_alliance(pCreature);
+}
 
 void trigger_field_duty_alliance::RegisterScript()
 {

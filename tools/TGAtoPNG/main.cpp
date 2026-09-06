@@ -1,17 +1,17 @@
 #define _CRT_SECURE_NO_DEPRECATE
 
 #include <filesystem>
-#include <fstream>
 #include <iostream>
 #include <vector>
+#include <fstream>
 // #include <cstdio>
-#include <mutex>
-#include <queue>
 #include <sstream>
-#include <thread>
-#include "Windows.h"
 #include "lodepng.h"
 #include "tga.h"
+#include "Windows.h"
+#include <queue>
+#include <thread>
+#include <mutex>
 
 using namespace std;
 #define fs std::filesystem
@@ -64,7 +64,7 @@ void Convert()
     }
 }
 
-int main()
+int main() 
 {
     fs::path _path = fs::current_path() / "Screenshots";
 
@@ -102,5 +102,5 @@ int main()
         else
             Sleep(1);
     }
-    return 0;
+	return 0;
 }

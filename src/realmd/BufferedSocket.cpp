@@ -26,21 +26,27 @@
 #include "BufferedSocket.h"
 #include "Config/Config.h"
 
-#include <ace/INET_Addr.h>
 #include <ace/OS_NS_string.h>
+#include <ace/INET_Addr.h>
 #include <ace/SString.h>
 
 #ifndef MSG_NOSIGNAL
 #define MSG_NOSIGNAL 0
 #endif
 
-BufferedSocket::BufferedSocket(void) : input_buffer_(4096), remote_address_("<unknown>") {}
-
-/*virtual*/ BufferedSocket::~BufferedSocket(void) {}
-
-/*virtual*/ int BufferedSocket::open(void* arg)
+BufferedSocket::BufferedSocket(void):
+    input_buffer_(4096),
+    remote_address_("<unknown>")
 {
-    if (Base::open(arg) == -1)
+}
+
+/*virtual*/ BufferedSocket::~BufferedSocket(void)
+{
+}
+
+/*virtual*/ int BufferedSocket::open(void * arg)
+{
+    if(Base::open(arg) == -1)
         return -1;
 
     if (time_t timer = sConfig.GetIntDefault("MaxSessionDuration", 300))
@@ -51,7 +57,7 @@ BufferedSocket::BufferedSocket(void) : input_buffer_(4096), remote_address_("<un
 
     ACE_INET_Addr addr;
 
-    if (peer().get_remote_addr(addr) == -1)
+    if(peer().get_remote_addr(addr) == -1)
         return -1;
 
     char address[1024];
@@ -65,13 +71,19 @@ BufferedSocket::BufferedSocket(void) : input_buffer_(4096), remote_address_("<un
     return 0;
 }
 
-const std::string& BufferedSocket::get_remote_address(void) const { return this->remote_address_; }
-
-size_t BufferedSocket::recv_len(void) const { return this->input_buffer_.length(); }
-
-bool BufferedSocket::recv_soft(char* buf, size_t len)
+const std::string& BufferedSocket::get_remote_address(void) const
 {
-    if (this->input_buffer_.length() < len)
+    return this->remote_address_;
+}
+
+size_t BufferedSocket::recv_len(void) const
+{
+    return this->input_buffer_.length();
+}
+
+bool BufferedSocket::recv_soft(char *buf, size_t len)
+{
+    if(this->input_buffer_.length() < len)
         return false;
 
     ACE_OS::memcpy(buf, this->input_buffer_.rd_ptr(), len);
@@ -79,38 +91,41 @@ bool BufferedSocket::recv_soft(char* buf, size_t len)
     return true;
 }
 
-bool BufferedSocket::recv(char* buf, size_t len)
+bool BufferedSocket::recv(char *buf, size_t len)
 {
     bool ret = this->recv_soft(buf, len);
 
-    if (ret)
+    if(ret)
         this->recv_skip(len);
 
     return ret;
 }
 
-void BufferedSocket::recv_skip(size_t len) { this->input_buffer_.rd_ptr(len); }
+void BufferedSocket::recv_skip(size_t len)
+{
+    this->input_buffer_.rd_ptr(len);
+}
 
-ssize_t BufferedSocket::noblk_send(ACE_Message_Block& message_block)
+ssize_t BufferedSocket::noblk_send(ACE_Message_Block &message_block)
 {
     const size_t len = message_block.length();
 
-    if (len == 0)
+    if(len == 0)
         return -1;
 
     // Try to send the message directly.
     ssize_t n = this->peer().send(message_block.rd_ptr(), len, MSG_NOSIGNAL);
 
-    if (n < 0)
+    if(n < 0)
     {
-        if (errno == EWOULDBLOCK)
+        if(errno == EWOULDBLOCK)
             // Blocking signal
             return 0;
         else
             // Error
             return -1;
     }
-    else if (n == 0)
+    else if(n == 0)
     {
         // Can this happen ?
         return -1;
@@ -120,25 +135,35 @@ ssize_t BufferedSocket::noblk_send(ACE_Message_Block& message_block)
     return n;
 }
 
-bool BufferedSocket::send(const char* buf, size_t len)
+bool BufferedSocket::send(const char *buf, size_t len)
 {
-    if (buf == nullptr || len == 0)
+    if(buf == nullptr || len == 0)
         return true;
 
-    ACE_Data_Block db(len, ACE_Message_Block::MB_DATA, (const char*)buf, 0, 0, ACE_Message_Block::DONT_DELETE, 0);
+    ACE_Data_Block db(
+            len,
+            ACE_Message_Block::MB_DATA,
+            (const char*)buf,
+            0,
+            0,
+            ACE_Message_Block::DONT_DELETE,
+            0);
 
-    ACE_Message_Block message_block(&db, ACE_Message_Block::DONT_DELETE, 0);
+    ACE_Message_Block message_block(
+            &db,
+            ACE_Message_Block::DONT_DELETE,
+            0);
 
     message_block.wr_ptr(len);
 
-    if (this->msg_queue()->is_empty())
+    if(this->msg_queue()->is_empty())
     {
         // Try to send it directly.
         ssize_t n = this->noblk_send(message_block);
 
-        if (n < 0)
+        if(n < 0)
             return false;
-        else if (n == len)
+        else if(n == len)
             return true;
 
         // adjust how much bytes we sent
@@ -148,9 +173,9 @@ bool BufferedSocket::send(const char* buf, size_t len)
     }
 
     // enqueue the message, note: clone is needed cause we cant enqueue stuff on the stack
-    ACE_Message_Block* mb = message_block.clone();
+    ACE_Message_Block *mb = message_block.clone();
 
-    if (this->msg_queue()->enqueue_tail(mb, (ACE_Time_Value*)&ACE_Time_Value::zero) == -1)
+    if(this->msg_queue()->enqueue_tail(mb, (ACE_Time_Value *) &ACE_Time_Value::zero) == -1)
     {
         mb->release();
         return false;
@@ -162,26 +187,26 @@ bool BufferedSocket::send(const char* buf, size_t len)
 
 /*virtual*/ int BufferedSocket::handle_output(ACE_HANDLE /*= ACE_INVALID_HANDLE*/)
 {
-    ACE_Message_Block* mb = 0;
+    ACE_Message_Block *mb = 0;
 
-    if (this->msg_queue()->is_empty())
+    if(this->msg_queue()->is_empty())
     {
         // if no more data to send, then cancel notification
         this->reactor()->cancel_wakeup(this, ACE_Event_Handler::WRITE_MASK);
         return 0;
     }
 
-    if (this->msg_queue()->dequeue_head(mb, (ACE_Time_Value*)&ACE_Time_Value::zero) == -1)
+    if(this->msg_queue()->dequeue_head(mb, (ACE_Time_Value *) &ACE_Time_Value::zero) == -1)
         return -1;
 
     ssize_t n = this->noblk_send(*mb);
 
-    if (n < 0)
+    if(n < 0)
     {
         mb->release();
         return -1;
     }
-    else if (n == mb->length())
+    else if(n == mb->length())
     {
         mb->release();
         return 1;
@@ -190,7 +215,7 @@ bool BufferedSocket::send(const char* buf, size_t len)
     {
         mb->rd_ptr(n);
 
-        if (this->msg_queue()->enqueue_head(mb, (ACE_Time_Value*)&ACE_Time_Value::zero) == -1)
+        if(this->msg_queue()->enqueue_head(mb, (ACE_Time_Value *) &ACE_Time_Value::zero) == -1)
         {
             mb->release();
             return -1;
@@ -208,12 +233,12 @@ bool BufferedSocket::send(const char* buf, size_t len)
 
     ssize_t n = this->peer().recv(this->input_buffer_.wr_ptr(), space);
 
-    if (n < 0)
+    if(n < 0)
     {
         // blocking signal or error
         return errno == EWOULDBLOCK ? 0 : -1;
     }
-    else if (n == 0)
+    else if(n == 0)
     {
         // EOF
         return -1;

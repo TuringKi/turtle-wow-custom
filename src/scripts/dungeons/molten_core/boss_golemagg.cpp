@@ -25,21 +25,21 @@ EndScriptData */
     Golemagg and his adds should evade if dogs are pulled too far away from Golemagg
 */
 
-#include "molten_core.h"
 #include "scriptPCH.h"
+#include "molten_core.h"
 
 enum
 {
-    SPELL_MAGMASPLASH = 13879,
-    SPELL_PYROBLAST = 20228,
-    SPELL_EARTHQUAKE = 19798,
-    SPELL_ENRAGE = 19953,
-    SPELL_GOLEMAGG_TRUST = 20553,
+    SPELL_MAGMASPLASH       = 13879,
+    SPELL_PYROBLAST         = 20228,
+    SPELL_EARTHQUAKE        = 19798,
+    SPELL_ENRAGE            = 19953,
+    SPELL_GOLEMAGG_TRUST    = 20553,
 
     // Core Rager
-    EMOTE_LOWHP = -1409002,
-    SPELL_MANGLE = 19820,
-    SPELL_TRASH = 3391
+    EMOTE_LOWHP             = -1409002,
+    SPELL_MANGLE            = 19820,
+    SPELL_TRASH             = 3391
 };
 
 struct boss_golemaggAI : public ScriptedAI
@@ -59,7 +59,7 @@ struct boss_golemaggAI : public ScriptedAI
 
     void Reset() override
     {
-        m_uiPyroblastTimer = 7 * IN_MILLISECONDS; // These timers are probably wrong
+        m_uiPyroblastTimer = 7 * IN_MILLISECONDS;            // These timers are probably wrong
         m_uiEarthquakeTimer = 3 * IN_MILLISECONDS;
         TickTimer = 10000;
         m_bEnraged = false;
@@ -122,8 +122,7 @@ struct boss_golemaggAI : public ScriptedAI
             if (DoCastSpellIfCan(m_creature, SPELL_GOLEMAGG_TRUST) == CAST_OK)
                 TickTimer = 2000;
         }
-        else
-            TickTimer -= uiDiff;
+        else TickTimer -= uiDiff;
 
         // Earthquake
         if (m_bEnraged)
@@ -157,14 +156,19 @@ struct mob_core_ragerAI : public ScriptedAI
     void Reset() override
     {
         TickTimer = 1000;
-        m_uiMangleTimer = 7 * IN_MILLISECONDS; // These times are probably wrong
+        m_uiMangleTimer = 7 * IN_MILLISECONDS;               // These times are probably wrong
     }
 
     /**
      * \brief Attempts to locate Golemagg within the instance
      * \return A pointer to Golemagg if found, otherwise nullptr
      */
-    Creature* GetGolemagg() const { return m_pInstance ? m_pInstance->instance->GetCreature(m_pInstance->GetData64(DATA_GOLEMAGG)) : nullptr; }
+    Creature* GetGolemagg() const
+    {
+        return m_pInstance
+            ? m_pInstance->instance->GetCreature(m_pInstance->GetData64(DATA_GOLEMAGG))
+            : nullptr;
+    }
 
     void DamageTaken(Unit* pDoneBy, uint32& uiDamage) override
     {
@@ -228,16 +232,21 @@ struct mob_core_ragerAI : public ScriptedAI
             if (!m_creature->HasAura(SPELL_TRASH) && !(bool)(rand() % 10))
                 m_creature->CastSpell(m_creature, SPELL_TRASH, true);
         }
-        else
-            TickTimer -= uiDiff;
+        else TickTimer -= uiDiff;
 
         DoMeleeAttackIfReady();
     }
 };
 
-CreatureAI* GetAI_boss_golemagg(Creature* pCreature) { return new boss_golemaggAI(pCreature); }
+CreatureAI* GetAI_boss_golemagg(Creature* pCreature)
+{
+    return new boss_golemaggAI(pCreature);
+}
 
-CreatureAI* GetAI_mob_core_rager(Creature* pCreature) { return new mob_core_ragerAI(pCreature); }
+CreatureAI* GetAI_mob_core_rager(Creature* pCreature)
+{
+    return new mob_core_ragerAI(pCreature);
+}
 
 void AddSC_boss_golemagg()
 {

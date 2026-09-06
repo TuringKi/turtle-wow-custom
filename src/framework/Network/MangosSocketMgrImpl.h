@@ -2,32 +2,32 @@
 
 
 #include <ace/ACE.h>
-#include <ace/Acceptor.h>
-#include <ace/Dev_Poll_Reactor.h>
-#include <ace/Guard_T.h>
 #include <ace/Log_Msg.h>
 #include <ace/Reactor.h>
 #include <ace/Reactor_Impl.h>
-#include <ace/SOCK_Acceptor.h>
 #include <ace/TP_Reactor.h>
+#include <ace/Dev_Poll_Reactor.h>
+#include <ace/Guard_T.h>
 #include <ace/os_include/arpa/os_inet.h>
 #include <ace/os_include/netinet/os_tcp.h>
-#include <ace/os_include/sys/os_socket.h>
 #include <ace/os_include/sys/os_types.h>
+#include <ace/os_include/sys/os_socket.h>
+#include <ace/Acceptor.h>
+#include <ace/SOCK_Acceptor.h>
 
-#include <atomic>
 #include <set>
+#include <atomic>
 
+#include "Log.h"
 #include "Common.h"
 #include "Config/Config.h"
 #include "Database/DatabaseEnv.h"
-#include "Log.h"
 
 template <typename SocketType>
 class MangosSocketAcceptor : public ACE_Acceptor<SocketType, ACE_SOCK_Acceptor>
 {
 public:
-    MangosSocketAcceptor(void) {}
+    MangosSocketAcceptor(void) { }
     virtual ~MangosSocketAcceptor(void)
     {
         if (this->reactor())
@@ -35,6 +35,7 @@ public:
     }
 
 protected:
+
     virtual int handle_timeout(const ACE_Time_Value& current_time, const void* act = 0)
     {
         sLog.outBasic("Resuming acceptor");
@@ -57,19 +58,23 @@ protected:
 };
 
 /**
- * This is a helper class to WorldSocketMgr ,that manages
- * network threads, and assigning connections from acceptor thread
- * to other network threads
- */
+* This is a helper class to WorldSocketMgr ,that manages
+* network threads, and assigning connections from acceptor thread
+* to other network threads
+*/
 template <typename SocketType>
 class ReactorRunnable : protected ACE_Task_Base
 {
 public:
-    ReactorRunnable() : m_Reactor(0), m_Connections(0), m_ThreadId(-1), m_Interval(0)
+    ReactorRunnable() :
+        m_Reactor(0),
+        m_Connections(0),
+        m_ThreadId(-1),
+        m_Interval(0)
     {
         ACE_Reactor_Impl* imp = 0;
 
-#if defined(ACE_HAS_EVENT_POLL) || defined(ACE_HAS_DEV_POLL)
+#if defined (ACE_HAS_EVENT_POLL) || defined (ACE_HAS_DEV_POLL)
 
         imp = new ACE_Dev_Poll_Reactor();
 
@@ -94,7 +99,11 @@ public:
         delete m_Reactor;
     }
 
-    void Stop() { m_Reactor->end_reactor_event_loop(); }
+    void Stop()
+    {
+        m_Reactor->end_reactor_event_loop();
+        m_Reactor->notify();
+    }
 
     int Start(int interval)
     {
@@ -106,9 +115,15 @@ public:
         return (m_ThreadId = activate());
     }
 
-    void Wait() { ACE_Task_Base::wait(); }
+    void Wait()
+    {
+        ACE_Task_Base::wait();
+    }
 
-    long Connections() { return m_Connections; }
+    long Connections()
+    {
+        return m_Connections;
+    }
 
     int AddSocket(SocketType* sock)
     {
@@ -122,7 +137,10 @@ public:
         return 0;
     }
 
-    ACE_Reactor* GetReactor() { return m_Reactor; }
+    ACE_Reactor* GetReactor()
+    {
+        return m_Reactor;
+    }
 
 protected:
     void AddNewSockets()
@@ -209,14 +227,22 @@ private:
 };
 
 template <typename SocketType>
-MangosSocketMgr<SocketType>::MangosSocketMgr() : m_NetThreads(0), m_NetThreadsCount(0), m_SockOutKBuff(-1), m_SockOutUBuff(65536), m_UseNoDelay(true), m_Interval(10000), m_port(0), m_Acceptor(0)
+MangosSocketMgr<SocketType>::MangosSocketMgr():
+    m_NetThreads(0),
+    m_NetThreadsCount(0),
+    m_SockOutKBuff(-1),
+    m_SockOutUBuff(65536),
+    m_UseNoDelay(true),
+    m_Interval(10000),
+    m_port(0),
+    m_Acceptor(0)
 {
 }
 
 template <typename SocketType>
-MangosSocketMgr<SocketType>::~MangosSocketMgr()
+MangosSocketMgr<SocketType>::~MangosSocketMgr() noexcept
 {
-    delete[] m_NetThreads;
+    delete [] m_NetThreads;
     delete m_Acceptor;
 }
 
@@ -282,9 +308,9 @@ void MangosSocketMgr<SocketType>::StopNetwork()
             m_NetThreads[i].Stop();
     }
 
-    //#ifdef _WIN32
+//#ifdef _WIN32
     Wait();
-    //#endif
+//#endif
 }
 
 template <typename SocketType>
@@ -349,8 +375,8 @@ int MangosSocketMgr<SocketType>::Connect(int port, std::string const& address, S
     // Create the connector
     typename SocketType::Connector connector;
 
-    // Connects to remote machine
-    if (connector.connect(handler, addr) == -1)
+    //Connects to remote machine
+    if (connector.connect(handler,addr) == -1)
     {
         // Handler is already deleted.
         handler = nullptr;

@@ -22,7 +22,11 @@ enum
 
 struct npc_echo_of_medivhAI : public ScriptedAI
 {
-    npc_echo_of_medivhAI(Creature* pCreature) : ScriptedAI(pCreature) { Reset(); }
+    npc_echo_of_medivhAI(Creature* pCreature) : ScriptedAI(pCreature)
+    {
+        Reset();
+
+    }
 
     bool m_phase2;
     bool m_phase3;
@@ -107,7 +111,7 @@ struct npc_echo_of_medivhAI : public ScriptedAI
             return;
         }
 
-        std::vector<uint32> availableSpells = {SPELL_PYROBLAST, SPELL_FLAMESTRIKE, SPELL_FROST_NOVA, SPELL_ARCANE_BLAST, SPELL_FROSTBOLT, SPELL_ARCANE_MISSILES};
+        std::vector<uint32> availableSpells = { SPELL_PYROBLAST, SPELL_FLAMESTRIKE, SPELL_FROST_NOVA, SPELL_ARCANE_BLAST, SPELL_FROSTBOLT, SPELL_ARCANE_MISSILES };
         if (m_creature->HasAura(SPELL_SHADOWFORM))
             availableSpells.push_back(SPELL_SHADOWBOLT);
         else
@@ -125,7 +129,10 @@ struct npc_echo_of_medivhAI : public ScriptedAI
     }
 };
 
-CreatureAI* GetAI_npc_echo_of_medivh(Creature* pCreature) { return new npc_echo_of_medivhAI(pCreature); }
+CreatureAI* GetAI_npc_echo_of_medivh(Creature* pCreature)
+{
+    return new npc_echo_of_medivhAI(pCreature);
+}
 
 void AddSC_boss_echo_of_medivh()
 {

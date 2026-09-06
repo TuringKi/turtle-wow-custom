@@ -29,7 +29,10 @@ EndScriptData */
 
 struct boss_azshir_the_sleeplessAI : public ScriptedAI
 {
-    boss_azshir_the_sleeplessAI(Creature* pCreature) : ScriptedAI(pCreature) { Reset(); }
+    boss_azshir_the_sleeplessAI(Creature* pCreature) : ScriptedAI(pCreature)
+    {
+        Reset();
+    }
 
     uint32 SoulSiphon_Timer;
     uint32 CallOftheGrave_Timer;
@@ -47,10 +50,10 @@ struct boss_azshir_the_sleeplessAI : public ScriptedAI
         if (!m_creature->SelectHostileTarget() || !m_creature->GetVictim())
             return;
 
-        // If we are <50% hp cast Soul Siphon rank 1
+        //If we are <50% hp cast Soul Siphon rank 1
         if (m_creature->GetHealthPercent() <= 50.0f && !m_creature->IsNonMeleeSpellCasted(false))
         {
-            // SoulSiphon_Timer
+            //SoulSiphon_Timer
             if (SoulSiphon_Timer < diff)
             {
                 DoCastSpellIfCan(m_creature->GetVictim(), SPELL_SOULSIPHON);
@@ -58,37 +61,37 @@ struct boss_azshir_the_sleeplessAI : public ScriptedAI
 
                 SoulSiphon_Timer = 20000;
             }
-            else
-                SoulSiphon_Timer -= diff;
+            else SoulSiphon_Timer -= diff;
         }
 
-        // CallOfTheGrave_Timer
+        //CallOfTheGrave_Timer
         if (CallOftheGrave_Timer < diff)
         {
             DoCastSpellIfCan(m_creature->GetVictim(), SPELL_CALLOFTHEGRAVE);
             CallOftheGrave_Timer = 30000;
         }
-        else
-            CallOftheGrave_Timer -= diff;
+        else CallOftheGrave_Timer -= diff;
 
-        // Terrify_Timer
+        //Terrify_Timer
         if (Terrify_Timer < diff)
         {
             DoCastSpellIfCan(m_creature->GetVictim(), SPELL_TERRIFY);
             Terrify_Timer = 20000;
         }
-        else
-            Terrify_Timer -= diff;
+        else Terrify_Timer -= diff;
 
         DoMeleeAttackIfReady();
     }
 };
 
-CreatureAI* GetAI_boss_azshir_the_sleepless(Creature* pCreature) { return new boss_azshir_the_sleeplessAI(pCreature); }
+CreatureAI* GetAI_boss_azshir_the_sleepless(Creature* pCreature)
+{
+    return new boss_azshir_the_sleeplessAI(pCreature);
+}
 
 void AddSC_boss_azshir_the_sleepless()
 {
-    Script* newscript;
+    Script *newscript;
     newscript = new Script;
     newscript->Name = "boss_azshir_the_sleepless";
     newscript->GetAI = &GetAI_boss_azshir_the_sleepless;

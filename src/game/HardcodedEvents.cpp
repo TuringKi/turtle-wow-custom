@@ -1,12 +1,12 @@
 #include "HardcodedEvents.h"
-#include <chrono>
-#include <limits>
-#include <random>
-#include "GridSearchers.h"
-#include "MapManager.h"
 #include "World.h"
+#include "MapManager.h"
 #include "events/event_naxxramas.h"
 #include "events/event_wareffort.h"
+#include "GridSearchers.h"
+#include <chrono>
+#include <random>
+#include <limits>
 
 /*
  * Elemental Invasion
@@ -54,7 +54,7 @@ void ElementalInvasion::Update()
         StartLocalBoss(EVENT_IND_AIR, stageAir, delayAir);
         StartLocalBoss(EVENT_IND_WATER, stageWater, delayWater);
         StartLocalBoss(EVENT_IND_EARTH, stageEarth, delayEarth);
-
+        
         // check for boss death
         // stop rifts immediately, stop bosses' events with a delay to allow looting
         StopLocalInvasion(EVENT_IND_FIRE, stageFire, delayFire);
@@ -63,7 +63,9 @@ void ElementalInvasion::Update()
         StopLocalInvasion(EVENT_IND_EARTH, stageEarth, delayEarth);
 
         // all bosses are dead, all delays are gone
-        if (!delayFire && !delayAir && !delayWater && !delayEarth && stageFire == STAGE_BOSS_DESPAWN && stageAir == STAGE_BOSS_DESPAWN && stageWater == STAGE_BOSS_DESPAWN && stageEarth == STAGE_BOSS_DESPAWN)
+        if (!delayFire && !delayAir && !delayWater && !delayEarth &&
+            stageFire == STAGE_BOSS_DESPAWN && stageAir == STAGE_BOSS_DESPAWN &&
+            stageWater == STAGE_BOSS_DESPAWN && stageEarth == STAGE_BOSS_DESPAWN)
         {
             sGameEventMgr.StopEvent(EVENT_INVASION, true);
 
@@ -74,7 +76,10 @@ void ElementalInvasion::Update()
     }
 }
 
-void ElementalInvasion::Enable() {}
+void ElementalInvasion::Enable()
+{
+
+}
 
 void ElementalInvasion::Disable()
 {
@@ -108,7 +113,8 @@ void ElementalInvasion::StartLocalBoss(uint8 index, uint32 stage, uint32 delay)
     // Similarly, if the boss is dead but we're delaying the despawn, start the
     // event. Must do this or the next time the event is triggered the boss will
     // be spawned dead
-    if (((stage >= STAGE_BOSS_DOWN && delay > 0) || stage == STAGE_BOSS) && !sGameEventMgr.IsActiveEvent(InvasionData[index].eventBoss))
+    if (((stage >= STAGE_BOSS_DOWN && delay > 0) || stage == STAGE_BOSS) && 
+            !sGameEventMgr.IsActiveEvent(InvasionData[index].eventBoss))
         sGameEventMgr.StartEvent(InvasionData[index].eventBoss, true);
 }
 
@@ -156,8 +162,8 @@ void ElementalInvasion::ResetThings()
 }
 
 /*
- * Leprithus (rare) & Rotten Ghouls spawn at night
- */
+* Leprithus (rare) & Rotten Ghouls spawn at night
+*/
 
 void Leprithus::Update()
 {
@@ -172,7 +178,10 @@ void Leprithus::Update()
         sGameEventMgr.StopEvent(LEPRITHUS_EVENT_ONGOING, true);
 }
 
-void Leprithus::Enable() {}
+void Leprithus::Enable()
+{
+    
+}
 
 void Leprithus::Disable()
 {
@@ -191,12 +200,12 @@ LeprithusEventState Leprithus::GetLeprithusState()
     if (timeinfo->tm_hour >= 22 || timeinfo->tm_hour <= 9)
         return LEPRITHUS_EVENT_ONGOING;
 
-    return LEPRITHUS_EVENT_NONE;
+    return LEPRITHUS_EVENT_NONE;    
 }
 
 /*
- * Moonbrook graveyard vultures(Fleshrippers) spawn at daylight
- */
+* Moonbrook graveyard vultures(Fleshrippers) spawn at daylight
+*/
 
 void Moonbrook::Update()
 {
@@ -211,7 +220,10 @@ void Moonbrook::Update()
         sGameEventMgr.StopEvent(MOONBROOK_EVENT_ONGOING, true);
 }
 
-void Moonbrook::Enable() {}
+void Moonbrook::Enable()
+{
+    
+}
 
 void Moonbrook::Disable()
 {
@@ -230,12 +242,12 @@ MoonbrookEventState Moonbrook::GetMoonbrookState()
     if (timeinfo->tm_hour < 21 && timeinfo->tm_hour > 9)
         return MOONBROOK_EVENT_ONGOING;
 
-    return MOONBROOK_EVENT_NONE;
+    return MOONBROOK_EVENT_NONE;    
 }
 
 /*
- * Dragons of Nightmare
- */
+* Dragons of Nightmare
+*/
 
 void DragonsOfNightmare::Update()
 {
@@ -295,7 +307,10 @@ void DragonsOfNightmare::Update()
     }
 }
 
-void DragonsOfNightmare::Enable() {}
+void DragonsOfNightmare::Enable()
+{
+
+}
 
 void DragonsOfNightmare::Disable()
 {
@@ -323,7 +338,7 @@ void DragonsOfNightmare::CheckSingleVariable(uint32 idx, uint32& value)
     }
 }
 
-void DragonsOfNightmare::GetAliveCountAndUpdateRespawnTime(std::vector<ObjectGuid>& dragons, uint32& alive, time_t respawnTime)
+void DragonsOfNightmare::GetAliveCountAndUpdateRespawnTime(std::vector<ObjectGuid> &dragons, uint32 &alive, time_t respawnTime)
 {
     for (auto& guid : dragons)
     {
@@ -361,7 +376,7 @@ void DragonsOfNightmare::GetAliveCountAndUpdateRespawnTime(std::vector<ObjectGui
     }
 }
 
-bool DragonsOfNightmare::LoadDragons(std::vector<ObjectGuid>& dragonGUIDs)
+bool DragonsOfNightmare::LoadDragons(std::vector<ObjectGuid> &dragonGUIDs)
 {
     for (uint32 entry : NightmareDragons)
     {
@@ -380,11 +395,11 @@ bool DragonsOfNightmare::LoadDragons(std::vector<ObjectGuid>& dragonGUIDs)
     return true;
 }
 
-// void DragonsOfNightmare::GetAliveCount(std::vector<ObjectGuid> dragonGUIDs, uint32 &alive)
+//void DragonsOfNightmare::GetAliveCount(std::vector<ObjectGuid> dragonGUIDs, uint32 &alive)
 
 void DragonsOfNightmare::PermutateDragons()
 {
-    std::vector<uint32> permutation = {NPC_LETHON, NPC_EMERISS, NPC_YSONDRE, NPC_TAERAR};
+    std::vector<uint32> permutation = { NPC_LETHON, NPC_EMERISS, NPC_YSONDRE, NPC_TAERAR };
     auto seed = std::chrono::system_clock::now().time_since_epoch().count();
     std::shuffle(permutation.begin(), permutation.end(), std::default_random_engine(seed));
 
@@ -395,8 +410,8 @@ void DragonsOfNightmare::PermutateDragons()
 }
 
 /*
- * Darkmoon Faire
- */
+* Darkmoon Faire
+*/
 
 void DarkmoonFaire::Update()
 {
@@ -417,9 +432,15 @@ void DarkmoonFaire::Update()
     }
 }
 
-void DarkmoonFaire::Enable() {}
+void DarkmoonFaire::Enable()
+{
 
-void DarkmoonFaire::Disable() {}
+}
+
+void DarkmoonFaire::Disable()
+{
+
+}
 
 DarkmoonState DarkmoonFaire::GetDarkmoonState()
 {
@@ -445,7 +466,10 @@ DarkmoonState DarkmoonFaire::GetDarkmoonState()
 
 void FireworksShow::Update()
 {
-    if (sGameEventMgr.IsActiveEvent(EVENT_NEW_YEAR) || sGameEventMgr.IsActiveEvent(EVENT_LUNAR_NEW_YEAR) || sGameEventMgr.IsActiveEvent(EVENT_JULY_4TH) || sGameEventMgr.IsActiveEvent(EVENT_SEPTEMBER_30TH))
+    if (sGameEventMgr.IsActiveEvent(EVENT_NEW_YEAR) ||
+        sGameEventMgr.IsActiveEvent(EVENT_LUNAR_NEW_YEAR) ||
+        sGameEventMgr.IsActiveEvent(EVENT_JULY_4TH) ||
+        sGameEventMgr.IsActiveEvent(EVENT_SEPTEMBER_30TH))
     {
         if (sGameEventMgr.IsActiveEvent(EVENT_FIREWORKS))
         {
@@ -462,7 +486,10 @@ void FireworksShow::Update()
         sGameEventMgr.StopEvent(EVENT_FIREWORKS);
 }
 
-void FireworksShow::Enable() {}
+void FireworksShow::Enable()
+{
+
+}
 
 void FireworksShow::Disable()
 {
@@ -492,8 +519,8 @@ bool FireworksShow::IsHourBeginning(uint8 minutes) const
 }
 
 /*
- * Post Firework Show Toasting Goblets
- */
+* Post Firework Show Toasting Goblets
+*/
 
 void ToastingGoblets::Update()
 {
@@ -506,10 +533,14 @@ void ToastingGoblets::Update()
     {
         if (ShouldEnable())
             sGameEventMgr.StartEvent(EVENT_TOASTING_GOBLETS, true);
+
     }
 }
 
-void ToastingGoblets::Enable() {}
+void ToastingGoblets::Enable()
+{
+
+}
 
 void ToastingGoblets::Disable()
 {
@@ -519,7 +550,8 @@ void ToastingGoblets::Disable()
 
 bool ToastingGoblets::ShouldEnable() const
 {
-    if (!(sGameEventMgr.IsActiveEvent(EVENT_NEW_YEAR) || sGameEventMgr.IsActiveEvent(EVENT_LUNAR_NEW_YEAR)))
+    if (!(sGameEventMgr.IsActiveEvent(EVENT_NEW_YEAR) ||
+        sGameEventMgr.IsActiveEvent(EVENT_LUNAR_NEW_YEAR)))
         return false;
 
     time_t rawtime;
@@ -535,7 +567,10 @@ bool ToastingGoblets::ShouldEnable() const
     return timeinfo->tm_min >= 10 && timeinfo->tm_min <= 20;
 }
 
-ScourgeInvasionEvent::ScourgeInvasionEvent() : WorldEvent(GAME_EVENT_SCOURGE_INVASION), invasion1Loaded(false), invasion2Loaded(false)
+ScourgeInvasionEvent::ScourgeInvasionEvent()
+    :WorldEvent(GAME_EVENT_SCOURGE_INVASION),
+    invasion1Loaded(false),
+    invasion2Loaded(false)
 {
     memset(&previousRemainingCounts[0], -1, sizeof(int) * 6);
 
@@ -596,7 +631,7 @@ ScourgeInvasionEvent::ScourgeInvasionEvent() : WorldEvent(GAME_EVENT_SCOURGE_INV
         tanaris_sw.shards.emplace_back(InvasionXYZ(-8804.99f, -2568.08f, 12.13f));
         tanaris_sw.shards.emplace_back(InvasionXYZ(-8434.97f, -2308.05f, 22.07f));
         tanaris_sw.shards.emplace_back(InvasionXYZ(-8503.57f, -2652.94f, 35.16f));
-
+        
         tanaris.points.push_back(tanaris_north);
         tanaris.points.push_back(tanaris_se);
         tanaris.points.push_back(tanaris_sw);
@@ -614,7 +649,7 @@ ScourgeInvasionEvent::ScourgeInvasionEvent() : WorldEvent(GAME_EVENT_SCOURGE_INV
 
         InvasionNecropolis azshara_east(3476.38f, -5894.99f, 65.3272f, 3.13728f);
         azshara_east.shards.emplace_back(InvasionXYZ(3493.62f, -5714.52f, 6.25f));
-
+        
         azshara.points.push_back(azshara_west);
         azshara.points.push_back(azshara_east);
     }
@@ -671,7 +706,7 @@ ScourgeInvasionEvent::ScourgeInvasionEvent() : WorldEvent(GAME_EVENT_SCOURGE_INV
         east.shards.emplace_back(InvasionXYZ(-7698.81f, -2245.05f, 140.10f));
         east.shards.emplace_back(InvasionXYZ(-7573.12f, -2594.49f, 138.48f));
         east.shards.emplace_back(InvasionXYZ(-7978.83f, -2389.21f, 123.36f));
-
+        
         burning_steppes.points.push_back(west);
         burning_steppes.points.push_back(east);
     }
@@ -691,15 +726,15 @@ void ScourgeInvasionEvent::Update()
 
     uint32 current1 = sObjectMgr.GetSavedVariable(VARIABLE_NAXX_ATTACK_ZONE1);
     uint32 current2 = sObjectMgr.GetSavedVariable(VARIABLE_NAXX_ATTACK_ZONE2);
-
+    
     if (!invasion1Loaded)
         invasion1Loaded = OnEnable(VARIABLE_NAXX_ATTACK_ZONE1, VARIABLE_NAXX_ATTACK_TIME1);
 
-    if (!invasion2Loaded)
+    if(!invasion2Loaded)
         invasion2Loaded = OnEnable(VARIABLE_NAXX_ATTACK_ZONE2, VARIABLE_NAXX_ATTACK_TIME2);
 
     // Waiting until both invasions have been loaded. OnEnable will return true
-    // if no invasions are supposed to be started, so this will only be the case if any of the
+    // if no invasions are supposed to be started, so this will only be the case if any of the 
     // maps required for a current invasionZone were not yet loaded
     if (!invasion1Loaded || !invasion2Loaded)
         return;
@@ -740,11 +775,14 @@ void ScourgeInvasionEvent::Update()
 
         sObjectMgr.SetSavedVariable(invasionPoint.remainingVar, numNecrosAlive, true);
     }
-
+       
     UpdateWorldState();
 }
 
-uint32 ScourgeInvasionEvent::GetNextUpdateDelay() { return 20; }
+uint32 ScourgeInvasionEvent::GetNextUpdateDelay()
+{
+    return 20;
+}
 
 void ScourgeInvasionEvent::Enable()
 {
@@ -770,25 +808,25 @@ void ScourgeInvasionEvent::Disable()
             if (!pRelay)
                 continue;
             std::list<Creature*> shardList;
-            GetCreatureListWithEntryInGrid(shardList, pRelay, {NPC_NECROTIC_SHARD, NPC_DAMAGED_NECROTIC_SHARD}, 400.0f);
+            GetCreatureListWithEntryInGrid(shardList, pRelay, { NPC_NECROTIC_SHARD, NPC_DAMAGED_NECROTIC_SHARD }, 400.0f);
             for (Creature* pShard : shardList)
                 pShard->DeleteLater();
             std::list<GameObject*> necropolisList;
             GetGameObjectListWithEntryInGrid(necropolisList, pRelay, GOBJ_NECROPOLIS, 100.0f);
             for (GameObject* pNecro : necropolisList)
                 pNecro->DeleteLater();
-
-            // Getting list of relays as well, in case there's been some double enable/disabling going on
+            
+            // Getting list of relays as well, in case there's been some double enable/disabling going on 
             // and we have more than one relay alive
             std::list<Creature*> relayList;
             GetCreatureListWithEntryInGrid(relayList, pRelay, NPC_NECROPOLIS_RELAY, 100.0f);
             for (Creature* p2Relay : relayList)
                 p2Relay->DeleteLater();
-
+            
             necro.relayGuid = 0;
         }
     }
-
+    
     sObjectMgr.SetSavedVariable(VARIABLE_NAXX_ATTACK_TIME1, time(nullptr), true);
     sObjectMgr.SetSavedVariable(VARIABLE_NAXX_ATTACK_TIME2, time(nullptr), true);
 
@@ -802,11 +840,11 @@ void ScourgeInvasionEvent::Disable()
     UpdateWorldState();
 }
 
-Map* ScourgeInvasionEvent::GetMap(uint32 mapId, const InvasionNecropolis& invZone)
+Map * ScourgeInvasionEvent::GetMap(uint32 mapId, const InvasionNecropolis & invZone)
 {
     uint32 instId = sMapMgr.GetContinentInstanceId(mapId, invZone.x, invZone.y);
     Map* pMap = sMapMgr.FindMap(mapId, instId);
-    if (!pMap)
+    if(!pMap)
         sLog.outError("ScourgeInvasionEvent::GetMap found no map with mapId %d, x: %d, y: %d", mapId, invZone.x, invZone.y);
     return pMap;
 }
@@ -828,7 +866,7 @@ void ScourgeInvasionEvent::HandleActiveZone(uint32 attackTimeVar, uint32 attackZ
         sObjectMgr.SetSavedVariable(attackTimeVar, now + NECROPOLIS_ATTACK_TIMER, true);
         sObjectMgr.SetSavedVariable(VARIABLE_NAXX_ATTACK_COUNT, sObjectMgr.GetSavedVariable(VARIABLE_NAXX_ATTACK_COUNT) + 1, true);
 
-        sLog.outBasic("[Scourge Invasion Event] zone %d cleared, next invasion starting in %d minutes", zoneId, uint32(timeToNextAttack / 60));
+        sLog.outBasic("[Scourge Invasion Event] zone %d cleared, next invasion starting in %d minutes", zoneId, uint32(timeToNextAttack/60));
         sLog.outBasic("[Scourge Invasion Event] %d victories", sObjectMgr.GetSavedVariable(VARIABLE_NAXX_ATTACK_COUNT));
     }
 }
@@ -855,7 +893,7 @@ bool ScourgeInvasionEvent::OnEnable(uint32 attackZoneVar, uint32 attackTimeVar)
             return ResumeInvasion(current1);
         }
         // Otherwise we start a new Invasion
-        else
+        else 
         {
             if (!oldZone)
                 sLog.outError("ScourgeInvasionEvent::OnEnable starting new invasion as oldZone could not be found");
@@ -875,7 +913,8 @@ void ScourgeInvasionEvent::StartNewInvasionIfTime(uint32 timeVariable, uint32 zo
     if (now < sObjectMgr.GetSavedVariable(timeVariable))
         return;
 
-    uint32 zoneId = GetNewRandomZone(sObjectMgr.GetSavedVariable(VARIABLE_NAXX_ATTACK_ZONE1), sObjectMgr.GetSavedVariable(VARIABLE_NAXX_ATTACK_ZONE2));
+    uint32 zoneId = GetNewRandomZone(sObjectMgr.GetSavedVariable(VARIABLE_NAXX_ATTACK_ZONE1), 
+                                     sObjectMgr.GetSavedVariable(VARIABLE_NAXX_ATTACK_ZONE2));
 
     if (!isValidZoneId(zoneId))
     {
@@ -887,8 +926,7 @@ void ScourgeInvasionEvent::StartNewInvasionIfTime(uint32 timeVariable, uint32 zo
     sObjectMgr.SetSavedVariable(zoneVariable, zoneId, true);
 
     InvasionZone* zone = GetZone(zoneId);
-    if (!zone)
-        return;
+    if (!zone) return;
 
     for (auto& necro : zone->points)
     {
@@ -906,15 +944,14 @@ void ScourgeInvasionEvent::StartNewInvasionIfTime(uint32 timeVariable, uint32 zo
     for (auto& necro : zone->points)
     {
         Map* mapPtr = GetMap(zone->map, necro);
-        if (!mapPtr)
-        {
+        if (!mapPtr) {
             sLog.outError("ScourgeInvasionEvent::StartNewInvasionIfTime unable to access map %d", zone->map);
             continue;
         }
         if (mapPtr && SummonNecropolis(mapPtr, necro))
             ++num_necropolises_remaining;
     }
-
+    
     // Setting num remaining directly
     sObjectMgr.SetSavedVariable(zone->remainingVar, num_necropolises_remaining, true);
 }
@@ -926,16 +963,16 @@ bool ScourgeInvasionEvent::ResumeInvasion(uint32 zoneId)
     // just summon the same amount, but not necessarily the same necropolises
     sLog.outBasic("Resuming Scourge invasion in zone %d", zoneId);
     InvasionZone* zone = GetZone(zoneId);
-    if (!zone)
-    {
+    if (!zone) {
         sLog.outError("ScourgeInvasionEvent::ResumeInvasion somehow magically could not find InvasionZone object for zoneId: %d", zoneId);
         return false;
     }
-
+    
     uint32 num_necropolises_remaining = sObjectMgr.GetSavedVariable(zone->remainingVar);
     if (num_necropolises_remaining > zone->points.size())
     {
-        sLog.outError("ScourgeInvasionEvent::ResumeInvasion for zone %d had %d necropolises remaining, but zone only has %d points", zone->zoneId, num_necropolises_remaining, zone->points.size());
+        sLog.outError("ScourgeInvasionEvent::ResumeInvasion for zone %d had %d necropolises remaining, but zone only has %d points",
+            zone->zoneId, num_necropolises_remaining, zone->points.size());
         num_necropolises_remaining = zone->points.size();
     }
 
@@ -965,26 +1002,25 @@ bool ScourgeInvasionEvent::ResumeInvasion(uint32 zoneId)
     return true;
 }
 
-bool ScourgeInvasionEvent::SummonNecropolis(Map* pMap, InvasionNecropolis& point)
+bool ScourgeInvasionEvent::SummonNecropolis(Map * pMap, InvasionNecropolis & point)
 {
     Creature* pRelay = pMap->SummonCreature(NPC_NECROPOLIS_RELAY, point.x, point.y, point.z - 11.5f, point.o, TEMPSUMMON_MANUAL_DESPAWN, 0, true);
-    if (!pRelay)
-    {
+    if (!pRelay) {
         sLog.outError("ScourgeInvasionEvent::SummonNecropolis failed summoning relay");
         return false;
     }
     point.relayGuid = pRelay->GetObjectGuid();
 
     GameObject* pNecropolis = pRelay->SummonGameObject(GOBJ_NECROPOLIS, point.x, point.y, point.z, point.o);
-    if (!pNecropolis)
-    {
+    if (!pNecropolis) {
         sLog.outError("ScourgeInvasionEvent::SummonNecropolis failed summoning necropolis");
         return false;
     }
 
     for (const auto& shard : point.shards)
     {
-        pRelay->SummonCreature(NPC_NECROTIC_SHARD, shard.x, shard.y, shard.z, 0, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 60000, true);
+        pRelay->SummonCreature(NPC_NECROTIC_SHARD, shard.x, shard.y, shard.z, 0,
+            TEMPSUMMON_CORPSE_TIMED_DESPAWN, 60000, true);
     }
     return true;
 }
@@ -1024,7 +1060,7 @@ uint32 ScourgeInvasionEvent::GetNewRandomZone(uint32 curr1, uint32 curr2)
         sLog.outError("ScourgeInvasionEvent::GetNewRandomZone no valid zones");
         return 0;
     }
-
+    
     return validZones[urand(0, validZones.size() - 1)];
 }
 
@@ -1032,16 +1068,21 @@ void ScourgeInvasionEvent::UpdateWorldState()
 {
     // Updating map icon worlstate
     int VICTORIES = sObjectMgr.GetSavedVariable(VARIABLE_NAXX_ATTACK_COUNT);
-
+    
     int REMAINING_AZSHARA = sObjectMgr.GetSavedVariable(VARIABLE_SI_AZSHARA_REMAINING);
     int REMAINING_BLASTED_LANDS = sObjectMgr.GetSavedVariable(VARIABLE_SI_BLASTED_LANDS_REMAINING);
     int REMAINING_BURNING_STEPPES = sObjectMgr.GetSavedVariable(VARIABLE_SI_BURNING_STEPPES_REMAINING);
     int REMAINING_EASTERN_PLAGUELANDS = sObjectMgr.GetSavedVariable(VARIABLE_SI_EASTERN_PLAGUELANDS_REMAINING);
     int REMAINING_TANARIS = sObjectMgr.GetSavedVariable(VARIABLE_SI_TANARIS_REMAINING);
     int REMAINING_WINTERSPRING = sObjectMgr.GetSavedVariable(VARIABLE_SI_WINTERSPRING_REMAINING);
-
-
-    if (previousRemainingCounts[0] != REMAINING_AZSHARA || previousRemainingCounts[1] != REMAINING_BLASTED_LANDS || previousRemainingCounts[2] != REMAINING_BURNING_STEPPES || previousRemainingCounts[3] != REMAINING_EASTERN_PLAGUELANDS || previousRemainingCounts[4] != REMAINING_TANARIS || previousRemainingCounts[5] != REMAINING_WINTERSPRING)
+    
+    
+    if (previousRemainingCounts[0] != REMAINING_AZSHARA ||
+        previousRemainingCounts[1] != REMAINING_BLASTED_LANDS ||
+        previousRemainingCounts[2] != REMAINING_BURNING_STEPPES ||
+        previousRemainingCounts[3] != REMAINING_EASTERN_PLAGUELANDS ||
+        previousRemainingCounts[4] != REMAINING_TANARIS ||
+        previousRemainingCounts[5] != REMAINING_WINTERSPRING) 
     {
         previousRemainingCounts[0] = REMAINING_AZSHARA;
         previousRemainingCounts[1] = REMAINING_BLASTED_LANDS;
@@ -1089,33 +1130,43 @@ to gong ringing, gate opening and battle
 
 // Per-stage enabled events
 static const uint32 warEffortStageEvents[][10] = {
-    {EVENT_WAR_EFFORT_COLLECT_OBJ, EVENT_WAR_EFFORT_REP, EVENT_AQ_GATE}, // 0
-    {EVENT_WAR_EFFORT_COLLECT_OBJ, EVENT_WAR_EFFORT_REP, EVENT_WAR_EFFORT_OFFICERS, // 1
-     EVENT_AQ_GATE},
-    {EVENT_WAR_EFFORT_COLLECT_OBJ, EVENT_WAR_EFFORT_REP, EVENT_WAR_EFFORT_OFFICERS, // 2
-     EVENT_WAR_EFFORT_TRANSITION_DAY1, EVENT_AQ_GATE},
-    {EVENT_WAR_EFFORT_COLLECT_OBJ, EVENT_WAR_EFFORT_REP, EVENT_WAR_EFFORT_OFFICERS, // 3
-     EVENT_WAR_EFFORT_TRANSITION_DAY1, EVENT_WAR_EFFORT_TRANSITION_DAY2, EVENT_AQ_GATE},
-    {EVENT_WAR_EFFORT_COLLECT_OBJ, EVENT_WAR_EFFORT_REP, EVENT_WAR_EFFORT_OFFICERS, // 4
-     EVENT_WAR_EFFORT_TRANSITION_DAY1, EVENT_WAR_EFFORT_TRANSITION_DAY2, EVENT_WAR_EFFORT_TRANSITION_DAY3, EVENT_AQ_GATE},
-    {EVENT_WAR_EFFORT_COLLECT_OBJ, EVENT_WAR_EFFORT_REP, EVENT_WAR_EFFORT_OFFICERS, // 5
-     EVENT_WAR_EFFORT_TRANSITION_DAY1, EVENT_WAR_EFFORT_TRANSITION_DAY2, EVENT_WAR_EFFORT_TRANSITION_DAY3, EVENT_WAR_EFFORT_TRANSITION_DAY4, EVENT_AQ_GATE},
-    {EVENT_WAR_EFFORT_COLLECT_OBJ, EVENT_WAR_EFFORT_REP, EVENT_WAR_EFFORT_OFFICERS, // 6
-     EVENT_WAR_EFFORT_TRANSITION_DAY1, EVENT_WAR_EFFORT_TRANSITION_DAY2, EVENT_WAR_EFFORT_TRANSITION_DAY3, EVENT_WAR_EFFORT_TRANSITION_DAY4, EVENT_WAR_EFFORT_TRANSITION_DAY5, EVENT_AQ_GATE},
-    {EVENT_WAR_EFFORT_REP, EVENT_WAR_EFFORT_OFFICERS, EVENT_WAR_EFFORT_TRANSITION_DAY1, EVENT_WAR_EFFORT_TRANSITION_DAY2, // 7
-     EVENT_WAR_EFFORT_TRANSITION_DAY3, EVENT_WAR_EFFORT_TRANSITION_DAY4, EVENT_WAR_EFFORT_TRANSITION_DAY5, EVENT_WAR_EFFORT_GONG, EVENT_AQ_GATE},
-    {EVENT_WAR_EFFORT_REP, EVENT_WAR_EFFORT_OFFICERS, EVENT_WAR_EFFORT_TRANSITION_DAY1, EVENT_WAR_EFFORT_TRANSITION_DAY2, // 8
-     EVENT_WAR_EFFORT_TRANSITION_DAY3, EVENT_WAR_EFFORT_TRANSITION_DAY4, EVENT_WAR_EFFORT_TRANSITION_DAY5, EVENT_WAR_EFFORT_GONG},
-    {EVENT_WAR_EFFORT_REP, EVENT_WAR_EFFORT_OFFICERS, EVENT_WAR_EFFORT_TRANSITION_DAY1, EVENT_WAR_EFFORT_TRANSITION_DAY2, // 9
-     EVENT_WAR_EFFORT_TRANSITION_DAY3, EVENT_WAR_EFFORT_TRANSITION_DAY4, EVENT_WAR_EFFORT_TRANSITION_DAY5, EVENT_WAR_EFFORT_GONG, EVENT_WAR_EFFORT_WORLD_CRYSTALS},
-    {EVENT_WAR_EFFORT_REP, EVENT_WAR_EFFORT_OFFICERS, EVENT_WAR_EFFORT_TRANSITION_DAY1, EVENT_WAR_EFFORT_TRANSITION_DAY2, // 10
-     EVENT_WAR_EFFORT_TRANSITION_DAY3, EVENT_WAR_EFFORT_TRANSITION_DAY4, EVENT_WAR_EFFORT_TRANSITION_DAY5, EVENT_WAR_EFFORT_GONG, EVENT_WAR_EFFORT_WORLD_CRYSTALS, EVENT_WAR_EFFORT_CH_ATTACK},
-    {EVENT_WAR_EFFORT_REP, EVENT_WAR_EFFORT_OFFICERS, EVENT_WAR_EFFORT_TRANSITION_DAY1, EVENT_WAR_EFFORT_TRANSITION_DAY2, // 11
-     EVENT_WAR_EFFORT_TRANSITION_DAY3, EVENT_WAR_EFFORT_TRANSITION_DAY4, EVENT_WAR_EFFORT_TRANSITION_DAY5, EVENT_WAR_EFFORT_GONG, EVENT_WAR_EFFORT_WORLD_CRYSTALS, EVENT_WAR_EFFORT_FINALBATTLE},
-    {EVENT_WAR_EFFORT_REP, EVENT_WAR_EFFORT_OFFICERS, EVENT_WAR_EFFORT_POST_WAR} // 12
+    { EVENT_WAR_EFFORT_COLLECT_OBJ, EVENT_WAR_EFFORT_REP, EVENT_AQ_GATE },                     // 0
+    { EVENT_WAR_EFFORT_COLLECT_OBJ, EVENT_WAR_EFFORT_REP, EVENT_WAR_EFFORT_OFFICERS,           // 1
+        EVENT_AQ_GATE },
+    { EVENT_WAR_EFFORT_COLLECT_OBJ, EVENT_WAR_EFFORT_REP, EVENT_WAR_EFFORT_OFFICERS,           // 2
+        EVENT_WAR_EFFORT_TRANSITION_DAY1, EVENT_AQ_GATE },
+    { EVENT_WAR_EFFORT_COLLECT_OBJ, EVENT_WAR_EFFORT_REP, EVENT_WAR_EFFORT_OFFICERS,           // 3
+        EVENT_WAR_EFFORT_TRANSITION_DAY1, EVENT_WAR_EFFORT_TRANSITION_DAY2, EVENT_AQ_GATE },
+    { EVENT_WAR_EFFORT_COLLECT_OBJ, EVENT_WAR_EFFORT_REP, EVENT_WAR_EFFORT_OFFICERS,           // 4
+        EVENT_WAR_EFFORT_TRANSITION_DAY1, EVENT_WAR_EFFORT_TRANSITION_DAY2, EVENT_WAR_EFFORT_TRANSITION_DAY3, EVENT_AQ_GATE },
+    { EVENT_WAR_EFFORT_COLLECT_OBJ, EVENT_WAR_EFFORT_REP, EVENT_WAR_EFFORT_OFFICERS,           // 5
+        EVENT_WAR_EFFORT_TRANSITION_DAY1, EVENT_WAR_EFFORT_TRANSITION_DAY2, EVENT_WAR_EFFORT_TRANSITION_DAY3,
+        EVENT_WAR_EFFORT_TRANSITION_DAY4, EVENT_AQ_GATE },
+    { EVENT_WAR_EFFORT_COLLECT_OBJ, EVENT_WAR_EFFORT_REP, EVENT_WAR_EFFORT_OFFICERS,           // 6
+        EVENT_WAR_EFFORT_TRANSITION_DAY1, EVENT_WAR_EFFORT_TRANSITION_DAY2, EVENT_WAR_EFFORT_TRANSITION_DAY3,
+        EVENT_WAR_EFFORT_TRANSITION_DAY4, EVENT_WAR_EFFORT_TRANSITION_DAY5, EVENT_AQ_GATE },
+    { EVENT_WAR_EFFORT_REP, EVENT_WAR_EFFORT_OFFICERS, EVENT_WAR_EFFORT_TRANSITION_DAY1, EVENT_WAR_EFFORT_TRANSITION_DAY2,      // 7
+        EVENT_WAR_EFFORT_TRANSITION_DAY3, EVENT_WAR_EFFORT_TRANSITION_DAY4, EVENT_WAR_EFFORT_TRANSITION_DAY5,
+        EVENT_WAR_EFFORT_GONG, EVENT_AQ_GATE },
+    { EVENT_WAR_EFFORT_REP, EVENT_WAR_EFFORT_OFFICERS, EVENT_WAR_EFFORT_TRANSITION_DAY1, EVENT_WAR_EFFORT_TRANSITION_DAY2,      // 8
+        EVENT_WAR_EFFORT_TRANSITION_DAY3, EVENT_WAR_EFFORT_TRANSITION_DAY4, EVENT_WAR_EFFORT_TRANSITION_DAY5,
+        EVENT_WAR_EFFORT_GONG },
+    { EVENT_WAR_EFFORT_REP, EVENT_WAR_EFFORT_OFFICERS, EVENT_WAR_EFFORT_TRANSITION_DAY1, EVENT_WAR_EFFORT_TRANSITION_DAY2,      // 9
+        EVENT_WAR_EFFORT_TRANSITION_DAY3, EVENT_WAR_EFFORT_TRANSITION_DAY4, EVENT_WAR_EFFORT_TRANSITION_DAY5,
+        EVENT_WAR_EFFORT_GONG, EVENT_WAR_EFFORT_WORLD_CRYSTALS },
+    { EVENT_WAR_EFFORT_REP, EVENT_WAR_EFFORT_OFFICERS, EVENT_WAR_EFFORT_TRANSITION_DAY1, EVENT_WAR_EFFORT_TRANSITION_DAY2,      // 10
+        EVENT_WAR_EFFORT_TRANSITION_DAY3, EVENT_WAR_EFFORT_TRANSITION_DAY4, EVENT_WAR_EFFORT_TRANSITION_DAY5,
+        EVENT_WAR_EFFORT_GONG, EVENT_WAR_EFFORT_WORLD_CRYSTALS, EVENT_WAR_EFFORT_CH_ATTACK },
+    { EVENT_WAR_EFFORT_REP, EVENT_WAR_EFFORT_OFFICERS, EVENT_WAR_EFFORT_TRANSITION_DAY1, EVENT_WAR_EFFORT_TRANSITION_DAY2,      // 11
+        EVENT_WAR_EFFORT_TRANSITION_DAY3, EVENT_WAR_EFFORT_TRANSITION_DAY4, EVENT_WAR_EFFORT_TRANSITION_DAY5,
+        EVENT_WAR_EFFORT_GONG, EVENT_WAR_EFFORT_WORLD_CRYSTALS, EVENT_WAR_EFFORT_FINALBATTLE },
+    { EVENT_WAR_EFFORT_REP, EVENT_WAR_EFFORT_OFFICERS, EVENT_WAR_EFFORT_POST_WAR }                                              // 12
 };
 
-WarEffortEvent::WarEffortEvent() : WorldEvent(EVENT_WAR_EFFORT) { UpdateVariables(); }
+WarEffortEvent::WarEffortEvent() : WorldEvent(EVENT_WAR_EFFORT)
+{
+    UpdateVariables();
+}
 
 void WarEffortEvent::UpdateVariables()
 {
@@ -1149,12 +1200,12 @@ void WarEffortEvent::Update()
     uint32 now = time(nullptr);
     switch (stage)
     {
-    case WAR_EFFORT_STAGE_COLLECTION:
+        case WAR_EFFORT_STAGE_COLLECTION:
         {
             UpdateWarEffortCollection(now);
             break;
         }
-    case WAR_EFFORT_STAGE_READY:
+        case WAR_EFFORT_STAGE_READY:
         {
             if (now - lastStageTransitionTime > WAR_EFFORT_COLLECTION_TRANSITION_TIME)
             {
@@ -1164,18 +1215,18 @@ void WarEffortEvent::Update()
             }
             break;
         }
-    case WAR_EFFORT_STAGE_MOVE_1:
-    case WAR_EFFORT_STAGE_MOVE_2:
-    case WAR_EFFORT_STAGE_MOVE_3:
-    case WAR_EFFORT_STAGE_MOVE_4:
-    case WAR_EFFORT_STAGE_MOVE_5:
+        case WAR_EFFORT_STAGE_MOVE_1:
+        case WAR_EFFORT_STAGE_MOVE_2:
+        case WAR_EFFORT_STAGE_MOVE_3:
+        case WAR_EFFORT_STAGE_MOVE_4:
+        case WAR_EFFORT_STAGE_MOVE_5:
         {
             if (now - lastStageTransitionTime > WAR_EFFORT_MOVE_TRANSITION_TIME)
                 IncrementWarEffortTransition();
 
             break;
         }
-    case WAR_EFFORT_STAGE_GONG_WAIT:
+        case WAR_EFFORT_STAGE_GONG_WAIT:
         {
             // Just waiting for a player to ring the Gong at this point.
             // The events continue as usual
@@ -1187,7 +1238,7 @@ void WarEffortEvent::Update()
 
             break;
         }
-    case WAR_EFFORT_STAGE_GONG_RUNG:
+        case WAR_EFFORT_STAGE_GONG_RUNG:
         {
             if (!gongRingTime)
             {
@@ -1209,7 +1260,7 @@ void WarEffortEvent::Update()
 
             break;
         }
-    case WAR_EFFORT_STAGE_BATTLE:
+        case WAR_EFFORT_STAGE_BATTLE:
         {
             // WAR!
             BeginWar();
@@ -1220,7 +1271,7 @@ void WarEffortEvent::Update()
             }
             break;
         }
-    case WAR_EFFORT_STAGE_CH_ATTACK:
+        case WAR_EFFORT_STAGE_CH_ATTACK:
         {
             if (now - lastStageTransitionTime > WAR_EFFORT_FINAL_BATTLE_TIME)
             {
@@ -1229,7 +1280,7 @@ void WarEffortEvent::Update()
             }
             break;
         }
-    case WAR_EFFORT_STAGE_FINALBATTLE:
+        case WAR_EFFORT_STAGE_FINALBATTLE:
         {
             // 10 hours have passed, it's all over
             if (now - gongRingTime > WAR_EFFORT_GONG_DURATION)
@@ -1242,8 +1293,8 @@ void WarEffortEvent::Update()
             }
             break;
         }
-    // case WAR_EFFORT_STAGE_COMPLETE: handled above
-    default:
+        // case WAR_EFFORT_STAGE_COMPLETE: handled above
+        default:
         {
             sLog.outError("[WarEffortEvent] Stuck in invalid stage %u", stage);
             break;
@@ -1262,7 +1313,7 @@ void WarEffortEvent::UpdateWarEffortCollection(uint32 now)
         sObjectMgr.SetSavedVariable(VAR_WE_AUTOCOMPLETE_TIME, lastAutoCompleteTime, true);
     }
 
-    uint32 completedObjectives = 0, objectiveGoal = 2 * NUM_SHARED_OBJECTIVES + 2 * NUM_FACTION_OBJECTIVES;
+    uint32 completedObjectives = 0, objectiveGoal = 2*NUM_SHARED_OBJECTIVES+2*NUM_FACTION_OBJECTIVES;
     // Check all totals. If we're at the limit, start the moving.
     for (int i = 0; i < NUM_SHARED_OBJECTIVES; ++i)
     {
@@ -1327,7 +1378,12 @@ void WarEffortEvent::CompleteWarEffort()
 {
     // Basically just ensure all events are disabled except the ones
     // we want to have active post-war
-    std::array<WarEffortGameEvents, 4> stopEvents = {{EVENT_AQ_GATE, EVENT_WAR_EFFORT_BATTLE_ASHI, EVENT_WAR_EFFORT_BATTLE_REGAL, EVENT_WAR_EFFORT_BATTLE_ZORA}};
+    std::array<WarEffortGameEvents, 4> stopEvents = { {
+        EVENT_AQ_GATE,
+        EVENT_WAR_EFFORT_BATTLE_ASHI,
+        EVENT_WAR_EFFORT_BATTLE_REGAL,
+        EVENT_WAR_EFFORT_BATTLE_ZORA
+    } };
 
     for (const auto& itr : stopEvents)
         DisableAndStopEvent(itr);
@@ -1338,27 +1394,29 @@ void WarEffortEvent::CompleteWarEffort()
 
 void WarEffortEvent::UpdateStageEvents()
 {
-    static WarEffortGameEvents events[20] = {EVENT_WAR_EFFORT_COLLECT_OBJ,
+    static WarEffortGameEvents events[20] = {
+        EVENT_WAR_EFFORT_COLLECT_OBJ,
 
-                                             EVENT_WAR_EFFORT_REP,
-                                             EVENT_WAR_EFFORT_OFFICERS,
+        EVENT_WAR_EFFORT_REP,
+        EVENT_WAR_EFFORT_OFFICERS,
 
-                                             EVENT_WAR_EFFORT_TRANSITION_DAY1,
-                                             EVENT_WAR_EFFORT_TRANSITION_DAY2,
-                                             EVENT_WAR_EFFORT_TRANSITION_DAY3,
-                                             EVENT_WAR_EFFORT_TRANSITION_DAY4,
-                                             EVENT_WAR_EFFORT_TRANSITION_DAY5,
+        EVENT_WAR_EFFORT_TRANSITION_DAY1,
+        EVENT_WAR_EFFORT_TRANSITION_DAY2,
+        EVENT_WAR_EFFORT_TRANSITION_DAY3,
+        EVENT_WAR_EFFORT_TRANSITION_DAY4,
+        EVENT_WAR_EFFORT_TRANSITION_DAY5,
 
-                                             EVENT_WAR_EFFORT_CH_ATTACK,
-                                             EVENT_WAR_EFFORT_TROOPS2,
+        EVENT_WAR_EFFORT_CH_ATTACK,
+        EVENT_WAR_EFFORT_TROOPS2,
 
-                                             EVENT_WAR_EFFORT_FINALBATTLE,
+        EVENT_WAR_EFFORT_FINALBATTLE,
 
-                                             EVENT_WAR_EFFORT_WORLD_CRYSTALS,
+        EVENT_WAR_EFFORT_WORLD_CRYSTALS,
 
-                                             EVENT_AQ_GATE,
-                                             EVENT_WAR_EFFORT_GONG,
-                                             EVENT_WAR_EFFORT_POST_WAR};
+        EVENT_AQ_GATE,
+        EVENT_WAR_EFFORT_GONG,
+        EVENT_WAR_EFFORT_POST_WAR
+    };
 
     std::vector<uint16> active;
     std::vector<uint16> required;
@@ -1408,26 +1466,33 @@ void WarEffortEvent::UpdateStageEvents()
             EnableAndStartEvent(iter);
         else
         {
-            sLog.outError("[WarEffortEvent] Event %u is already active for stage %u, but not defined in overall event list", iter, stage);
+            sLog.outError("[WarEffortEvent] Event %u is already active for stage %u, but not defined in overall event list",
+                iter, stage);
         }
     }
 }
 
-void WarEffortEvent::Enable() {}
+void WarEffortEvent::Enable()
+{
 
-void WarEffortEvent::Disable() {}
+}
+
+void WarEffortEvent::Disable()
+{
+
+}
 
 uint32 WarEffortEvent::GetNextUpdateDelay()
 {
     switch (stage)
     {
-    // Update quickly in these stages so we can detect and progress
-    // the event virtually in real time as the gong is banged
-    case WAR_EFFORT_STAGE_GONG_RUNG:
-    case WAR_EFFORT_STAGE_GONG_WAIT:
-        return 10;
-    default:
-        return max_ge_check_delay;
+        // Update quickly in these stages so we can detect and progress
+        // the event virtually in real time as the gong is banged
+        case WAR_EFFORT_STAGE_GONG_RUNG:
+        case WAR_EFFORT_STAGE_GONG_WAIT:
+            return 10;
+        default:
+            return max_ge_check_delay;
     }
 
     return max_ge_check_delay;
@@ -1477,14 +1542,15 @@ void WarEffortEvent::UpdateHiveColossusEvents()
 
 void GameEventMgr::LoadHardcodedEvents(HardcodedEventList& eventList)
 {
-    auto invasion = new ElementalInvasion();
-    auto leprithus = new Leprithus();
-    auto moonbrook = new Moonbrook();
-    auto nightmare = new DragonsOfNightmare();
-    auto darkmoon = new DarkmoonFaire();
+	auto invasion = new ElementalInvasion();
+	auto leprithus = new Leprithus();
+	auto moonbrook = new Moonbrook();
+	auto nightmare = new DragonsOfNightmare();
+	auto darkmoon = new DarkmoonFaire();
     auto fireworks = new FireworksShow();
     auto goblets = new ToastingGoblets();
-    auto scourge_invasion = new ScourgeInvasionEvent();
-    auto war_effort = new WarEffortEvent();
-    eventList = {invasion, leprithus, moonbrook, nightmare, darkmoon, fireworks, goblets, scourge_invasion, war_effort};
+	auto scourge_invasion = new ScourgeInvasionEvent();
+	auto war_effort = new WarEffortEvent();
+	eventList = { invasion, leprithus, moonbrook, nightmare, darkmoon, fireworks, goblets, scourge_invasion, war_effort };
 }
+

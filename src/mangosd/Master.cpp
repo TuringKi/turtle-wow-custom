@@ -24,43 +24,373 @@
 */
 
 #ifndef WIN32
-#include "PosixDaemon.h"
+    #include "PosixDaemon.h"
 #endif
 
 #include "WorldSocketMgr.h"
 
 #include "httplib.h"
 
-#include "CliRunnable.h"
 #include "Common.h"
-#include "Config/Config.h"
-#include "DBCStores.h"
-#include "Database/DatabaseEnv.h"
-#include "Log.h"
-#include "MassMailMgr.h"
 #include "Master.h"
+#include "WorldSocket.h"
+#include "WorldRunnable.h"
+#include "World.h"
+#include "Log.h"
+#include "ScriptObjects.h"
+#include "Timer.h"
 #include "Policies/SingletonImp.h"
 #include "SystemConfig.h"
-#include "Timer.h"
-#include "Util.h"
-#include "World.h"
-#include "WorldRunnable.h"
-#include "WorldSocket.h"
-#include "re2/re2.h"
 #include "revision.h"
+#include "Config/Config.h"
+#include "Database/DatabaseEnv.h"
+#include "CliRunnable.h"
+#include "Util.h"
+#include "MassMailMgr.h"
+#include "DBCStores.h"
+#include "re2/re2.h"
 
 
-#include <ace/Dev_Poll_Reactor.h>
-#include <ace/OS_NS_signal.h>
-#include <ace/TP_Reactor.h>
 #include <fstream>
 #include <iostream>
+#include <ace/OS_NS_signal.h>
+#include <ace/TP_Reactor.h>
+#include <ace/Dev_Poll_Reactor.h>
 #include <signal.h>
 
-#include "ace/ACE.h"
+// Windows crash-dump capture. Catches each major failure path:
+//   - unhandled SEH exceptions (SetUnhandledExceptionFilter)
+//   - vectored handler for paths that bypass SEH dispatch (fast-fail,
+//     heap-corruption RaiseFailFastException, invalid CRT parameter,
+//     pure-virtual call)
+//   - C++ runtime aborts (std::terminate, signal handlers)
+// Writes a .dmp + a .txt sibling next to the running mangosd.exe so an
+// unattended crash leaves enough state for post-mortem analysis.
+#ifdef WIN32
+#include <windows.h>
+#include <dbghelp.h>
+#include <new>          // _set_new_handler
+#include <cstdlib>      // _set_invalid_parameter_handler
+#include <stdlib.h>
+#include <crtdbg.h>
+#pragma comment(lib, "dbghelp.lib")
+
+#ifdef BUILD_PLAYERBOTS
+// Forward-decl the SC_PHASE TLS into mangosd so the crash handler can read
+// it without #including any playerbots header (which would pull the whole
+// vendor tree's include chain into mangosd). Definitions live in
+// BotDiagnostics.cpp; writes happen in SC_PHASE iff AiPlayerbot.EnableActionLog=1.
+// The matching read site (Mangosd_WriteCrashDump) guards the read with
+// __try/__except so the TLS being corrupted by the crash we're trying to
+// dump can't crash the dump path itself.
+namespace ai { namespace botdiag {
+    extern thread_local const char* gLastPhaseTag;
+    extern thread_local const char* gLastPhaseBotName;
+}}
+#endif
+
+// Re-entrancy guard: if our handler itself crashes, we must NOT recurse —
+// just let the process die. Per-thread so concurrent crashes are handled.
+static thread_local int g_inCrashHandler = 0;
+
+// Shared minidump-write helper. Called from every crash entry-point we
+// install (vectored, SEH-unhandled, terminate, signal, invalid-param,
+// purecall). Always returns; caller decides whether to continue or die.
+//
+// `ep` may be nullptr — for non-SEH paths (signal/terminate/etc.) we
+// synthesize a context by calling RtlCaptureContext below.
+//
+// `synthCode` is the exception code we tag the dump with when we
+// synthesize a context; ignored when `ep` is set.
+//
+// `tag` is a short label for the crash kind ("VEH-heap-corruption",
+// "terminate", "signal-SIGABRT", etc.) — written into the .txt.
+static void Mangosd_WriteCrashDump(EXCEPTION_POINTERS* ep, DWORD synthCode, const char* tag)
+{
+    // Re-entrancy / recursion guard.
+    if (g_inCrashHandler)
+        return;
+    g_inCrashHandler = 1;
+
+    // Synthesize a context if we don't have one (terminate/signal paths).
+    EXCEPTION_RECORD synthRec = {0};
+    CONTEXT          synthCtx = {0};
+    EXCEPTION_POINTERS synthEp = {0};
+    if (!ep)
+    {
+        synthRec.ExceptionCode = synthCode;
+        synthRec.ExceptionAddress = (PVOID)Mangosd_WriteCrashDump;
+        RtlCaptureContext(&synthCtx);
+        synthEp.ExceptionRecord = &synthRec;
+        synthEp.ContextRecord = &synthCtx;
+        ep = &synthEp;
+    }
+
+    SYSTEMTIME st; GetLocalTime(&st);
+    char tsBuf[64];
+    snprintf(tsBuf, sizeof(tsBuf), "%04d%02d%02d_%02d%02d%02d",
+             st.wYear, st.wMonth, st.wDay, st.wHour, st.wMinute, st.wSecond);
+
+    // mangosd's CWD is `bin/` per the launcher .bat (`pushd "...\bin"`),
+    // but logs/ lives at the parent (`..\logs\`). Try parent-logs first,
+    // then sibling bin-local logs/, then CWD root as last resort.
+    const char* candidatePaths[] = { "..\\logs", "logs", ".", nullptr };
+
+    char filename[512] = {0};
+    HANDLE hFile = INVALID_HANDLE_VALUE;
+    for (int i = 0; candidatePaths[i] != nullptr; ++i)
+    {
+        snprintf(filename, sizeof(filename), "%s\\crash_%s.dmp",
+                 candidatePaths[i], tsBuf);
+        hFile = CreateFileA(filename, GENERIC_WRITE, 0, nullptr,
+                             CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, nullptr);
+        if (hFile != INVALID_HANDLE_VALUE)
+            break;
+    }
+    if (hFile == INVALID_HANDLE_VALUE)
+    {
+        fprintf(stderr, "[CRASH] mangosd unhandled %s, but failed to open %s for write\n",
+                tag ? tag : "(unknown)", filename);
+        g_inCrashHandler = 0;
+        return;
+    }
+
+    MINIDUMP_EXCEPTION_INFORMATION mei = { 0 };
+    mei.ThreadId          = GetCurrentThreadId();
+    mei.ExceptionPointers = ep;
+    mei.ClientPointers    = FALSE;
+
+    // For heap corruption, we want enough memory in the dump to
+    // reconstruct the corrupted allocation. WithDataSegs+ThreadInfo+
+    // IndirectlyReferenced gives us local variables + the chain of
+    // referenced pointers around the failing thread, which is what
+    // matters for use-after-free / overrun analysis. Adding
+    // WithProcessThreadData ensures the heap metadata travels too.
+    MINIDUMP_TYPE dumpType = (MINIDUMP_TYPE)(
+        MiniDumpWithDataSegs |
+        MiniDumpWithThreadInfo |
+        MiniDumpWithIndirectlyReferencedMemory |
+        MiniDumpWithProcessThreadData);
+
+    MiniDumpWriteDump(GetCurrentProcess(), GetCurrentProcessId(),
+                       hFile, dumpType, &mei, nullptr, nullptr);
+    CloseHandle(hFile);
+
+    // Read SC_PHASE thread-locals (guarded — TLS itself can be corrupted
+    // when the corruption was in arbitrary memory). The TLS is only set
+    // when AiPlayerbot.EnableActionLog=1; otherwise these stay nullptr
+    // and we report "(no phase set)".
+    const char* phaseTag = "(no phase set)";
+    const char* phaseBot = "(no bot)";
+#ifdef BUILD_PLAYERBOTS
+    __try
+    {
+        if (ai::botdiag::gLastPhaseTag)
+            phaseTag = ai::botdiag::gLastPhaseTag;
+        if (ai::botdiag::gLastPhaseBotName)
+            phaseBot = ai::botdiag::gLastPhaseBotName;
+    }
+    __except (EXCEPTION_EXECUTE_HANDLER) {}
+#endif
+
+    char txtFilename[512];
+    snprintf(txtFilename, sizeof(txtFilename), "%s.txt", filename);
+    if (FILE* tf = fopen(txtFilename, "w"))
+    {
+        fprintf(tf, "Crash timestamp: %s\n", tsBuf);
+        fprintf(tf, "Crash kind: %s\n", tag ? tag : "(unknown)");
+        fprintf(tf, "Exception code: 0x%08lx", ep->ExceptionRecord->ExceptionCode);
+        // Decode common fast-fail / heap codes for grep-friendly logs.
+        switch (ep->ExceptionRecord->ExceptionCode)
+        {
+            case 0xC0000005L: fprintf(tf, " (ACCESS_VIOLATION)\n"); break;
+            case 0xC0000094L: fprintf(tf, " (INTEGER_DIVIDE_BY_ZERO)\n"); break;
+            case 0xC0000374L: fprintf(tf, " (HEAP_CORRUPTION)\n"); break;
+            case 0xC0000409L: fprintf(tf, " (STACK_BUFFER_OVERRUN / FAIL_FAST)\n"); break;
+            case 0xC0000420L: fprintf(tf, " (ASSERTION_FAILURE)\n"); break;
+            case 0xC0000602L: fprintf(tf, " (UNHANDLED_CXX_EXCEPTION)\n"); break;
+            case 0xE06D7363L: fprintf(tf, " (CXX_THROW)\n"); break;
+            default:          fprintf(tf, "\n"); break;
+        }
+        fprintf(tf, "Exception address: 0x%p\n", ep->ExceptionRecord->ExceptionAddress);
+        if (ep->ExceptionRecord->ExceptionCode == EXCEPTION_ACCESS_VIOLATION
+            && ep->ExceptionRecord->NumberParameters >= 2)
+        {
+            fprintf(tf, "Access violation: %s at 0x%p\n",
+                    ep->ExceptionRecord->ExceptionInformation[0] == 0 ? "READ" :
+                    ep->ExceptionRecord->ExceptionInformation[0] == 1 ? "WRITE" :
+                    ep->ExceptionRecord->ExceptionInformation[0] == 8 ? "EXECUTE" : "?",
+                    (void*)ep->ExceptionRecord->ExceptionInformation[1]);
+        }
+        fprintf(tf, "Crashing thread id: %lu\n", GetCurrentThreadId());
+        fprintf(tf, "Last SC_PHASE tag: %s\n", phaseTag);
+        fprintf(tf, "Last SC_PHASE bot: %s\n", phaseBot);
+        fclose(tf);
+    }
+
+    fprintf(stderr, "[CRASH] mangosd wrote minidump: %s (kind=%s)\n", filename, tag ? tag : "?");
+    fprintf(stderr, "[CRASH] last phase: %s on bot %s\n", phaseTag, phaseBot);
+    sLog.outError("[CRASH] %s (code 0x%08lx). Minidump: %s",
+                   tag ? tag : "Unhandled exception",
+                   ep->ExceptionRecord->ExceptionCode, filename);
+    sLog.outError("[CRASH] Last SC_PHASE: %s (bot=%s)", phaseTag, phaseBot);
+
+    g_inCrashHandler = 0;
+}
+
+// Decide whether VEH should claim this exception. VEH fires for EVERY
+// exception including SEH-handled ones (e.g. C++ throws inside try/catch),
+// so claim only fatal codes that we KNOW bypass SEH or the cmangos
+// codebase can't handle. Returning true → write the dump and let the OS
+// terminate (we don't tail-call ExitProcess; we let the failing primitive
+// continue its own death sequence).
+static bool MangosdShouldClaimVehException(DWORD code)
+{
+    switch (code)
+    {
+        case 0xC0000374L: // STATUS_HEAP_CORRUPTION (RtlReportFatalFailure path)
+        case 0xC0000409L: // STATUS_STACK_BUFFER_OVERRUN / __fastfail
+        case 0xC0000420L: // STATUS_ASSERTION_FAILURE
+        case 0x80000003L: // STATUS_BREAKPOINT (only if not under debugger; treat as crash)
+            return true;
+        // 0xC0000005 (AV) and 0xE06D7363 (C++ throw) are too noisy in VEH —
+        // they happen during normal operation inside try/catch frames.
+        // Let the existing UnhandledExceptionFilter catch genuinely-unhandled
+        // ones via the SEH chain.
+        default:
+            return false;
+    }
+}
+
+static LONG CALLBACK MangosdVectoredExceptionHandler(EXCEPTION_POINTERS* ep)
+{
+    if (!ep || !ep->ExceptionRecord)
+        return EXCEPTION_CONTINUE_SEARCH;
+
+    DWORD code = ep->ExceptionRecord->ExceptionCode;
+    if (!MangosdShouldClaimVehException(code))
+        return EXCEPTION_CONTINUE_SEARCH;
+
+    // Pick a label by code so the .txt clearly identifies the crash kind.
+    const char* tag = "VEH";
+    switch (code)
+    {
+        case 0xC0000374L: tag = "VEH-heap-corruption"; break;
+        case 0xC0000409L: tag = "VEH-stack-buffer-overrun-or-fastfail"; break;
+        case 0xC0000420L: tag = "VEH-assertion-failure"; break;
+        case 0x80000003L: tag = "VEH-breakpoint-no-debugger"; break;
+    }
+
+    Mangosd_WriteCrashDump(ep, code, tag);
+    return EXCEPTION_CONTINUE_SEARCH; // let the original kill chain proceed
+}
+
+// Original SEH unhandled-filter path. Kept for non-fast-fail unhandled
+// exceptions (mainly access violations that escape every __try/catch).
+static LONG WINAPI MangosdUnhandledExceptionFilter(EXCEPTION_POINTERS* ep)
+{
+    Mangosd_WriteCrashDump(ep,
+                            ep && ep->ExceptionRecord ? ep->ExceptionRecord->ExceptionCode : 0,
+                            "SEH-unhandled");
+    return EXCEPTION_EXECUTE_HANDLER;
+}
+
+// Synthetic exception codes used by the non-SEH crash paths below. Reusing
+// real NT status values means the .dmp opens in WinDbg / Visual Studio
+// without a "missing status code" warning, and the analyst sees a familiar
+// tag instead of zero. (0xC0000602 = STATUS_FAIL_FAST_EXCEPTION,
+// 0xC0000420 = STATUS_ASSERTION_FAILURE.)
+
+// std::terminate() — uncaught C++ exception, set_terminate target,
+// or std::terminate() called explicitly. Bypasses SEH entirely.
+static void MangosdTerminateHandler()
+{
+    Mangosd_WriteCrashDump(nullptr, 0xC0000602L /* synthetic UNHANDLED_CXX */,
+                            "terminate");
+    // Fall through to default terminate (process dies cleanly here).
+    abort();
+}
+
+// SIGABRT: triggered by abort(), assert() failure, uncaught CRT errors.
+static void MangosdSignalHandler(int sig)
+{
+    const char* tag = "signal-unknown";
+    switch (sig)
+    {
+        case SIGABRT: tag = "signal-SIGABRT"; break;
+        case SIGSEGV: tag = "signal-SIGSEGV"; break;
+        case SIGFPE:  tag = "signal-SIGFPE"; break;
+        case SIGILL:  tag = "signal-SIGILL"; break;
+    }
+    Mangosd_WriteCrashDump(nullptr, 0xC0000420L /* synthetic ASSERTION_FAILURE */,
+                            tag);
+    // Don't reinstall — the next abort() would loop. Default handler runs.
+    signal(sig, SIG_DFL);
+    raise(sig);
+}
+
+// MSVC CRT invalid-parameter handler — fires when CRT API gets bad args
+// (e.g. passing nullptr to printf %s, scanf format mismatch). Default
+// behavior is to fast-fail; override so we capture the dump first.
+static void MangosdInvalidParameterHandler(const wchar_t* /*expr*/,
+                                             const wchar_t* /*func*/,
+                                             const wchar_t* /*file*/,
+                                             unsigned int /*line*/,
+                                             uintptr_t /*reserved*/)
+{
+    Mangosd_WriteCrashDump(nullptr, 0xC0000420L,
+                            "invalid-parameter");
+    // Don't return — CRT expects this handler to terminate. abort() will
+    // re-enter our SIGABRT handler, but g_inCrashHandler stops recursion.
+    abort();
+}
+
+// Pure virtual call handler — called when a pure virtual function is
+// invoked (typically from a destructor on a partially-destroyed object).
+// MSVC's _purecall hook.
+static void MangosdPureCallHandler()
+{
+    Mangosd_WriteCrashDump(nullptr, 0xC0000420L, "pure-virtual-call");
+    abort();
+}
+
+// Install all crash-capture hooks. Called once at the start of Master::Run.
+static void MangosdInstallCrashHandlers()
+{
+    // VEH first — it fires before SEH frame walk, so we capture the dump
+    // even when ntdll is about to call __fastfail and bypass SEH entirely.
+    // Argument 1 = "first" (run before any other vectored handler).
+    AddVectoredExceptionHandler(1, MangosdVectoredExceptionHandler);
+
+    // Backstop SEH filter — catches anything that DOES propagate up the
+    // SEH chain unhandled (rare for fast-fails, common for normal AVs).
+    SetUnhandledExceptionFilter(MangosdUnhandledExceptionFilter);
+
+    // C++ runtime hooks for paths that bypass SEH altogether.
+    std::set_terminate(MangosdTerminateHandler);
+    _set_invalid_parameter_handler(MangosdInvalidParameterHandler);
+    _set_purecall_handler(MangosdPureCallHandler);
+
+    // Disable the WER "process has stopped working" dialog — we want
+    // the process to die immediately so the launcher .bat can restart
+    // it without operator interaction. The dump is already on disk.
+    _CrtSetReportMode(_CRT_WARN, 0);
+    _CrtSetReportMode(_CRT_ERROR, 0);
+    _CrtSetReportMode(_CRT_ASSERT, 0);
+
+    // Signal-based hooks (mostly redundant with the above on Windows,
+    // but cover edge cases like stdlib code calling abort() directly).
+    signal(SIGABRT, MangosdSignalHandler);
+    signal(SIGSEGV, MangosdSignalHandler);
+    signal(SIGFPE,  MangosdSignalHandler);
+    signal(SIGILL,  MangosdSignalHandler);
+}
+#endif
+
 #include "ace/MMAP_Memory_Pool.h"
-#include "ace/Malloc_T.h"
 #include "ace/Shared_Memory_MM.h"
+#include "ace/ACE.h"
+#include "ace/Malloc_T.h"
 
 Master sMaster;
 
@@ -75,15 +405,21 @@ public:
     typedef T* pointer;
     typedef const T* const_pointer;
 
-    SharedMemoryAllocator(ACE_Malloc_T<ACE_MMAP_MEMORY_POOL, ACE_Process_Mutex, ACE_Control_Block>& memory_pool) : memory_allocator_(memory_pool) {}
+    SharedMemoryAllocator(ACE_Malloc_T<ACE_MMAP_MEMORY_POOL, ACE_Process_Mutex, ACE_Control_Block>& memory_pool)
+        : memory_allocator_(memory_pool) {}
 
-    pointer allocate(size_type n, const void* hint = 0) { return static_cast<pointer>(memory_allocator_.malloc(n * sizeof(T))); }
+    pointer allocate(size_type n, const void* hint = 0) {
+        return static_cast<pointer>(memory_allocator_.malloc(n * sizeof(T)));
+    }
 
-    void deallocate(pointer p, size_type n) { memory_allocator_.free(p); }
+    void deallocate(pointer p, size_type n) {
+        memory_allocator_.free(p);
+    }
 
 private:
     ACE_Malloc_T<ACE_MMAP_MEMORY_POOL, ACE_Process_Mutex, ACE_Control_Block>& memory_allocator_;
 };
+
 
 
 void freezeDetector(uint32 _delaytime)
@@ -91,7 +427,7 @@ void freezeDetector(uint32 _delaytime)
     if (!_delaytime)
         return;
 
-    sLog.outString("Starting up anti-freeze thread (%u seconds max stuck time)...", _delaytime / 1000);
+    sLog.outString("Starting up anti-freeze thread (%u seconds max stuck time)...",_delaytime/1000);
     uint32 loops = 0;
     uint32 lastchange = 0;
 
@@ -117,14 +453,28 @@ void freezeDetector(uint32 _delaytime)
     }
 };
 
-Master::Master() {}
+Master::Master()
+{
+    
+}
 
-Master::~Master() {}
+Master::~Master()
+{
+}
 
 
 /// Main function
 int Master::Run()
 {
+#ifdef WIN32
+    // Install crash-dump capture ASAP so any startup-time crash
+    // (e.g. DBC load failure) also produces a usable dump. VEH + CRT
+    // hooks catch heap corruption / fast-fail / std::terminate paths
+    // that bypass SetUnhandledExceptionFilter. See
+    // MangosdInstallCrashHandlers above for the full hook inventory.
+    MangosdInstallCrashHandlers();
+#endif
+
     /// worldd PID file creation
     std::string pidfile = sConfig.GetStringDefault("PidFile", "");
     if (!pidfile.empty())
@@ -132,12 +482,12 @@ int Master::Run()
         uint32 pid = CreatePIDFile(pidfile);
         if (!pid)
         {
-            sLog.outError("Cannot create PID file %s.\n", pidfile.c_str());
+            sLog.outError( "Cannot create PID file %s.\n", pidfile.c_str() );
             Log::WaitBeforeContinueIfNeed();
             return 1;
         }
 
-        sLog.outString("Daemon PID: %u\n", pid);
+        sLog.outString( "Daemon PID: %u\n", pid );
     }
 
     ///- Start the databases
@@ -176,13 +526,13 @@ int Master::Run()
 
     ///- Initialize the World
     sWorld.SetInitialWorldSettings();
+    
 
-
-#ifndef WIN32
+    #ifndef WIN32
     detachDaemon();
-#endif
-    // server loaded successfully => enable async DB requests
-    // this is done to forbid any async transactions during server startup!
+    #endif
+    //server loaded successfully => enable async DB requests
+    //this is done to forbid any async transactions during server startup!
     CharacterDatabase.AllowAsyncTransactions();
     WorldDatabase.AllowAsyncTransactions();
     LoginDatabase.AllowAsyncTransactions();
@@ -191,7 +541,7 @@ int Master::Run()
     ///- Catch termination signals
     _HookSignals();
 
-    // sWorld.RestoreLostGOs();
+   // sWorld.RestoreLostGOs();
 
     ///- Launch WorldRunnable thread
     std::thread world_thread{WorldRunnable()};
@@ -212,8 +562,8 @@ int Master::Run()
         cliThread = new std::thread(CliRunnable());
     }
 
-///- Handle affinity for multiple processors and process priority on Windows
-#ifdef WIN32
+    ///- Handle affinity for multiple processors and process priority on Windows
+    #ifdef WIN32
     {
         HANDLE hProcess = GetCurrentProcess();
 
@@ -223,38 +573,39 @@ int Master::Run()
             ULONG_PTR appAff;
             ULONG_PTR sysAff;
 
-            if (GetProcessAffinityMask(hProcess, &appAff, &sysAff))
+            if (GetProcessAffinityMask(hProcess,&appAff,&sysAff))
             {
-                ULONG_PTR curAff = Aff & appAff; // remove non accessible processors
+                ULONG_PTR curAff = Aff & appAff;            // remove non accessible processors
 
                 if (!curAff)
                 {
-                    sLog.outError("Processors marked in UseProcessors bitmask (hex) %x not accessible for mangosd. Accessible processors bitmask (hex): %x", Aff, appAff);
+                    sLog.outError("Processors marked in UseProcessors bitmask (hex) %x not accessible for mangosd. Accessible processors bitmask (hex): %x",Aff,appAff);
                 }
                 else
                 {
-                    if (SetProcessAffinityMask(hProcess, curAff))
+                    if (SetProcessAffinityMask(hProcess,curAff))
                         sLog.outString("Using processors (bitmask, hex): %x", curAff);
                     else
-                        sLog.outError("Can't set used processors (hex): %x", curAff);
+                        sLog.outError("Can't set used processors (hex): %x",curAff);
                 }
             }
+            
         }
 
         bool Prio = sConfig.GetBoolDefault("ProcessPriority", false);
         if (!Prio)
             sLog.outError("Can't set mangosd process priority class.");
     }
-#endif
+    #endif
 
     ///- Start up freeze catcher thread
     std::thread* freeze_thread = nullptr;
     if (uint32 freeze_delay = sConfig.GetIntDefault("MaxCoreStuckTime", 0))
-        freeze_thread = new std::thread(std::bind(&freezeDetector, freeze_delay * 1000));
+        freeze_thread = new std::thread(std::bind(&freezeDetector,freeze_delay*1000));
 
     ///- Launch the world listener socket
-    uint16 wsport = sWorld.getConfig(CONFIG_UINT32_PORT_WORLD);
-    std::string bind_ip = sConfig.GetStringDefault("BindIP", "0.0.0.0");
+    uint16 wsport = sWorld.getConfig (CONFIG_UINT32_PORT_WORLD);
+    std::string bind_ip = sConfig.GetStringDefault ("BindIP", "0.0.0.0");
 
     // Start WorldSockets
     sWorldSocketMgr->SetOutKBuff(sConfig.GetIntDefault("Network.OutKBuff", -1));
@@ -265,13 +616,33 @@ int Master::Run()
 
     if (sWorldSocketMgr->StartNetwork(wsport, bind_ip) == -1)
     {
-        sLog.outError("Failed to start WorldSocket network");
+        sLog.outError ("Failed to start WorldSocket network");
         Log::WaitBeforeContinueIfNeed();
         World::StopNow(ERROR_EXIT_CODE);
         // go down and shutdown the server
     }
+    else
+    {
+        ScriptRegistry<ServerScript>::ForEachEnabledHook(SERVERHOOK_ON_NETWORK_START, [](ServerScript* script)
+        {
+            script->OnNetworkStart();
+        });
+    }
 
-    sWorldSocketMgr->Wait();
+    // Do NOT also call sWorldSocketMgr->Wait() here. WorldRunnable's shutdown
+    // path (run on world_thread) ends by calling sWorldSocketMgr->StopNetwork(),
+    // which itself stops and joins every network thread before returning.
+    // Waiting on the network threads a second time from this thread raced
+    // StopNetwork()'s own join (both called ACE_Task_Base::wait() on the same
+    // ReactorRunnable threads concurrently, which is undefined behavior) and
+    // was the root cause of the intermittent "Stopping network threads..."
+    // shutdown hang. world_thread.join() below is sufficient on its own: it
+    // cannot return until StopNetwork() -- and thus the network-thread join --
+    // has completed.
+    //
+    // when the main thread closes the singletons get unloaded
+    // since worldrunnable uses them, it will crash if unloaded after master
+    world_thread.join();
 
     ///- Stop freeze protection before shutdown tasks
     if (freeze_thread)
@@ -282,10 +653,6 @@ int Master::Run()
 
     ///- Remove signal handling before leaving
     _UnhookSignals();
-
-    // when the main thread closes the singletons get unloaded
-    // since worldrunnable uses them, it will crash if unloaded after master
-    world_thread.join();
 
     ///- Clean account database before leaving
     sLog.outString("Cleaning character database...");
@@ -316,7 +683,7 @@ int Master::Run()
 
     if (cliThread)
     {
-#ifdef WIN32
+        #ifdef WIN32
 
         // this only way to terminate CLI thread exist at Win32 (alt. way exist only in Windows Vista API)
         //_exit(1);
@@ -362,9 +729,9 @@ int Master::Run()
     }
 
     ///- Exit the process with specified return value
-    // WORLD SHUTDOWN
+	// WORLD SHUTDOWN
 
-    sWorld.InternalShutdown();
+	sWorld.InternalShutdown();
 
     uint8 exitCode = World::GetExitCode();
     std::quick_exit(exitCode);
@@ -436,7 +803,10 @@ bool Master::_StartDB()
         return false;
     }
 
-    if (!StartDB("World", WorldDatabase) || !StartDB("Character", CharacterDatabase) || !StartDB("Login", LoginDatabase) || !StartDB("Logs", LogsDatabase))
+    if (!StartDB("World", WorldDatabase) ||
+        !StartDB("Character", CharacterDatabase) ||
+        !StartDB("Login", LoginDatabase) ||
+        !StartDB("Logs", LogsDatabase))
     {
         WorldDatabase.HaltDelayThread();
         CharacterDatabase.HaltDelayThread();
@@ -465,14 +835,15 @@ void Master::clearOnlineAccounts()
     CharacterDatabase.Execute("UPDATE character_battleground_data SET instance_id = 0");
 }
 
-#include "Language.h"
 #include "ObjectAccessor.h"
+#include "Language.h"
 void createdump(void)
 {
 #ifndef WIN32
     if (!fork())
         abort(); // Crash the app
 #endif
+    
 }
 /// Handle termination signals
 void Master::SigvSignalHandler()
@@ -487,18 +858,18 @@ void Master::_OnSignal(int s)
 {
     switch (s)
     {
-    case SIGINT:
+        case SIGINT:
         {
             World::StopNow(RESTART_EXIT_CODE);
             break;
         }
-    case SIGTERM:
-#ifdef _WIN32
-    case SIGBREAK:
-#endif
-        World::StopNow(SHUTDOWN_EXIT_CODE);
-        break;
-    case SIGSEGV:
+        case SIGTERM:
+        #ifdef _WIN32
+        case SIGBREAK:
+        #endif
+            World::StopNow(SHUTDOWN_EXIT_CODE);
+            break;
+        case SIGSEGV:
         {
             signal(SIGSEGV, 0);
             if (!m_handleSigvSignals)
@@ -522,7 +893,7 @@ void Master::_OnSignal(int s)
                     sWorld.SendWorldText(LANG_SYSTEMMESSAGE, "Server has crashed. Now saving online players ...");
                 else
                     sWorld.SendWorldText(LANG_SYSTEMMESSAGE, "Crash server occurred :(");
-
+    
                 std::this_thread::sleep_for(std::chrono::milliseconds(500));
             }
 
@@ -546,13 +917,16 @@ void Master::_HookSignals()
     signal(SIGINT, _OnSignal);
     signal(SIGTERM, _OnSignal);
     signal(SIGSEGV, _OnSignal);
-#ifdef _WIN32
+    #ifdef _WIN32
     signal(SIGBREAK, _OnSignal);
-#endif
+    #endif
     ArmAnticrash();
 }
 
-void Master::ArmAnticrash() { m_handleSigvSignals = true; }
+void Master::ArmAnticrash()
+{
+    m_handleSigvSignals = true;
+}
 
 /// Unhook the signals before leaving
 void Master::_UnhookSignals()
@@ -560,8 +934,8 @@ void Master::_UnhookSignals()
     signal(SIGINT, 0);
     signal(SIGTERM, 0);
     signal(SIGSEGV, 0);
-#ifdef _WIN32
+    #ifdef _WIN32
     signal(SIGBREAK, 0);
-#endif
+    #endif
     m_handleSigvSignals = false;
 }

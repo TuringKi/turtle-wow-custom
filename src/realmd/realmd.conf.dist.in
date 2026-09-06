@@ -7,7 +7,7 @@ ConfVersion=2010062001
 
 #   Database connection settings for the realm server.
 
-LoginDatabaseInfo = ""
+LoginDatabaseInfo = "127.0.0.1;3306;mangos;mangos;tw_logon"
 
 #   Logs directory setting.
 
@@ -29,7 +29,7 @@ RealmServerPort = 3724
 #   Bind Realm Server to IP/hostname.
 #   This option is useful for running multiple worldd/realmd instances on different IP addresses using default ports.
 
-BindIP = "51.89.212.98"
+BindIP = "0.0.0.0"
 
 #   Realmd daemon PID file.
 
@@ -140,7 +140,7 @@ HostAddressOverride = "0.0.0.0"
 
 #   Force 2FA for accounts with rank.
 
-ForcePinAccountRank = 1
+ForcePinAccountRank = 6
 
 #   MaxSessionDuration - Time in seconds after which session will be closed.
 

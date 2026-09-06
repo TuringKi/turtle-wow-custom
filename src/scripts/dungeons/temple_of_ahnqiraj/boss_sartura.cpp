@@ -1,18 +1,18 @@
 /* This file is part of the ScriptDev2 Project. See AUTHORS file for Copyright information
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
- */
+* This program is free software; you can redistribute it and/or modify
+* it under the terms of the GNU General Public License as published by
+* the Free Software Foundation; either version 2 of the License, or
+* (at your option) any later version.
+*
+* This program is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+* GNU General Public License for more details.
+*
+* You should have received a copy of the GNU General Public License
+* along with this program; if not, write to the Free Software
+* Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+*/
 
 /* ScriptData
 SDName: Boss_Sartura
@@ -32,23 +32,23 @@ EndScriptData */
 
 enum
 {
-    SAY_AGGRO = -1531008,
-    SAY_SLAY = -1531009,
-    SAY_DEATH = -1531010,
+    SAY_AGGRO                       = -1531008,
+    SAY_SLAY                        = -1531009,
+    SAY_DEATH                       = -1531010,
 
-    SPELL_WHIRLWIND = 26083,
+    SPELL_WHIRLWIND                 = 26083,
 
     // Sartura
-    SPELL_CLEAVE = 25174,
-    SPELL_ENRAGE = 8269,
-    SPELL_ENRAGEHARD = 27680,
+    SPELL_CLEAVE                    = 25174,
+    SPELL_ENRAGE                    = 8269,
+    SPELL_ENRAGEHARD                = 27680,
 
-    EMOTE_ENRAGE = -1000003,
-    EMOTE_ENRAGEHARD = -1000004,
+    EMOTE_ENRAGE                    = -1000003,
+    EMOTE_ENRAGEHARD                = -1000004,
 
     // Royal Guard
-    SPELL_KNOCKBACK = 19813,
-    SPELL_GUARD_WHIRLWIND = 26038,
+    SPELL_KNOCKBACK                 = 19813,
+    SPELL_GUARD_WHIRLWIND           = 26038,
 
 };
 
@@ -68,7 +68,7 @@ struct boss_sarturaAI : public ScriptedAI
 
     uint32 m_uiCleaveTimer;
     uint32 m_uiWhirlWindTimer;
-    uint32 m_uiWhirlWindEndTimer; // 15s
+    uint32 m_uiWhirlWindEndTimer;           //15s
     uint32 m_uiAggroResetTimer;
     uint32 m_uiEnrageHardTimer;
     uint32 m_uiEvadeCheckTimer;
@@ -79,11 +79,10 @@ struct boss_sarturaAI : public ScriptedAI
     void Reset() override
     {
         m_uiCleaveTimer = 4000;
-        m_uiWhirlWindTimer = urand(8000, 12000);
-        ;
+        m_uiWhirlWindTimer = urand(8000, 12000);;
         m_uiWhirlWindEndTimer = 0;
         m_uiAggroResetTimer = urand(5000, 7500);
-
+        
         m_uiEnrageHardTimer = 10 * 60000;
         m_bIsEnraged = false;
         m_bAttackOff = false;
@@ -93,7 +92,12 @@ struct boss_sarturaAI : public ScriptedAI
 
     void MoveInLineOfSight(Unit* pWho) override
     {
-        if (pWho->GetTypeId() == TYPEID_PLAYER && !m_creature->IsInCombat() && m_creature->IsWithinDistInMap(pWho, 40.0f) && m_creature->IsWithinLOSInMap(pWho) && !pWho->HasAuraType(SPELL_AURA_FEIGN_DEATH) && !pWho->HasAuraType(SPELL_AURA_MOD_UNATTACKABLE))
+        if (pWho->GetTypeId() == TYPEID_PLAYER
+            && !m_creature->IsInCombat()
+            && m_creature->IsWithinDistInMap(pWho, 40.0f)
+            && m_creature->IsWithinLOSInMap(pWho)
+            && !pWho->HasAuraType(SPELL_AURA_FEIGN_DEATH)
+            && !pWho->HasAuraType(SPELL_AURA_MOD_UNATTACKABLE))
         {
             AttackStart(pWho);
         }
@@ -115,7 +119,10 @@ struct boss_sarturaAI : public ScriptedAI
             m_pInstance->SetData(TYPE_SARTURA, IN_PROGRESS);
     }
 
-    void KilledUnit(Unit* /*pVictim*/) override { DoScriptText(SAY_SLAY, m_creature); }
+    void KilledUnit(Unit* /*pVictim*/) override
+    {
+        DoScriptText(SAY_SLAY, m_creature);
+    }
 
     void JustDied(Unit* /*pKiller*/) override
     {
@@ -151,10 +158,7 @@ struct boss_sarturaAI : public ScriptedAI
         {
             if (Creature* pRoyalGuard = m_creature->GetMap()->GetCreature(guid))
             {
-                if (pRoyalGuard->IsDead())
-                    pRoyalGuard->Respawn();
-                else
-                    pRoyalGuard->AI()->EnterEvadeMode();
+                if (pRoyalGuard->IsDead()) pRoyalGuard->Respawn(); else pRoyalGuard->AI()->EnterEvadeMode();
             }
         }
     }
@@ -164,7 +168,7 @@ struct boss_sarturaAI : public ScriptedAI
         if (!m_creature->SelectHostileTarget() || !m_creature->GetVictim())
             return;
 
-        if (m_uiWhirlWindEndTimer) // Is in Whirlwind
+        if (m_uiWhirlWindEndTimer)                          // Is in Whirlwind
         {
             // While in whirlwind, switch to random targets often
             if (m_uiAggroResetTimer < uiDiff)
@@ -180,7 +184,7 @@ struct boss_sarturaAI : public ScriptedAI
             {
                 m_uiWhirlWindEndTimer = 0;
                 m_uiWhirlWindTimer = urand(5000, 10000);
-                m_uiAggroResetTimer = urand(3000, 7000);
+                m_uiAggroResetTimer = urand(3000, 7000); 
                 // Remove the negative haste modifier from Whirlwind to restore Sartura's auto attack
                 m_creature->ApplyAttackTimePercentMod(BASE_ATTACK, 0, true);
                 m_creature->SetAttackTimer(BASE_ATTACK, 100);
@@ -221,8 +225,9 @@ struct boss_sarturaAI : public ScriptedAI
             }
             else
                 m_uiCleaveTimer -= uiDiff;
-        }
 
+        }
+        
         // If she is <20% enrage
         if (!m_bIsEnraged && m_creature->GetHealthPercent() <= 20.0f)
         {
@@ -282,7 +287,7 @@ struct mob_sartura_royal_guardAI : public ScriptedAI
 
     uint32 m_uiKnockbackTimer;
     uint32 m_uiWhirlWindTimer;
-    uint32 m_uiWhirlWindEndTimer; // 15s
+    uint32 m_uiWhirlWindEndTimer;           //15s
     uint32 m_uiAggroResetTimer;
     uint32 m_uiEvadeCheckTimer;
 
@@ -295,7 +300,10 @@ struct mob_sartura_royal_guardAI : public ScriptedAI
         m_uiEvadeCheckTimer = 2500;
     }
 
-    void Aggro(Unit* /*pWho*/) override { m_creature->SetInCombatWithZone(); }
+    void Aggro(Unit* /*pWho*/) override
+    {
+        m_creature->SetInCombatWithZone();
+    }
 
     void AssignRandomThreat()
     {
@@ -320,10 +328,7 @@ struct mob_sartura_royal_guardAI : public ScriptedAI
                 {
                     if (Creature* pRoyalGuard = m_creature->GetMap()->GetCreature(guid))
                     {
-                        if (pRoyalGuard->IsDead())
-                            pRoyalGuard->Respawn();
-                        else
-                            pRoyalGuard->AI()->EnterEvadeMode();
+                        if (pRoyalGuard->IsDead()) pRoyalGuard->Respawn(); else pRoyalGuard->AI()->EnterEvadeMode();
                     }
                 }
             }
@@ -335,8 +340,8 @@ struct mob_sartura_royal_guardAI : public ScriptedAI
         if (!m_creature->SelectHostileTarget() || !m_creature->GetVictim())
             return;
 
-
-        if (m_uiWhirlWindEndTimer) // Is in Whirlwind
+        
+        if (m_uiWhirlWindEndTimer)                          // Is in Whirlwind
         {
             // While in whirlwind, switch to random targets often
             if (m_uiAggroResetTimer < uiDiff)
@@ -384,12 +389,13 @@ struct mob_sartura_royal_guardAI : public ScriptedAI
             // Knockback
             if (m_uiKnockbackTimer < uiDiff)
             {
-                if (m_creature->CanReachWithMeleeAutoAttack(m_creature->GetVictim()))
+                if(m_creature->CanReachWithMeleeAutoAttack(m_creature->GetVictim()))
                     if (DoCastSpellIfCan(m_creature->GetVictim(), SPELL_KNOCKBACK) == CAST_OK)
                         m_uiKnockbackTimer = urand(8000, 14000);
             }
             else
                 m_uiKnockbackTimer -= uiDiff;
+
         }
 
         DoMeleeAttackIfReady();
@@ -412,16 +418,16 @@ struct mob_sartura_royal_guardAI : public ScriptedAI
 
 enum
 {
-    SPELL_IMPALE = 26025,
-    SPELL_FRENZY = 8599,
+    SPELL_IMPALE        = 26025,
+    SPELL_FRENZY        = 8599,
 
-    EMOTE_EMIT = 10755,
-    EMOTE_FRENZY = 10645,
-    SOUND_CHARGE = 3330,
+    EMOTE_EMIT          = 10755,
+    EMOTE_FRENZY        = 10645,
+    SOUND_CHARGE        = 3330,
 };
 
 // array of GUIDs permitted to emote on aggro
-static const uint32 aEmoteGUIDs[8] = {87595, 87671, 87610, 87611, 87618, 87627, 87628, 87641};
+static const uint32 aEmoteGUIDs[8] = { 87595, 87671, 87610, 87611, 87618, 87627, 87628, 87641 };
 
 struct mob_vekniss_guardianAI : public ScriptedAI
 {
@@ -559,11 +565,11 @@ struct mob_vekniss_guardianAI : public ScriptedAI
             }
         }
 
-        if (m_uiImpaleTimer) // stop chasing momentarily after casting impale to prevent z-axis problems
+        if (m_uiImpaleTimer)                                                                    // stop chasing momentarily after casting impale to prevent z-axis problems
         {
             if (m_uiImpaleTimer < uiDiff)
             {
-
+                
                 m_uiImpaleTimer = 0;
             }
             else
@@ -575,11 +581,20 @@ struct mob_vekniss_guardianAI : public ScriptedAI
 };
 
 
-CreatureAI* GetAI_boss_sartura(Creature* pCreature) { return new boss_sarturaAI(pCreature); }
+CreatureAI* GetAI_boss_sartura(Creature* pCreature)
+{
+    return new boss_sarturaAI(pCreature);
+}
 
-CreatureAI* GetAI_mob_sartura_royal_guard(Creature* pCreature) { return new mob_sartura_royal_guardAI(pCreature); }
+CreatureAI* GetAI_mob_sartura_royal_guard(Creature* pCreature)
+{
+    return new mob_sartura_royal_guardAI(pCreature);
+}
 
-CreatureAI* GetAI_mob_vekniss_guardian(Creature* pCreature) { return new mob_vekniss_guardianAI(pCreature); }
+CreatureAI* GetAI_mob_vekniss_guardian(Creature* pCreature)
+{
+    return new mob_vekniss_guardianAI(pCreature);
+}
 
 void AddSC_boss_sartura()
 {
@@ -593,7 +608,7 @@ void AddSC_boss_sartura()
     pNewScript = new Script;
     pNewScript->Name = "mob_sartura_royal_guard";
     pNewScript->GetAI = &GetAI_mob_sartura_royal_guard;
-    pNewScript->RegisterSelf();
+    pNewScript->RegisterSelf(); 
 
     pNewScript = new Script;
     pNewScript->Name = "mob_vekniss_guardian";

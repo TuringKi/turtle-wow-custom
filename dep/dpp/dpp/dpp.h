@@ -2,7 +2,7 @@
  *
  * D++, A Lightweight C++ library for Discord
  *
- * Copyright 2021 Craig Edwards and D++ contributors
+ * Copyright 2021 Craig Edwards and D++ contributors 
  * (https://github.com/brainboxdotcc/DPP/graphs/contributors)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -19,53 +19,56 @@
  *
  ************************************************************************************/
 #pragma once
-#include <ctime>
-#include <dpp/appcommand.h>
-#include <dpp/application.h>
-#include <dpp/auditlog.h>
-#include <dpp/ban.h>
-#include <dpp/cache.h>
-#include <dpp/channel.h>
-#include <dpp/cluster.h>
-#include <dpp/collector.h>
-#include <dpp/colors.h>
-#include <dpp/commandhandler.h>
-#include <dpp/discordclient.h>
-#include <dpp/discordevents.h>
-#include <dpp/dispatcher.h>
-#include <dpp/dtemplate.h>
-#include <dpp/emoji.h>
-#include <dpp/exception.h>
 #include <dpp/export.h>
-#include <dpp/guild.h>
-#include <dpp/httpsclient.h>
-#include <dpp/integration.h>
-#include <dpp/intents.h>
-#include <dpp/invite.h>
-#include <dpp/managed.h>
-#include <dpp/message.h>
-#include <dpp/misc-enum.h>
-#include <dpp/once.h>
-#include <dpp/permissions.h>
-#include <dpp/presence.h>
-#include <dpp/prune.h>
-#include <dpp/queues.h>
-#include <dpp/role.h>
-#include <dpp/scheduled_event.h>
-#include <dpp/snowflake.h>
-#include <dpp/stage_instance.h>
-#include <dpp/stringops.h>
-#include <dpp/sync.h>
-#include <dpp/timed_listener.h>
-#include <dpp/user.h>
-#include <dpp/utility.h>
 #include <dpp/version.h>
-#include <dpp/voiceregion.h>
-#include <dpp/voicestate.h>
-#include <dpp/webhook.h>
-#include <fstream>
-#include <functional>
-#include <iostream>
+#include <string>
 #include <map>
+#include <vector>
+#include <fstream>
+#include <iostream>
+#include <ctime>
 #include <string>
 #include <vector>
+#include <map>
+#include <functional>
+#include <dpp/exception.h>
+#include <dpp/snowflake.h>
+#include <dpp/misc-enum.h>
+#include <dpp/stringops.h>
+#include <dpp/managed.h>
+#include <dpp/utility.h>
+#include <dpp/voicestate.h>
+#include <dpp/permissions.h>
+#include <dpp/role.h>
+#include <dpp/user.h>
+#include <dpp/channel.h>
+#include <dpp/guild.h>
+#include <dpp/invite.h>
+#include <dpp/dtemplate.h>
+#include <dpp/emoji.h>
+#include <dpp/ban.h>
+#include <dpp/prune.h>
+#include <dpp/voiceregion.h>
+#include <dpp/integration.h>
+#include <dpp/webhook.h>
+#include <dpp/presence.h>
+#include <dpp/intents.h>
+#include <dpp/message.h>
+#include <dpp/appcommand.h>
+#include <dpp/stage_instance.h>
+#include <dpp/auditlog.h>
+#include <dpp/application.h>
+#include <dpp/scheduled_event.h>
+#include <dpp/discordclient.h>
+#include <dpp/dispatcher.h>
+#include <dpp/cluster.h>
+#include <dpp/cache.h>
+#include <dpp/httpsclient.h>
+#include <dpp/queues.h>
+#include <dpp/commandhandler.h>
+#include <dpp/once.h>
+#include <dpp/sync.h>
+#include <dpp/colors.h>
+#include <dpp/discordevents.h>
+#include <dpp/timed_listener.h>
+#include <dpp/collector.h>

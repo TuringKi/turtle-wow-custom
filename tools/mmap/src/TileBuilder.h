@@ -1,22 +1,22 @@
 #pragma once
 
 #include <list>
+#include <thread>
 #include <memory>
 #include <mutex>
-#include <thread>
 
 #include "MapTree.h"
 #include "ModelInstance.h"
 
-#include "DetourCommon.h"
 #include "DetourNavMeshBuilder.h"
-#include "IntermediateValues.h"
 #include "TerrainBuilder.h"
+#include "IntermediateValues.h"
+#include "DetourCommon.h"
 
-#include <atomic>
 #include <condition_variable>
 #include <mutex>
 #include <queue>
+#include <atomic>
 #include <type_traits>
 
 namespace MMAP
@@ -45,7 +45,8 @@ namespace MMAP
         std::atomic<bool> _shutdown;
 
     public:
-        ProducerConsumerQueue<T>() : _shutdown(false) {}
+
+        ProducerConsumerQueue<T>() : _shutdown(false) { }
 
         void Push(const T& value)
         {
@@ -112,16 +113,11 @@ namespace MMAP
         }
 
     private:
-        template <typename E = T>
-        typename std::enable_if<std::is_pointer<E>::value>::type DeleteQueuedObject(E& obj)
-        {
-            delete obj;
-        }
+        template<typename E = T>
+        typename std::enable_if<std::is_pointer<E>::value>::type DeleteQueuedObject(E& obj) { delete obj; }
 
-        template <typename E = T>
-        typename std::enable_if<!std::is_pointer<E>::value>::type DeleteQueuedObject(E const& /*packet*/)
-        {
-        }
+        template<typename E = T>
+        typename std::enable_if<!std::is_pointer<E>::value>::type DeleteQueuedObject(E const& /*packet*/) { }
     };
 
 
@@ -130,7 +126,13 @@ namespace MMAP
     class TileBuilder
     {
     public:
-        TileBuilder(MapBuilder* mapBuilder, bool skipLiquid, bool quick, bool bigBaseUnit, bool debugOutput) : m_bigBaseUnit(bigBaseUnit), m_debugOutput(debugOutput), m_mapBuilder(mapBuilder), m_terrainBuilder(nullptr), m_workerThread(&TileBuilder::WorkerThread, this), m_rcContext(nullptr)
+        TileBuilder(MapBuilder* mapBuilder, bool skipLiquid, bool quick, bool bigBaseUnit, bool debugOutput) :
+            m_bigBaseUnit(bigBaseUnit),
+            m_debugOutput(debugOutput),
+            m_mapBuilder(mapBuilder),
+            m_terrainBuilder(nullptr),
+            m_workerThread(&TileBuilder::WorkerThread, this),
+            m_rcContext(nullptr)
         {
             m_terrainBuilder = new TerrainBuilder(skipLiquid, quick);
             m_rcContext = new rcContext(false);
@@ -155,7 +157,13 @@ namespace MMAP
         void buildTile(uint32 mapID, uint32 tileX, uint32 tileY, dtNavMesh* navMesh, uint32 curTile, uint32 tileCount);
 
         // move map building
-        void buildMoveMapTile(uint32 mapID, uint32 tileX, uint32 tileY, MeshData& meshData, float bmin[3], float bmax[3], dtNavMesh* navMesh);
+        void buildMoveMapTile(uint32 mapID,
+            uint32 tileX,
+            uint32 tileY,
+            MeshData& meshData,
+            float bmin[3],
+            float bmax[3],
+            dtNavMesh* navMesh);
 
 
         bool m_bigBaseUnit;
@@ -167,4 +175,4 @@ namespace MMAP
         // build performance - not really used for now
         rcContext* m_rcContext;
     };
-} // namespace MMAP
+}

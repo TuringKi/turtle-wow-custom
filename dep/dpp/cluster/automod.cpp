@@ -21,17 +21,26 @@
 #include <dpp/automod.h>
 #include <dpp/restrequest.h>
 
-namespace dpp
-{
+namespace dpp {
 
-    void cluster::automod_rules_get(snowflake guild_id, command_completion_event_t callback) { rest_request_list<automod_rule>(this, API_PATH "/guilds", std::to_string(guild_id), "/auto-moderation/rules", m_get, "", callback); }
+void cluster::automod_rules_get(snowflake guild_id, command_completion_event_t callback) {
+	rest_request_list<automod_rule>(this, API_PATH "/guilds", std::to_string(guild_id), "/auto-moderation/rules", m_get, "", callback);
+}
 
-    void cluster::automod_rule_get(snowflake guild_id, snowflake rule_id, command_completion_event_t callback) { rest_request<automod_rule>(this, API_PATH "/guilds", std::to_string(guild_id), "/auto-moderation/rules/" + std::to_string(rule_id), m_get, "", callback); }
+void cluster::automod_rule_get(snowflake guild_id, snowflake rule_id, command_completion_event_t callback) {
+	rest_request<automod_rule>(this, API_PATH "/guilds", std::to_string(guild_id), "/auto-moderation/rules/" + std::to_string(rule_id), m_get, "", callback);
+}
 
-    void cluster::automod_rule_create(snowflake guild_id, const automod_rule& r, command_completion_event_t callback) { rest_request<automod_rule>(this, API_PATH "/guilds", std::to_string(guild_id), "/auto-moderation/rules", m_post, r.build_json(), callback); }
+void cluster::automod_rule_create(snowflake guild_id, const automod_rule& r, command_completion_event_t callback) {
+	rest_request<automod_rule>(this, API_PATH "/guilds", std::to_string(guild_id), "/auto-moderation/rules", m_post, r.build_json(), callback);
+}
 
-    void cluster::automod_rule_edit(snowflake guild_id, const automod_rule& r, command_completion_event_t callback) { rest_request<automod_rule>(this, API_PATH "/guilds", std::to_string(guild_id), "/auto-moderation/rules/" + std::to_string(r.id), m_patch, r.build_json(true), callback); }
+void cluster::automod_rule_edit(snowflake guild_id, const automod_rule& r, command_completion_event_t callback) {
+	rest_request<automod_rule>(this, API_PATH "/guilds", std::to_string(guild_id), "/auto-moderation/rules/" + std::to_string(r.id), m_patch, r.build_json(true), callback);
+}
 
-    void cluster::automod_rule_delete(snowflake guild_id, snowflake rule_id, command_completion_event_t callback) { rest_request<confirmation>(this, API_PATH "/guilds", std::to_string(guild_id), "/auto-moderation/rules/" + std::to_string(rule_id), m_delete, "", callback); }
+void cluster::automod_rule_delete(snowflake guild_id, snowflake rule_id, command_completion_event_t callback) {
+	rest_request<confirmation>(this, API_PATH "/guilds", std::to_string(guild_id), "/auto-moderation/rules/" + std::to_string(rule_id), m_delete, "", callback);
+}
 
-}; // namespace dpp
+};

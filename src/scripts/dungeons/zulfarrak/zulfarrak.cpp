@@ -28,8 +28,8 @@ npc_sergeant_bly
 npc_weegli_blastfuse
 EndContentData */
 
-#include "zulfarrak.h"
 #include "scriptPCH.h"
+#include "zulfarrak.h"
 
 /*######
 ## npc_sergeant_bly
@@ -37,25 +37,25 @@ EndContentData */
 
 enum blyAndCrewFactions
 {
-    FACTION_HOSTILE = 14,
-    FACTION_FRIENDLY = 35, // while in cages (so the trolls won't attack them while they're caged)
-    FACTION_FREED = 250 // after release (so they'll be hostile towards trolls)
+    FACTION_HOSTILE           = 14,
+    FACTION_FRIENDLY          = 35,  //while in cages (so the trolls won't attack them while they're caged)
+    FACTION_FREED             = 250  //after release (so they'll be hostile towards trolls)
 };
 
 enum blySays
 {
-    SAY_1 = 3882, // What? How dare you say that to me?!?
-    SAY_2 = 3884, // After all we've been through? Well, I didn't like you anyway!!
-    SAY_WEEGLI = 3811, // I'm out of here!
+    SAY_1       = 3882, // What? How dare you say that to me?!?
+    SAY_2       = 3884, // After all we've been through? Well, I didn't like you anyway!!
+    SAY_WEEGLI  = 3811, // I'm out of here!
 };
 
 enum blySpells
 {
-    SPELL_SHIELD_BASH = 11972,
-    SPELL_REVENGE = 12170
+    SPELL_SHIELD_BASH          = 11972,
+    SPELL_REVENGE              = 12170
 };
 
-#define GOSSIP_BLY "That's it! I'm tired of helping you out.  It's time we settled things on the battlefield!"
+#define GOSSIP_BLY                  "That's it! I'm tired of helping you out.  It's time we settled things on the battlefield!"
 
 
 struct npc_sergeant_blyAI : public ScriptedAI
@@ -74,7 +74,7 @@ struct npc_sergeant_blyAI : public ScriptedAI
     uint32 postGossipStep;
     uint32 Text_Timer;
     uint32 ShieldBash_Timer;
-    uint32 Revenge_Timer; // this is wrong, spell should never be used unless m_creature->GetVictim() dodge, parry or block attack. Trinity support required.
+    uint32 Revenge_Timer;                                   //this is wrong, spell should never be used unless m_creature->GetVictim() dodge, parry or block attack. Trinity support required.
     uint64 PlayerGUID;
 
     void Reset() override
@@ -82,7 +82,7 @@ struct npc_sergeant_blyAI : public ScriptedAI
         ShieldBash_Timer = 5000;
         Revenge_Timer = 8000;
 
-        //        m_creature->SetFactionTemplateId(FACTION_FRIENDLY);
+//        m_creature->SetFactionTemplateId(FACTION_FRIENDLY);
     }
 
     void UpdateAI(const uint32 diff) override
@@ -96,28 +96,28 @@ struct npc_sergeant_blyAI : public ScriptedAI
             {
                 switch (postGossipStep)
                 {
-                case 1:
-                    DoScriptText(SAY_1, m_creature);
-                    Text_Timer = 5000;
-                    break;
-                case 2:
-                    DoScriptText(SAY_2, m_creature);
-                    Text_Timer = 5000;
-                    break;
-                case 3:
-                    m_creature->SetFactionTemplateId(FACTION_HOSTILE);
-                    if (Player* pTarget = ((Player*)Unit::GetUnit(*m_creature, PlayerGUID)))
-                        AttackStart(pTarget);
-                    // weegli doesn't fight - he goes & blows up the door
-                    if (Creature* weegli = pInstance->instance->GetCreature(pInstance->GetData64(ENTRY_WEEGLI)))
-                    {
-                        weegli->AI()->DoAction();
-                        DoScriptText(SAY_WEEGLI, weegli);
-                    }
+                    case 1:
+                        DoScriptText(SAY_1, m_creature);
+                        Text_Timer = 5000;
+                        break;
+                    case 2:
+                        DoScriptText(SAY_2, m_creature);
+                        Text_Timer = 5000;
+                        break;
+                    case 3:
+                        m_creature->SetFactionTemplateId(FACTION_HOSTILE);
+                        if (Player* pTarget = ((Player*)Unit::GetUnit(*m_creature, PlayerGUID)))
+                            AttackStart(pTarget);
+                        //weegli doesn't fight - he goes & blows up the door
+                        if (Creature* weegli = pInstance->instance->GetCreature(pInstance->GetData64(ENTRY_WEEGLI)))
+                        {
+                            weegli->AI()->DoAction();
+                            DoScriptText(SAY_WEEGLI, weegli);
+                        }
 
-                    switchFactionIfAlive(pInstance, ENTRY_RAVEN);
-                    switchFactionIfAlive(pInstance, ENTRY_ORO);
-                    switchFactionIfAlive(pInstance, ENTRY_MURTA);
+                        switchFactionIfAlive(pInstance, ENTRY_RAVEN);
+                        switchFactionIfAlive(pInstance, ENTRY_ORO);
+                        switchFactionIfAlive(pInstance, ENTRY_MURTA);
                 }
                 postGossipStep++;
             }
@@ -193,7 +193,10 @@ bool OnGossipHello_npc_sergeant_bly(Player* pPlayer, Creature* pCreature)
     return false;
 }
 
-CreatureAI* GetAI_npc_sergeant_bly(Creature* pCreature) { return new npc_sergeant_blyAI(pCreature); }
+CreatureAI* GetAI_npc_sergeant_bly(Creature* pCreature)
+{
+    return new npc_sergeant_blyAI(pCreature);
+}
 
 
 void AddSC_npc_sergeant_bly()
@@ -217,12 +220,18 @@ void initBlyCrewMember(InstanceData* pInstance, uint32 entry, float x, float y, 
 
     if (Creature* crew = pInstance->instance->GetCreature(creaGUID))
     {
-        // crew->GetCharmInfo()->SetReactState(REACT_AGGRESSIVE);
+        //crew->GetCharmInfo()->SetReactState(REACT_AGGRESSIVE);
         crew->SetCombatStartPosition(x, y, z);
         crew->SetHomePosition(x, y, z, 4.7f);
         crew->GetMotionMaster()->MovePoint(1, x, y, z, MOVE_PATHFINDING | MOVE_WALK_MODE);
         crew->SetFactionTemplateId(FACTION_FREED);
+        sLog.outInfo("[ZF] pyramid: crew %u (%s) freed at (%.1f,%.1f,%.1f) alive=%u -> walking to the stairs",
+                     entry, crew->GetName(), crew->GetPositionX(), crew->GetPositionY(), crew->GetPositionZ(),
+                     crew->IsAlive() ? 1u : 0u);
     }
+    else
+        sLog.outInfo("[ZF] pyramid: crew %u NOT FOUND (guid %u) - the stair walk cannot start",
+                     entry, uint32(creaGUID & 0xFFFFFFFF));
 }
 
 
@@ -230,8 +239,13 @@ bool OnGossipHello_go_troll_cage(Player* pPlayer, GameObject* pGo)
 {
     if (InstanceData* pInstance = pGo->GetInstanceData())
     {
+        // INFO, deliberately: bot parties opened the cages and no wave ever
+        // followed, with nothing between the click and the waves visible in
+        // the journal (2026-09-05).
+        sLog.outInfo("[ZF] pyramid: cage %s used by %s, phase before %u",
+                     pGo->GetGuidStr().c_str(), pPlayer->GetName(), pInstance->GetData(EVENT_PYRAMID));
         pInstance->SetData(EVENT_PYRAMID, PYRAMID_CAGES_OPEN);
-        // set bly & co to aggressive & start moving to top of stairs
+        //set bly & co to aggressive & start moving to top of stairs
         initBlyCrewMember(pInstance, ENTRY_BLY, 1887.17f, 1263.72f, 41.484f);
         initBlyCrewMember(pInstance, ENTRY_RAVEN, 1890.76f, 1265.82f, 41.43f);
         initBlyCrewMember(pInstance, ENTRY_ORO, 1883.3f, 1272.53f, 41.87f);
@@ -255,20 +269,20 @@ void AddSC_go_troll_cage()
 
 enum weegliSpells
 {
-    SPELL_BOMB = 8858,
-    SPELL_GOBLIN_LAND_MINE = 21688,
-    SPELL_SHOOT = 6660,
-    SPELL_WEEGLIS_BARREL = 10772
+    SPELL_BOMB                 = 8858,
+    SPELL_GOBLIN_LAND_MINE     = 21688,
+    SPELL_SHOOT                = 6660,
+    SPELL_WEEGLIS_BARREL       = 10772
 };
 
 enum weegliSays
 {
-    SAY_WEEGLI_OHNO = 3744,
-    SAY_WEEGLI_OK_I_GO = 3785,
+    SAY_WEEGLI_OHNO      = 3744,
+    SAY_WEEGLI_OK_I_GO   = 3785,
     SAY_CHIEF_UKORZ_DOOR = 6067
 };
 
-#define GOSSIP_WEEGLI "Will you blow up that door now?"
+#define GOSSIP_WEEGLI               "Will you blow up that door now?"
 
 
 struct npc_weegli_blastfuseAI : public ScriptedAI
@@ -300,13 +314,13 @@ struct npc_weegli_blastfuseAI : public ScriptedAI
             pInstance->SetData(0, NOT_STARTED);*/
     }
 
-    void AttackStart(Unit* victim) override
+    void AttackStart(Unit *victim) override
     {
         ScriptedAI::AttackStart(victim);
-        // AttackStartCaster(victim,10);//keep back & toss bombs/shoot
+        //AttackStartCaster(victim,10);//keep back & toss bombs/shoot
     }
 
-    void JustDied(Unit* /*victim*/) override
+    void JustDied(Unit * /*victim*/) override
     {
         /*if (pInstance)
             pInstance->SetData(0, DONE);*/
@@ -380,6 +394,9 @@ struct npc_weegli_blastfuseAI : public ScriptedAI
 
     void MovementInform(uint32 type, uint32 id) override
     {
+        if (type == POINT_MOTION_TYPE)   // chase informs arrive by the thousand during the waves
+            sLog.outInfo("[ZF] pyramid: %s MovementInform type %u id %u, phase %u",
+                         m_creature->GetName(), type, id, pInstance ? pInstance->GetData(EVENT_PYRAMID) : 99u);
         if (pInstance)
         {
             if (pInstance->GetData(EVENT_PYRAMID) == PYRAMID_CAGES_OPEN)
@@ -469,6 +486,7 @@ struct npc_weegli_blastfuseAI : public ScriptedAI
             disappear = true;
         }
     }
+
 };
 
 
@@ -477,7 +495,7 @@ bool OnGossipSelect_npc_weegli_blastfuse(Player* pPlayer, Creature* pCreature, u
     if (uiAction == GOSSIP_ACTION_INFO_DEF + 1)
     {
         pPlayer->CLOSE_GOSSIP_MENU();
-        // here we make him run to door, set the charge and run away off to nowhere
+        //here we make him run to door, set the charge and run away off to nowhere
         pCreature->AI()->DoAction();
     }
     return true;
@@ -489,22 +507,25 @@ bool OnGossipHello_npc_weegli_blastfuse(Player* pPlayer, Creature* pCreature)
     {
         switch (pInstance->GetData(EVENT_PYRAMID))
         {
-        case PYRAMID_KILLED_ALL_TROLLS:
-            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_WEEGLI, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-            pPlayer->SEND_GOSSIP_MENU(1514, pCreature->GetGUID()); // if event can proceed to end
-            break;
-        case PYRAMID_NOT_STARTED:
-            pPlayer->SEND_GOSSIP_MENU(1511, pCreature->GetGUID()); // if event not started
-            break;
-        default:
-            pPlayer->SEND_GOSSIP_MENU(1513, pCreature->GetGUID()); // if event are in progress
+            case PYRAMID_KILLED_ALL_TROLLS:
+                pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_WEEGLI, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+                pPlayer->SEND_GOSSIP_MENU(1514, pCreature->GetGUID());  //if event can proceed to end
+                break;
+            case PYRAMID_NOT_STARTED:
+                pPlayer->SEND_GOSSIP_MENU(1511, pCreature->GetGUID());  //if event not started
+                break;
+            default:
+                pPlayer->SEND_GOSSIP_MENU(1513, pCreature->GetGUID());  //if event are in progress
         }
         return true;
     }
     return false;
 }
 
-CreatureAI* GetAI_npc_weegli_blastfuse(Creature* pCreature) { return new npc_weegli_blastfuseAI(pCreature); }
+CreatureAI* GetAI_npc_weegli_blastfuse(Creature* pCreature)
+{
+    return new npc_weegli_blastfuseAI(pCreature);
+}
 
 void AddSC_npc_weegli_blastfuse()
 {
@@ -566,7 +587,7 @@ enum zumrahConsts
     SAY_ZUMRAH_KILLED = 6222
 };
 
-bool OnTrigger_at_zumrah(Player* pPlayer, const AreaTriggerEntry* at)
+bool OnTrigger_at_zumrah(Player* pPlayer, const AreaTriggerEntry *at)
 {
     Creature* pZumrah = pPlayer->FindNearestCreature(NPC_WITCH_DOCTOR_ZUMRAH, 30.0f);
 
@@ -597,7 +618,10 @@ bool OnGossipHello_go_table_theka(Player* pPlayer, GameObject* pGo)
 
 struct ward_zumrahAI : public ScriptedAI
 {
-    ward_zumrahAI(Creature* pCreature) : ScriptedAI(pCreature) { Reset(); }
+    ward_zumrahAI(Creature* pCreature) : ScriptedAI(pCreature)
+    {
+        Reset();
+    }
 
     uint32 m_uiSkeletonTimer;
 
@@ -621,7 +645,10 @@ struct ward_zumrahAI : public ScriptedAI
     }
 };
 
-CreatureAI* GetAI_ward_zumrah(Creature* pCreature) { return new ward_zumrahAI(pCreature); }
+CreatureAI* GetAI_ward_zumrah(Creature* pCreature)
+{
+    return new ward_zumrahAI(pCreature);
+}
 
 void AddSC_at_zumrah()
 {
@@ -640,7 +667,7 @@ void AddSC_zulfarrak()
     AddSC_at_zumrah();
     AddSC_go_troll_cage();
 
-    Script* newscript;
+    Script *newscript;
 
     newscript = new Script;
     newscript->Name = "ward_zumrah";

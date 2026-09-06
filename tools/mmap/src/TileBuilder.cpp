@@ -11,16 +11,16 @@ static const int NAVMESHSET_VERSION = 1;
 // Copied from RecastDemo
 struct NavMeshSetHeader
 {
-    int magic;
-    int version;
-    int numTiles;
-    dtNavMeshParams params;
+	int magic;
+	int version;
+	int numTiles;
+	dtNavMeshParams params;
 };
 
 struct NavMeshTileHeader
 {
-    dtTileRef tileRef;
-    int dataSize;
+	dtTileRef tileRef;
+	int dataSize;
 };
 
 inline void calcTriNormal(const float* v0, const float* v1, const float* v2, float* norm)
@@ -48,17 +48,10 @@ inline unsigned int ilog2(unsigned int v)
 {
     unsigned int r;
     unsigned int shift;
-    r = (v > 0xffff) << 4;
-    v >>= r;
-    shift = (v > 0xff) << 3;
-    v >>= shift;
-    r |= shift;
-    shift = (v > 0xf) << 2;
-    v >>= shift;
-    r |= shift;
-    shift = (v > 0x3) << 1;
-    v >>= shift;
-    r |= shift;
+    r = (v > 0xffff) << 4; v >>= r;
+    shift = (v > 0xff) << 3; v >>= shift; r |= shift;
+    shift = (v > 0xf) << 2; v >>= shift; r |= shift;
+    shift = (v > 0x3) << 1; v >>= shift; r |= shift;
     r |= (v >> 1);
     return r;
 }
@@ -121,7 +114,8 @@ bool IsModelArea(int area)
     return false;
 }
 
-void filterLedgeSpans(const int walkableHeight, const int walkableClimbTransition, const int walkableClimbTerrain, rcHeightfield& solid)
+void filterLedgeSpans(const int walkableHeight, const int walkableClimbTransition, const int walkableClimbTerrain,
+    rcHeightfield& solid)
 {
     const int w = solid.width;
     const int h = solid.height;
@@ -158,7 +152,7 @@ void filterLedgeSpans(const int walkableHeight, const int walkableClimbTransitio
                     // Skip neighbours which are out of bounds.
                     if (dx < 0 || dy < 0 || dx >= w || dy >= h)
                     {
-                        // minh = rcMin(minh, -walkableClimbTerrain - bot);
+                        //minh = rcMin(minh, -walkableClimbTerrain - bot);
                         continue;
                     }
 
@@ -184,10 +178,8 @@ void filterLedgeSpans(const int walkableHeight, const int walkableClimbTransitio
                             // Find min/max accessible neighbour height.
                             if (rcAbs(nbot - bot) <= walkableClimbTerrain)
                             {
-                                if (nbot < asmin)
-                                    asmin = nbot;
-                                if (nbot > asmax)
-                                    asmax = nbot;
+                                if (nbot < asmin) asmin = nbot;
+                                if (nbot > asmax) asmax = nbot;
                                 if (!IsModelArea(ns->area))
                                     hasAllNbModel = false;
                                 else
@@ -239,6 +231,7 @@ namespace MMAP
             if (m_mapBuilder->m_cancel.load())
                 return;
 
+            
 
             if (m_mapBuilder->m_tileQueue.WaitAndPop(tileInfo))
             {
@@ -273,7 +266,7 @@ namespace MMAP
         TerrainBuilder::cleanVertices(meshData.liquidVerts, meshData.liquidTris);
 
         m_terrainBuilder->loadVMap(mapID, tileX, tileY, meshData); // get model data
-        // TerrainBuilder::cleanVertices(meshData.solidVerts, meshData.solidTris);
+        //TerrainBuilder::cleanVertices(meshData.solidVerts, meshData.solidTris);
 
         // if there is no data, give up now
         if (!meshData.solidVerts.size() && !meshData.liquidVerts.size())
@@ -298,7 +291,9 @@ namespace MMAP
     }
 
     /**************************************************************************/
-    void TileBuilder::buildMoveMapTile(uint32 mapID, uint32 tileX, uint32 tileY, MeshData& meshData, float bmin[3], float bmax[3], dtNavMesh* navMesh)
+    void TileBuilder::buildMoveMapTile(uint32 mapID, uint32 tileX, uint32 tileY,
+        MeshData& meshData, float bmin[3], float bmax[3],
+        dtNavMesh* navMesh)
     {
         // console output
         char tileString[20];
@@ -316,7 +311,7 @@ namespace MMAP
         int lVertCount = meshData.liquidVerts.size() / 3;
         int* lTris = meshData.liquidTris.getCArray();
         int lTriCount = meshData.liquidTris.size() / 3;
-        uint8* lTriAreas = meshData.liquidType.getCArray();
+		uint8* lTriAreas = meshData.liquidType.getCArray();
 
         const MapSettings* BuildSettings = MMAP::gMMapBuilderConfig.GetSettingsForMap(mapID);
 
@@ -361,7 +356,7 @@ namespace MMAP
         uint32 walkableClimbModelTransition = (int)floorf(agentMaxClimbModelTerrainTransition / config.ch);
         config.walkableRadius = (int)ceilf(agentRadius / config.cs);
         config.maxEdgeLen = (int)(12 / config.cs);
-        config.maxSimplificationError = 1.8f; // eliminates most jagged edges (tinny polygons)
+        config.maxSimplificationError = 1.8f;       // eliminates most jagged edges (tinny polygons)
         config.minRegionArea = (int)rcSqr(30);
         config.mergeRegionArea = (int)rcSqr(10);
         config.maxVertsPerPoly = DT_VERTS_PER_POLYGON; // = 6
@@ -496,7 +491,7 @@ namespace MMAP
                 rcFilterLowHangingWalkableObstacles(m_rcContext, walkableClimbTerrain, *tile.solid);
                 // 5.2 maps <-> vmaps transition
                 filterLedgeSpans(tileCfg.walkableHeight, walkableClimbModelTransition, walkableClimbTerrain, *tile.solid);
-                // rcFilterLedgeSpans(m_rcContext, tileCfg.walkableHeight, walkableClimbTerrain, *tile.solid); // Default recast code
+                //rcFilterLedgeSpans(m_rcContext, tileCfg.walkableHeight, walkableClimbTerrain, *tile.solid); // Default recast code
 
                 /// 6. Now we are happy because we have the correct flags.
                 // Set's cleanup tmp flags used by the generator, so we don't have a too
@@ -581,8 +576,8 @@ namespace MMAP
         }
 
         // merge per tile poly and detail meshes
-        rcPolyMesh** pmmerge = new rcPolyMesh*[TILES_PER_MAP * TILES_PER_MAP];
-        rcPolyMeshDetail** dmmerge = new rcPolyMeshDetail*[TILES_PER_MAP * TILES_PER_MAP];
+        rcPolyMesh** pmmerge = new rcPolyMesh * [TILES_PER_MAP * TILES_PER_MAP];
+        rcPolyMeshDetail** dmmerge = new rcPolyMeshDetail * [TILES_PER_MAP * TILES_PER_MAP];
 
         int nmerge = 0;
         for (int y = 0; y < TILES_PER_MAP; ++y)
@@ -655,7 +650,7 @@ namespace MMAP
                     break;
                 default:
                     iv.polyMesh->flags[i] |= 0x1;
-                    // printf("%s uses unknown area %u     \n", tileString, iv.polyMesh->areas[i]);
+                    //printf("%s uses unknown area %u     \n", tileString, iv.polyMesh->areas[i]);
                     break;
                 }
             }
@@ -683,9 +678,9 @@ namespace MMAP
         params.offMeshConAreas = meshData.offMeshConnectionsAreas.getCArray();
         params.offMeshConFlags = meshData.offMeshConnectionsFlags.getCArray();
 
-        params.walkableHeight = agentHeight; // agent height
-        params.walkableRadius = agentRadius; // agent radius
-        params.walkableClimb = agentMaxClimbTerrain; // keep less that walkableHeight (aka agent height)!
+        params.walkableHeight = agentHeight;  // agent height
+        params.walkableRadius = agentRadius;  // agent radius
+        params.walkableClimb = agentMaxClimbTerrain;    // keep less that walkableHeight (aka agent height)!
         params.tileX = (((bmin[0] + bmax[0]) / 2) - navMesh->getParams()->orig[0]) / GRID_SIZE;
         params.tileY = (((bmin[2] + bmax[2]) / 2) - navMesh->getParams()->orig[2]) / GRID_SIZE;
         params.tileLayer = 0;
@@ -720,7 +715,7 @@ namespace MMAP
                 // loaded but those models don't span into this tile
 
                 // message is an annoyance
-                // printf("%sNo vertices to build tile!              \n", tileString);
+                //printf("%sNo vertices to build tile!              \n", tileString);
                 continue;
             }
             if (!params.polyCount || !params.polys)
@@ -783,8 +778,8 @@ namespace MMAP
             if (m_debugOutput)
             {
                 iv.generateObjFile(mapID, tileX, tileY, meshData);
-                // iv.writeIV(mapID, tileX, tileY);
-                //  Write navmesh data
+                //iv.writeIV(mapID, tileX, tileY);
+                // Write navmesh data
                 char fname[256];
                 sprintf(fname, "meshes/map%03u%02u%02u.nav", mapID, tileY, tileX);
                 FILE* file = fopen(fname, "wb");
@@ -800,13 +795,13 @@ namespace MMAP
                 FILE* NavFile = fopen(fname, "wb");
                 if (NavFile != NULL)
                 {
-                    NavMeshSetHeader header;
-                    header.magic = NAVMESHSET_MAGIC;
-                    header.version = NAVMESHSET_VERSION;
-                    header.numTiles = 1;
+					NavMeshSetHeader header;
+					header.magic = NAVMESHSET_MAGIC;
+					header.version = NAVMESHSET_VERSION;
+					header.numTiles = 1;
 
-                    memcpy(&header.params, navMesh->getParams(), sizeof(dtNavMeshParams));
-                    fwrite(&header, sizeof(NavMeshSetHeader), 1, NavFile);
+					memcpy(&header.params, navMesh->getParams(), sizeof(dtNavMeshParams));
+					fwrite(&header, sizeof(NavMeshSetHeader), 1, NavFile);
 
                     NavMeshTileHeader tileHeader;
                     tileHeader.tileRef = tileRef;
@@ -817,11 +812,11 @@ namespace MMAP
 
                     fclose(NavFile);
                 }
+
             }
             // now that tile is written to disk, we can unload it
             navMesh->removeTile(tileRef, nullptr, nullptr);
-        }
-        while (0);
+        }         while (0);
     }
 
     /**************************************************************************/
@@ -831,7 +826,7 @@ namespace MMAP
         {
             return false;
         }
-
+        
         char fileName[255];
         sprintf(fileName, "mmaps/%03u%02i%02i.mmtile", mapID, tileY, tileX);
         FILE* file = fopen(fileName, "rb");
@@ -853,4 +848,4 @@ namespace MMAP
         return true;
     }
 
-} // namespace MMAP
+}

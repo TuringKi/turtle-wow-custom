@@ -18,11 +18,14 @@ private:
 
     EventStates m_eventState = STATE_WAITING_FOR_HIVEKILLER;
     AbilityTimer m_yellTimer = AbilityTimer(0, VOICELINE_DELAY, VOICELINE_DELAY, VOICELINE_DELAY);
-
 public:
-    npc_orgrimmar_legion_grunt(Creature* pCreature) : ScriptedAI(pCreature) {}
+    npc_orgrimmar_legion_grunt(Creature* pCreature) : ScriptedAI(pCreature)
+    {
+    }
 
-    void Reset() override {}
+    void Reset() override
+    {
+    }
 
     void UpdateAI(const uint32 uiDiff) override
     {
@@ -81,7 +84,10 @@ public:
         ScriptedAI::UpdateAI(uiDiff);
     }
 
-    static CreatureAI* GetAI(Creature* creature) { return new npc_orgrimmar_legion_grunt(creature); }
+    static CreatureAI* GetAI(Creature* creature)
+    {
+        return new npc_orgrimmar_legion_grunt(creature);
+    }
 
     static void register_script()
     {

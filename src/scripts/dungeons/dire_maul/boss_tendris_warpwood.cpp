@@ -2,8 +2,8 @@
  * Auteur        : Daemon
  * All rights reserved */
 
-#include "dire_maul.h"
 #include "scriptPCH.h"
+#include "dire_maul.h"
 
 enum
 {
@@ -14,9 +14,9 @@ enum
     SPELL_GRASPING_VINES = 22924,
     SPELL_ENCHEVETREMENT = 22994,
     SPELL_ENRAGE = 8269,
-
+    
     NPC_IRONBARK_PROTECTOR = 11459,
-    NPC_ANCIENT_EQUINE_SPIRIT = 14566,
+    NPC_ANCIENT_EQUINE_SPIRIT = 14566, 
 };
 
 // boss_tendris_warpwood
@@ -24,7 +24,7 @@ struct boss_tendris_warpwoodAI : public ScriptedAI
 {
     boss_tendris_warpwoodAI(Creature* pCreature) : ScriptedAI(pCreature)
     {
-        m_pInstance = (instance_dire_maul*)pCreature->GetInstanceData();
+        m_pInstance = (instance_dire_maul*) pCreature->GetInstanceData();
         m_uiAggroProtector = false;
         Reset();
     }
@@ -34,7 +34,7 @@ struct boss_tendris_warpwoodAI : public ScriptedAI
     uint32 m_uiUppercutTimer;
     uint32 m_uiGraspingVinesTimer;
     uint32 m_uiInvocation_Timer;
-    bool m_uiAggroProtector;
+    bool   m_uiAggroProtector;
 
     bool ManageTimer(uint32 const diff, uint32* timer, uint32 cooldown)
     {
@@ -47,7 +47,15 @@ struct boss_tendris_warpwoodAI : public ScriptedAI
         return false;
     }
 
-    void JustDied(Unit* pKiller) override { m_creature->SummonCreature(NPC_ANCIENT_EQUINE_SPIRIT, pKiller->GetPositionX(), pKiller->GetPositionY(), pKiller->GetPositionZ(), pKiller->GetOrientation(), TEMPSUMMON_CORPSE_TIMED_DESPAWN, 60000); }
+    void JustDied(Unit* pKiller) override
+    {
+        m_creature->SummonCreature(NPC_ANCIENT_EQUINE_SPIRIT, 
+                                   pKiller->GetPositionX(), 
+                                   pKiller->GetPositionY(), 
+                                   pKiller->GetPositionZ(), 
+                                   pKiller->GetOrientation(), 
+                                   TEMPSUMMON_CORPSE_TIMED_DESPAWN, 60000);
+    }
 
     void Aggro(Unit* pWho) override
     {
@@ -125,7 +133,10 @@ struct boss_tendris_warpwoodAI : public ScriptedAI
     }
 };
 
-CreatureAI* GetAI_boss_tendris_warpwood(Creature* pCreature) { return new boss_tendris_warpwoodAI(pCreature); }
+CreatureAI* GetAI_boss_tendris_warpwood(Creature* pCreature)
+{
+    return new boss_tendris_warpwoodAI(pCreature);
+}
 
 void AddSC_boss_tendris_warpwood()
 {

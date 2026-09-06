@@ -25,8 +25,8 @@
 
 enum AuraRemovalFlags
 {
-    AURA_REM_FLAG_EXCLUDE_HORDE = 1,
-    AURA_REM_FLAG_EXCLUDE_ALLIANCE = 2,
+    AURA_REM_FLAG_EXCLUDE_HORDE     = 1,
+    AURA_REM_FLAG_EXCLUDE_ALLIANCE  = 2,
 };
 
 struct AuraRemovalEntry
@@ -42,13 +42,13 @@ class Unit;
 // definitions in world-db table instance_buff_removal
 class AuraRemovalManager
 {
-public: // Constructors
+public:                                                 // Constructors
     AuraRemovalManager() {}
 
-public: // Initialisation
+public:                                                 // Initialisation
     void LoadFromDB();
 
-public: // Accessors
+public:                                                 // Accessors
     void PlayerEnterMap(uint32 mapId, Player* pPlayer);
     void RemoveForbiddenAuras(uint32 mapId, Unit* pTarget, Team team);
 

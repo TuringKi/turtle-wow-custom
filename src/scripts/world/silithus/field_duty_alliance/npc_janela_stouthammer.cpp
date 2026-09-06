@@ -50,11 +50,19 @@ void npc_janela_stouthammer::StartEvent()
     trigger->StartEvent();
 }
 
-npc_janela_stouthammer::npc_janela_stouthammer(Creature* pCreature) : ScriptedAI(pCreature) { npc_janela_stouthammer::Reset(); }
+npc_janela_stouthammer::npc_janela_stouthammer(Creature* pCreature) : ScriptedAI(pCreature)
+{
+    npc_janela_stouthammer::Reset();
+}
 
-void npc_janela_stouthammer::Aggro(Unit* creature) { ScriptedAI::Aggro(creature); }
+void npc_janela_stouthammer::Aggro(Unit* creature)
+{
+    ScriptedAI::Aggro(creature);
+}
 
-void npc_janela_stouthammer::Reset() {}
+void npc_janela_stouthammer::Reset()
+{
+}
 
 void npc_janela_stouthammer::UpdateAI(const uint32 delta)
 {
@@ -155,7 +163,10 @@ void npc_janela_stouthammer::EventReset()
     m_creature->RemoveFlag(UNIT_NPC_FLAGS, UNIT_FLAG_SPAWNING);
 }
 
-CreatureAI* npc_janela_stouthammer::GetAI(Creature* pCreature) { return new npc_janela_stouthammer(pCreature); }
+CreatureAI* npc_janela_stouthammer::GetAI(Creature* pCreature)
+{
+    return new npc_janela_stouthammer(pCreature);
+}
 
 bool npc_janela_stouthammer::GossipHello(Player* player, Creature* creature)
 {

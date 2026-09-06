@@ -2,7 +2,7 @@
  *
  * D++, A Lightweight C++ library for Discord
  *
- * Copyright 2021 Craig Edwards and D++ contributors
+ * Copyright 2021 Craig Edwards and D++ contributors 
  * (https://github.com/brainboxdotcc/DPP/graphs/contributors)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,55 +18,42 @@
  * limitations under the License.
  *
  ************************************************************************************/
-#include <dpp/channel.h>
-#include <dpp/cluster.h>
 #include <dpp/discordevents.h>
-#include <dpp/nlohmann/json.hpp>
+#include <dpp/cluster.h>
+#include <dpp/channel.h>
 #include <dpp/stringops.h>
+#include <dpp/nlohmann/json.hpp>
 
 using json = nlohmann::json;
 
-namespace dpp
-{
-    namespace events
-    {
+namespace dpp { namespace events {
 
-        using namespace dpp;
-        void thread_list_sync::handle(discord_client* client, json& j, const std::string& raw)
-        {
-            json& d = j["d"];
+using namespace dpp;
+void thread_list_sync::handle(discord_client* client, json& j, const std::string& raw) {
+	json& d = j["d"];
 
-            dpp::guild* g = dpp::find_guild(snowflake_not_null(&d, "guild_id"));
-            if (g)
-            {
-                /** Store thread IDs*/
-                if (d.find("threads") != d.end())
-                {
-                    for (auto& t : d["threads"])
-                    {
-                        g->threads.push_back(snowflake_not_null(&t, "id"));
-                    }
-                }
-                if (!client->creator->on_thread_list_sync.empty())
-                {
-                    dpp::thread_list_sync_t tls(client, raw);
-                    if (d.find("threads") != d.end())
-                    {
-                        for (auto& t : d["threads"])
-                        {
-                            tls.threads.push_back(thread().fill_from_json(&t));
-                        }
-                    }
-                    if (d.find("members") != d.end())
-                    {
-                        for (auto& tm : d["members"])
-                        {
-                            tls.members.push_back(thread_member().fill_from_json(&tm));
-                        }
-                    }
-                    client->creator->on_thread_list_sync.call(tls);
-                }
-            }
-        }
-    } // namespace events
-}; // namespace dpp
+	dpp::guild* g = dpp::find_guild(snowflake_not_null(&d, "guild_id"));
+	if (g) {
+		/** Store thread IDs*/
+		if (d.find("threads") != d.end()) {
+			for (auto& t : d["threads"]) {
+				g->threads.push_back(snowflake_not_null(&t, "id"));
+			}
+		}
+		if (!client->creator->on_thread_list_sync.empty()) {
+			dpp::thread_list_sync_t tls(client, raw);
+			if (d.find("threads") != d.end()) {
+				for (auto& t : d["threads"]) {
+					tls.threads.push_back(thread().fill_from_json(&t));
+				}
+			}
+			if (d.find("members") != d.end()) {
+				for (auto& tm : d["members"]) {
+					tls.members.push_back(thread_member().fill_from_json(&tm));
+				}
+			}
+			client->creator->on_thread_list_sync.call(tls);
+		}
+	}
+}
+}};

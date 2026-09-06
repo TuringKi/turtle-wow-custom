@@ -8,14 +8,14 @@
 
 #ifdef G3D_WINDOWS
 
-#include <cctype>
 #include <stdio.h>
 #include <stdlib.h>
+#include <cctype>
 
 #ifdef main
-#ifndef _WIN32_WCE_EMULATION
-#undef main
-#endif /* _WIN32_WCE_EMULATION */
+#   ifndef _WIN32_WCE_EMULATION
+#       undef main
+#   endif /* _WIN32_WCE_EMULATION */
 #endif /* main */
 
 #if defined(_WIN32_WCE) && _WIN32_WCE < 300
@@ -25,78 +25,62 @@
 
 // Turn off the G3D for loop scoping for C++
 #ifdef for
-#undef for
+#  undef for
 #endif
 
 extern int main(int argc, const char** argv);
 
 /* Parse a command line buffer into arguments */
-static int ParseCommandLine(char* cmdline, char** argv)
-{
-    char* bufp;
+static int ParseCommandLine(char *cmdline, char **argv) {
+    char *bufp;
     int argc;
 
     argc = 0;
-    for (bufp = cmdline; *bufp;)
-    {
+    for (bufp = cmdline; *bufp;) {
         /* Skip leading whitespace */
-        while (isspace(*bufp))
-        {
+        while (isspace(*bufp)) {
             ++bufp;
         }
         /* Skip over argument */
-        if (*bufp == '"')
-        {
+        if (*bufp == '"') {
             ++bufp;
-            if (*bufp)
-            {
-                if (argv)
-                {
+            if (*bufp) {
+                if (argv) {
                     argv[argc] = bufp;
                 }
                 ++argc;
             }
             /* Skip over word */
-            while (*bufp && (*bufp != '"'))
-            {
+            while (*bufp && (*bufp != '"')) {
                 ++bufp;
             }
-        }
-        else
-        {
-            if (*bufp)
-            {
-                if (argv)
-                {
+        } else {
+            if (*bufp) {
+                if (argv) {
                     argv[argc] = bufp;
                 }
                 ++argc;
             }
             /* Skip over word */
-            while (*bufp && !isspace(*bufp))
-            {
+            while (*bufp && !isspace(*bufp)) {
                 ++bufp;
             }
         }
-        if (*bufp)
-        {
-            if (argv)
-            {
+        if (*bufp) {
+            if (argv) {
                 *bufp = '\0';
             }
             ++bufp;
         }
     }
-    if (argv)
-    {
+    if (argv) {
         argv[argc] = NULL;
     }
     return (argc);
 }
 
 /* Show an error message */
-static void ShowError(const char* title, const char* message)
-{
+static void ShowError(const char *title, const char *message) {
 /* If USE_MESSAGEBOX is defined, you need to link with user32.lib */
 #ifdef USE_MESSAGEBOX
     MessageBox(NULL, message, title, MB_ICONEXCLAMATION | MB_OK);
@@ -106,26 +90,24 @@ static void ShowError(const char* title, const char* message)
 }
 
 /* Pop up an out of memory message, returns to Windows */
-static BOOL OutOfMemory(void)
-{
+static BOOL OutOfMemory(void) {
     ShowError("Fatal Error", "Out of memory - aborting");
     return FALSE;
 }
 
 
-int WINAPI G3D_WinMain(HINSTANCE hInst, HINSTANCE hPrev, LPSTR szCmdLine, int sw)
-{
-    char** argv;
+int WINAPI G3D_WinMain(HINSTANCE hInst, HINSTANCE hPrev, LPSTR szCmdLine, int sw) {
+    char **argv;
     int argc;
     int status;
-    char* cmdline;
-#ifdef _WIN32_WCE
-    wchar_t* bufp;
-    int nLen;
-#else
-    char* bufp;
-    size_t nLen;
-#endif
+    char *cmdline;
+#   ifdef _WIN32_WCE
+        wchar_t *bufp;
+        int nLen;
+#   else
+        char *bufp;
+        size_t nLen;
+#   endif
     (void)sw;
     (void)szCmdLine;
     (void)hInst;
@@ -152,8 +134,7 @@ int WINAPI G3D_WinMain(HINSTANCE hInst, HINSTANCE hPrev, LPSTR szCmdLine, int sw
     bufp = GetCommandLineA();
     nLen = strlen(bufp) + 1;
     cmdline = (char*)malloc(sizeof(char) * nLen);
-    if (cmdline == NULL)
-    {
+    if (cmdline == NULL) {
         return OutOfMemory();
     }
     strncpy(cmdline, bufp, nLen);
@@ -162,8 +143,7 @@ int WINAPI G3D_WinMain(HINSTANCE hInst, HINSTANCE hPrev, LPSTR szCmdLine, int sw
     /* Parse it into argv and argc */
     argc = ParseCommandLine(cmdline, NULL);
     argv = (char**)malloc(sizeof(char*) * (argc + 1));
-    if (argv == NULL)
-    {
+    if (argv == NULL) {
         return OutOfMemory();
     }
     ParseCommandLine(cmdline, argv);

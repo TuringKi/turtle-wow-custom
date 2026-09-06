@@ -21,7 +21,10 @@ enum
 
 struct boss_xmas_wolfAI : public ScriptedAI
 {
-    boss_xmas_wolfAI(Creature* c) : ScriptedAI(c) { Reset(); }
+    boss_xmas_wolfAI(Creature *c) : ScriptedAI(c)
+    {
+        Reset();
+    }
 
     uint32 IceBlock_Timer;
     uint32 Heal_Timer;
@@ -55,7 +58,9 @@ struct boss_xmas_wolfAI : public ScriptedAI
         isFrozen = false;
     }
 
-    void Aggro(Unit* who) override {}
+    void Aggro(Unit *who) override
+    {
+    }
 
     void Reset() override
     {
@@ -63,20 +68,26 @@ struct boss_xmas_wolfAI : public ScriptedAI
         RemoveIceLock();
     }
 
-    void JustRespawned() override { SetDefaults(); }
+    void JustRespawned() override
+    {
+        SetDefaults();
+    }
 
-    void KilledUnit(Unit* victim) override {}
+    void KilledUnit(Unit* victim) override
+    {
+    }
 
     void JustDied(Unit* /*pKiller*/) override
     {
-        uint32 m_respawn_delay_Timer = urand(5 * HOUR, 6 * HOUR);
+        uint32 m_respawn_delay_Timer = urand(5*HOUR, 6*HOUR);
 
         /** DRRS */
-        if (m_creature->GetSpawnFlags() & SPAWN_FLAG_DYNAMIC_RESPAWN_TIME && sWorld.GetActiveSessionCount() > BLIZZLIKE_REALM_POPULATION)
+        if (m_creature->GetSpawnFlags() & SPAWN_FLAG_DYNAMIC_RESPAWN_TIME &&
+            sWorld.GetActiveSessionCount() > BLIZZLIKE_REALM_POPULATION)
 
-            // m_respawn_delay_Timer *= float(BLIZZLIKE_REALM_POPULATION) / float(sWorld.GetActiveSessionCount());
+        //m_respawn_delay_Timer *= float(BLIZZLIKE_REALM_POPULATION) / float(sWorld.GetActiveSessionCount());
 
-            m_creature->SetRespawnDelay(m_respawn_delay_Timer);
+        m_creature->SetRespawnDelay(m_respawn_delay_Timer);
         m_creature->SetRespawnTime(m_respawn_delay_Timer);
         m_creature->SaveRespawnTime();
     }
@@ -140,7 +151,7 @@ struct boss_xmas_wolfAI : public ScriptedAI
             return;
         }
 
-        // Return since we have no target
+        //Return since we have no target
         if (!m_creature->SelectHostileTarget() || !m_creature->GetVictim())
             return;
 
@@ -243,19 +254,18 @@ struct boss_xmas_wolfAI : public ScriptedAI
 
             Block_Event_Timer = urand(24000, 42000);
 
-            for (auto& player : players)
+            for (auto &player : players)
             {
-                if (player && player->IsAlive() && player != m_creature->GetVictim() && !player->IsGameMaster() && player->GetDistance2d(m_creature) > 6)
-                {
+                if (player && player->IsAlive() && player != m_creature->GetVictim() && !player->IsGameMaster() && player->GetDistance2d(m_creature) > 6) {
                     player->AddAura(SPELL_FROST_NOVA);
 
                     // Spawning an ice block facing to the boss
-                    float dis{4.0f};
+                    float dis{ 4.0f };
                     float x, y, z;
                     player->GetSafePosition(x, y, z);
                     x += dis * cos(player->GetOrientation());
                     y += dis * sin(player->GetOrientation());
-                    // m_creature->CastSpell(x, y, z, SPELL_SUMMON_ICE_BLOCK, true);
+                    //m_creature->CastSpell(x, y, z, SPELL_SUMMON_ICE_BLOCK, true);
                     m_creature->PlayDirectSound(SOUND_FROST_WARD_TARGET, player);
                     m_creature->SummonGameObject(GAMEOBJECT_ICE_BLOCK, x, y, z, player->GetOrientation(), 0.0f, 0.0f, 0.0f, 0.0f, Block_Event_Timer / 1000, true);
                 }
@@ -268,13 +278,17 @@ struct boss_xmas_wolfAI : public ScriptedAI
 
         DoMeleeAttackIfReady();
     }
+
 };
 
-CreatureAI* GetAI_boss_xmas_wolf(Creature* _Creature) { return new boss_xmas_wolfAI(_Creature); }
+CreatureAI* GetAI_boss_xmas_wolf(Creature *_Creature)
+{
+    return new boss_xmas_wolfAI(_Creature);
+}
 
 void AddSC_boss_xmas_wolf()
 {
-    Script* newscript;
+    Script *newscript;
     newscript = new Script;
     newscript->Name = "boss_xmas_wolf";
     newscript->GetAI = &GetAI_boss_xmas_wolf;

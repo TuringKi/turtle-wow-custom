@@ -20,9 +20,10 @@
  ************************************************************************************/
 #include <dpp/restrequest.h>
 
-namespace dpp
-{
+namespace dpp {
 
-    void cluster::get_gateway_bot(command_completion_event_t callback) { rest_request<gateway>(this, API_PATH "/gateway", "bot", "", m_get, "", callback); }
+void cluster::get_gateway_bot(command_completion_event_t callback) {
+	rest_request<gateway>(this, API_PATH "/gateway", "bot", "", m_get, "", callback);
+}
 
-}; // namespace dpp
+};

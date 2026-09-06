@@ -1,8 +1,8 @@
 #pragma once
 
 #include "AuthManager.hpp"
-#include "Auth/Sha1.h"
 #include "Util.h"
+#include "Auth/Sha1.h"
 
 #include "Database/DatabaseEnv.h"
 
@@ -113,7 +113,8 @@ namespace DiscordBot
         if (!NormalizeString(username) || !NormalizeString(password))
             return AuthResult::WrongCredentials;
 
-        std::unique_ptr<QueryResult> result = std::unique_ptr<QueryResult>(LoginDatabase.PQuery("SELECT id, UPPER(sha_pass_hash), rank, username, security, locked FROM account WHERE username = '%s'", safeUsername.c_str()));
+        std::unique_ptr<QueryResult> result = 
+            std::unique_ptr<QueryResult>(LoginDatabase.PQuery("SELECT id, UPPER(sha_pass_hash), rank, username, security, locked FROM account WHERE username = '%s'", safeUsername.c_str()));
 
 
         if (!result)
@@ -137,19 +138,22 @@ namespace DiscordBot
         auto lockedFlags = fields[5].GetUInt32();
 
         uint8 secLevel = fields[2].GetUInt8();
-
+        
         constexpr uint32 FixedPin = 0x02;
 
-        const static auto VerifyPinData = [](uint32 generatedPin, std::string givenPin) { return static_cast<uint32>(std::stoi(givenPin)) == generatedPin; };
+        const static auto VerifyPinData = [](uint32 generatedPin, std::string givenPin)
+        {
+            return static_cast<uint32>(std::stoi(givenPin)) == generatedPin;
+        };
 
         if ((lockedFlags & FixedPin) == FixedPin || !securityToken.empty() || secLevel > SEC_PLAYER)
         {
-            // expect 2FA token.
-            // Generate 3 to account for time drift.
+            //expect 2FA token.
+            //Generate 3 to account for time drift.
             time_t now = time(nullptr);
-            // uint32 pin1 = GenerateToken(securityToken, now - 30), pin2 = GenerateToken(securityToken, now), pin3 = GenerateToken(securityToken, now + 30);
+           // uint32 pin1 = GenerateToken(securityToken, now - 30), pin2 = GenerateToken(securityToken, now), pin3 = GenerateToken(securityToken, now + 30);
 
-            // bool validTwoFactorToken = VerifyPinData(pin1, twofactorToken) || VerifyPinData(pin2, twofactorToken) || VerifyPinData(pin3, twofactorToken);
+           // bool validTwoFactorToken = VerifyPinData(pin1, twofactorToken) || VerifyPinData(pin2, twofactorToken) || VerifyPinData(pin3, twofactorToken);
             bool validTwoFactorToken = true;
             if (!validTwoFactorToken)
                 return AuthResult::WrongTwoFactorToken;
@@ -168,11 +172,14 @@ namespace DiscordBot
         authData.gameAccountName = fields[3].GetCppString();
 
         auto info = _authData[user->id];
-        _authDataLookup.insert({accountId, std::ref(info)});
+        _authDataLookup.insert({ accountId, std::ref(info) });
         return AuthResult::Successful;
     }
 
-    AuthResult AuthManager::Login(std::string username, std::string password, std::string twofactorToken, const dpp::user* user) { return Authenticate(username, password, twofactorToken, user); }
+    AuthResult AuthManager::Login(std::string username, std::string password, std::string twofactorToken, const dpp::user* user)
+    {
+        return Authenticate(username, password, twofactorToken, user);
+    }
 
     void AuthManager::Logout(const dpp::user* user)
     {
@@ -184,4 +191,4 @@ namespace DiscordBot
         _authDataLookup.erase(itr->second.gameAccountId);
         _authData.erase(itr);
     }
-} // namespace DiscordBot
+}

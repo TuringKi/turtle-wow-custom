@@ -2,10 +2,14 @@
 
 #include "defines.h"
 
-npc_hivezora_abomination::npc_hivezora_abomination(Creature* pCreature) :
-    ScriptedAI(pCreature), m_waypoints{
-                               Silithus::Locations::ABOMINATION_WAYPOINT_1, Silithus::Locations::ABOMINATION_WAYPOINT_2, Silithus::Locations::ABOMINATION_WAYPOINT_3, Silithus::Locations::ABOMINATION_WAYPOINT_4, Silithus::Locations::ABOMINATION_WAYPOINT_5,
-                           }
+npc_hivezora_abomination::npc_hivezora_abomination(Creature* pCreature) : ScriptedAI(pCreature),
+m_waypoints{
+    Silithus::Locations::ABOMINATION_WAYPOINT_1,
+    Silithus::Locations::ABOMINATION_WAYPOINT_2,
+    Silithus::Locations::ABOMINATION_WAYPOINT_3,
+    Silithus::Locations::ABOMINATION_WAYPOINT_4,
+    Silithus::Locations::ABOMINATION_WAYPOINT_5,
+}
 {
     npc_hivezora_abomination::Reset();
 }
@@ -31,7 +35,9 @@ void npc_hivezora_abomination::MovementInform(uint32_t movementType, uint32_t po
     }
 }
 
-void npc_hivezora_abomination::Reset() {}
+void npc_hivezora_abomination::Reset()
+{
+}
 
 void npc_hivezora_abomination::OnCombatStop()
 {
@@ -137,7 +143,10 @@ void npc_hivezora_abomination::BeginPathing()
     m_creature->GetMotionMaster()->MovePoint(m_currentWaypoint, m_waypoints[m_currentWaypoint], MOVE_RUN_MODE, 0.f, m_waypoints[m_currentWaypoint].orientation);
 }
 
-CreatureAI* npc_hivezora_abomination::GetAI(Creature* pCreature) { return new npc_hivezora_abomination(pCreature); }
+CreatureAI* npc_hivezora_abomination::GetAI(Creature* pCreature)
+{
+    return new npc_hivezora_abomination(pCreature);
+}
 
 void npc_hivezora_abomination::RegisterScript()
 {

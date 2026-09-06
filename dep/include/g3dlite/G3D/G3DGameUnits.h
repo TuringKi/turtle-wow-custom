@@ -11,51 +11,35 @@
 
 #include "G3D/platform.h"
 
-namespace G3D
-{
+namespace G3D {
 
-    /** \deprecated use SimTime */
-    typedef double GameTime;
+/** \deprecated use SimTime */
+typedef double GameTime;
 
-    /**
-     Time, in seconds.
-     */
-    typedef double SimTime;
+/**
+ Time, in seconds.
+ */
+typedef double SimTime;
 
-    /**
-     Actual wall clock time in seconds (Unix time).
-     */
-    typedef double RealTime;
+/**
+ Actual wall clock time in seconds (Unix time).
+ */
+typedef double RealTime;
 
-    enum AMPM
-    {
-        AM,
-        PM
-    };
+enum AMPM {AM, PM};
 
-    /** \deprecated */
-    enum
-    {
-        SECOND = 1,
-        MINUTE = 60,
-        HOUR = 60 * 60,
-        DAY = 24 * 60 * 60,
-        SUNRISE = 24 * 60 * 60 / 4,
-        SUNSET = 24 * 60 * 60 * 3 / 4,
-        MIDNIGHT = 0,
-        METER = 1,
-        KILOMETER = 1000
-    };
+/** \deprecated */
+enum {SECOND=1, MINUTE=60, HOUR = 60*60, DAY=24*60*60, SUNRISE=24*60*60/4, SUNSET=24*60*60*3/4, MIDNIGHT=0, METER=1, KILOMETER=1000};
 
-    /**
-     Converts a 12 hour clock time into the number of seconds since
-     midnight.  Note that 12:00 PM is noon and 12:00 AM is midnight.
+/**
+ Converts a 12 hour clock time into the number of seconds since 
+ midnight.  Note that 12:00 PM is noon and 12:00 AM is midnight.
 
-     Example: <CODE>toSeconds(10, 00, AM)</CODE>
-     */
-    SimTime toSeconds(int hour, int minute, double seconds, AMPM ap);
-    SimTime toSeconds(int hour, int minute, AMPM ap);
+ Example: <CODE>toSeconds(10, 00, AM)</CODE>
+ */
+SimTime toSeconds(int hour, int minute, double seconds, AMPM ap);
+SimTime toSeconds(int hour, int minute, AMPM ap);
 
-} // namespace G3D
+}
 
 #endif

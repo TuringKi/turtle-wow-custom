@@ -19,17 +19,17 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#include "CellImpl.h"
 #include "Common.h"
+#include "UpdateMask.h"
+#include "Opcodes.h"
+#include "World.h"
+#include "ObjectAccessor.h"
 #include "Database/DatabaseEnv.h"
 #include "GridNotifiers.h"
+#include "CellImpl.h"
 #include "GridNotifiersImpl.h"
-#include "ObjectAccessor.h"
-#include "Opcodes.h"
-#include "PerfStats.h"
 #include "SpellMgr.h"
-#include "UpdateMask.h"
-#include "World.h"
+#include "PerfStats.h"
 
 DynamicObject::DynamicObject() : WorldObject(), m_spellId(0), m_effIndex(EFFECT_INDEX_0), m_aliveDuration(0), m_radius(0), m_positive(false)
 {
@@ -42,7 +42,10 @@ DynamicObject::DynamicObject() : WorldObject(), m_spellId(0), m_effIndex(EFFECT_
     ++PerfStats::g_totalDynamicObjects;
 }
 
-DynamicObject::~DynamicObject() { --PerfStats::g_totalDynamicObjects; }
+DynamicObject::~DynamicObject()
+{
+    --PerfStats::g_totalDynamicObjects;
+}
 
 void DynamicObject::AddToWorld()
 {
@@ -164,9 +167,15 @@ Unit* DynamicObject::GetUnitCaster() const
     return nullptr;
 }
 
-uint32 DynamicObject::GetFactionTemplateId() const { return GetCaster()->GetFactionTemplateId(); }
+uint32 DynamicObject::GetFactionTemplateId() const
+{
+    return GetCaster()->GetFactionTemplateId();
+}
 
-uint32 DynamicObject::GetLevel() const { return GetCaster()->GetLevel(); }
+uint32 DynamicObject::GetLevel() const
+{
+    return GetCaster()->GetLevel();
+}
 
 void DynamicObject::Update(uint32 update_diff, uint32 p_time)
 {
@@ -200,11 +209,11 @@ void DynamicObject::Update(uint32 update_diff, uint32 p_time)
         // Hackfix pour Piege explosif. Ne doit s'activer qu'une fois.
         switch (m_spellId)
         {
-        case 13812: // rang 1
-        case 14314: // rang 2
-        case 14315: // rang 3
-            m_radius = 0.0f;
-            break;
+            case 13812: // rang 1
+            case 14314: // rang 2
+            case 14315: // rang 3
+                m_radius = 0.0f;
+                break;
         }
     }
 
@@ -221,19 +230,25 @@ void DynamicObject::Delete()
     AddObjectToRemoveList();
 }
 
-void DynamicObject::AddAffected(Unit* unit) { m_affected[unit->GetObjectGuid()] = 0; }
+void DynamicObject::AddAffected(Unit* unit)
+{
+    m_affected[unit->GetObjectGuid()] = 0;
+}
 
-void DynamicObject::RemoveAffected(Unit* unit) { m_affected.erase(unit->GetObjectGuid()); }
+void DynamicObject::RemoveAffected(Unit* unit)
+{
+    m_affected.erase(unit->GetObjectGuid());
+}
 
 void DynamicObject::Delay(int32 delaytime)
 {
     m_aliveDuration -= delaytime;
     for (AffectedMap::iterator iter = m_affected.begin(); iter != m_affected.end();)
     {
-        Unit* target = GetMap()->GetUnit(iter->first);
+        Unit *target = GetMap()->GetUnit(iter->first);
         if (target)
         {
-            SpellAuraHolder* holder = target->GetSpellAuraHolder(m_spellId, GetCasterGuid());
+            SpellAuraHolder *holder = target->GetSpellAuraHolder(m_spellId, GetCasterGuid());
             if (!holder)
             {
                 ++iter;

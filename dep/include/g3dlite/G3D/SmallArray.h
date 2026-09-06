@@ -1,6 +1,6 @@
-/**
+/** 
   \file G3D/SmallArray.h
-
+  
   \created 2009-04-26
   \edited  2012-07-23
 
@@ -10,214 +10,181 @@
 #ifndef G3D_SmallArray_h
 #define G3D_SmallArray_h
 
+#include "G3D/platform.h"
 #include "G3D/Array.h"
 #include "G3D/MemoryManager.h"
-#include "G3D/platform.h"
 
-namespace G3D
-{
+namespace G3D {
 
-    /** Embeds \a N elements to reduce allocation time and increase
-        memory coherence when working with arrays of arrays.
-        Offers a limited subset of the functionality of G3D::Array.*/
-    template <class T, int N>
-    class SmallArray
-    {
-    private:
-        int m_size;
+/** Embeds \a N elements to reduce allocation time and increase 
+    memory coherence when working with arrays of arrays.
+    Offers a limited subset of the functionality of G3D::Array.*/
+template<class T, int N>
+class SmallArray {
+private:
+    int                 m_size;
 
-        /** First N elements */
-        T m_embedded[N];
+    /** First N elements */
+    T                   m_embedded[N];
 
-        /** Remaining elements */
-        Array<T> m_rest;
+    /** Remaining elements */
+    Array<T>            m_rest;
 
-    public:
-        SmallArray() : m_size(0) {}
+public:
 
-        inline int size() const { return m_size; }
+    SmallArray() : m_size(0) {}
 
-        void resize(int n, bool shrinkIfNecessary = true)
-        {
-            m_rest.resize(std::max(0, n - N), shrinkIfNecessary);
-            m_size = n;
+    inline int size() const {
+        return m_size;
+    }
+
+    void resize(int n, bool shrinkIfNecessary = true) {
+        m_rest.resize(std::max(0, n - N), shrinkIfNecessary);
+        m_size = n;
+    }
+
+    void clear(bool shrinkIfNecessary = true) {
+        resize(0, shrinkIfNecessary);
+    }
+
+    void clearAndSetMemoryManager(MemoryManager::Ref& m) {
+        clear();
+        m_rest.clearAndSetMemoryManager(m);
+    }
+
+    inline T& operator[](int i) {
+        debugAssert(i < m_size && i >= 0);
+        if (i < N) {
+            return m_embedded[i];
+        } else {
+            return m_rest[i - N];
+        }
+    }
+
+    inline const T& operator[](int i) const {
+        debugAssert(i < m_size && i >= 0);
+        if (i < N) {
+            return m_embedded[i];
+        } else {
+            return m_rest[i - N];
+        }
+    }
+
+    inline void push(const T& v) {
+        ++m_size;
+        if (m_size <= N) {
+            m_embedded[m_size - 1] = v;
+        } else {
+            m_rest.append(v);
+        }
+    }
+
+    inline void append(const T& v) {
+        push(v);
+    }
+
+    inline void append(const T& v, const T& v2) {
+        push(v);
+        push(v2);
+    }
+
+    inline void append(const T& v, const T& v2, const T& v3) {
+        push(v);
+        push(v2);
+        push(v3);
+    }
+
+    inline void append(const T& v, const T& v2, const T& v3, const T& v4) {
+        push(v);
+        push(v2);
+        push(v3);
+        push(v4);
+    }
+
+    /** Find the index of \a v or -1 if not found */
+    int findIndex(const T& v) {
+        for (int i = 0; i < N; ++i) {
+            if (m_embedded[i] == v) {
+                return i;
+            }
         }
 
-        void clear(bool shrinkIfNecessary = true) { resize(0, shrinkIfNecessary); }
+        return m_rest.findIndex(v) + N;
+    }
 
-        void clearAndSetMemoryManager(MemoryManager::Ref& m)
-        {
-            clear();
-            m_rest.clearAndSetMemoryManager(m);
+    void fastRemove(int i, bool shrinkIfNecessary = false) {
+        debugAssert(i < m_size && i >= 0);
+        if (i < N) {
+            if (m_size <= N) {
+                // Exclusively embedded
+                m_embedded[i] = m_embedded[m_size - 1];
+            } else {
+                // Move one down from the rest array
+                m_embedded[i] = m_rest.pop();
+            }
+        } else {
+            // Removing from the rest array
+            m_rest.fastRemove(i - N, shrinkIfNecessary);
         }
+        --m_size;
+    }
 
-        inline T& operator[](int i)
-        {
-            debugAssert(i < m_size && i >= 0);
-            if (i < N)
-            {
-                return m_embedded[i];
-            }
-            else
-            {
-                return m_rest[i - N];
-            }
-        }
-
-        inline const T& operator[](int i) const
-        {
-            debugAssert(i < m_size && i >= 0);
-            if (i < N)
-            {
-                return m_embedded[i];
-            }
-            else
-            {
-                return m_rest[i - N];
-            }
-        }
-
-        inline void push(const T& v)
-        {
-            ++m_size;
-            if (m_size <= N)
-            {
-                m_embedded[m_size - 1] = v;
-            }
-            else
-            {
-                m_rest.append(v);
-            }
-        }
-
-        inline void append(const T& v) { push(v); }
-
-        inline void append(const T& v, const T& v2)
-        {
-            push(v);
-            push(v2);
-        }
-
-        inline void append(const T& v, const T& v2, const T& v3)
-        {
-            push(v);
-            push(v2);
-            push(v3);
-        }
-
-        inline void append(const T& v, const T& v2, const T& v3, const T& v4)
-        {
-            push(v);
-            push(v2);
-            push(v3);
-            push(v4);
-        }
-
-        /** Find the index of \a v or -1 if not found */
-        int findIndex(const T& v)
-        {
-            for (int i = 0; i < N; ++i)
-            {
-                if (m_embedded[i] == v)
-                {
-                    return i;
-                }
-            }
-
-            return m_rest.findIndex(v) + N;
-        }
-
-        void fastRemove(int i, bool shrinkIfNecessary = false)
-        {
-            debugAssert(i < m_size && i >= 0);
-            if (i < N)
-            {
-                if (m_size <= N)
-                {
-                    // Exclusively embedded
-                    m_embedded[i] = m_embedded[m_size - 1];
-                }
-                else
-                {
-                    // Move one down from the rest array
-                    m_embedded[i] = m_rest.pop();
-                }
-            }
-            else
-            {
-                // Removing from the rest array
-                m_rest.fastRemove(i - N, shrinkIfNecessary);
-            }
+    T pop() {
+        debugAssert(m_size > 0);
+        if (m_size <= N) {
+            // Popping from embedded, don't need a temporary
             --m_size;
-        }
-
-        T pop()
-        {
-            debugAssert(m_size > 0);
-            if (m_size <= N)
-            {
-                // Popping from embedded, don't need a temporary
-                --m_size;
-                return m_embedded[m_size];
-            }
-            else
-            {
-                // Popping from rest
-                --m_size;
-                return m_rest.pop();
-            }
-        }
-
-        inline void popDiscard()
-        {
-            debugAssert(m_size > 0);
-            if (m_size > N)
-            {
-                m_rest.popDiscard();
-            }
+            return m_embedded[m_size];
+        } else {
+            // Popping from rest
             --m_size;
+            return m_rest.pop();
         }
+    }
 
-        inline T& next()
-        {
-            ++m_size;
-            if (m_size <= N)
-            {
-                return m_embedded[m_size - 1];
-            }
-            else
-            {
-                return m_rest.next();
+    inline void popDiscard() {
+        debugAssert(m_size > 0);
+        if (m_size > N) {
+            m_rest.popDiscard();
+        }
+        --m_size;
+    }
+
+    inline T& next() {
+        ++m_size;
+        if (m_size <= N) {
+            return m_embedded[m_size - 1];
+        } else {
+            return m_rest.next();
+        }
+    }
+
+    bool contains(const T& value) const {
+        for (int i = std::min(m_size, N) - 1; i >= 0; --i) {
+            if (m_embedded[i] == value) {
+                return true;
             }
         }
+        return m_rest.contains(value);
+    }
 
-        bool contains(const T& value) const
-        {
-            for (int i = std::min(m_size, N) - 1; i >= 0; --i)
-            {
-                if (m_embedded[i] == value)
-                {
-                    return true;
-                }
-            }
-            return m_rest.contains(value);
+    template<int MIN_ELEMENTS>
+    SmallArray<T, N>& operator=(const Array<T, MIN_ELEMENTS>& src) {
+        resize(src.size());
+        for (int i = 0; i < src.size(); ++i) {
+            (*this)[i] = src[i];
         }
+        return *this;
+    }
 
-        template <int MIN_ELEMENTS>
-        SmallArray<T, N>& operator=(const Array<T, MIN_ELEMENTS>& src)
-        {
-            resize(src.size());
-            for (int i = 0; i < src.size(); ++i)
-            {
-                (*this)[i] = src[i];
-            }
-            return *this;
-        }
+    inline const T& last() const {
+        return (*this)[size() - 1];
+    }
 
-        inline const T& last() const { return (*this)[size() - 1]; }
+    inline T& last() {
+        return (*this)[size() - 1];
+    }
+};
 
-        inline T& last() { return (*this)[size() - 1]; }
-    };
-
-} // namespace G3D
+}
 #endif

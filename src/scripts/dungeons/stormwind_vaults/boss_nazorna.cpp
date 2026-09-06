@@ -2,14 +2,15 @@
 
 using namespace std;
 
-struct boss_nazornaAI final : ScriptedAI
-{
-    explicit boss_nazornaAI(Creature* c) : ScriptedAI(c) { boss_nazornaAI::Reset(); }
+struct boss_nazornaAI final : ScriptedAI {
+    explicit boss_nazornaAI(Creature *c) : ScriptedAI(c) {
+        boss_nazornaAI::Reset();
+    }
 
-    void Reset() override {}
+    void Reset() override {
+    }
 
-    void Aggro(Unit* target) override
-    {
+    void Aggro(Unit *target) override {
         _lastUpdateTick = 0;
         _lastEventProcessedAt = 0;
         _shadowBoltVolleyPhase = eShadowBoltVolleyPhases::PhaseOne;
@@ -23,25 +24,22 @@ struct boss_nazornaAI final : ScriptedAI
         me->MonsterSendTextToZone("Bow before the might of the Legion!", CHAT_MSG_MONSTER_YELL);
     }
 
-    void JustDied(Unit* killer) override { me->MonsterSendTextToZone("Lord Archimonde, forgive m-me.", CHAT_MSG_MONSTER_SAY); }
+    void JustDied(Unit *killer) override {
+        me->MonsterSendTextToZone("Lord Archimonde, forgive m-me.", CHAT_MSG_MONSTER_SAY);
+    }
 
-    void UpdateAI(uint32 diff) override
-    {
+    void UpdateAI(uint32 diff) override {
         _lastUpdateTick += diff;
 
-        if (!me->SelectHostileTarget() || !me->GetVictim())
-        {
+        if (!me->SelectHostileTarget() || !me->GetVictim()) {
             return;
         }
 
         _eventQueue.Update(diff);
 
-        switch (const auto nextEvent = PopEvent(); nextEvent)
-        {
-        case eSpellCastEvents::EventCastShadowBoltVolley:
-            {
-                if (!EventCastShadowBoltVolleyPredicate())
-                {
+        switch (const auto nextEvent = PopEvent(); nextEvent) {
+            case eSpellCastEvents::EventCastShadowBoltVolley: {
+                if (!EventCastShadowBoltVolleyPredicate()) {
                     _eventQueue.Repeat(Milliseconds(400));
                     break;
                 }
@@ -49,10 +47,8 @@ struct boss_nazornaAI final : ScriptedAI
                 EventCastShadowBoltVolleyHandler();
                 break;
             }
-        case eSpellCastEvents::EventCastInferno:
-            {
-                if (!EventCastInfernoPredicate())
-                {
+            case eSpellCastEvents::EventCastInferno: {
+                if (!EventCastInfernoPredicate()) {
                     _eventQueue.Repeat(Milliseconds(400));
                     break;
                 }
@@ -60,10 +56,8 @@ struct boss_nazornaAI final : ScriptedAI
                 EventCastInfernoHandler();
                 break;
             }
-        case eSpellCastEvents::EventCastArmageddon:
-            {
-                if (!EventCastArmageddonPredicate())
-                {
+            case eSpellCastEvents::EventCastArmageddon: {
+                if (!EventCastArmageddonPredicate()) {
                     _eventQueue.Repeat(Milliseconds(400));
                     break;
                 }
@@ -71,12 +65,11 @@ struct boss_nazornaAI final : ScriptedAI
                 EventCastArmageddonHandler();
                 break;
             }
-        case eSpellCastEvents::EventCastBanish:
-            break;
-        case eSpellCastEvents::EventCastDemonPortal:
-            break;
-        case eSpellCastEvents::EventNone:
-            {
+            case eSpellCastEvents::EventCastBanish:
+                break;
+            case eSpellCastEvents::EventCastDemonPortal:
+                break;
+            case eSpellCastEvents::EventNone: {
                 DoMeleeAttackIfReady();
                 break;
             }
@@ -84,8 +77,7 @@ struct boss_nazornaAI final : ScriptedAI
     }
 
 private:
-    enum eSpellIds
-    {
+    enum eSpellIds {
         SpellArmageddon = 20478,
         SpellBanish = 27565,
         // TODO - probably need a dummy spell here
@@ -95,8 +87,7 @@ private:
         SpellShadowBoltVolley = 15245,
     };
 
-    enum class eSpellCastEvents
-    {
+    enum class eSpellCastEvents {
         EventNone,
         EventCastArmageddon,
         EventCastBanish,
@@ -105,16 +96,14 @@ private:
         EventCastShadowBoltVolley,
     };
 
-    enum class eShadowBoltVolleyPhases
-    {
+    enum class eShadowBoltVolleyPhases {
         PhaseOne,
         PhaseTwo,
         PhaseThree,
         Finished,
     };
 
-    enum class eInfernoPhases
-    {
+    enum class eInfernoPhases {
         PhaseOne,
         PhaseTwo,
         PhaseThree,
@@ -136,18 +125,16 @@ private:
      * \brief Attempts to pop an event from the event queue.
      * \return The event to execute, or EventNone if no action should be taken.
      */
-    [[nodiscard]] eSpellCastEvents PopEvent()
-    {
+    [[nodiscard]]
+    eSpellCastEvents PopEvent() {
         // If we're popping events too quickly, return EventNone.
-        if (_lastUpdateTick - _lastEventProcessedAt < _minimumTicksBetweenEvents)
-        {
+        if (_lastUpdateTick - _lastEventProcessedAt < _minimumTicksBetweenEvents) {
             return eSpellCastEvents::EventNone;
         }
 
         const auto poppedEvent = static_cast<eSpellCastEvents>(_eventQueue.ExecuteEvent());
         // If we successfully popped an event, update the tick counter.
-        if (poppedEvent != eSpellCastEvents::EventNone)
-        {
+        if (poppedEvent != eSpellCastEvents::EventNone) {
             _lastEventProcessedAt = _lastUpdateTick;
         }
         return poppedEvent;
@@ -157,30 +144,24 @@ private:
      * @brief Spell cast predicate for the ShadowBoltVolley event.
      * @return True if we should cast, false otherwise.
      */
-    [[nodiscard]] bool EventCastShadowBoltVolleyPredicate() const
-    {
-        if (me->IsNonMeleeSpellCasted())
-        {
+    [[nodiscard]]
+    bool EventCastShadowBoltVolleyPredicate() const {
+        if (me->IsNonMeleeSpellCasted()) {
             return false;
         }
 
-        switch (_shadowBoltVolleyPhase)
-        {
-        case eShadowBoltVolleyPhases::PhaseOne:
-            {
+        switch (_shadowBoltVolleyPhase) {
+            case eShadowBoltVolleyPhases::PhaseOne: {
                 return me->GetHealthPercent() <= 70;
             }
-        case eShadowBoltVolleyPhases::PhaseTwo:
-            {
+            case eShadowBoltVolleyPhases::PhaseTwo: {
                 return me->GetHealthPercent() <= 50;
             }
-        case eShadowBoltVolleyPhases::PhaseThree:
-            {
+            case eShadowBoltVolleyPhases::PhaseThree: {
                 return me->GetHealthPercent() <= 20;
             }
-        case eShadowBoltVolleyPhases::Finished:
-        default:
-            {
+            case eShadowBoltVolleyPhases::Finished:
+            default: {
                 return false;
             }
         }
@@ -189,36 +170,29 @@ private:
     /**
      *  @brief Spell cast handler for the Shadow Bolt Volley spell.
      */
-    void EventCastShadowBoltVolleyHandler()
-    {
+    void EventCastShadowBoltVolleyHandler() {
         DoCast(me, SpellShadowBoltVolley);
         me->MonsterSendTextToZone("Perish!", CHAT_MSG_MONSTER_YELL);
-        switch (_shadowBoltVolleyPhase)
-        {
-        case eShadowBoltVolleyPhases::PhaseOne:
-            {
+        switch (_shadowBoltVolleyPhase) {
+            case eShadowBoltVolleyPhases::PhaseOne: {
                 _shadowBoltVolleyPhase = eShadowBoltVolleyPhases::PhaseTwo;
                 break;
             }
-        case eShadowBoltVolleyPhases::PhaseTwo:
-            {
+            case eShadowBoltVolleyPhases::PhaseTwo: {
                 _shadowBoltVolleyPhase = eShadowBoltVolleyPhases::PhaseThree;
                 break;
             }
-        case eShadowBoltVolleyPhases::PhaseThree:
-            {
+            case eShadowBoltVolleyPhases::PhaseThree: {
                 _shadowBoltVolleyPhase = eShadowBoltVolleyPhases::Finished;
                 break;
             }
-        case eShadowBoltVolleyPhases::Finished:
-        default:
-            {
+            case eShadowBoltVolleyPhases::Finished:
+            default: {
                 break;
             }
         }
 
-        if (_shadowBoltVolleyPhase != eShadowBoltVolleyPhases::Finished)
-        {
+        if (_shadowBoltVolleyPhase != eShadowBoltVolleyPhases::Finished) {
             _eventQueue.ScheduleEvent(static_cast<uint32_t>(eSpellCastEvents::EventCastShadowBoltVolley), Milliseconds(400));
         }
     }
@@ -227,46 +201,36 @@ private:
      * @brief Predicate for the Inferno spell.
      * @return True if we should cast, false otherwise.
      */
-    [[nodiscard]] bool EventCastInfernoPredicate() const
-    {
-        if (me->IsNonMeleeSpellCasted())
-        {
+    [[nodiscard]]
+    bool EventCastInfernoPredicate() const {
+        if (me->IsNonMeleeSpellCasted()) {
             return false;
         }
 
-        switch (_infernoPhase)
-        {
-        case eInfernoPhases::PhaseOne:
-            {
+        switch (_infernoPhase) {
+            case eInfernoPhases::PhaseOne: {
                 return me->GetHealthPercent() <= 85;
             }
-        case eInfernoPhases::PhaseTwo:
-            {
+            case eInfernoPhases::PhaseTwo: {
                 return me->GetHealthPercent() <= 70;
             }
-        case eInfernoPhases::PhaseThree:
-            {
+            case eInfernoPhases::PhaseThree: {
                 return me->GetHealthPercent() <= 55;
             }
-        case eInfernoPhases::PhaseFour:
-            {
+            case eInfernoPhases::PhaseFour: {
                 return me->GetHealthPercent() <= 40;
             }
-        case eInfernoPhases::PhaseFive:
-            {
+            case eInfernoPhases::PhaseFive: {
                 return me->GetHealthPercent() <= 35;
             }
-        case eInfernoPhases::PhaseSix:
-            {
+            case eInfernoPhases::PhaseSix: {
                 return me->GetHealthPercent() <= 20;
             }
-        case eInfernoPhases::PhaseSeven:
-            {
+            case eInfernoPhases::PhaseSeven: {
                 return me->GetHealthPercent() <= 5;
             }
-        case eInfernoPhases::Finished:
-        default:
-            {
+            case eInfernoPhases::Finished:
+            default: {
                 return false;
             }
         }
@@ -275,56 +239,45 @@ private:
     /**
      * @brief Casts the Inferno spell.
      */
-    void EventCastInfernoHandler()
-    {
+    void EventCastInfernoHandler() {
         DoCast(me, SpellInferno);
         me->MonsterSendTextToZone("My will burns yours!", CHAT_MSG_MONSTER_YELL);
-        switch (_infernoPhase)
-        {
-        case eInfernoPhases::PhaseOne:
-            {
+        switch (_infernoPhase) {
+            case eInfernoPhases::PhaseOne: {
                 _infernoPhase = eInfernoPhases::PhaseTwo;
                 break;
             }
-        case eInfernoPhases::PhaseTwo:
-            {
+            case eInfernoPhases::PhaseTwo: {
                 _infernoPhase = eInfernoPhases::PhaseThree;
                 break;
             }
-        case eInfernoPhases::PhaseThree:
-            {
+            case eInfernoPhases::PhaseThree: {
                 _infernoPhase = eInfernoPhases::PhaseFour;
                 break;
             }
-        case eInfernoPhases::PhaseFour:
-            {
+            case eInfernoPhases::PhaseFour: {
                 _infernoPhase = eInfernoPhases::PhaseFive;
                 break;
             }
-        case eInfernoPhases::PhaseFive:
-            {
+            case eInfernoPhases::PhaseFive: {
                 _infernoPhase = eInfernoPhases::PhaseSix;
                 break;
             }
-        case eInfernoPhases::PhaseSix:
-            {
+            case eInfernoPhases::PhaseSix: {
                 _infernoPhase = eInfernoPhases::PhaseSeven;
                 break;
             }
-        case eInfernoPhases::PhaseSeven:
-            {
+            case eInfernoPhases::PhaseSeven: {
                 _infernoPhase = eInfernoPhases::Finished;
                 break;
             }
-        case eInfernoPhases::Finished:
-        default:
-            {
+            case eInfernoPhases::Finished:
+            default: {
                 break;
             }
         }
 
-        if (_infernoPhase != eInfernoPhases::Finished)
-        {
+        if (_infernoPhase != eInfernoPhases::Finished) {
             _eventQueue.ScheduleEvent(static_cast<uint32_t>(eSpellCastEvents::EventCastInferno), Milliseconds(400));
         }
     }
@@ -333,10 +286,9 @@ private:
      * @brief Predicate for the cast armageddon event.
      * @return True if we should cast, false otherwise.
      */
-    [[nodiscard]] bool EventCastArmageddonPredicate()
-    {
-        if (me->IsNonMeleeSpellCasted())
-        {
+    [[nodiscard]]
+    bool EventCastArmageddonPredicate() {
+        if (me->IsNonMeleeSpellCasted()) {
             return false;
         }
 
@@ -346,18 +298,18 @@ private:
     /**
      * Casts the Armageddon spell.
      */
-    void EventCastArmageddonHandler()
-    {
+    void EventCastArmageddonHandler() {
         DoCast(me, SpellArmageddon);
         me->MonsterSendTextToZone("The flames will eat you all alive!", CHAT_MSG_MONSTER_YELL);
     }
 };
 
-CreatureAI* GetAI_boss_nazorna(Creature* pCreature) { return new boss_nazornaAI(pCreature); }
+CreatureAI *GetAI_boss_nazorna(Creature *pCreature) {
+    return new boss_nazornaAI(pCreature);
+}
 
-void AddSC_boss_nazorna()
-{
-    Script* newscript = new Script;
+void AddSC_boss_nazorna() {
+    Script *newscript = new Script;
     newscript->Name = "boss_nazorna";
     newscript->GetAI = &GetAI_boss_nazorna;
     newscript->RegisterSelf();

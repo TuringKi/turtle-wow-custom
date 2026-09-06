@@ -23,7 +23,10 @@
 
 #include <cstdio>
 
-DBCFile::DBCFile(const std::string& filename) : filename(filename) { data = NULL; }
+DBCFile::DBCFile(const std::string& filename) : filename(filename)
+{
+    data = NULL;
+}
 
 bool DBCFile::open()
 {
@@ -47,7 +50,7 @@ bool DBCFile::open()
         return false;
     }
 
-    // assert(header[0]=='W' && header[1]=='D' && header[2]=='B' && header[3] == 'C');
+    //assert(header[0]=='W' && header[1]=='D' && header[2]=='B' && header[3] == 'C');
 
     f.read(&na, 4); // Number of records
     f.read(&nb, 4); // Number of fields
@@ -58,7 +61,7 @@ bool DBCFile::open()
     recordCount = na;
     fieldCount = nb;
     stringSize = ss;
-    // assert(fieldCount*4 == recordSize);
+    //assert(fieldCount*4 == recordSize);
     assert(fieldCount * 4 >= recordSize);
 
     data = new unsigned char[recordSize * recordCount + stringSize];
@@ -68,7 +71,10 @@ bool DBCFile::open()
     return true;
 }
 
-DBCFile::~DBCFile() { delete[] data; }
+DBCFile::~DBCFile()
+{
+    delete [] data;
+}
 
 DBCFile::Record DBCFile::getRecord(size_t id)
 {

@@ -8,12 +8,15 @@ void DoAfterTime(Player* player, uint32 p_time, Functor&& function)
 
 struct instance_karazhan_crypt : public ScriptedInstance
 {
-    explicit instance_karazhan_crypt(Map* p_Map) : ScriptedInstance(p_Map) { Initialize(); };
+    explicit instance_karazhan_crypt(Map* p_Map) : ScriptedInstance(p_Map)
+    {
+        Initialize();
+    };
 
     uint64 hivaxxis_door_guid;
     uint64 alarus_door_guid;
 
-    void Initialize() override
+    void Initialize() override   
     {
         hivaxxis_door_guid = 0;
         alarus_door_guid = 0;
@@ -21,10 +24,8 @@ struct instance_karazhan_crypt : public ScriptedInstance
 
     void OnObjectCreate(GameObject* pGo) override
     {
-        if (pGo->GetEntry() == 177312)
-            hivaxxis_door_guid = pGo->GetGUID();
-        if (pGo->GetEntry() == 2006634)
-            alarus_door_guid = pGo->GetGUID();
+        if (pGo->GetEntry() == 177312) hivaxxis_door_guid = pGo->GetGUID();
+        if (pGo->GetEntry() == 2006634) alarus_door_guid = pGo->GetGUID();
     }
 
     void OnCreatureEnterCombat(Creature* pCreature) override
@@ -37,7 +38,7 @@ struct instance_karazhan_crypt : public ScriptedInstance
         case 92935: // Guard Captain Gort
             pCreature->MonsterSay(66105);
             break;
-        }
+        }        
     }
 
     void OnCreatureDeath(Creature* boss) override
@@ -45,33 +46,33 @@ struct instance_karazhan_crypt : public ScriptedInstance
         switch (boss->GetEntry())
         {
         case 91920:
+        {
+            GameObject* hivaxxis_door = instance->GetGameObject(hivaxxis_door_guid);
+            if (hivaxxis_door && hivaxxis_door->GetGoState() !=  GO_STATE_ACTIVE)
             {
-                GameObject* hivaxxis_door = instance->GetGameObject(hivaxxis_door_guid);
-                if (hivaxxis_door && hivaxxis_door->GetGoState() != GO_STATE_ACTIVE)
-                {
-                    hivaxxis_door->UseDoorOrButton(10800);
-                    boss->MonsterTextEmote(66108);
-                    boss->PlayDirectMusic(6762);
-                }
-                break;
-            }
-        case 91928:
-            {
-                GameObject* alarus_door = instance->GetGameObject(alarus_door_guid);
-                if (alarus_door && alarus_door->GetGoState() != GO_STATE_ACTIVE)
-                {
-                    alarus_door->UseDoorOrButton(10800);
-                    boss->MonsterSay(66106);
-                    boss->PlayDirectMusic(6762);
-                }
-                break;
-            }
-        case 92935: // Guard Captain Gort
-            {
-                boss->MonsterSay(66107);
+                hivaxxis_door->UseDoorOrButton(10800);
+                boss->MonsterTextEmote(66108);
                 boss->PlayDirectMusic(6762);
-                break;
             }
+            break;
+        }
+        case 91928:
+        {
+            GameObject* alarus_door = instance->GetGameObject(alarus_door_guid);
+            if (alarus_door && alarus_door->GetGoState() != GO_STATE_ACTIVE)
+            {
+                alarus_door->UseDoorOrButton(10800);
+                boss->MonsterSay(66106);
+                boss->PlayDirectMusic(6762);
+            }
+            break;
+        }
+        case 92935: // Guard Captain Gort
+        {
+            boss->MonsterSay(66107);
+            boss->PlayDirectMusic(6762);
+            break;
+        }
         }
     }
 };
@@ -162,13 +163,11 @@ struct tomb_bat_event_trigger : public GameObjectAI
                     me->SummonGameObject(177301, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1800, true); // 30 minutes
                     pPlayer->PlayDirectMusic(1171);
 
-                    DoAfterTime(pPlayer, 7 * IN_MILLISECONDS,
-                                [player = pPlayer]()
-                                {
-                                    Creature* bat = player->FindNearestCreature(91922, 20.0F);
-                                    if (!bat)
-                                        player->SummonCreature(91922, -11063.4F, -1795.69F, 56.65F, 3.1F, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 150 * IN_MILLISECONDS);
-                                });
+                    DoAfterTime(pPlayer, 7 * IN_MILLISECONDS, [player = pPlayer]() {
+                        Creature* bat = player->FindNearestCreature(91922, 20.0F);
+                        if (!bat)
+                            player->SummonCreature(91922, -11063.4F, -1795.69F, 56.65F, 3.1F, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 150 * IN_MILLISECONDS);
+                        });
                 }
                 m_uiUpdateTimer = 2500;
             }
@@ -184,7 +183,7 @@ struct tomb_batAI : public ScriptedAI
 {
     tomb_batAI(Creature* c) : ScriptedAI(c) { Reset(); }
 
-    void Reset()
+    void Reset() 
     {
         m_creature->SetFlag(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_DEAD | UNIT_DYNFLAG_TAPPED);
         m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
@@ -202,13 +201,12 @@ struct tomb_batAI : public ScriptedAI
 
             if (!m_creature->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE))
             {
-                if (!m_creature->SelectHostileTarget() || !m_creature->GetVictim())
-                    return;
+                if (!m_creature->SelectHostileTarget() || !m_creature->GetVictim()) return;
                 DoMeleeAttackIfReady();
             }
         }
     }
-    void JustDied(Unit*) override
+    void JustDied(Unit*) override 
     {
         m_creature->SetRespawnTime(1800); // 30 minutes
     }
@@ -228,15 +226,9 @@ bool GOHello_necrotic_rune(Player* pPlayer, GameObject* pGo)
 
         switch (pGo->GetEntry())
         {
-        case 177302:
-            alarus_trigger->MonsterYell("Those runes hold the remains of heroes of many good deeds, much better than you adventurer types will ever be.");
-            break;
-        case 177306:
-            alarus_trigger->MonsterYell("Do my words fall on deaf ears? Or are you just doing this out of spite?");
-            break;
-        case 177308:
-            alarus_trigger->MonsterYell("Is this why you've come here, to defile sacred graves in search of precious baubles?");
-            break;
+        case 177302: alarus_trigger->MonsterYell("Those runes hold the remains of heroes of many good deeds, much better than you adventurer types will ever be."); break;
+        case 177306: alarus_trigger->MonsterYell("Do my words fall on deaf ears? Or are you just doing this out of spite?"); break;
+        case 177308: alarus_trigger->MonsterYell("Is this why you've come here, to defile sacred graves in search of precious baubles?"); break;
         }
     }
     else
@@ -265,7 +257,13 @@ struct trigger_summon_alarusAI : public ScriptedAI
             GameObject* necrotic_rune_5 = me->FindNearestGameObject(177308, 300.0f);
             GameObject* necrotic_rune_6 = me->FindNearestGameObject(177309, 300.0f);
 
-            if ((necrotic_rune_1 && necrotic_rune_2 && necrotic_rune_3 && necrotic_rune_4 && necrotic_rune_5 && necrotic_rune_6) && (necrotic_rune_1->GetGoState() == GO_STATE_ACTIVE) && (necrotic_rune_2->GetGoState() == GO_STATE_ACTIVE) && (necrotic_rune_3->GetGoState() == GO_STATE_ACTIVE) && (necrotic_rune_4->GetGoState() == GO_STATE_ACTIVE) && (necrotic_rune_5->GetGoState() == GO_STATE_ACTIVE) && (necrotic_rune_6->GetGoState() == GO_STATE_ACTIVE))
+            if ((necrotic_rune_1 && necrotic_rune_2 && necrotic_rune_3 && necrotic_rune_4 && necrotic_rune_5 && necrotic_rune_6) &&                
+                (necrotic_rune_1->GetGoState() == GO_STATE_ACTIVE) && 
+                (necrotic_rune_2->GetGoState() == GO_STATE_ACTIVE) && 
+                (necrotic_rune_3->GetGoState() == GO_STATE_ACTIVE) && 
+                (necrotic_rune_4->GetGoState() == GO_STATE_ACTIVE) && 
+                (necrotic_rune_5->GetGoState() == GO_STATE_ACTIVE) && 
+                (necrotic_rune_6->GetGoState() == GO_STATE_ACTIVE))
             {
                 Creature* alarus_spawned_npc = me->FindNearestCreature(91928, 100.0f);
 
@@ -276,7 +274,7 @@ struct trigger_summon_alarusAI : public ScriptedAI
 
                     if (alarus)
                         alarus->MonsterYell("It seems words alone aren't enough to deter you. Find me, and meet your untimely end!");
-                }
+                }           
             }
         }
     }
@@ -314,6 +312,7 @@ struct skeletal_remains_trigger : public GameObjectAI
                 {
                     me->SummonGameObject(177311, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1800, true); // 30 minutes
                     pPlayer->PlayDirectMusic(335);
+
                 }
                 m_uiUpdateTimer = 2500;
             }
@@ -347,8 +346,7 @@ struct skeletal_remainsAI : public ScriptedAI
 
             if (!m_creature->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE))
             {
-                if (!m_creature->SelectHostileTarget() || !m_creature->GetVictim())
-                    return;
+                if (!m_creature->SelectHostileTarget() || !m_creature->GetVictim()) return;
                 DoMeleeAttackIfReady();
             }
         }

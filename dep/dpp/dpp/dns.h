@@ -21,58 +21,56 @@
 #pragma once
 #include <dpp/export.h>
 #ifdef _WIN32
-#include <WS2tcpip.h>
 #include <WinSock2.h>
+#include <WS2tcpip.h>
 #else
-#include <netdb.h>
 #include <netinet/in.h>
+#include <netdb.h>
 #include <sys/socket.h>
 #endif
-#include <string>
 #include <sys/types.h>
+#include <string>
 #include <unordered_map>
 
-namespace dpp
-{
+namespace dpp {
 
-    /**
-     * @brief Represents a cached DNS result.
-     * Used by the ssl_client class to store cached copies of dns lookups.
-     */
-    struct dns_cache_entry
-    {
-        /**
-         * @brief Resolved address information
-         */
-        addrinfo addr;
+	/**
+	 * @brief Represents a cached DNS result.
+	 * Used by the ssl_client class to store cached copies of dns lookups.
+	 */
+	struct dns_cache_entry {
+		/**
+		 * @brief Resolved address information
+		 */
+		addrinfo addr;
 
-        /**
-         * @brief Socket address.
-         * Discord only supports ipv4, but sockaddr_in6 is larger
-         * than sockaddr_in, sockaddr_storage will hold either. This
-         * means that if discord ever do support ipv6 we just flip
-         * one value in dns.cpp and that should be all that is needed.
-         */
-        sockaddr_storage ai_addr;
+		/**
+		 * @brief Socket address.
+		 * Discord only supports ipv4, but sockaddr_in6 is larger
+		 * than sockaddr_in, sockaddr_storage will hold either. This
+		 * means that if discord ever do support ipv6 we just flip
+		 * one value in dns.cpp and that should be all that is needed.
+		 */
+		sockaddr_storage ai_addr;
 
-        /**
-         * @brief Time at which this cache entry is invalidated
-         */
-        time_t expire_timestamp;
-    };
+		/**
+		 * @brief Time at which this cache entry is invalidated
+		 */
+		time_t expire_timestamp;
+	};
 
-    /**
-     * @brief Cache container type
-     */
-    using dns_cache_t = std::unordered_map<std::string, dns_cache_entry*>;
+	/**
+	 * @brief Cache container type
+	 */
+	using dns_cache_t = std::unordered_map<std::string, dns_cache_entry*>;
 
-    /**
-     * @brief Resolve a hostname to an addrinfo
-     *
-     * @param hostname Hostname to resolve
-     * @param port A port number or named service, e.g. "80"
-     * @return dns_cache_entry* First IP address associated with the hostname DNS record
-     * @throw dpp::connection_exception On failure to resolve hostname
-     */
-    const dns_cache_entry* resolve_hostname(const std::string& hostname, const std::string& port);
-}; // namespace dpp
+	/**
+	 * @brief Resolve a hostname to an addrinfo
+	 * 
+	 * @param hostname Hostname to resolve
+	 * @param port A port number or named service, e.g. "80"
+	 * @return dns_cache_entry* First IP address associated with the hostname DNS record
+	 * @throw dpp::connection_exception On failure to resolve hostname
+	 */
+	const dns_cache_entry* resolve_hostname(const std::string& hostname, const std::string& port);
+};

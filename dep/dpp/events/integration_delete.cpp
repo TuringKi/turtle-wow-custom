@@ -2,7 +2,7 @@
  *
  * D++, A Lightweight C++ library for Discord
  *
- * Copyright 2021 Craig Edwards and D++ contributors
+ * Copyright 2021 Craig Edwards and D++ contributors 
  * (https://github.com/brainboxdotcc/DPP/graphs/contributors)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,38 +18,32 @@
  * limitations under the License.
  *
  ************************************************************************************/
-#include <dpp/cluster.h>
 #include <dpp/discordevents.h>
+#include <dpp/cluster.h>
 #include <dpp/integration.h>
-#include <dpp/nlohmann/json.hpp>
 #include <dpp/stringops.h>
+#include <dpp/nlohmann/json.hpp>
 
 using json = nlohmann::json;
 
-namespace dpp
-{
-    namespace events
-    {
+namespace dpp { namespace events {
 
-        using namespace dpp;
+using namespace dpp;
 
-        /**
-         * @brief Handle event
-         *
-         * @param client Websocket client (current shard)
-         * @param j JSON data for the event
-         * @param raw Raw JSON string
-         */
-        void integration_delete::handle(discord_client* client, json& j, const std::string& raw)
-        {
-            if (!client->creator->on_integration_delete.empty())
-            {
-                json& d = j["d"];
-                dpp::integration_delete_t id(client, raw);
-                id.deleted_integration = dpp::integration().fill_from_json(&d);
-                client->creator->on_integration_delete.call(id);
-            }
-        }
+/**
+ * @brief Handle event
+ * 
+ * @param client Websocket client (current shard)
+ * @param j JSON data for the event
+ * @param raw Raw JSON string
+ */
+void integration_delete::handle(discord_client* client, json &j, const std::string &raw) {
+	if (!client->creator->on_integration_delete.empty()) {
+		json& d = j["d"];
+		dpp::integration_delete_t id(client, raw);
+		id.deleted_integration = dpp::integration().fill_from_json(&d);
+		client->creator->on_integration_delete.call(id);
+	}
+}
 
-    } // namespace events
-}; // namespace dpp
+}};

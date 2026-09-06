@@ -17,7 +17,7 @@
 /* ScriptData
 SDName: Boss_Onyxia
 SD%Complete: 95
-SDComment: The Heated Ground spell has 12 spell Id triggers in total, which trips the
+SDComment: The Heated Ground spell has 12 spell Id triggers in total, which trips the 
            default stack overflow protection. Solutions are to either increase
            MaxSpellCastsInChain in mangosd.conf or break the chain up into two spells by
            disabling the 6th spell's trigger index in the spell_effect_mod table. This
@@ -29,8 +29,8 @@ SDCategory: Onyxia's Lair
 EndScriptData
 */
 
-#include "instance_onyxia_lair.h"
 #include "scriptPCH.h"
+#include "instance_onyxia_lair.h"
 
 enum
 {
@@ -64,7 +64,7 @@ enum
 
     SPELL_BREATH_SW_TO_NE = 18596, // 12x in "array"
     SPELL_BREATH_NE_TO_SW = 18617, // 12x in "array"
-
+        
     NPC_ONYXIAN_WHELP = 11262,
     NPC_ONYXIAN_WARDER = 12129,
     NPC_ERUPTION_TRIGGER = 20009,
@@ -92,18 +92,23 @@ struct sOnyxMove
     float fX, fY, fZ, fZGround;
 };
 
-static sOnyxMove aMoveData[] = {
-    {0, 4, SPELL_BREATH_NE_TO_SW, 10.2191f, -247.912f, -65.896f, -85.84668f}, // north-east
-    {1, 5, SPELL_BREATH_EAST_TO_WEST, -31.4963f, -250.123f, -65.1278f, -89.127853f}, // east
-    {2, 6, SPELL_BREATH_SE_TO_NW, -63.5156f, -240.096f, -65.477f, -85.066696f}, // south-east
+static sOnyxMove aMoveData[] =
+{
+    {0, 4, SPELL_BREATH_NE_TO_SW,        10.2191f, -247.912f, -65.896f,  -85.84668f},  // north-east
+    {1, 5, SPELL_BREATH_EAST_TO_WEST,   -31.4963f, -250.123f, -65.1278f, -89.127853f}, // east
+    {2, 6, SPELL_BREATH_SE_TO_NW,       -63.5156f, -240.096f, -65.477f,  -85.066696f}, // south-east
     {3, 7, SPELL_BREATH_SOUTH_TO_NORTH, -65.8444f, -213.809f, -65.2985f, -84.298462f}, // south
-    {4, 0, SPELL_BREATH_SW_TO_NE, -58.2509f, -189.020f, -65.790f, -85.292267f}, // south-west
-    {5, 1, SPELL_BREATH_WEST_TO_EAST, -33.5561f, -182.682f, -65.9457f, -88.945686f}, // west
-    {6, 2, SPELL_BREATH_NW_TO_SE, 6.8951f, -180.246f, -65.896f, -85.634293f}, // north-west
-    {7, 3, SPELL_BREATH_NORTH_TO_SOUTH, 22.8763f, -217.152f, -65.0548f, -85.054054f}, // north
+    {4, 0, SPELL_BREATH_SW_TO_NE,       -58.2509f, -189.020f, -65.790f,  -85.292267f}, // south-west
+    {5, 1, SPELL_BREATH_WEST_TO_EAST,   -33.5561f, -182.682f, -65.9457f, -88.945686f}, // west
+    {6, 2, SPELL_BREATH_NW_TO_SE,         6.8951f, -180.246f, -65.896f,  -85.634293f}, // north-west
+    {7, 3, SPELL_BREATH_NORTH_TO_SOUTH,  22.8763f, -217.152f, -65.0548f, -85.054054f}, // north
 };
 
-static float afSpawnLocations[2][3] = {{-30.127f, -254.463f, -89.440f}, {-30.817f, -177.106f, -89.258f}};
+static float afSpawnLocations[2][3] =
+{
+    { -30.127f, -254.463f, -89.440f},
+    { -30.817f, -177.106f, -89.258f}
+};
 
 struct boss_onyxiaAI : public ScriptedAI
 {
@@ -127,19 +132,19 @@ struct boss_onyxiaAI : public ScriptedAI
     uint32 m_uiFireballTimer;
     uint32 m_uiMovementTimer;
     uint32 m_uiDeepBreathTimer;
-    bool m_bDeepBreathIsCasting;
-    int m_uiMovePoint;
+    bool   m_bDeepBreathIsCasting;
+    int    m_uiMovePoint;
 
     sOnyxMove* m_pPointData;
 
     uint32 m_uiSummonWhelpsTimer;
     uint32 m_uiWhelpTimer;
-    uint8 m_uiSummonCount;
-    uint8 m_uiWhelpsToSummon;
-    bool m_bIsSummoningWhelps;
-
+    uint8  m_uiSummonCount;
+    uint8  m_uiWhelpsToSummon;
+    bool   m_bIsSummoningWhelps;
+    
     uint32 m_uiBellowingRoarTimer;
-    bool m_bEruptPhase;
+    bool   m_bEruptPhase;
 
     uint32 m_uiAggroRadiusTimer;
     uint32 m_uiLeashCheckTimer;
@@ -147,42 +152,42 @@ struct boss_onyxiaAI : public ScriptedAI
 
     ScriptedInstance* m_pInstance;
     std::list<GameObject*> GOListe;
-
+    
     void Reset() override
     {
-        m_uiPhase = PHASE_ONE;
-        m_bTransition = false;
-        m_uiTransTimer = 0;
-        m_uiTransCount = 0;
+        m_uiPhase              = PHASE_ONE;
+        m_bTransition          = false;
+        m_uiTransTimer         = 0;
+        m_uiTransCount         = 0;
 
-        m_uiFlameBreathTimer = urand(10000, 20000);
-        m_uiCleaveTimer = urand(2000, 5000);
-        m_uiWingBuffetTimer = urand(10000, 20000);
-        m_uiKnockAwayTimer = urand(15000, 25000);
-        m_uiTailSweepTimer = 5000;
+        m_uiFlameBreathTimer   = urand(10000, 20000);
+        m_uiCleaveTimer        = urand(2000, 5000);
+        m_uiWingBuffetTimer    = urand(10000, 20000);
+        m_uiKnockAwayTimer     = urand(15000, 25000);
+        m_uiTailSweepTimer     = 5000;
 
-        m_uiFireballTimer = 3000;
-        m_uiMovementTimer = 20000;
-        m_uiMovePoint = 7; // set North as the initial Phase 2 waypoint
-        m_pPointData = GetMoveData();
-        m_uiDeepBreathTimer = 0;
+        m_uiFireballTimer      = 3000;
+        m_uiMovementTimer      = 20000;
+        m_uiMovePoint          = 7; // set North as the initial Phase 2 waypoint
+        m_pPointData           = GetMoveData();
+        m_uiDeepBreathTimer    = 0;
         m_bDeepBreathIsCasting = false;
 
-        m_uiSummonWhelpsTimer = 5000;
-        m_uiWhelpTimer = 1000;
-        m_uiSummonCount = 0;
-        m_uiWhelpsToSummon = 16;
-        m_bIsSummoningWhelps = false;
+        m_uiSummonWhelpsTimer  = 5000;
+        m_uiWhelpTimer         = 1000;
+        m_uiSummonCount        = 0;
+        m_uiWhelpsToSummon     = 16;
+        m_bIsSummoningWhelps   = false;
 
         m_uiBellowingRoarTimer = 10000;
-
-        m_uiAggroRadiusTimer = 5000;
-        m_uiLeashCheckTimer = 5000;
-        m_uiSummonCheckTimer = 5000;
+        
+        m_uiAggroRadiusTimer   = 5000;
+        m_uiLeashCheckTimer    = 5000;
+        m_uiSummonCheckTimer   = 5000;
 
         if (m_pInstance)
             m_pInstance->SetData(DATA_ONYXIA_EVENT, NOT_STARTED);
-
+        
         SetCombatMovement(true);
         m_creature->SetSpeedRate(MOVE_RUN, ONYXIA_NORMAL_SPEED);
         m_creature->SetFloatValue(UNIT_FIELD_BOUNDINGRADIUS, 15.0f);
@@ -209,7 +214,7 @@ struct boss_onyxiaAI : public ScriptedAI
         DelayEventIfNeed(m_uiWingBuffetTimer, delay);
         DelayEventIfNeed(m_uiKnockAwayTimer, delay);
     }
-
+    
     void CheckForTargetsInAggroRadius(uint32 uiDiff)
     {
         // There is a grid-related bug preventing Onyxia from receiving MoveInLineOfSight calls from units in the front of her chamber, so use this check instead.
@@ -267,7 +272,7 @@ struct boss_onyxiaAI : public ScriptedAI
         /** Teleport victim to the center of the chamber if too far away from Onyxia */
         if (Unit* pVictim = m_creature->GetVictim())
         {
-            if (isOnyxiaFlying() && !m_creature->IsMoving())
+            if (isOnyxiaFlying() && !m_creature->IsMoving()) 
             {
                 if (pVictim->GetPositionX() < -105.0f)
                     pVictim->NearTeleportTo(-12.866907f, -216.626007f, -88.057808f, 0.0f);
@@ -275,9 +280,9 @@ struct boss_onyxiaAI : public ScriptedAI
             else if (!isOnyxiaFlying())
             {
                 if (m_creature->GetDistance2d(pVictim) > 90.0f)
-                    pVictim->NearTeleportTo(-12.866907f, -216.626007f, -88.057808f, 0.0f);
+                    pVictim->NearTeleportTo(-12.866907f, -216.626007f, -88.057808f, 0.0f); 
             }
-        }
+       } 
     }
 
     void Aggro(Unit* pWho) override
@@ -309,11 +314,11 @@ struct boss_onyxiaAI : public ScriptedAI
         GetCreatureListWithEntryInGrid(WhelpList, m_creature, NPC_ONYXIAN_WHELP, 200.0f);
         for (const auto& itr : WhelpList)
             itr->ForcedDespawn();
-
+        
         ScriptedAI::EnterEvadeMode();
     }
-
-    void JustSummoned(Creature* pSummoned) override
+    
+    void JustSummoned(Creature *pSummoned) override
     {
         if (Unit* pTarget = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 0))
             pSummoned->AI()->AttackStart(pTarget);
@@ -321,10 +326,16 @@ struct boss_onyxiaAI : public ScriptedAI
         ++m_uiSummonCount;
     }
 
-    void KilledUnit(Unit* pVictim) override { DoScriptText(SAY_KILL, m_creature); }
+    void KilledUnit(Unit* pVictim) override
+    {
+        DoScriptText(SAY_KILL, m_creature);
+    }
 
-    bool isOnyxiaFlying() { return m_creature->HasAura(SPELL_HOVER); }
-
+    bool isOnyxiaFlying()
+    {
+        return m_creature->HasAura(SPELL_HOVER);
+    }
+   
     sOnyxMove* GetMoveData()
     {
         uint32 uiMaxCount = sizeof(aMoveData) / sizeof(sOnyxMove);
@@ -336,7 +347,7 @@ struct boss_onyxiaAI : public ScriptedAI
 
         return nullptr;
     }
-
+    
     void PhaseOne(uint32 uiDiff)
     {
         if (m_creature->IsFlying())
@@ -345,7 +356,7 @@ struct boss_onyxiaAI : public ScriptedAI
             m_creature->SetFly(false);
             m_creature->SetLevitate(false);
         }
-
+        
         if (m_uiFlameBreathTimer < uiDiff)
         {
             if (DoCastSpellIfCan(m_creature->GetVictim(), SPELL_FLAMEBREATH) == CAST_OK)
@@ -493,15 +504,15 @@ struct boss_onyxiaAI : public ScriptedAI
         m_pPointData = GetMoveData();
 
         uint32 roll = urand(0, 99);
-        if (roll < 35) // Move clockwise
+        if (roll < 35)          // Move clockwise
         {
             m_uiMovePoint = (m_uiMovePoint + 1) % 8;
         }
-        else if (roll < 70) // Move counter-clockwise
+        else if (roll < 70)     // Move counter-clockwise
         {
             m_uiMovePoint = (m_uiMovePoint + 8 - 1) % 8;
         }
-        else // Deep Breath
+        else                    // Deep Breath
         {
             m_uiMovePoint = (m_uiMovePoint + 4) % 8;
             DoScriptText(EMOTE_BREATH, m_creature);
@@ -528,7 +539,7 @@ struct boss_onyxiaAI : public ScriptedAI
         {
             if (DoCastSpellIfCan(m_creature, SPELL_BELLOWINGROAR, true) == CAST_OK)
             {
-                // DoScriptText(EMOTE_ROAR, m_creature);
+                //DoScriptText(EMOTE_ROAR, m_creature);
                 m_uiBellowingRoarTimer = urand(15000, 30000);
                 // Do not be interrupted by other casts.
                 DelayCastEvents(2000);
@@ -541,18 +552,14 @@ struct boss_onyxiaAI : public ScriptedAI
         {
             switch (urand(0, 1))
             {
-            case 0:
-                m_creature->SummonCreature(NPC_ONYXIAN_WHELP, afSpawnLocations[0][0], afSpawnLocations[0][1], afSpawnLocations[0][2], 0.0f, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 120000);
-                break;
-            case 1:
-                m_creature->SummonCreature(NPC_ONYXIAN_WHELP, afSpawnLocations[1][0], afSpawnLocations[1][1], afSpawnLocations[1][2], 0.0f, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 120000);
-                break;
+                case 0: m_creature->SummonCreature(NPC_ONYXIAN_WHELP, afSpawnLocations[0][0], afSpawnLocations[0][1], afSpawnLocations[0][2], 0.0f, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 120000); break;
+                case 1: m_creature->SummonCreature(NPC_ONYXIAN_WHELP, afSpawnLocations[1][0], afSpawnLocations[1][1], afSpawnLocations[1][2], 0.0f, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 120000); break;
             }
             m_uiSummonWhelpsTimer = urand(1000, 10000);
         }
         else
             m_uiSummonWhelpsTimer -= uiDiff;
-
+        
         PhaseOne(uiDiff);
     }
 
@@ -580,7 +587,7 @@ struct boss_onyxiaAI : public ScriptedAI
             /** Take off in progress */
             else if (m_uiTransTimer < uiDiff && m_uiTransCount == 1)
             {
-                // m_creature->InterruptNonMeleeSpells(false);
+                //m_creature->InterruptNonMeleeSpells(false);
                 m_creature->GetMotionMaster()->Clear(false);
                 m_creature->GetMotionMaster()->MoveIdle();
                 m_creature->GetMotionMaster()->MovePoint(0, -57.204933f, -215.592148f, -85.156929f, MOVE_PATHFINDING | MOVE_FLY_MODE);
@@ -597,7 +604,7 @@ struct boss_onyxiaAI : public ScriptedAI
                 // increase Onyxia's hitbox while in the air to make it slightly easier for melee to use specials on her
                 m_creature->SetFloatValue(UNIT_FIELD_BOUNDINGRADIUS, 21.0f);
                 m_creature->SetFloatValue(UNIT_FIELD_COMBATREACH, 22.0f);
-
+                
                 m_pPointData = GetMoveData();
                 m_creature->GetMotionMaster()->MovePoint(m_pPointData->uiLocId, m_pPointData->fX, m_pPointData->fY, m_pPointData->fZ, MOVE_PATHFINDING | MOVE_FLY_MODE);
             }
@@ -616,7 +623,7 @@ struct boss_onyxiaAI : public ScriptedAI
                 if (m_creature->GetPositionX() < -40.0f)
                     m_creature->GetMotionMaster()->MovePoint(LANDING_FLIGHT, -59.895f, -214.876f, -84.855f, MOVE_FLY_MODE); // South
                 else
-                    m_creature->GetMotionMaster()->MovePoint(LANDING_FLIGHT, -8.86f, -212.752f, -88.542f, MOVE_FLY_MODE); // North
+                    m_creature->GetMotionMaster()->MovePoint(LANDING_FLIGHT, -8.86f, -212.752f, -88.542f, MOVE_FLY_MODE);   // North
 
                 m_creature->RemoveAurasDueToSpell(17131); /** Stop flying */
                 m_creature->SetFloatValue(UNIT_FIELD_BOUNDINGRADIUS, 15.0f);
@@ -632,21 +639,21 @@ struct boss_onyxiaAI : public ScriptedAI
             }
             /** Landed. Restore target and start combat movement.*/
             else if (m_uiTransTimer < uiDiff && m_uiTransCount == 4)
-            {
+            {               
                 if (Unit* pVictim = m_creature->GetVictim())
-                    m_creature->SetTargetGuid(pVictim->GetObjectGuid());
+                    m_creature->SetTargetGuid(pVictim->GetObjectGuid()); 
 
                 SetCombatMovement(true);
                 m_creature->GetMotionMaster()->MoveChase(m_creature->GetVictim());
 
-                m_bTransition = false;
+                m_bTransition  = false;
                 m_uiTransTimer = 0;
 
-                m_uiFlameBreathTimer = urand(10000, 15000);
-                m_uiTailSweepTimer = 5000;
-                m_uiCleaveTimer = urand(2000, 5000);
-                m_uiWingBuffetTimer = urand(10000, 20000);
-                m_uiKnockAwayTimer = urand(10000, 20000);
+                m_uiFlameBreathTimer   = urand(10000, 15000);
+                m_uiTailSweepTimer     = 5000;
+                m_uiCleaveTimer        = urand(2000, 5000);
+                m_uiWingBuffetTimer    = urand(10000, 20000);
+                m_uiKnockAwayTimer     = urand(10000, 20000);
             }
         }
 
@@ -663,29 +670,29 @@ struct boss_onyxiaAI : public ScriptedAI
         if (uiPointId == m_pPointData->uiLocId)
         {
             if (Unit* pVictim = m_creature->GetVictim())
-                m_creature->SetTargetGuid(pVictim->GetObjectGuid());
+                m_creature->SetTargetGuid(pVictim->GetObjectGuid()); 
         }
 
         switch (uiPointId)
         {
-        case DEPART_FLIGHT:
-            m_creature->SetOrientation(0.0f);
-            m_uiTransTimer = 1000;
-            m_uiTransCount = 1;
-            m_creature->SetFly(true);
-            m_creature->SetLevitate(true);
-            m_creature->HandleEmote(EMOTE_ONESHOT_LIFTOFF);
-            break;
-        case LANDING_FLIGHT:
-            m_creature->SetOrientation(0.0f);
-            m_uiTransTimer = 1000;
-            m_uiTransCount = 3;
-            m_creature->SetFly(false);
-            m_creature->SetLevitate(false);
-            m_creature->HandleEmote(EMOTE_ONESHOT_LAND);
-            m_creature->CastSpell(m_creature, SPELL_BELLOWINGROAR, true);
-            m_uiBellowingRoarTimer = urand(15000, 30000);
-            break;
+            case DEPART_FLIGHT:
+                m_creature->SetOrientation(0.0f);
+                m_uiTransTimer = 1000;
+                m_uiTransCount = 1;
+                m_creature->SetFly(true);
+                m_creature->SetLevitate(true);
+                m_creature->HandleEmote(EMOTE_ONESHOT_LIFTOFF);
+                break;
+            case LANDING_FLIGHT:
+                m_creature->SetOrientation(0.0f);
+                m_uiTransTimer = 1000;
+                m_uiTransCount = 3;
+                m_creature->SetFly(false);
+                m_creature->SetLevitate(false);
+                m_creature->HandleEmote(EMOTE_ONESHOT_LAND);
+                m_creature->CastSpell(m_creature, SPELL_BELLOWINGROAR, true);
+                m_uiBellowingRoarTimer = urand (15000, 30000);
+                break;
         }
     }
 
@@ -695,20 +702,20 @@ struct boss_onyxiaAI : public ScriptedAI
 
         if (!m_creature->SelectHostileTarget() || !m_creature->GetVictim())
             return;
-
+        
         /** whenever Onyxia is moving to a waypoint or casting Deep Breath, clear her target */
         if (m_bTransition || m_bDeepBreathIsCasting || (m_uiPhase == PHASE_TWO && m_creature->IsMoving()))
-            m_creature->SetTargetGuid(ObjectGuid());
+            m_creature->SetTargetGuid(ObjectGuid()); 
 
         if (m_bTransition)
         {
             PhaseTransition(uiDiff, false);
             return;
         }
-
+        
         LeashIfOutOfCombatArea(uiDiff);
-
-        SummonPlayerIfOutOfReach(uiDiff);
+        
+        SummonPlayerIfOutOfReach(uiDiff); 
 
         /** Switch to P3 */
         if (m_creature->GetHealthPercent() < 40.0f && m_uiPhase == PHASE_TWO && !m_creature->IsMoving() && !m_bDeepBreathIsCasting)
@@ -729,31 +736,42 @@ struct boss_onyxiaAI : public ScriptedAI
 
         switch (m_uiPhase)
         {
-        case PHASE_ONE:
-            PhaseOne(uiDiff);
-            break;
-        case PHASE_TWO:
-            PhaseTwo(uiDiff);
-            break;
-        case PHASE_THREE:
-            PhaseThree(uiDiff);
-            break;
-        default:
-            break;
+            case PHASE_ONE:
+                PhaseOne(uiDiff);
+                break;
+            case PHASE_TWO:
+                PhaseTwo(uiDiff);
+                break;
+            case PHASE_THREE:
+                PhaseThree(uiDiff);
+                break;
+            default:
+                break;
         }
     }
 };
 
-CreatureAI* GetAI_boss_onyxiaAI(Creature* pCreature) { return new boss_onyxiaAI(pCreature); }
-
-struct OnyxianWhelpAI : public ScriptedAI
+CreatureAI* GetAI_boss_onyxiaAI(Creature* pCreature)
 {
-    OnyxianWhelpAI(Creature* pCreature) : ScriptedAI(pCreature) { Reset(); }
+    return new boss_onyxiaAI(pCreature);
+}
+
+struct OnyxianWhelpAI: public ScriptedAI
+{
+    OnyxianWhelpAI(Creature* pCreature) : ScriptedAI(pCreature)
+    {
+        Reset();
+    }
 
 
-    void Reset() override {}
+    void Reset() override
+    {
+    }
 
-    void Aggro(Unit* pWho) override { m_creature->SetInCombatWithZone(); }
+    void Aggro(Unit* pWho) override
+    {
+        m_creature->SetInCombatWithZone();
+    }
 
     void UpdateAI(const uint32 uiDiff) override
     {
@@ -764,11 +782,14 @@ struct OnyxianWhelpAI : public ScriptedAI
     }
 };
 
-CreatureAI* GetAI_npc_onyxian_whelp(Creature* pCreature) { return new OnyxianWhelpAI(pCreature); }
+CreatureAI* GetAI_npc_onyxian_whelp(Creature* pCreature)
+{
+    return new OnyxianWhelpAI(pCreature);
+}
 
 void AddSC_boss_onyxia()
 {
-    Script* newscript;
+    Script *newscript;
     newscript = new Script;
     newscript->Name = "boss_onyxia";
     newscript->GetAI = &GetAI_boss_onyxiaAI;
@@ -892,7 +913,7 @@ INSERT INTO spell_target_position VALUES (21138, 249, -123.328560, -213.607910, 
 INSERT INTO spell_target_position VALUES (21139, 249, -130.788300, -213.424026, -70.751007, 3.142);
 
 -- SPELL_HEATED_GROUND
-DELETE FROM spell_target_position WHERE id BETWEEN 22191 AND 22202;
+DELETE FROM spell_target_position WHERE id BETWEEN 22191 AND 22202; 
 INSERT INTO `spell_target_position` (`id`, `target_map`, `target_position_x`, `target_position_y`, `target_position_z`, `target_orientation`) VALUES ('22191', '249', '-52.5138', '-277.7293', '-92.7831', '0');
 INSERT INTO `spell_target_position` (`id`, `target_map`, `target_position_x`, `target_position_y`, `target_position_z`, `target_orientation`) VALUES ('22192', '249', '-31.4963', '-250.1230', '-65.1278', '0');
 INSERT INTO `spell_target_position` (`id`, `target_map`, `target_position_x`, `target_position_y`, `target_position_z`, `target_orientation`) VALUES ('22193', '249', '-82.0559', '-263.803', '-93.9232', '0');

@@ -19,10 +19,10 @@
 #ifndef SHOP_MGR_H
 #define SHOP_MGR_H
 
-#include <mutex>
 #include "Common.h"
-#include "Platform/Define.h"
 #include "SharedDefines.h"
+#include "Platform/Define.h"
+#include <mutex>
 
 struct ShopRequest
 {
@@ -34,17 +34,16 @@ struct ShopRequest
 
 class ShopMgr
 {
-public:
-    bool RequestBalance(uint32 accountId);
-    bool RequestPurchase(uint32 accountId, uint32 guidLow, uint32 itemId);
-    void ProcessRequestsWorker();
+    public:
+        bool RequestBalance(uint32 accountId);
+        bool RequestPurchase(uint32 accountId, uint32 guidLow, uint32 itemId);
+        void ProcessRequestsWorker();
+    private:
+        int32 GetBalance(uint32 accountId);
+        void BuyItem(uint32 accountId, uint32 guidLow, uint32 itemId);
 
-private:
-    int32 GetBalance(uint32 accountId);
-    void BuyItem(uint32 accountId, uint32 guidLow, uint32 itemId);
-
-    std::vector<ShopRequest> m_pendingRequests;
-    std::mutex m_mutex;
+        std::vector<ShopRequest> m_pendingRequests;
+        std::mutex m_mutex;
 };
 
 extern ShopMgr sShopMgr;

@@ -4,17 +4,21 @@
 
 namespace nsCleric
 {
-    static constexpr uint32 SPELL_SHADOW_WORD_PAIN{10894};
-    static constexpr uint32 SPELL_GREATER_HEAL{10965};
-    static constexpr uint32 SPELL_IMMOLATE{11668};
-}; // namespace nsCleric
+    static constexpr uint32 SPELL_SHADOW_WORD_PAIN{ 10894 };
+    static constexpr uint32 SPELL_GREATER_HEAL{ 10965 };
+    static constexpr uint32 SPELL_IMMOLATE{ 11668 };
+};
 
 class mob_hateforge_clericAI : public ScriptedAI
 {
 public:
-    explicit mob_hateforge_clericAI(Creature* pCreature) : ScriptedAI(pCreature) { mob_hateforge_clericAI::Reset(); }
+    explicit mob_hateforge_clericAI(Creature* pCreature) : ScriptedAI(pCreature)
+    {
+        mob_hateforge_clericAI::Reset();
+    }
 
 private:
+
     bool m_bShadowWordPainAlreadyCastedOnce{};
     uint32 m_uiHealNearbyAllies_Timer{};
 
@@ -29,7 +33,7 @@ public:
     {
         if (m_uiHealNearbyAllies_Timer < uiDiff)
         {
-            if (Unit * pFriendlyTarget{m_creature->FindLowestHpFriendlyUnit(40.f)})
+            if (Unit* pFriendlyTarget{ m_creature->FindLowestHpFriendlyUnit(40.f) })
             {
                 if (DoCastSpellIfCan(pFriendlyTarget, nsCleric::SPELL_GREATER_HEAL) == CanCastResult::CAST_OK)
                 {
@@ -62,21 +66,28 @@ public:
     }
 };
 
-CreatureAI* GetAI_mob_hateforge_clericAI(Creature* pCreature) { return new mob_hateforge_clericAI(pCreature); }
+CreatureAI* GetAI_mob_hateforge_clericAI(Creature* pCreature)
+{
+    return new mob_hateforge_clericAI(pCreature);
+}
 
 
 namespace nsTaskMaster
 {
-    static constexpr uint32 SPELL1{56522};
-    static constexpr uint32 SPELL2{13608};
-}; // namespace nsTaskMaster
+    static constexpr uint32 SPELL1{ 56522 };
+    static constexpr uint32 SPELL2{ 13608 };
+};
 
 class mob_hateforge_taskmasterAI : public ScriptedAI
 {
 public:
-    explicit mob_hateforge_taskmasterAI(Creature* pCreature) : ScriptedAI(pCreature) { mob_hateforge_taskmasterAI::Reset(); }
+    explicit mob_hateforge_taskmasterAI(Creature* pCreature) : ScriptedAI(pCreature)
+    {
+        mob_hateforge_taskmasterAI::Reset();
+    }
 
 private:
+
     bool m_bSpell1_AlreadyCasted{};
     uint32 m_uiSpell1_Timer{};
     uint32 m_uiSpell2_Timer{};
@@ -93,7 +104,7 @@ public:
     {
         if (m_uiSpell1_Timer < uiDiff)
         {
-            if (Unit * pFriendlyTarget{m_creature->SelectRandomFriendlyTarget(nullptr, 5.f)})
+            if (Unit* pFriendlyTarget{ m_creature->SelectRandomFriendlyTarget(nullptr, 5.f) })
             {
                 if (DoCastSpellIfCan(pFriendlyTarget, nsTaskMaster::SPELL1) == CanCastResult::CAST_OK)
                 {
@@ -138,20 +149,27 @@ public:
     }
 };
 
-CreatureAI* GetAI_mob_hateforge_taskmasterAI(Creature* pCreature) { return new mob_hateforge_taskmasterAI(pCreature); }
+CreatureAI* GetAI_mob_hateforge_taskmasterAI(Creature* pCreature)
+{
+    return new mob_hateforge_taskmasterAI(pCreature);
+}
 
 
 namespace nsFireblade
 {
-    static constexpr uint32 SPELL{56524};
+    static constexpr uint32 SPELL{ 56524 };
 };
 
 class mob_twilight_firebladeAI : public ScriptedAI
 {
 public:
-    explicit mob_twilight_firebladeAI(Creature* pCreature) : ScriptedAI(pCreature) { mob_twilight_firebladeAI::Reset(); }
-
+    explicit mob_twilight_firebladeAI(Creature* pCreature) : ScriptedAI(pCreature)
+    {
+        mob_twilight_firebladeAI::Reset();
+    }
+    
 private:
+
     bool m_bSpellAlreadyCastedOnce{};
     uint32 m_uiSpell_Timer{};
 
@@ -166,7 +184,7 @@ public:
     {
         if (m_uiSpell_Timer < uiDiff)
         {
-            if (Unit * pFriendlyTarget{m_creature->SelectRandomFriendlyTarget(nullptr, 10.f)})
+            if (Unit* pFriendlyTarget{ m_creature->SelectRandomFriendlyTarget(nullptr, 10.f) })
             {
                 if (DoCastSpellIfCan(pFriendlyTarget, nsFireblade::SPELL) == CanCastResult::CAST_OK)
                 {
@@ -194,8 +212,39 @@ public:
     }
 };
 
-CreatureAI* GetAI_mob_twilight_firebladeAI(Creature* pCreature) { return new mob_twilight_firebladeAI(pCreature); }
+CreatureAI* GetAI_mob_twilight_firebladeAI(Creature* pCreature)
+{
+    return new mob_twilight_firebladeAI(pCreature);
+}
 
+class spell_hateforge_dispel_counterpart : public AuraScript
+{
+public:
+    void OnDispel(SpellAuraHolder* holder, Unit* target, Spell* /*dispelSpell*/, uint32 /*dispelCount*/) override
+    {
+        if (!holder || !target || target->GetMapId() != 807)
+            return;
+
+        uint32 counterpartAura = 0;
+        switch (holder->GetId())
+        {
+            case 56508: counterpartAura = 56509; break;
+            case 56510: counterpartAura = 56511; break;
+            case 56512: counterpartAura = 56513; break;
+            case 56514: counterpartAura = 56515; break;
+            case 56516: counterpartAura = 56517; break;
+            default: break;
+        }
+
+        if (counterpartAura && !target->HasAura(counterpartAura))
+            target->AddAura(counterpartAura);
+    }
+};
+
+AuraScript* GetScript_HateforgeDispelCounterpart(SpellEntry const*)
+{
+    return new spell_hateforge_dispel_counterpart();
+}
 
 void AddSC_trash_mobs_hateforge_quarry()
 {
@@ -214,5 +263,10 @@ void AddSC_trash_mobs_hateforge_quarry()
     pNewscript = new Script;
     pNewscript->Name = "mob_twilight_fireblade";
     pNewscript->GetAI = &GetAI_mob_twilight_firebladeAI;
+    pNewscript->RegisterSelf();
+
+    pNewscript = new Script;
+    pNewscript->Name = "spell_hateforge_dispel_counterpart";
+    pNewscript->GetAuraScript = &GetScript_HateforgeDispelCounterpart;
     pNewscript->RegisterSelf();
 }

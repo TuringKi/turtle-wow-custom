@@ -1,29 +1,32 @@
 /*
- * From TC with mods
- */
+* From TC with mods
+*/
 
 #pragma once
 
-#include <asio/deadline_timer.hpp>
+#include "Platform/Define.h"
+#include "Errors.h"
+#include "Log.h"
+#include "Timer.h"
 #include <asio/ip/tcp.hpp>
+#include <asio/deadline_timer.hpp>
 #include <atomic>
 #include <chrono>
 #include <memory>
 #include <mutex>
 #include <set>
 #include <thread>
-#include "Errors.h"
-#include "Log.h"
-#include "Platform/Define.h"
-#include "Timer.h"
 
 using asio::ip::tcp;
 
-template <class SocketType>
+template<class SocketType>
 class NetworkThread
 {
 public:
-    NetworkThread() : _connections(0), _stopped(false), _thread(nullptr), _ioContext(1), _acceptSocket(_ioContext), _updateTimer(_ioContext) {}
+    NetworkThread() : _connections(0), _stopped(false), _thread(nullptr), _ioContext(1),
+        _acceptSocket(_ioContext), _updateTimer(_ioContext)
+    {
+    }
 
     virtual ~NetworkThread()
     {
@@ -59,7 +62,10 @@ public:
         _thread = nullptr;
     }
 
-    int32 GetConnectionCount() const { return _connections; }
+    int32 GetConnectionCount() const
+    {
+        return _connections;
+    }
 
     virtual void AddSocket(std::shared_ptr<SocketType> sock)
     {
@@ -73,8 +79,8 @@ public:
     tcp::socket* GetSocketForAccept() { return &_acceptSocket; }
 
 protected:
-    virtual void SocketAdded(std::shared_ptr<SocketType> /*sock*/) {}
-    virtual void SocketRemoved(std::shared_ptr<SocketType> /*sock*/) {}
+    virtual void SocketAdded(std::shared_ptr<SocketType> /*sock*/) { }
+    virtual void SocketRemoved(std::shared_ptr<SocketType> /*sock*/) { }
 
     void AddNewSockets()
     {
@@ -121,23 +127,21 @@ protected:
 
         AddNewSockets();
 
-        _sockets.erase(std::remove_if(_sockets.begin(), _sockets.end(),
-                                      [this](std::shared_ptr<SocketType> sock)
-                                      {
-                                          if (!sock->Update())
-                                          {
-                                              if (sock->IsOpen())
-                                                  sock->CloseSocket();
+        _sockets.erase(std::remove_if(_sockets.begin(), _sockets.end(), [this](std::shared_ptr<SocketType> sock)
+        {
+            if (!sock->Update())
+            {
+                if (sock->IsOpen())
+                    sock->CloseSocket();
 
-                                              this->SocketRemoved(sock);
+                this->SocketRemoved(sock);
 
-                                              --this->_connections;
-                                              return true;
-                                          }
+                --this->_connections;
+                return true;
+            }
 
-                                          return false;
-                                      }),
-                       _sockets.end());
+            return false;
+        }), _sockets.end());
     }
 
 private:

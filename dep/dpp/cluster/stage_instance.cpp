@@ -18,18 +18,25 @@
  * limitations under the License.
  *
  ************************************************************************************/
-#include <dpp/restrequest.h>
 #include <dpp/stage_instance.h>
+#include <dpp/restrequest.h>
 
-namespace dpp
-{
+namespace dpp {
 
-    void cluster::stage_instance_create(const stage_instance& si, command_completion_event_t callback) { rest_request<stage_instance>(this, API_PATH "/stage-instances", "", "", m_post, si.build_json(), callback); }
+void cluster::stage_instance_create(const stage_instance& si, command_completion_event_t callback) {
+	rest_request<stage_instance>(this, API_PATH "/stage-instances", "", "", m_post, si.build_json(), callback);
+}
 
-    void cluster::stage_instance_get(const snowflake channel_id, command_completion_event_t callback) { rest_request<stage_instance>(this, API_PATH "/stage-instances", std::to_string(channel_id), "", m_get, "", callback); }
+void cluster::stage_instance_get(const snowflake channel_id, command_completion_event_t callback) {
+	rest_request<stage_instance>(this, API_PATH "/stage-instances", std::to_string(channel_id), "", m_get, "", callback);
+}
 
-    void cluster::stage_instance_edit(const stage_instance& si, command_completion_event_t callback) { rest_request<stage_instance>(this, API_PATH "/stage-instances", std::to_string(si.channel_id), "", m_patch, si.build_json(), callback); }
+void cluster::stage_instance_edit(const stage_instance& si, command_completion_event_t callback) {
+	rest_request<stage_instance>(this, API_PATH "/stage-instances", std::to_string(si.channel_id), "", m_patch, si.build_json(), callback);
+}
 
-    void cluster::stage_instance_delete(const snowflake channel_id, command_completion_event_t callback) { rest_request<confirmation>(this, API_PATH "/stage-instances", std::to_string(channel_id), "", m_delete, "", callback); }
+void cluster::stage_instance_delete(const snowflake channel_id, command_completion_event_t callback) {
+	rest_request<confirmation>(this, API_PATH "/stage-instances", std::to_string(channel_id), "", m_delete, "", callback);
+}
 
-}; // namespace dpp
+};

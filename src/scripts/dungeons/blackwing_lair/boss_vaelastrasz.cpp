@@ -21,9 +21,9 @@ SDComment: Burning Adrenaline not correctly implemented in core
 SDCategory: Blackwing Lair
 EndScriptData */
 
-#include <Autoscaling/AutoScaler.hpp>
-#include "blackwing_lair.h"
 #include "scriptPCH.h"
+#include "blackwing_lair.h"
+#include <Autoscaling/AutoScaler.hpp>
 
 enum
 {
@@ -38,64 +38,63 @@ enum
     SAY_LINE_3 = -1469028,
     SAY_HALFLIFE = -1469029,
     SAY_KILLTARGET = -1469030,
-    SAY_NEFARIUS_CORRUPT_1 = -1469006, // When he corrupts Vaelastrasz
+    SAY_NEFARIUS_CORRUPT_1 = -1469006,                 // When he corrupts Vaelastrasz
     SAY_NEFARIUS_CORRUPT_2 = -1469037,
     // Spells
     // ------
 
     // OK
     // This debuff is cast on the raid at the beginning of the encounter and lasts for 3 minutes. Restores 500 Mana per second to mana users. Restores 50 Energy per second to Rogues and Cat Form Druids. Generates 20 Rage per second for Warriors and Bear Form Druids. It essentially means players have infinite mana/rage/energy/runic power for the fight. It is not dispellable, but can be removed by Ice Block or Divine Shield (which is not advised because of it buffing a players damage at such an incredible rate).
-    SPELL_ESSENCE_OF_THE_RED = 23513,
+    SPELL_ESSENCE_OF_THE_RED    = 23513,
 
     // OK
     // Inflicts 3063 to 3937 (3500 to 4500?) Fire damage to enemies in a cone in front of the caster. Every flame breath applies a stacking debuff (also called flame breath) that ticks for 1000ish fire damage every few seconds. Its maximum level, which is always reached by the time the MT is burning, ticks for 4600 damage. This debuff plays a huge role. Early in the rotation, the MT takes only 1200dps or so. By the time they are burning, they're taking more like 2000dps. The difference is all in this attack.
-    SPELL_FLAME_BREATH = 23461,
+    SPELL_FLAME_BREATH          = 23461,
 
     // OK
     // Inflicts 555-645 Fire damage to nearby enemies.
-    SPELL_FIRE_NOVA = 23462,
+    SPELL_FIRE_NOVA             = 23462,
 
     // OK
     // Inflicts 925 to 1075 (600 à 700) damage on enemies in a cone behind the caster, knocking them back.
-    SPELL_TAIL_SWEEP = 15847,
+    SPELL_TAIL_SWEEP            = 15847,
 
     // TO FIX : explode at the end
     // Damage done increased by 100%. Attack speed increased by 100%. Spells become instant cast. Reduces max health by 5% every second; eventually causes player to die. Vael only casts Burning Adrenaline in two scenarios: He will cast it on random mana users every 15 seconds and he will cast it on the current tank every 45 seconds. When mana-using raid members are afflicted, they must move away to a designated area or bomb the raid with a 4376 to 5624 AoE blast. Non mana users will not be afflicted unless they are currently tanking Vaelastrasz. Note that ice blocks or divine shield will not prevent this debuff from killing the player.
-    SPELL_BURNING_ADRENALINE = 23620, // 18173 ?
-    SPELL_BURNING_ADRENALINE2 = 23478, // AOE
-    SPELL_BURNING_ADRENALINE3 = 23644, // instakill
-    SPELL_BURNING_ADRENALINE4 = 24701, // -75% threat : easy mode ???
+    SPELL_BURNING_ADRENALINE    = 23620, // 18173 ?
+    SPELL_BURNING_ADRENALINE2   = 23478, // AOE
+    SPELL_BURNING_ADRENALINE3   = 23644, // instakill
+    SPELL_BURNING_ADRENALINE4   = 24701, // -75% threat : easy mode ???
     // See the heal of Kazzak
 
-    SPELL_CLEAVE = 19983,
+    SPELL_CLEAVE                = 19983,
 
-    SPELL_BANISHEMENT_OF_SCALE = 16404,
-    SPELL_NEFARIUS_CORRUPTION = 23642,
+    SPELL_BANISHEMENT_OF_SCALE  = 16404,
+    SPELL_NEFARIUS_CORRUPTION   = 23642,
 
-    FACTION_MONSTER = 14,
-    FACTION_FRIENDLY = 35,
+    FACTION_MONSTER             = 14,
+    FACTION_FRIENDLY            = 35,
 
-    MODEL_INVISIBLE = 11686,
+    MODEL_INVISIBLE             = 11686,
 
-    GOSSIP_TEXT_VAEL_1 = 7156,
-    GOSSIP_TEXT_VAEL_2 = 7256,
+    GOSSIP_TEXT_VAEL_1          = 7156,
+    GOSSIP_TEXT_VAEL_2          = 7256,
 
-    QUEST_NEFARIUS_CORRUPTION = 8730
+    QUEST_NEFARIUS_CORRUPTION   = 8730
 };
 
 // Coords used to spawn Nefarius at the throne
-static const float aNefariusSpawnLoc[4] = {-7466.16f, -1040.80f, 412.053f, 2.14675f};
+static const float aNefariusSpawnLoc[4] = { -7466.16f, -1040.80f, 412.053f, 2.14675f};
 
-#define GOSSIP_ITEM_VAEL_1 "I cannot, Vaelastrasz! Surely something can be done to heal you!"
-#define GOSSIP_ITEM_VAEL_2 "Vaelastrasz, no!!!"
+#define GOSSIP_ITEM_VAEL_1         "I cannot, Vaelastrasz! Surely something can be done to heal you!"
+#define GOSSIP_ITEM_VAEL_2         "Vaelastrasz, no!!!"
 
 struct boss_vaelAI : public ScriptedAI
 {
     boss_vaelAI(Creature* pCreature) : ScriptedAI(pCreature)
     {
         const auto dungeon_map = dynamic_cast<DungeonMap*>(pCreature->GetMap());
-        if (dungeon_map)
-        {
+        if (dungeon_map) {
             sAutoScaler->Scale(dungeon_map);
         }
         m_pInstance = (ScriptedInstance*)pCreature->GetInstanceData();
@@ -243,12 +242,7 @@ struct boss_vaelAI : public ScriptedAI
                 switch (m_uiIntroPhase)
                 {
                 case 0:
-                    if (Creature* pNefarius = m_creature->SummonCreature(NPC_LORD_NEFARIAN_VAEL, aNefariusSpawnLoc[0], aNefariusSpawnLoc[1], aNefariusSpawnLoc[2], aNefariusSpawnLoc[3], TEMPSUMMON_TIMED_DESPAWN, 25000, false, 25000,
-                                                                         [](Creature* pCreature)
-                                                                         {
-                                                                             pCreature->GetMotionMaster()->MoveIdle();
-                                                                             pCreature->SetAI(new NullCreatureAI(pCreature));
-                                                                         }))
+                    if (Creature *pNefarius = m_creature->SummonCreature(NPC_LORD_NEFARIAN_VAEL, aNefariusSpawnLoc[0], aNefariusSpawnLoc[1], aNefariusSpawnLoc[2], aNefariusSpawnLoc[3], TEMPSUMMON_TIMED_DESPAWN, 25000, false, 25000, [](Creature* pCreature) { pCreature->GetMotionMaster()->MoveIdle(); pCreature->SetAI(new NullCreatureAI(pCreature));}))
                     {
                         pNefarius->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                         m_nefariusGuid = pNefarius->GetObjectGuid();
@@ -311,7 +305,7 @@ struct boss_vaelAI : public ScriptedAI
             if (m_uiSelectableTimer < uiDiff)
             {
                 m_bCastedbanishment = false;
-                // m_uiSelectableTimer = 0;
+                //m_uiSelectableTimer = 0;
                 m_creature->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER | UNIT_NPC_FLAG_GOSSIP);
             }
             else
@@ -325,32 +319,32 @@ struct boss_vaelAI : public ScriptedAI
             {
                 switch (m_uiSpeechNum)
                 {
-                case 0:
-                    // 16 seconds till next line
-                    DoScriptText(SAY_LINE_2, m_creature);
-                    m_uiSpeechTimer = 16000;
-                    ++m_uiSpeechNum;
-                    break;
-                case 1:
-                    // This one is actually 16 seconds but we only go to 10 seconds because he starts attacking after he says "I must fight this!"
-                    // (French version should start attacking after 12 seconds)
-                    DoScriptText(SAY_LINE_3, m_creature);
-                    m_uiSpeechTimer = 10000;
-                    ++m_uiSpeechNum;
-                    break;
-                case 2:
-                    m_creature->SetFactionTemplateId(FACTION_MONSTER);
-                    if (m_playerGuid)
-                    {
-                        if (Player* pPlayer = m_creature->GetMap()->GetPlayer(m_playerGuid))
-                            AttackStart(pPlayer);
+                    case 0:
+                        // 16 seconds till next line
+                        DoScriptText(SAY_LINE_2, m_creature);
+                        m_uiSpeechTimer = 16000;
+                        ++m_uiSpeechNum;
+                        break;
+                    case 1:
+                        // This one is actually 16 seconds but we only go to 10 seconds because he starts attacking after he says "I must fight this!"
+                        // (French version should start attacking after 12 seconds)
+                        DoScriptText(SAY_LINE_3, m_creature);
+                        m_uiSpeechTimer = 10000;
+                        ++m_uiSpeechNum;
+                        break;
+                    case 2:
+                        m_creature->SetFactionTemplateId(FACTION_MONSTER);
+                        if (m_playerGuid)
+                        {
+                            if (Player* pPlayer = m_creature->GetMap()->GetPlayer(m_playerGuid))
+                                AttackStart(pPlayer);
 
-                        DoCastSpellIfCan(m_creature, SPELL_ESSENCE_OF_THE_RED);
-                        m_bCastedEssenceOfTheRed = true;
-                    }
-                    m_uiSpeechTimer = 0;
-                    m_bIsDoingSpeech = false;
-                    break;
+                            DoCastSpellIfCan(m_creature, SPELL_ESSENCE_OF_THE_RED);
+                            m_bCastedEssenceOfTheRed = true;
+                        }
+                        m_uiSpeechTimer = 0;
+                        m_bIsDoingSpeech = false;
+                        break;
                 }
             }
             else
@@ -448,15 +442,15 @@ bool GossipSelect_boss_vael(Player* pPlayer, Creature* pCreature, uint32 uiSende
 {
     switch (uiAction)
     {
-    case GOSSIP_ACTION_INFO_DEF + 1:
-        pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_VAEL_2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
-        pPlayer->SEND_GOSSIP_MENU(GOSSIP_TEXT_VAEL_2, pCreature->GetObjectGuid());
-        break;
-    case GOSSIP_ACTION_INFO_DEF + 2: // Fight Time
-        pPlayer->CLOSE_GOSSIP_MENU();
-        if (boss_vaelAI* pVaelAI = dynamic_cast<boss_vaelAI*>(pCreature->AI()))
-            pVaelAI->BeginSpeech((Unit*)pPlayer);
-        break;
+        case GOSSIP_ACTION_INFO_DEF+1:
+            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_VAEL_2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
+            pPlayer->SEND_GOSSIP_MENU(GOSSIP_TEXT_VAEL_2, pCreature->GetObjectGuid());
+            break;
+        case GOSSIP_ACTION_INFO_DEF+2: // Fight Time
+            pPlayer->CLOSE_GOSSIP_MENU();
+            if (boss_vaelAI* pVaelAI = dynamic_cast<boss_vaelAI*>(pCreature->AI()))
+                pVaelAI->BeginSpeech((Unit*)pPlayer);
+            break;
     }
 
     return true;
@@ -491,26 +485,29 @@ bool QuestAccept_vaelastrasz(Player* pPlayer, Creature* pCreature, const Quest* 
 
     if (pQuest->GetQuestId() == QUEST_NEFARIUS_CORRUPTION)
     {
-        // Only one may accept
-        if (m_pInstance->GetData(TYPE_SCEPTER_RUN) != NOT_STARTED)
-        {
-            pPlayer->FailQuest(QUEST_NEFARIUS_CORRUPTION);
-            return false;
-        }
+            // Only one may accept
+            if (m_pInstance->GetData(TYPE_SCEPTER_RUN) != NOT_STARTED)
+            {
+                pPlayer->FailQuest(QUEST_NEFARIUS_CORRUPTION);
+                return false;
+            }
 
-        m_pInstance->SetData(TYPE_SCEPTER_RUN, SPECIAL);
-        m_pInstance->SetData(DATA_SCEPTER_CHAMPION, pPlayer->GetObjectGuid());
+            m_pInstance->SetData(TYPE_SCEPTER_RUN, SPECIAL);
+            m_pInstance->SetData(DATA_SCEPTER_CHAMPION, pPlayer->GetObjectGuid());
 
-        // Permanently bind player to instance
-        pCreature->GetMap()->BindToInstanceOrRaid(pPlayer, pCreature->GetRespawnTimeEx(), true);
+            // Permanently bind player to instance
+            pCreature->GetMap()->BindToInstanceOrRaid(pPlayer, pCreature->GetRespawnTimeEx(), true);
 
-        return true;
+            return true;
     }
 
     return false;
 }
 
-CreatureAI* GetAI_boss_vael(Creature* pCreature) { return new boss_vaelAI(pCreature); }
+CreatureAI* GetAI_boss_vael(Creature* pCreature)
+{
+    return new boss_vaelAI(pCreature);
+}
 
 /**************************
 *** Death Talon Captain ***
@@ -518,15 +515,15 @@ CreatureAI* GetAI_boss_vael(Creature* pCreature) { return new boss_vaelAI(pCreat
 
 enum
 {
-    MOB_RONGE_GRIFFEMORT = 12464,
-    MOB_WYRMIDE_GRIFFEMORT = 12465,
+    MOB_RONGE_GRIFFEMORT        = 12464,
+    MOB_WYRMIDE_GRIFFEMORT      = 12465,
     MOB_FLAMMECAILLE_GRIFFEMORT = 12463,
 
-    SPELL_MARK_DETONATION = 22438,
-    SPELL_MARK_FLAMES = 25050,
-    SPELL_COMMANDING_SHOUT = 22440,
-    SPELL_CLEAVE2 = 15496,
-    SPELL_AURA_FLAMES = 22436
+    SPELL_MARK_DETONATION       = 22438,
+    SPELL_MARK_FLAMES           = 25050,
+    SPELL_COMMANDING_SHOUT      = 22440,
+    SPELL_CLEAVE2               = 15496,
+    SPELL_AURA_FLAMES           = 22436
 };
 
 struct npc_death_talon_CaptainAI : public ScriptedAI
@@ -554,12 +551,17 @@ struct npc_death_talon_CaptainAI : public ScriptedAI
         SetAuraFlames(false);
     }
 
-    void MoveInLineOfSight(Unit* pWho) override
+    void MoveInLineOfSight(Unit *pWho) override
     {
         if (!pWho || m_creature->GetVictim())
             return;
 
-        if (pWho->GetTypeId() == TYPEID_PLAYER && !m_creature->IsInCombat() && m_creature->IsWithinDistInMap(pWho, 29.0f) && m_creature->IsWithinLOSInMap(pWho) && !pWho->HasAuraType(SPELL_AURA_FEIGN_DEATH) && !pWho->HasAuraType(SPELL_AURA_MOD_UNATTACKABLE))
+        if (pWho->GetTypeId() == TYPEID_PLAYER
+            && !m_creature->IsInCombat()
+            && m_creature->IsWithinDistInMap(pWho, 29.0f)
+            && m_creature->IsWithinLOSInMap(pWho)
+            && !pWho->HasAuraType(SPELL_AURA_FEIGN_DEATH)
+            && !pWho->HasAuraType(SPELL_AURA_MOD_UNATTACKABLE))
         {
             AttackStart(pWho);
         }
@@ -573,11 +575,14 @@ struct npc_death_talon_CaptainAI : public ScriptedAI
         DoCastSpellIfCan(m_creature, SPELL_COMMANDING_SHOUT, CF_TRIGGERED);
     }
 
-    void JustDied(Unit* /*pKiller*/) override { SetAuraFlames(false); }
+    void JustDied(Unit* /*pKiller*/) override
+    {
+        SetAuraFlames(false);
+    }
 
     void SetAuraFlames(bool on)
     {
-        std::list<Creature*> lCreature;
+        std::list<Creature *> lCreature;
         GetCreatureListWithEntryInGrid(lCreature, m_creature, MOB_FLAMMECAILLE_GRIFFEMORT, 50.0f);
         GetCreatureListWithEntryInGrid(lCreature, m_creature, MOB_WYRMIDE_GRIFFEMORT, 50.0f);
         GetCreatureListWithEntryInGrid(lCreature, m_creature, MOB_RONGE_GRIFFEMORT, 50.0f);
@@ -654,7 +659,10 @@ struct npc_death_talon_CaptainAI : public ScriptedAI
     }
 };
 
-CreatureAI* GetAI_npc_death_talon_Captain(Creature* pCreature) { return new npc_death_talon_CaptainAI(pCreature); }
+CreatureAI* GetAI_npc_death_talon_Captain(Creature* pCreature)
+{
+    return new npc_death_talon_CaptainAI(pCreature);
+}
 
 /**************************
 *** Death Talon Seether ***
@@ -662,15 +670,18 @@ CreatureAI* GetAI_npc_death_talon_Captain(Creature* pCreature) { return new npc_
 
 enum
 {
-    SPELL_FRENZY = 22428,
-    SPELL_FLAME_BUFFET = 22433,
+    SPELL_FRENZY         = 22428,
+    SPELL_FLAME_BUFFET   = 22433,
 
-    EMOTE_FRENZY = 7797
+    EMOTE_FRENZY         = 7797
 };
 
 struct npc_death_talon_SeetherAI : public ScriptedAI
 {
-    npc_death_talon_SeetherAI(Creature* pCreature) : ScriptedAI(pCreature) { Reset(); }
+    npc_death_talon_SeetherAI(Creature* pCreature) : ScriptedAI(pCreature)
+    {
+        Reset();
+    }
 
     uint32 m_uiFlameBuffetTimer;
     uint32 m_uiFrenzyTimer;
@@ -696,8 +707,7 @@ struct npc_death_talon_SeetherAI : public ScriptedAI
                 m_uiFrenzyTimer = 15000;
             }
         }
-        else
-            m_uiFrenzyTimer -= uiDiff;
+        else m_uiFrenzyTimer -= uiDiff;
 
         if (!m_bEngaged)
         {
@@ -711,15 +721,17 @@ struct npc_death_talon_SeetherAI : public ScriptedAI
                 if (DoCastSpellIfCan(m_creature->GetVictim(), SPELL_FLAME_BUFFET) == CAST_OK)
                     m_uiFlameBuffetTimer = urand(8000, 12000);
             }
-            else
-                m_uiFlameBuffetTimer -= uiDiff;
+            else m_uiFlameBuffetTimer -= uiDiff;
         }
 
         DoMeleeAttackIfReady();
     }
 };
 
-CreatureAI* GetAI_npc_death_talon_Seether(Creature* pCreature) { return new npc_death_talon_SeetherAI(pCreature); }
+CreatureAI* GetAI_npc_death_talon_Seether(Creature* pCreature)
+{
+    return new npc_death_talon_SeetherAI(pCreature);
+}
 
 void AddSC_boss_vael()
 {

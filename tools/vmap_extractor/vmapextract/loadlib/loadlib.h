@@ -30,7 +30,7 @@ typedef std::uint32_t uint32;
 typedef std::uint16_t uint16;
 typedef std::uint8_t uint8;
 
-#define FILE_FORMAT_VERSION 18
+#define FILE_FORMAT_VERSION    18
 
 //
 // File version chunk
@@ -40,7 +40,7 @@ struct file_MVER
     union
     {
         uint32 fcc;
-        char fcc_txt[4];
+        char   fcc_txt[4];
     };
     uint32 size;
     uint32 ver;
@@ -48,18 +48,17 @@ struct file_MVER
 
 class FileLoader
 {
-    uint8* data;
-    uint32 data_size;
+        uint8*  data;
+        uint32  data_size;
+    public:
+        virtual bool prepareLoadedData();
+        uint8* GetData()     {return data;}
+        uint32 GetDataSize() {return data_size;}
 
-public:
-    virtual bool prepareLoadedData();
-    uint8* GetData() { return data; }
-    uint32 GetDataSize() { return data_size; }
-
-    file_MVER* version;
-    FileLoader();
-    ~FileLoader();
-    bool loadFile(char* filename, bool log = true);
-    virtual void free();
+        file_MVER* version;
+        FileLoader();
+        ~FileLoader();
+        bool loadFile(char* filename, bool log = true);
+        virtual void free();
 };
 #endif

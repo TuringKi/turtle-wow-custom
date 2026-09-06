@@ -29,33 +29,33 @@ EndContentData */
 
 enum
 {
-    SPELL_SPIRIT_SHOCK = 10794,
-    SPELL_FEL_CURSE = 12938,
-    NPC_SERVANT_OF_RAZELIKH = 7668,
-    NPC_SERVANT_OF_GROL = 7669,
-    NPC_SERVANT_OF_ALLISTARJ = 7670,
-    NPC_SERVANT_OF_SEVINE = 7671
+    SPELL_SPIRIT_SHOCK          = 10794,
+    SPELL_FEL_CURSE             = 12938,
+    NPC_SERVANT_OF_RAZELIKH     = 7668,
+    NPC_SERVANT_OF_GROL         = 7669,
+    NPC_SERVANT_OF_ALLISTARJ    = 7670,
+    NPC_SERVANT_OF_SEVINE       = 7671
 };
 
 bool GOHello_go_stone_of_binding(Player* pPlayer, GameObject* pGo)
 {
-    // 141812 <= 7668 Servant of Razelikh   // 141857 <= 7669 Servant of Grol
-    // 141858 <= 7670 Servant of Allistarj  // 141859 <= 7671 Servant of Sevine
+// 141812 <= 7668 Servant of Razelikh   // 141857 <= 7669 Servant of Grol
+// 141858 <= 7670 Servant of Allistarj  // 141859 <= 7671 Servant of Sevine
     Creature* pCreature = nullptr;
-    switch (pGo->GetEntry())
+    switch(pGo->GetEntry())
     {
-    case 141812:
-        pCreature = pGo->FindNearestCreature(NPC_SERVANT_OF_RAZELIKH, 30.0f, true); // servant of razelikh
-        break;
-    case 141857:
-        pCreature = pGo->FindNearestCreature(NPC_SERVANT_OF_GROL, 30.0f, true); // servant of grol
-        break;
-    case 141858:
-        pCreature = pGo->FindNearestCreature(NPC_SERVANT_OF_ALLISTARJ, 30.0f, true); // servant of allistarj
-        break;
-    case 141859:
-        pCreature = pGo->FindNearestCreature(NPC_SERVANT_OF_SEVINE, 30.0f, true); // servant of sevine
-        break;
+        case 141812:
+            pCreature = pGo->FindNearestCreature(NPC_SERVANT_OF_RAZELIKH, 30.0f, true);//servant of razelikh
+            break;
+        case 141857:
+            pCreature = pGo->FindNearestCreature(NPC_SERVANT_OF_GROL, 30.0f, true);//servant of grol
+            break;
+        case 141858:
+            pCreature = pGo->FindNearestCreature(NPC_SERVANT_OF_ALLISTARJ, 30.0f, true);//servant of allistarj
+            break;
+        case 141859:
+            pCreature = pGo->FindNearestCreature(NPC_SERVANT_OF_SEVINE, 30.0f, true);//servant of sevine
+            break;
     }
     if (pCreature)
         pCreature->CastSpell(pCreature, SPELL_FEL_CURSE, true);
@@ -64,13 +64,22 @@ bool GOHello_go_stone_of_binding(Player* pPlayer, GameObject* pGo)
 
 struct ServantAI : public ScriptedAI
 {
-    ServantAI(Creature* pCreature) : ScriptedAI(pCreature) { Reset(); }
+    ServantAI(Creature* pCreature) : ScriptedAI(pCreature)
+    {
+        Reset();
+    }
 
     bool m_freezed;
 
-    void Reset() override { m_freezed = false; }
+    void Reset() override
+    {
+        m_freezed = false;
+    }
 
-    void JustRespawned() override { Reset(); }
+    void JustRespawned() override
+    {
+        Reset();
+    }
 
     void UpdateAI(const uint32 uiDiff) override
     {
@@ -109,11 +118,14 @@ struct ServantAI : public ScriptedAI
     }
 };
 
-CreatureAI* GetAI_servant(Creature* pCreature) { return new ServantAI(pCreature); }
+CreatureAI* GetAI_servant(Creature* pCreature)
+{
+    return new ServantAI(pCreature);
+}
 
 void AddSC_blasted_lands()
 {
-    Script* newscript;
+    Script *newscript;
 
     newscript = new Script;
     newscript->Name = "go_stone_of_binding";

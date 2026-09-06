@@ -13,17 +13,17 @@ struct AutoBroadCastEntry
 
 class AutoBroadCastMgr
 {
-public:
-    AutoBroadCastMgr();
-    ~AutoBroadCastMgr();
+    public :
+         AutoBroadCastMgr();
+        ~AutoBroadCastMgr();
 
-    void Load();
-    void Update(uint32 diff);
+        void Load();
+        void Update(uint32 diff);
 
-protected:
-    std::vector<AutoBroadCastEntry> entries;
-    time_t _constInterval;
-    time_t _current;
+    protected:
+        std::vector<AutoBroadCastEntry> entries;
+        time_t _constInterval;
+        time_t _current;
 };
 
 extern AutoBroadCastMgr sAutoBroadCastMgr;

@@ -18,15 +18,15 @@
 
 #define _CRT_SECURE_NO_DEPRECATE
 #include <cstdio>
-#include <errno.h>
 #include <iostream>
-#include <list>
 #include <vector>
+#include <list>
+#include <errno.h>
 
 #ifdef _WIN32
 #include <Windows.h>
-#include <direct.h>
 #include <sys/stat.h>
+#include <direct.h>
 #define mkdir _mkdir
 #else
 #include <sys/stat.h>
@@ -40,12 +40,12 @@
 
 #include <map>
 
-// From Extractor
+//From Extractor
 #include "adtfile.h"
-#include "dbcfile.h"
-#include "mpq_libmpq04.h"
 #include "wdtfile.h"
+#include "dbcfile.h"
 #include "wmo.h"
+#include "mpq_libmpq04.h"
 
 #include "vmapexport.h"
 
@@ -74,7 +74,7 @@ bool preciseVectorData = false;
 
 // Constants
 
-// static const char * szWorkDirMaps = ".\\Maps";
+//static const char * szWorkDirMaps = ".\\Maps";
 const char* szWorkDirWmo = "./Buildings";
 const char* szRawVMAPMagic = "VMAP005";
 
@@ -88,6 +88,38 @@ bool FileExists(const char* file)
         return true;
     }
     return false;
+}
+
+bool ResolveMPQFilename(char* file)
+{
+    if (FileExists(file))
+        return true;
+
+    size_t len = strlen(file);
+    if (len < 4 || file[len - 4] != '.')
+        return false;
+
+    char originalExt[4];
+    memcpy(originalExt, file + len - 3, sizeof(originalExt));
+
+    for (int mask = 0; mask < 8; ++mask)
+    {
+        file[len - 3] = (mask & 1) ? 'M' : 'm';
+        file[len - 2] = (mask & 2) ? 'P' : 'p';
+        file[len - 1] = (mask & 4) ? 'Q' : 'q';
+
+        if (FileExists(file))
+            return true;
+    }
+
+    memcpy(file + len - 3, originalExt, sizeof(originalExt));
+    return false;
+}
+
+void AddArchiveNameIfExists(char* file, std::vector<std::string>& pArchiveNames)
+{
+    if (ResolveMPQFilename(file))
+        pArchiveNames.push_back(file);
 }
 
 void strToLower(char* str)
@@ -125,7 +157,7 @@ bool ExtractWmo()
 {
     bool success = true;
 
-    // const char* ParsArchiveNames[] = {"patch-2.MPQ", "patch.MPQ", "common.MPQ", "expansion.MPQ"};
+    //const char* ParsArchiveNames[] = {"patch-2.MPQ", "patch.MPQ", "common.MPQ", "expansion.MPQ"};
 
     for (ArchiveSet::const_iterator ar_itr = gOpenArchives.begin(); ar_itr != gOpenArchives.end() && success; ++ar_itr)
     {
@@ -174,11 +206,11 @@ bool ExtractSingleWmo(std::string& fname)
     sprintf(szLocalFile, "%s/%s", szWorkDirWmo, plain_name);
     fixnamen(szLocalFile, strlen(szLocalFile));
 
-    // if (FileExists(szLocalFile))
-    //     return true;
+    //if (FileExists(szLocalFile))
+    //    return true;
 
     int p = 0;
-    // Select root wmo files
+    //Select root wmo files
     const char* rchr = strrchr(plain_name, '_');
     if (rchr != NULL)
     {
@@ -204,13 +236,13 @@ bool ExtractSingleWmo(std::string& fname)
         return true;
     }
 
-    if (FILE* h = fopen(szLocalFile, "rb"))
-    {
-        fclose(h);
+	if (FILE* h = fopen(szLocalFile, "rb"))
+	{
+		fclose(h);
 
         // already exported
         return true;
-    }
+	}
 
     FILE* output = fopen(szLocalFile, "wb");
     if (!output)
@@ -221,7 +253,7 @@ bool ExtractSingleWmo(std::string& fname)
 
     froot.ConvertToVMAPRootWmo(output);
     int Wmo_nVertices = 0;
-    // printf("root has %d groups\n", froot->nGroups);
+    //printf("root has %d groups\n", froot->nGroups);
     if (froot.nGroups != 0)
     {
         for (uint32 i = 0; i < froot.nGroups; ++i)
@@ -231,7 +263,7 @@ bool ExtractSingleWmo(std::string& fname)
             temp[fname.length() - 4] = 0;
             char groupFileName[1024];
             sprintf(groupFileName, "%s_%03d.wmo", temp, i);
-            // printf("Trying to open groupfile %s\n",groupFileName);
+            //printf("Trying to open groupfile %s\n",groupFileName);
 
             string s = groupFileName;
             WMOGroup fgroup(s, &froot);
@@ -262,7 +294,7 @@ bool ExtractSingleWmo(std::string& fname)
 void ParsMapFiles()
 {
     char fn[512];
-    // char id_filename[64];
+    //char id_filename[64];
     char id[10];
     StringSet failedPaths;
     for (unsigned int i = 0; i < map_count; ++i)
@@ -279,7 +311,7 @@ void ParsMapFiles()
                 {
                     if (ADTFile* ADT = WDT.GetMap(x, y))
                     {
-                        // sprintf(id_filename,"%02u %02u %03u",x,y,map_ids[i].id);//!!!!!!!!!
+                        //sprintf(id_filename,"%02u %02u %03u",x,y,map_ids[i].id);//!!!!!!!!!
                         ADT->init(map_ids[i].id, x, y, failedPaths);
                         delete ADT;
                     }
@@ -324,12 +356,8 @@ bool scan_patches(char* scanmatch, std::vector<std::string>& pArchiveNames)
         {
             sprintf(path, "%s.MPQ", scanmatch);
         }
-        if (FILE* h = fopen(path, "rb"))
-        {
-            fclose(h);
-            // matches.push_back(path);
+        if (ResolveMPQFilename(path))
             pArchiveNames.push_back(path);
-        }
     }
 
     return true;
@@ -347,18 +375,18 @@ bool fillArchiveNameVector(std::vector<std::string>& pArchiveNames)
     // open expansion and common files
     printf("Opening data files from data directory.\n");
     sprintf(path, "%sterrain.MPQ", input_path);
-    pArchiveNames.push_back(path);
+    AddArchiveNameIfExists(path, pArchiveNames);
     sprintf(path, "%smodel.MPQ", input_path);
-    // pArchiveNames.push_back(path);
-    pArchiveNames.push_back(path);
-    sprintf(path, "%stexture.MPQ", input_path);
-    pArchiveNames.push_back(path);
-    sprintf(path, "%swmo.MPQ", input_path);
-    pArchiveNames.push_back(path);
-    sprintf(path, "%sbase.MPQ", input_path);
-    pArchiveNames.push_back(path);
+    //pArchiveNames.push_back(path);
+    AddArchiveNameIfExists(path, pArchiveNames);
+	sprintf(path, "%stexture.MPQ", input_path);
+    AddArchiveNameIfExists(path, pArchiveNames);
+	sprintf(path, "%swmo.MPQ", input_path);
+    AddArchiveNameIfExists(path, pArchiveNames);
+	sprintf(path, "%sbase.MPQ", input_path);
+    AddArchiveNameIfExists(path, pArchiveNames);
     sprintf(path, "%smisc.MPQ", input_path);
-    pArchiveNames.push_back(path);
+    AddArchiveNameIfExists(path, pArchiveNames);
 
 
     // now, scan for the patch levels in the core dir
@@ -425,13 +453,13 @@ bool processArgv(int argc, char** argv)
 }
 
 
-// xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-//  Main
+//xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+// Main
 //
-//  The program must be run with two command line arguments
+// The program must be run with two command line arguments
 //
-//  Arg1 - The source MPQ name (for testing reading and file find)
-//  Arg2 - Listfile name
+// Arg1 - The source MPQ name (for testing reading and file find)
+// Arg2 - Listfile name
 //
 
 int main(int argc, char** argv)
@@ -448,14 +476,13 @@ int main(int argc, char** argv)
         return 1;
     }*/
     printf("Extract for %s. Beginning work ....\n", szRawVMAPMagic);
-    // xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-    //  Create the working directory
+    //xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+    // Create the working directory
     if (mkdir(szWorkDirWmo
 #ifndef _WIN32
-              ,
-              0711
+              , 0711
 #endif
-              ))
+             ))
         success = (errno == EEXIST);
 
     // prepare archive name list
@@ -479,8 +506,8 @@ int main(int argc, char** argv)
     if (success)
         success = ExtractWmo();
 
-    // xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-    // map.dbc
+    //xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+    //map.dbc
     if (success)
     {
         DBCFile* dbc = new DBCFile("DBFilesClient\\Map.dbc");
@@ -502,9 +529,9 @@ int main(int argc, char** argv)
 
         delete dbc;
         ParsMapFiles();
-        delete[] map_ids;
-        // nError = ERROR_SUCCESS;
-        //  Extract models, listed in DameObjectDisplayInfo.dbc
+        delete [] map_ids;
+        //nError = ERROR_SUCCESS;
+        // Extract models, listed in DameObjectDisplayInfo.dbc
         ExtractGameobjectModels();
     }
 
@@ -516,7 +543,7 @@ int main(int argc, char** argv)
     }
 
     printf("Extract for %s. Work complete. No errors.\n", szRawVMAPMagic);
-    delete[] LiqType;
+    delete [] LiqType;
     return 0;
 }
 

@@ -20,17 +20,26 @@
  ************************************************************************************/
 #include <dpp/restrequest.h>
 
-namespace dpp
-{
+namespace dpp {
 
-    void cluster::guild_emoji_create(snowflake guild_id, const class emoji& newemoji, command_completion_event_t callback) { rest_request<emoji>(this, API_PATH "/guilds", std::to_string(guild_id), "emojis", m_post, newemoji.build_json(), callback); }
+void cluster::guild_emoji_create(snowflake guild_id, const class emoji& newemoji, command_completion_event_t callback) {
+	rest_request<emoji>(this, API_PATH "/guilds", std::to_string(guild_id), "emojis", m_post, newemoji.build_json(), callback);
+}
 
-    void cluster::guild_emoji_delete(snowflake guild_id, snowflake emoji_id, command_completion_event_t callback) { rest_request<confirmation>(this, API_PATH "/guilds", std::to_string(guild_id), "emojis/" + std::to_string(emoji_id), m_delete, "", callback); }
+void cluster::guild_emoji_delete(snowflake guild_id, snowflake emoji_id, command_completion_event_t callback) {
+	rest_request<confirmation>(this, API_PATH "/guilds", std::to_string(guild_id), "emojis/" + std::to_string(emoji_id), m_delete, "", callback);
+}
 
-    void cluster::guild_emoji_edit(snowflake guild_id, const class emoji& newemoji, command_completion_event_t callback) { rest_request<emoji>(this, API_PATH "/guilds", std::to_string(guild_id), "emojis/" + std::to_string(newemoji.id), m_patch, newemoji.build_json(), callback); }
+void cluster::guild_emoji_edit(snowflake guild_id, const class emoji& newemoji, command_completion_event_t callback) {
+	rest_request<emoji>(this, API_PATH "/guilds", std::to_string(guild_id), "emojis/" + std::to_string(newemoji.id), m_patch, newemoji.build_json(), callback);
+}
 
-    void cluster::guild_emoji_get(snowflake guild_id, snowflake emoji_id, command_completion_event_t callback) { rest_request<emoji>(this, API_PATH "/guilds", std::to_string(guild_id), "emojis/" + std::to_string(emoji_id), m_get, "", callback); }
+void cluster::guild_emoji_get(snowflake guild_id, snowflake emoji_id, command_completion_event_t callback) {
+	rest_request<emoji>(this, API_PATH "/guilds", std::to_string(guild_id), "emojis/" + std::to_string(emoji_id), m_get, "", callback);
+}
 
-    void cluster::guild_emojis_get(snowflake guild_id, command_completion_event_t callback) { rest_request_list<emoji>(this, API_PATH "/guilds", std::to_string(guild_id), "emojis", m_get, "", callback); }
+void cluster::guild_emojis_get(snowflake guild_id, command_completion_event_t callback) {
+	rest_request_list<emoji>(this, API_PATH "/guilds", std::to_string(guild_id), "emojis", m_get, "", callback);
+}
 
-}; // namespace dpp
+};

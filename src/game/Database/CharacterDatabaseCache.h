@@ -16,7 +16,7 @@ typedef turtle_vector<PetSpellCoodown, Category_Pet> PetSpellCDs;
 struct PetSpellCache
 {
     uint32 spell;
-    uint8 active;
+    uint8  active;
 };
 typedef turtle_vector<PetSpellCache, Category_Pet> PetSpells;
 
@@ -47,11 +47,11 @@ struct CharacterPetCache
     std::string name, abdata, TeachSpelldata;
     bool renamed;
     // pet_spell
-    PetSpells spells;
+    PetSpells   spells;
     // pet_spell_cooldown
     PetSpellCDs spellCooldown;
     // pet_aura
-    PetAuras auras;
+    PetAuras    auras;
 };
 
 typedef turtle_vector<CharacterPetCache*, Category_Pet> CharPetVector;
@@ -60,32 +60,33 @@ typedef std::map<uint32 /*pet guid*/, CharacterPetCache*> PetGuidToPetMap;
 
 class CharacterDatabaseCache
 {
-public:
-    CharacterDatabaseCache();
-    ~CharacterDatabaseCache();
+    public:
+        CharacterDatabaseCache();
+        ~CharacterDatabaseCache();
 
-    void LoadAll(uint32 singlePetId = 0);
+        void LoadAll(uint32 singlePetId = 0);
 
-    void LoadCharacterPet(uint32 singlePetId);
-    void LoadPetSpell(uint32 singlePetId);
-    void LoadPetSpellCooldown(uint32 singlePetId);
-    void LoadPetAura(uint32 singlePetId);
+        void LoadCharacterPet(uint32 singlePetId);
+        void LoadPetSpell(uint32 singlePetId);
+        void LoadPetSpellCooldown(uint32 singlePetId);
+        void LoadPetAura(uint32 singlePetId);
 
-    CharacterPetCache* GetCharacterPetCacheByOwnerAndId(uint64 owner, uint32 id);
-    CharacterPetCache* GetCharacterCurrentPet(uint64 owner);
-    CharacterPetCache* GetCharacterPetByOwnerAndEntry(uint64 owner, uint32 entry);
-    CharacterPetCache* GetCharacterPetByOwner(uint64 owner);
-    CharacterPetCache* GetCharacterPetById(uint32 id); // Very slow method (iterates over all the stored pets)
-    void CharacterPetSetOthersNotInSlot(CharacterPetCache* pCache);
-    void InsertCharacterPet(CharacterPetCache* cache);
-    void DeleteCharacterPetById(uint32 id);
-    CharPetMap const& GetCharPetsMap() const { return m_petsByCharacter; }
-    uint32 GetNextAvailablePetNumber(uint32 minimumValue) const;
+        CharacterPetCache* GetCharacterPetCacheByOwnerAndId(uint64 owner, uint32 id);
+        CharacterPetCache* GetCharacterCurrentPet(uint64 owner);
+        CharacterPetCache* GetCharacterPetByOwnerAndEntry(uint64 owner, uint32 entry);
+        CharacterPetCache* GetCharacterPetByOwner(uint64 owner);
+        CharacterPetCache* GetCharacterPetById(uint32 id); // Very slow method (iterates over all the stored pets)
+        void CharacterPetSetOthersNotInSlot(CharacterPetCache* pCache);
+        void InsertCharacterPet(CharacterPetCache* cache);
+        void DeleteCharacterPetById(uint32 id);
+        CharPetMap const& GetCharPetsMap() const { return m_petsByCharacter; }
+        uint32 GetNextAvailablePetNumber(uint32 minimumValue) const;
 
-protected:
-    // @TODO: Lock these structures for thread safety, and process stable opcodes per map
-    CharPetMap m_petsByCharacter;
-    PetGuidToPetMap m_petsByGuid;
+    protected:
+        // @TODO: Lock these structures for thread safety, and process stable opcodes per map
+        CharPetMap      m_petsByCharacter;
+        PetGuidToPetMap m_petsByGuid;
+
 };
 
 extern CharacterDatabaseCache sCharacterDatabaseCache;

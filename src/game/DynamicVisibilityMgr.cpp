@@ -13,16 +13,22 @@ void DynamicVisibilityMgr::LoadFromDB(bool reload)
 
     uint32 count = 0;
     auto fields = result->Fetch();
-    do
-    {
-        VisibilitySettings settings{fields[0].GetUInt32(), fields[1].GetUInt32(), fields[2].GetUInt32(), fields[3].GetUInt32(), fields[4].GetUInt32()};
+    do {
+        VisibilitySettings settings
+        {
+            fields[0].GetUInt32(),
+            fields[1].GetUInt32(),
+            fields[2].GetUInt32(),
+            fields[3].GetUInt32(),
+            fields[4].GetUInt32()
+        };
 
-        _areaSettings.insert({settings.AreaId, settings});
+        _areaSettings.insert({ settings.AreaId, settings });
         ++count;
-    }
-    while (result->NextRow());
 
-    // dont set all dynamic areas to max vis on reload as it might blow up in our faces. Only new ones
+    } while (result->NextRow());
+
+    //dont set all dynamic areas to max vis on reload as it might blow up in our faces. Only new ones
     InitVisibilities(reload);
 
     sLog.outString("Loaded %u dynamic visibility templates.", count);
@@ -40,6 +46,7 @@ void DynamicVisibilityMgr::InitVisibilities(bool reload)
         }
         else
             _currentVisibilities[visSettings.first] = visSettings.second.MaxVisibilityDistance;
+        
     }
 }
 
@@ -66,3 +73,4 @@ std::optional<uint32> DynamicVisibilityMgr::GetDynamicVisibility(uint32 areaId)
 
     return {};
 }
+

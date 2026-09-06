@@ -18,19 +18,19 @@
  */
 
 #include "DBCStores.h"
-#include "DBCfmt.h"
-#include "Log.h"
-#include "Map.h"
-#include "ObjectGuid.h"
-#include "ObjectMgr.h"
 #include "Policies/SingletonImp.h"
-#include "SQLStorages.h"
+#include "Log.h"
 #include "SharedDefines.h"
+#include "ObjectGuid.h"
+#include "Map.h"
+#include "SQLStorages.h"
+#include "DBCfmt.h"
 #include "SpellMgr.h"
+#include "ObjectMgr.h"
 
 #include <map>
-#include <regex>
 #include <vector>
+#include <regex>
 
 typedef std::tuple<int32, int32, int32> WMOAreaTableKey;
 typedef std::map<WMOAreaTableKey, WMOAreaTableEntry const*> WMOAreaInfoByTripple;
@@ -57,8 +57,6 @@ DBCStorage<EmotesTextEntry> sEmotesTextStore(EmotesTextEntryfmt);
 
 typedef std::map<uint32, std::list<uint32>> FactionTeamMap;
 static FactionTeamMap sFactionTeamMap;
-DBCStorage<FactionEntry> sFactionStore(FactionEntryfmt);
-DBCStorage<FactionTemplateEntry> sFactionTemplateStore(FactionTemplateEntryfmt);
 
 
 DBCStorage<GameObjectDisplayInfoEntry> sGameObjectDisplayInfoStore(GameObjectDisplayInfofmt);
@@ -75,55 +73,55 @@ static std::wstring const emacsEndOfLineToken = L"\\>"; // equivalent to $
 typedef std::vector<std::wregex> NameValidationRegexContainer;
 NameValidationRegexContainer NamesProfaneValidators;
 NameValidationRegexContainer NamesReservedValidators;
-DBCStorage<QuestSortEntry> sQuestSortStore(QuestSortEntryfmt);
+DBCStorage <QuestSortEntry> sQuestSortStore(QuestSortEntryfmt);
 
-DBCStorage<SkillLineEntry> sSkillLineStore(SkillLinefmt);
-DBCStorage<SkillRaceClassInfoEntry> sSkillRaceClassInfoStore(SkillRaceClassInfofmt);
-DBCStorage<SkillTiersEntry> sSkillTiersStore(SkillTiersfmt);
+DBCStorage <SkillLineEntry> sSkillLineStore(SkillLinefmt);
+DBCStorage <SkillRaceClassInfoEntry> sSkillRaceClassInfoStore(SkillRaceClassInfofmt);
+DBCStorage <SkillTiersEntry> sSkillTiersStore(SkillTiersfmt);
 SkillRaceClassInfoMap SkillRaceClassInfoBySkill;
 
-DBCStorage<SpellItemEnchantmentEntry> sSpellItemEnchantmentStore(SpellItemEnchantmentfmt);
-DBCStorage<SpellCategoryEntry> sSpellCategoryStore(SpellCategoryfmt);
+DBCStorage <SpellItemEnchantmentEntry> sSpellItemEnchantmentStore(SpellItemEnchantmentfmt);
+DBCStorage <SpellDbcEntry> sSpellStore(Spellfmt);
+DBCStorage <SpellCategoryEntry> sSpellCategoryStore(SpellCategoryfmt);
 
 SpellCategoriesStore sSpellCategoriesStore;
 PetFamilySpellsStore sPetFamilySpellsStore;
 
-DBCStorage<SpellCastTimesEntry> sSpellCastTimesStore(SpellCastTimefmt);
-DBCStorage<SpellDurationEntry> sSpellDurationStore(SpellDurationfmt);
-DBCStorage<SpellFocusObjectEntry> sSpellFocusObjectStore(SpellFocusObjectfmt);
-DBCStorage<SpellRadiusEntry> sSpellRadiusStore(SpellRadiusfmt);
-DBCStorage<SpellRangeEntry> sSpellRangeStore(SpellRangefmt);
-DBCStorage<SpellIconEntry> sSpellIconStore(SpellIconfmt);
-DBCStorage<SpellShapeshiftFormEntry> sSpellShapeshiftFormStore(SpellShapeshiftfmt);
-DBCStorage<SpellVisualEntry> sSpellVisualStore(SpellVisualfmt);
-DBCStorage<StableSlotPricesEntry> sStableSlotPricesStore(StableSlotPricesfmt);
-// DBCStorage <SummonPropertiesEntry> sSummonPropertiesStore(SummonPropertiesfmt);
-DBCStorage<TalentEntry> sTalentStore(TalentEntryfmt);
+DBCStorage <SpellCastTimesEntry> sSpellCastTimesStore(SpellCastTimefmt);
+DBCStorage <SpellDurationEntry> sSpellDurationStore(SpellDurationfmt);
+DBCStorage <SpellFocusObjectEntry> sSpellFocusObjectStore(SpellFocusObjectfmt);
+DBCStorage <SpellRadiusEntry> sSpellRadiusStore(SpellRadiusfmt);
+DBCStorage <SpellRangeEntry> sSpellRangeStore(SpellRangefmt);
+DBCStorage <SpellIconEntry> sSpellIconStore(SpellIconfmt);
+DBCStorage <SpellShapeshiftFormEntry> sSpellShapeshiftFormStore(SpellShapeshiftfmt);
+DBCStorage <SpellVisualEntry> sSpellVisualStore(SpellVisualfmt);
+DBCStorage <StableSlotPricesEntry> sStableSlotPricesStore(StableSlotPricesfmt);
+//DBCStorage <SummonPropertiesEntry> sSummonPropertiesStore(SummonPropertiesfmt);
+DBCStorage <TalentEntry> sTalentStore(TalentEntryfmt);
 TalentSpellPosMap sTalentSpellPosMap;
-DBCStorage<TalentTabEntry> sTalentTabStore(TalentTabEntryfmt);
+DBCStorage <TalentTabEntry> sTalentTabStore(TalentTabEntryfmt);
 
 // store absolute bit position for first rank for talent inspect
 typedef std::map<uint32, uint32> TalentInspectMap;
 static TalentInspectMap sTalentPosInInspect;
 static TalentInspectMap sTalentTabSizeInInspect;
-static uint32 sTalentTabPages[12 /*MAX_CLASSES*/][3];
+static uint32 sTalentTabPages[12/*MAX_CLASSES*/][3];
 
 TaxiMask sTaxiNodesMask;
 
 // DBC used only for initialization sTaxiPathSetBySource at startup.
 TaxiPathSetBySource sTaxiPathSetBySource;
-DBCStorage<TaxiPathEntry> sTaxiPathStore(TaxiPathEntryfmt);
+DBCStorage <TaxiPathEntry> sTaxiPathStore(TaxiPathEntryfmt);
 
 // DBC store data but sTaxiPathNodesByPath used for fast access to entries (it's not owner pointed data).
 TaxiPathNodesByPath sTaxiPathNodesByPath;
-static DBCStorage<TaxiPathNodeEntry> sTaxiPathNodeStore(TaxiPathNodeEntryfmt);
+static DBCStorage <TaxiPathNodeEntry> sTaxiPathNodeStore(TaxiPathNodeEntryfmt);
 
-DBCStorage<WMOAreaTableEntry> sWMOAreaTableStore(WMOAreaTableEntryfmt);
-DBCStorage<WorldMapAreaEntry> sWorldMapAreaStore(WorldMapAreaEntryfmt);
-// DBCStorage <WorldMapOverlayEntry> sWorldMapOverlayStore(WorldMapOverlayEntryfmt);
-DBCStorage<WorldSafeLocsEntry> sWorldSafeLocsStore(WorldSafeLocsEntryfmt);
+DBCStorage <WMOAreaTableEntry>  sWMOAreaTableStore(WMOAreaTableEntryfmt);
+DBCStorage <WorldMapAreaEntry>  sWorldMapAreaStore(WorldMapAreaEntryfmt);
+//DBCStorage <WorldMapOverlayEntry> sWorldMapOverlayStore(WorldMapOverlayEntryfmt);
+DBCStorage <WorldSafeLocsEntry> sWorldSafeLocsStore(WorldSafeLocsEntryfmt);
 
-DBCStorage<MapEntry> sMapStore(MapEntryfmt);
 
 
 typedef std::vector<std::string> StoreProblemList;
@@ -131,7 +129,7 @@ typedef std::vector<std::string> StoreProblemList;
 
 bool IsAcceptableClientBuild(uint32 build)
 {
-    int accepted_versions[] = {5875, 0};
+    int accepted_versions[] = { 5875, 0 };
     for (int i = 0; accepted_versions[i]; ++i)
         if (int(build) == accepted_versions[i])
             return true;
@@ -142,7 +140,7 @@ bool IsAcceptableClientBuild(uint32 build)
 std::string AcceptableClientBuildsListStr()
 {
     std::ostringstream data;
-    int accepted_versions[] = {5875, 0};
+    int accepted_versions[] = { 5875, 0 };
     for (int i = 0; accepted_versions[i]; ++i)
         data << accepted_versions[i] << " ";
     return data.str();
@@ -156,7 +154,7 @@ static bool LoadDBC_assert_print(uint32 fsize, uint32 rsize, std::string const& 
     return false;
 }
 
-template <class T>
+template<class T>
 inline void LoadDBC(uint32& availableDbcLocales, StoreProblemList& errlist, DBCStorage<T>& storage, std::string const& dbc_path, std::string const& filename)
 {
     // compatibility format and C++ structure sizes
@@ -178,7 +176,7 @@ inline void LoadDBC(uint32& availableDbcLocales, StoreProblemList& errlist, DBCS
     else
     {
         // sort problematic dbc to (1) non compatible and (2) nonexistent
-        FILE* f = fopen(dbc_filename.c_str(), "rb");
+        FILE * f = fopen(dbc_filename.c_str(), "rb");
         if (f)
         {
             char buf[100];
@@ -189,6 +187,25 @@ inline void LoadDBC(uint32& availableDbcLocales, StoreProblemList& errlist, DBCS
         else
             errlist.push_back(dbc_filename);
     }
+}
+
+void LoadSpellDBCStore(std::string const& dataPath)
+{
+    // SpellMgr must be populated before ObjectMgr loads identifiers.
+    std::string const dbcPath = dataPath + "dbc/";
+    StoreProblemList badDbcFiles;
+    uint32 availableDbcLocales = 0xFFFFFFFF;
+
+    LoadDBC(availableDbcLocales, badDbcFiles, sSpellStore, dbcPath, "Spell.dbc");
+    if (badDbcFiles.empty())
+        return;
+
+    sLog.outError(
+        "\nSpell.dbc is required when LoadSpellsFromSql is disabled. "
+        "The file is missing or incompatible:\n%s",
+        badDbcFiles.front().c_str());
+    Log::WaitBeforeContinueIfNeed();
+    exit(1);
 }
 
 void LoadDBCStores(std::string const& dataPath)
@@ -272,14 +289,14 @@ void LoadDBCStores(std::string const& dataPath)
     LoadDBC(availableDbcLocales, badDbcFiles, sSkillTiersStore, dbcPath, "SkillTiers.dbc");
     for (uint32 i = 1; i < sSpellMgr.GetMaxSpellId(); ++i)
     {
-        SpellEntry const* spell = sSpellMgr.GetSpellEntry(i);
+        SpellEntry const * spell = sSpellMgr.GetSpellEntry(i);
         if (spell && spell->Category)
             sSpellCategoriesStore[spell->Category].insert(i);
     }
 
     for (uint32 j = 0; j < sObjectMgr.GetMaxSkillLineAbilityId(); ++j)
     {
-        SkillLineAbilityEntry const* skillLine = sObjectMgr.GetSkillLineAbility(j);
+        SkillLineAbilityEntry const *skillLine = sObjectMgr.GetSkillLineAbility(j);
 
         if (!skillLine)
             continue;
@@ -319,7 +336,7 @@ void LoadDBCStores(std::string const& dataPath)
     // create talent spells set
     for (uint32 i = 0; i < sTalentStore.GetNumRows(); ++i)
     {
-        TalentEntry const* talentInfo = sTalentStore.LookupEntry(i);
+        TalentEntry const *talentInfo = sTalentStore.LookupEntry(i);
         if (!talentInfo)
             continue;
 
@@ -338,11 +355,10 @@ void LoadDBCStores(std::string const& dataPath)
         TalentBitSize sTalentBitSize;
         for (uint32 i = 1; i < sTalentStore.GetNumRows(); ++i)
         {
-            TalentEntry const* talentInfo = sTalentStore.LookupEntry(i);
-            if (!talentInfo)
-                continue;
+            TalentEntry const *talentInfo = sTalentStore.LookupEntry(i);
+            if (!talentInfo) continue;
 
-            TalentTabEntry const* talentTabInfo = sTalentTabStore.LookupEntry(talentInfo->TalentTab);
+            TalentTabEntry const *talentTabInfo = sTalentTabStore.LookupEntry(talentInfo->TalentTab);
             if (!talentTabInfo)
                 continue;
 
@@ -364,7 +380,7 @@ void LoadDBCStores(std::string const& dataPath)
         // now have all max ranks (and then bit amount used for store talent ranks in inspect)
         for (uint32 talentTabId = 1; talentTabId < sTalentTabStore.GetNumRows(); ++talentTabId)
         {
-            TalentTabEntry const* talentTabInfo = sTalentTabStore.LookupEntry(talentTabId);
+            TalentTabEntry const *talentTabInfo = sTalentTabStore.LookupEntry(talentTabId);
             if (!talentTabInfo)
                 continue;
 
@@ -374,9 +390,7 @@ void LoadDBCStores(std::string const& dataPath)
 
             // store class talent tab pages
             uint32 cls = 1;
-            for (uint32 m = 1; !(m & talentTabInfo->ClassMask) && cls < MAX_CLASSES; m <<= 1, ++cls)
-            {
-            }
+            for (uint32 m = 1; !(m & talentTabInfo->ClassMask) && cls < MAX_CLASSES; m <<= 1, ++cls) {}
 
             sTalentTabPages[cls][talentTabInfo->tabpage] = talentTabId;
 
@@ -385,7 +399,7 @@ void LoadDBCStores(std::string const& dataPath)
             for (const auto& itr : sTalentBitSize)
             {
                 uint32 talentId = itr.first & 0xFFFF;
-                TalentEntry const* talentInfo = sTalentStore.LookupEntry(talentId);
+                TalentEntry const *talentInfo = sTalentStore.LookupEntry(talentId);
                 if (!talentInfo)
                     continue;
 
@@ -515,7 +529,7 @@ char const* GetPetName(uint32 petfamily, uint32 dbclang)
 {
     if (!petfamily)
         return nullptr;
-    CreatureFamilyEntry const* pet_family = sCreatureFamilyStore.LookupEntry(petfamily);
+    CreatureFamilyEntry const *pet_family = sCreatureFamilyStore.LookupEntry(petfamily);
     if (!pet_family)
         return nullptr;
     return pet_family->Name[dbclang] ? pet_family->Name[dbclang] : nullptr;
@@ -538,7 +552,10 @@ uint32 GetTalentSpellCost(TalentSpellPos const* pos)
     return 0;
 }
 
-uint32 GetTalentSpellCost(uint32 spellId) { return GetTalentSpellCost(GetTalentSpellPos(spellId)); }
+uint32 GetTalentSpellCost(uint32 spellId)
+{
+    return GetTalentSpellCost(GetTalentSpellPos(spellId));
+}
 
 WMOAreaTableEntry const* GetWMOAreaTableEntryByTripple(int32 rootid, int32 adtid, int32 groupid)
 {
@@ -546,6 +563,7 @@ WMOAreaTableEntry const* GetWMOAreaTableEntryByTripple(int32 rootid, int32 adtid
     if (i == sWMOAreaInfoByTripple.end())
         return nullptr;
     return i->second;
+
 }
 
 bool Zone2MapCoordinates(float& x, float& y, uint32 zone)
@@ -596,7 +614,10 @@ uint32 GetTalentTabInspectBitSize(uint32 talentTabId)
     return itr->second;
 }
 
-uint32 const* GetTalentTabPages(uint32 cls) { return sTalentTabPages[cls]; }
+uint32 const* GetTalentTabPages(uint32 cls)
+{
+    return sTalentTabPages[cls];
+}
 
 bool IsPointInAreaTriggerZone(AreaTriggerEntry const* atEntry, uint32 mapid, float x, float y, float z, float delta)
 {
@@ -632,7 +653,9 @@ bool IsPointInAreaTriggerZone(AreaTriggerEntry const* atEntry, uint32 mapid, flo
         float dz = z - atEntry->z;
         float dx = rotPlayerX - atEntry->x;
         float dy = rotPlayerY - atEntry->y;
-        if ((fabs(dx) > atEntry->box_x / 2 + delta) || (fabs(dy) > atEntry->box_y / 2 + delta) || (fabs(dz) > atEntry->box_z / 2 + delta))
+        if ((fabs(dx) > atEntry->box_x / 2 + delta) ||
+                (fabs(dy) > atEntry->box_y / 2 + delta) ||
+                (fabs(dz) > atEntry->box_z / 2 + delta))
             return false;
     }
 

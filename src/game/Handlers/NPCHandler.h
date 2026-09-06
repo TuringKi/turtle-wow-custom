@@ -23,10 +23,10 @@
 #define __NPCHANDLER_H
 
 // GCC have alternative #pragma pack(N) syntax and old gcc version not support pack(push,N), also any gcc version not support it at some platform
-#if defined(__GNUC__)
+#if defined( __GNUC__ )
 #pragma pack(1)
 #else
-#pragma pack(push, 1)
+#pragma pack(push,1)
 #endif
 
 struct PageText
@@ -37,7 +37,7 @@ struct PageText
 };
 
 // GCC have alternative #pragma pack() syntax and old gcc version not support pack(pop), also any gcc version not support it at some platform
-#if defined(__GNUC__)
+#if defined( __GNUC__ )
 #pragma pack()
 #else
 #pragma pack(pop)
@@ -60,11 +60,17 @@ struct NpcTextOption
 {
     float Probability;
     uint32 BroadcastTextID;
+    // bot expects Text_0/Text_1 fields. Stub strings.
+    std::string Text_0;
+    std::string Text_1;
 };
 
 struct NpcText
 {
     NpcTextOption Options[8];
 };
+
+// bot uses GossipText typedef for NpcText.
+typedef NpcText GossipText;
 
 #endif

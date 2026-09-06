@@ -19,33 +19,33 @@
 #ifndef _AUTH_HMAC_H
 #define _AUTH_HMAC_H
 
+#include "Common.h"
 #include <openssl/hmac.h>
 #include <openssl/sha.h>
 #include <vector>
-#include "Common.h"
 
 class BigNumber;
 
 class HmacHash
 {
-public:
-    HmacHash() {}
-    HmacHash(const uint8* data, int length);
-    ~HmacHash();
-    void UpdateBigNumber(BigNumber* bn);
-    void UpdateData(const std::vector<uint8>& data);
-    void UpdateData(const uint8* data, int length);
-    void Initialize();
-    void Finalize();
-    uint8* GetDigest() { return m_digest; };
-    int GetLength() { return SHA_DIGEST_LENGTH; };
+    public:
+        HmacHash() { }
+        HmacHash(const uint8* data, int length);
+        ~HmacHash();
+        void UpdateBigNumber(BigNumber* bn);
+        void UpdateData(const std::vector<uint8>& data);
+        void UpdateData(const uint8* data, int length);
+        void Initialize();
+        void Finalize();
+        uint8* GetDigest() { return m_digest; };
+        int GetLength() { return SHA_DIGEST_LENGTH; };
+    private:
 
-private:
 #if defined(OPENSSL_VERSION_NUMBER) && OPENSSL_VERSION_NUMBER >= 0x10100000L
-    HMAC_CTX* m_ctx;
+        HMAC_CTX* m_ctx;
 #else
-    HMAC_CTX m_ctx;
+        HMAC_CTX m_ctx;
 #endif
-    uint8 m_digest[SHA_DIGEST_LENGTH];
+        uint8 m_digest[SHA_DIGEST_LENGTH];
 };
 #endif

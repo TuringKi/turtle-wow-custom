@@ -5,9 +5,9 @@
  * absent permission of Nolin.
  */
 
-#include "boss_gerastrasz.hpp"
-#include "black_morass.h"
 #include "scriptPCH.h"
+#include "black_morass.h"
+#include "boss_gerastrasz.hpp"
 
 
 class boss_gerastraszAI : public ScriptedAI
@@ -20,6 +20,7 @@ public:
     }
 
 private:
+
     bool m_bFirstEchoSummoned{};
     bool m_bSecondEchoSummoned{};
     bool m_bThirdEchoSummoned{};
@@ -60,8 +61,8 @@ public:
     {
         if (!m_pInstance)
             return;
-
-        if (Creature * pEcho{m_creature->GetMap()->GetCreature(m_guidCurrentEcho)})
+        
+        if (Creature* pEcho{ m_creature->GetMap()->GetCreature(m_guidCurrentEcho) })
         {
             pEcho->DisappearAndDie();
         }
@@ -75,7 +76,7 @@ public:
         {
             m_creature->MonsterYell("BAH! USELESS MINION!");
 
-            if (Creature * pEcho{m_creature->GetMap()->GetCreature(m_guidCurrentEcho)})
+            if (Creature* pEcho{ m_creature->GetMap()->GetCreature(m_guidCurrentEcho) })
             {
                 m_creature->MonsterTextEmote("Commander Gerastrasz ignites his own echo.");
                 m_creature->DealDamage(pEcho, pEcho->GetHealth(), nullptr, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, nullptr, false);
@@ -85,7 +86,7 @@ public:
 
     void SummonEcho()
     {
-        if (Unit * pEcho{m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 0)})
+        if (Unit* pEcho{ m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 0) })
         {
             m_creature->MonsterYell("I am eternal!");
 
@@ -155,7 +156,7 @@ public:
         {
             if (m_uiBloodFunnel_Timer < uiDiff)
             {
-                if (Creature * pEcho{m_creature->GetMap()->GetCreature(m_guidCurrentEcho)})
+                if (Creature* pEcho{ m_creature->GetMap()->GetCreature(m_guidCurrentEcho) })
                 {
                     pEcho->AddUnitState(UNIT_STAT_ROOT);
                     pEcho->MonsterTextEmote("Echo of Gerastrasz begins to heal the Commander.");
@@ -201,11 +202,14 @@ public:
     }
 };
 
-CreatureAI* GetAI_boss_gerastrasz(Creature* pCreature) { return new boss_gerastraszAI(pCreature); }
+CreatureAI* GetAI_boss_gerastrasz(Creature* pCreature)
+{
+    return new boss_gerastraszAI(pCreature);
+}
 
 void AddSC_boss_gerastrasz()
 {
-    Script* pNewscript{new Script};
+    Script* pNewscript{ new Script };
     pNewscript->Name = "boss_gerastrasz";
     pNewscript->GetAI = &GetAI_boss_gerastrasz;
     pNewscript->RegisterSelf();

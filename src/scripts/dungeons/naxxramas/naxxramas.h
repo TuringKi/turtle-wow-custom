@@ -65,7 +65,7 @@ enum NaxxNPCs : uint32
     NPC_KELTHUZAD = 15990,
 
     // Gothik adds
-    NPC_SUB_BOSS_TRIGGER = 16137, // summon locations
+    NPC_SUB_BOSS_TRIGGER        = 16137,    //summon locations
     NPC_UNREL_TRAINEE = 16124,
     NPC_UNREL_DEATH_KNIGHT = 16125,
     NPC_UNREL_RIDER = 16126,
@@ -171,30 +171,30 @@ static const G3D::Vector2 DK_DOOR_B(2579.34f, -3029.44f);
 enum NaxxGOs : uint32
 {
     // Arachnid Quarter
-    GO_ARAC_ANUB_DOOR = 181126, // encounter door - open on click after click auto open/close on encounter pull/kill/reset
-    GO_ARAC_ANUB_GATE = 181195, // open after boss is dead
-    GO_ARAC_FAER_WEB = 181235, // encounter door
-    GO_ARAC_FAER_DOOR = 194022, // after faerlina, to outer ring
-    GO_ARAC_MAEX_INNER_DOOR = 181197, // encounter door
-    GO_ARAC_MAEX_OUTER_DOOR = 181209, // right before maex
+    GO_ARAC_ANUB_DOOR           = 181126,   //encounter door - open on click after click auto open/close on encounter pull/kill/reset
+    GO_ARAC_ANUB_GATE           = 181195,   //open after boss is dead
+    GO_ARAC_FAER_WEB            = 181235,   //encounter door
+    GO_ARAC_FAER_DOOR           = 194022,   //after faerlina, to outer ring
+    GO_ARAC_MAEX_INNER_DOOR     = 181197,   //encounter door
+    GO_ARAC_MAEX_OUTER_DOOR     = 181209,   //right before maex
 
     // Plague Quarter
-    GO_PLAG_NOTH_ENTRY_DOOR = 181200, // encounter door
-    GO_PLAG_NOTH_EXIT_DOOR = 181201, // exit, open when boss dead
+    GO_PLAG_NOTH_ENTRY_DOOR     = 181200,   //encounter door
+    GO_PLAG_NOTH_EXIT_DOOR      = 181201,   //exit, open when boss dead
     GO_PLAG_HEIG_ENTRY_DOOR = 181202,
-    GO_PLAG_HEIG_EXIT_DOOR = 181203, // exit, open when boss dead
-    GO_PLAG_HEIG_OLD_EXIT_DOOR = 181496, // between heigan and loatheb. Unsure if used
-    GO_PLAG_LOAT_DOOR = 181241, // encounter door
+    GO_PLAG_HEIG_EXIT_DOOR      = 181203,   //exit, open when boss dead
+    GO_PLAG_HEIG_OLD_EXIT_DOOR  = 181496,   //between heigan and loatheb. Unsure if used
+    GO_PLAG_LOAT_DOOR           = 181241,   //encounter door
 
     // Military Quarter
-    GO_PLAG_SLIME01_DOOR = 181198, // not used
-    GO_PLAG_SLIME02_DOOR = 181199, // not used
-    GO_MILI_GOTH_ENTRY_GATE = 181124, // open after razuvious died
-    GO_MILI_GOTH_EXIT_GATE = 181125, // exit, open at boss dead
-    GO_MILI_GOTH_COMBAT_GATE = 181170, // used while encounter is in progress
-    GO_MILI_HORSEMEN_DOOR = 181119, // encounter door
+    GO_PLAG_SLIME01_DOOR        = 181198,   //not used
+    GO_PLAG_SLIME02_DOOR        = 181199,   //not used
+    GO_MILI_GOTH_ENTRY_GATE     = 181124,   //open after razuvious died
+    GO_MILI_GOTH_EXIT_GATE      = 181125,   //exit, open at boss dead
+    GO_MILI_GOTH_COMBAT_GATE    = 181170,   //used while encounter is in progress
+    GO_MILI_HORSEMEN_DOOR       = 181119,   //encounter door
 
-    GO_CHEST_HORSEMEN_NORM = 181366, // four horsemen event, DoRespawnGameObject() when event == DONE
+    GO_CHEST_HORSEMEN_NORM      = 181366,   //four horsemen event, DoRespawnGameObject() when event == DONE
 
     // Construct Quarter
     GO_CONS_PATH_EXIT_DOOR = 181123,
@@ -245,7 +245,7 @@ enum NaxxZoneScriptTexts
     THADDIUS_SAY_SCREAM3 = -1533038, // todo: add use
     THADDIUS_SAY_SCREAM4 = -1533039, // todo: add use
 
-    // when each of the 4 wing bosses dies
+    //when each of the 4 wing bosses dies
     KELTHUZAD_SAY_TAUNT1 = -1533090,
     KELTHUZAD_SAY_TAUNT2 = -1533091,
     KELTHUZAD_SAY_TAUNT3 = -1533092,
@@ -254,7 +254,7 @@ enum NaxxZoneScriptTexts
     // when bigglesworth dies, rip
     KELTHUZAD_SAY_CAT_DIED = -1533089,
 
-    // when shappiron dies. dialog between kel and lich king (in this order)
+    //when shappiron dies. dialog between kel and lich king (in this order)
     SAY_SAPP_DIALOG1 = -1533084,
     SAY_SAPP_DIALOG2_LICH = -1533085,
     SAY_SAPP_DIALOG3 = -1533086,
@@ -278,32 +278,28 @@ struct GothTrigger
 };
 
 static constexpr uint8 max_stalks = 20;
-static constexpr float eyeStalkPossitions[max_stalks][4] = {
-    {2761.28f, -3765.37f, 275.08f, 1.24f},
-    {2770.17f, -3782.11f, 275.08f, 1.33f},
-    {2798.11f, -3788.94f, 275.08f, 2.35f},
-    {2797.91f, -3776.86f, 275.08f, 2.25f},
-    {
-        2792.06f,
-        -3762.52f,
-        275.08f,
-        2.9f,
-    },
-    {2789.87f, -3752.15f, 275.08f, 2.74f},
-    {2804.21f, -3757.96f, 275.08f, 3.9f},
-    {2821.16f, -3759.75f, 275.08f, 4.47f},
-    {2834.64f, -3751.23f, 275.08f, 4.27f},
-    {2843.54f, -3768.08f, 275.08f, 3.06f},
-    {2862.4f, -3758.3f, 275.08f, 4.8f},
-    {2877.8f, -3762.46f, 275.08f, 4.8f},
-    {2894.11f, -3757.89f, 275.08f, 4.56f},
-    {2895.25f, -3779.5f, 275.08f, 2.4f},
-    {2881.59f, -3782.22f, 275.08f, 2.79f},
-    {2867.2f, -3778.21f, 275.08f, 3.01f},
-    {2851.39f, -3776.54f, 275.08f, 2.69f},
-    {2846.16f, -3789.13f, 275.08f, 1.79f},
-    {2830.09f, -3776.49f, 275.08f, 0.94f},
-    {2813.34f, -3780.97f, 275.08f, 1.84f},
+static constexpr float eyeStalkPossitions[max_stalks][4] =
+{
+    { 2761.28f, -3765.37f, 275.08f, 1.24f },
+    { 2770.17f, -3782.11f, 275.08f, 1.33f },
+    { 2798.11f, -3788.94f, 275.08f, 2.35f },
+    { 2797.91f, -3776.86f, 275.08f, 2.25f },
+    { 2792.06f, -3762.52f, 275.08f, 2.9f, },
+    { 2789.87f, -3752.15f, 275.08f, 2.74f },
+    { 2804.21f, -3757.96f, 275.08f, 3.9f },
+    { 2821.16f, -3759.75f, 275.08f, 4.47f },
+    { 2834.64f, -3751.23f, 275.08f, 4.27f },
+    { 2843.54f, -3768.08f, 275.08f, 3.06f },
+    { 2862.4f,  -3758.3f,  275.08f, 4.8f },
+    { 2877.8f,  -3762.46f, 275.08f, 4.8f },
+    { 2894.11f, -3757.89f, 275.08f, 4.56f },
+    { 2895.25f, -3779.5f,  275.08f, 2.4f },
+    { 2881.59f, -3782.22f, 275.08f, 2.79f },
+    { 2867.2f,  -3778.21f, 275.08f, 3.01f },
+    { 2851.39f, -3776.54f, 275.08f, 2.69f },
+    { 2846.16f, -3789.13f, 275.08f, 1.79f },
+    { 2830.09f, -3776.49f, 275.08f, 0.94f },
+    { 2813.34f, -3780.97f, 275.08f, 1.84f },
 };
 
 class instance_naxxramas : public ScriptedInstance
@@ -318,7 +314,7 @@ public:
 
     void OnCreatureCreate(Creature* pCreature) override;
     void OnObjectCreate(GameObject* pGo) override;
-    void OnCreatureRespawn(Creature* pCreature) override;
+    void OnCreatureRespawn(Creature * pCreature) override;
 
     void SetData(uint32 uiType, uint32 uiData) override;
     uint32 GetData(uint32 uiType) override;
@@ -327,23 +323,18 @@ public:
     uint64 GetGOUuid(NaxxGOs which);
 
     const char* Save() override { return strInstData.c_str(); }
-    void Load(const char* chrIn) override;
+    void Load (const char* chrIn) override;
 
     // goth
     void SetGothTriggers();
     Creature* GetClosestAnchorForGoth(Creature* pSource, bool bRightSide);
-    void GetGothSummonPointCreatures(std::list<Creature*>& lList, bool bRightSide);
+    void GetGothSummonPointCreatures(std::list<Creature*> &lList, bool bRightSide);
     bool IsInRightSideGothArea(const Unit* pUnit);
 
     // kel
-    void OnKTAreaTrigger(const AreaTriggerEntry* pAT); // impl in boss_kelthuzad.cpp
+    void OnKTAreaTrigger(const AreaTriggerEntry* pAT); //impl in boss_kelthuzad.cpp
     void SetChamberCenterCoords(float fX, float fY, float fZ);
-    void GetChamberCenterCoords(float& fX, float& fY, float& fZ)
-    {
-        fX = m_fChamberCenterX;
-        fY = m_fChamberCenterY;
-        fZ = m_fChamberCenterZ;
-    }
+    void GetChamberCenterCoords(float &fX, float &fY, float &fZ) { fX = m_fChamberCenterX; fY = m_fChamberCenterY; fZ = m_fChamberCenterZ; }
     void ToggleKelThuzadWindows(bool setOpen);
 
     void OnPlayerDeath(Player* p) override;
@@ -352,7 +343,7 @@ public:
     void onNaxxramasAreaTrigger(Player* pPlayer, const AreaTriggerEntry* pAt);
 
     void UpdateAutomaticBossEntranceDoor(NaxxGOs which, uint32 uiData, int requiredPreBossData = -1); // GO closes when uiData==IN_PROGRESS, otherwise opens
-    void UpdateAutomaticBossEntranceDoor(GameObject* pGO, uint32 uiData, int requiredPreBossData = -1); // GO closes when uiData==IN_PROGRESS, otherwise opens
+    void UpdateAutomaticBossEntranceDoor(GameObject* pGO, uint32 uiData, int requiredPreBossData = -1);// GO closes when uiData==IN_PROGRESS, otherwise opens
 
     void UpdateManualDoor(NaxxGOs which, uint32 uiData);
     void UpdateManualDoor(GameObject* pGO, uint32 uiData);
@@ -369,7 +360,7 @@ public:
 
     bool HandleEvadeOutOfHome(Creature* pWho);
 
-    void OnCreatureEnterCombat(Creature* creature) override;
+    void OnCreatureEnterCombat(Creature * creature) override;
 
     bool WingsAreCleared();
 

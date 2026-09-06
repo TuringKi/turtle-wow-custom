@@ -36,7 +36,10 @@ enum
 
 struct boss_thebeastAI : public ScriptedAI
 {
-    boss_thebeastAI(Creature* pCreature) : ScriptedAI(pCreature) { Reset(); }
+    boss_thebeastAI(Creature* pCreature) : ScriptedAI(pCreature)
+    {
+        Reset();
+    }
 
     uint32 m_uiFlamebreakTimer;
     uint32 m_uiTerrifyingRoarTimer;
@@ -114,8 +117,7 @@ struct boss_thebeastAI : public ScriptedAI
         if (m_uiBeserkerChargeTimer <= uiDiff)
         {
             Unit* pTarget = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 1);
-            if (m_uiBeserkerChargeTimer == 0)
-                pTarget = m_creature->GetVictim();
+            if (m_uiBeserkerChargeTimer == 0) pTarget = m_creature->GetVictim();
 
             if (DoCastSpellIfCan(pTarget, SPELL_BERSERKER_CHARGE) == CAST_OK)
                 m_uiBeserkerChargeTimer = urand(15000, 20000);
@@ -149,7 +151,10 @@ struct boss_thebeastAI : public ScriptedAI
     }
 };
 
-CreatureAI* GetAI_boss_thebeast(Creature* pCreature) { return new boss_thebeastAI(pCreature); }
+CreatureAI* GetAI_boss_thebeast(Creature* pCreature)
+{
+    return new boss_thebeastAI(pCreature);
+}
 
 void AddSC_boss_thebeast()
 {

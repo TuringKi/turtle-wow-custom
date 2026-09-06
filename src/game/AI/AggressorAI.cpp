@@ -22,7 +22,7 @@
 #include "AggressorAI.h"
 #include "Creature.h"
 
-int AggressorAI::Permissible(const Creature* creature)
+int AggressorAI::Permissible(const Creature *creature)
 {
     // have some hostile factions, it will be selected by IsHostileTo check at MoveInLineOfSight
     if (!(creature->HasExtraFlag(CREATURE_FLAG_EXTRA_NO_AGGRO) && !creature->IsNeutralToAll()))
@@ -31,7 +31,7 @@ int AggressorAI::Permissible(const Creature* creature)
     return PERMIT_BASE_NO;
 }
 
-void AggressorAI::MoveInLineOfSight(Unit* u)
+void AggressorAI::MoveInLineOfSight(Unit *u)
 {
     // Check this now to prevent calling expensive functions (IsInAccessablePlaceFor / IsWithinLOSInMap)
     if (m_creature->GetVictim() && !m_creature->GetMap()->IsDungeon())
@@ -43,7 +43,8 @@ void AggressorAI::MoveInLineOfSight(Unit* u)
     if (!m_creature->IsWithinDistInMap(u, m_creature->GetAttackDistance(u), true, SizeFactor::None) || u->HasHCImmunity())
         return;
 
-    if (m_creature->CanInitiateAttack() && u->IsTargetable(true, false) && m_creature->IsHostileTo(u) && m_creature->IsWithinLOSInMap(u) && u->IsInAccessablePlaceFor(m_creature))
+    if (m_creature->CanInitiateAttack() && u->IsTargetable(true, false) && m_creature->IsHostileTo(u) &&
+            m_creature->IsWithinLOSInMap(u) && u->IsInAccessablePlaceFor(m_creature))
     {
         if (!m_creature->GetVictim())
             AttackStart(u);
@@ -67,7 +68,7 @@ void AggressorAI::UpdateAI(const uint32 uiDiff)
     DoMeleeAttackIfReady();
 }
 
-void AggressorAI::AttackStart(Unit* u)
+void AggressorAI::AttackStart(Unit *u)
 {
     if (!u)
         return;

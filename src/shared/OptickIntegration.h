@@ -5,8 +5,8 @@
 #ifndef TURTLE_PROFILE
 #define OPTICK_DEBUG_EVENT(x)
 
-#define OPTICK_SETUP_THREAD(x)
-#define OPTICK_FRAME_TASK(x)
+#define OPTICK_SETUP_THREAD(x) 
+#define OPTICK_FRAME_TASK(x) 
 #define OPTICK_FRAME_UPDATE()
 #define OPTICK_BEGIN_TASK(x)
 #define OPTICK_END_TASK(x)

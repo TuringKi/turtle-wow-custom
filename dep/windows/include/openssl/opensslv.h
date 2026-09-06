@@ -8,9 +8,9 @@
  */
 
 #ifndef HEADER_OPENSSLV_H
-#define HEADER_OPENSSLV_H
+# define HEADER_OPENSSLV_H
 
-#ifdef __cplusplus
+#ifdef  __cplusplus
 extern "C" {
 #endif
 
@@ -39,8 +39,8 @@ extern "C" {
  * (Prior to 0.9.5a beta1, a different scheme was used: MMNNFFRBB for
  *  major minor fix final patch/beta)
  */
-#define OPENSSL_VERSION_NUMBER 0x1010113fL
-#define OPENSSL_VERSION_TEXT "OpenSSL 1.1.1s  1 Nov 2022"
+# define OPENSSL_VERSION_NUMBER  0x1010113fL
+# define OPENSSL_VERSION_TEXT    "OpenSSL 1.1.1s  1 Nov 2022"
 
 /*-
  * The macros below are to be used for shared library (.so, .dll, ...)
@@ -91,11 +91,11 @@ extern "C" {
  * macro SHLIB_VERSION_HISTORY.  The numbers are separated by colons and
  * should only keep the versions that are binary compatible with the current.
  */
-#define SHLIB_VERSION_HISTORY ""
-#define SHLIB_VERSION_NUMBER "1.1"
+# define SHLIB_VERSION_HISTORY ""
+# define SHLIB_VERSION_NUMBER "1.1"
 
 
-#ifdef __cplusplus
+#ifdef  __cplusplus
 }
 #endif
-#endif /* HEADER_OPENSSLV_H */
+#endif                          /* HEADER_OPENSSLV_H */

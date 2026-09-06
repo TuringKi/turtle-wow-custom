@@ -12,10 +12,25 @@ private:
     static constexpr uint32_t SPELL_FEAR = 25815;
 
     static constexpr uint32_t HUNTERKILLER_WAYPOINTS_NUMBER = 16;
-    static inline Movement::Location HunterKillerWaypoint[HUNTERKILLER_WAYPOINTS_NUMBER] = {
-        {-7769.14f, 549.365f, -44.1111f, 0.868761f}, {-7762.88f, 564.709f, -45.9125f, 1.17899f}, {-7749.28f, 589.14f, -47.1617f, 1.05334f}, {-7748.5f, 622.853f, -45.2946f, 0.982653f}, {-7730.37f, 643.343f, -46.7866f, 0.456442f}, {-7694.24f, 660.321f, -51.0377f, 0.441519f}, {-7674.25f, 671.264f, -50.4592f, 0.0841609f}, {-7655.01f, 671.601f, -47.9161f, 1.13424f}, {-7634.07f, 672.497f, -47.8617f, 0.0857299f}, {-7603.06f, 667.321f, -48.6429f, 6.0249f}, {-7571.59f, 665.263f, -48.3899f, 0.0480175f}, {-7562.58f, 687.328f, -49.9864f, 1.36749f}, {-7559.18f, 689.958f, -40.8654f, 1.44927f}, {-7555.3f, 692.953f, -30.7562f, 0.671711f}, {-7548.27f, 697.037f, -25.6632f, 1.09582f}, {-7547.07f, 706.949f, -17.7001f, 4.68419f},
+    static inline Movement::Location HunterKillerWaypoint[HUNTERKILLER_WAYPOINTS_NUMBER] =
+    {
+        { -7769.14f, 549.365f, -44.1111f, 0.868761f},
+        { -7762.88f, 564.709f, -45.9125f, 1.17899f},
+        { -7749.28f, 589.14f, -47.1617f, 1.05334f},
+        { -7748.5f, 622.853f, -45.2946f, 0.982653f},
+        { -7730.37f, 643.343f, -46.7866f, 0.456442f},
+        { -7694.24f, 660.321f, -51.0377f, 0.441519f},
+        { -7674.25f, 671.264f, -50.4592f, 0.0841609f},
+        { -7655.01f, 671.601f, -47.9161f, 1.13424f},
+        { -7634.07f, 672.497f, -47.8617f, 0.0857299f},
+        { -7603.06f, 667.321f, -48.6429f, 6.0249f},
+        { -7571.59f, 665.263f, -48.3899f, 0.0480175f},
+        { -7562.58f, 687.328f, -49.9864f, 1.36749f},
+        { -7559.18f, 689.958f, -40.8654f, 1.44927f},
+        { -7555.3f, 692.953f, -30.7562f, 0.671711f},
+        { -7548.27f, 697.037f, -25.6632f, 1.09582f},
+        { -7547.07f, 706.949f, -17.7001f, 4.68419f},
     };
-
 public:
     npc_hiveregal_hunterkiller(Creature* pCreature) : ScriptedAI(pCreature)
     {
@@ -142,7 +157,10 @@ public:
         DoMeleeAttackIfReady();
     }
 
-    static CreatureAI* GetAI(Creature* creature) { return new npc_hiveregal_hunterkiller(creature); }
+    static CreatureAI* GetAI(Creature* creature)
+    {
+        return new npc_hiveregal_hunterkiller(creature);
+    }
 
     static void register_script()
     {

@@ -2,15 +2,18 @@
  * This program is free software licensed under GPL version 2
  * Please see the included DOCS/LICENSE.TXT for more information */
 
+#include "Item.h"
+#include "SpellMgr.h"
+#include "Spell.h"
+#include "WorldPacket.h"
+#include "ObjectMgr.h"
 #include "ScriptedAI.h"
 #include "GridSearchers.h"
-#include "Item.h"
-#include "ObjectMgr.h"
-#include "Spell.h"
-#include "SpellMgr.h"
-#include "WorldPacket.h"
 
-ScriptedAI::ScriptedAI(Creature* pCreature) : CreatureAI(pCreature), me(pCreature), m_uiEvadeCheckCooldown(2500), m_uiHomeArea(m_creature->GetAreaId())
+ScriptedAI::ScriptedAI(Creature* pCreature) : CreatureAI(pCreature),
+    me(pCreature),
+    m_uiEvadeCheckCooldown(2500),
+    m_uiHomeArea(m_creature->GetAreaId())
 {
     m_bEvadeOutOfHomeArea = false;
 
@@ -67,11 +70,13 @@ void ScriptedAI::EnterCombat(Unit* pEnemy)
     Aggro(pEnemy);
 }
 
-void ScriptedAI::Aggro(Unit* pEnemy) {}
+void ScriptedAI::Aggro(Unit* pEnemy)
+{
+}
 
 void ScriptedAI::UpdateAI(const uint32 uiDiff)
 {
-    // Check if we have a current target
+    //Check if we have a current target
     m_creature->SelectHostileTarget();
 
     if (!m_CreatureSpells.empty() && m_creature->IsInCombat())
@@ -149,7 +154,10 @@ void ScriptedAI::DoPlaySoundToSet(WorldObject* pSource, uint32 uiSoundId)
     pSource->PlayDirectSound(uiSoundId);
 }
 
-Creature* ScriptedAI::DoSpawnCreature(uint32 uiId, float fX, float fY, float fZ, float fAngle, uint32 uiType, uint32 uiDespawntime) { return m_creature->SummonCreature(uiId, m_creature->GetPositionX() + fX, m_creature->GetPositionY() + fY, m_creature->GetPositionZ() + fZ, fAngle, (TempSummonType)uiType, uiDespawntime); }
+Creature* ScriptedAI::DoSpawnCreature(uint32 uiId, float fX, float fY, float fZ, float fAngle, uint32 uiType, uint32 uiDespawntime)
+{
+    return m_creature->SummonCreature(uiId,m_creature->GetPositionX()+fX, m_creature->GetPositionY()+fY, m_creature->GetPositionZ()+fZ, fAngle, (TempSummonType)uiType, uiDespawntime);
+}
 
 Creature* ScriptedAI::DoSpawnCreature(uint32 id, float dist, uint32 type, uint32 despawntime)
 {
@@ -159,7 +167,10 @@ Creature* ScriptedAI::DoSpawnCreature(uint32 id, float dist, uint32 type, uint32
     return m_creature->SummonCreature(id, x, y, z, m_creature->GetAngle(x, y) + M_PI, (TempSummonType)type, despawntime);
 }
 
-void ScriptedAI::DoResetThreat() { m_creature->DoResetThreat(); }
+void ScriptedAI::DoResetThreat()
+{
+    m_creature->DoResetThreat();
+}
 
 void ScriptedAI::DoTeleportPlayer(Unit* pUnit, float fX, float fY, float fZ, float fO)
 {
@@ -223,16 +234,15 @@ Player* ScriptedAI::GetRandomPlayerInRange(const float radius, const bool mustBe
     GetPlayersWithinRange(players, radius);
     if (excludedPlayers != nullptr)
     {
-        players.remove_if(
-            [excludedPlayers, mustBeAlive](Player* player)
+        players.remove_if([excludedPlayers, mustBeAlive](Player* player)
+        {
+            if (mustBeAlive && player->IsDead())
             {
-                if (mustBeAlive && player->IsDead())
-                {
-                    return true;
-                }
+                return true;
+            }
 
-                return std::find(excludedPlayers->begin(), excludedPlayers->end(), player) != excludedPlayers->end();
-            });
+            return std::find(excludedPlayers->begin(), excludedPlayers->end(), player) != excludedPlayers->end();
+        });
     }
 
     if (players.empty())
@@ -257,7 +267,7 @@ void ScriptedAI::SetEquipmentSlots(bool bLoadDefault, int32 uiMainHand, int32 ui
 {
     if (bLoadDefault)
     {
-        m_creature->LoadEquipment(m_creature->GetCreatureInfo()->equipment_id, true);
+        m_creature->LoadEquipment(m_creature->GetCreatureInfo()->equipment_id,true);
         return;
     }
 
@@ -275,9 +285,9 @@ void ScriptedAI::SetEquipmentSlots(bool bLoadDefault, int32 uiMainHand, int32 ui
 // It is assumed the information is found elswehere and can be handled by mangos. So far no luck finding such information/way to extract it.
 enum
 {
-    NPC_BROODLORD = 12017,
-    NPC_VISCIDUS = 15299,
-    NPC_SYLVANAS = 10181,
+    NPC_BROODLORD   = 12017,
+    NPC_VISCIDUS    = 15299,
+    NPC_SYLVANAS    = 10181,
     NPC_VARIMATHRAS = 2425
 };
 
@@ -298,7 +308,7 @@ bool ScriptedAI::EnterEvadeIfOutOfCombatArea(const uint32 uiDiff)
     float fY = m_creature->GetPositionY();
     float fZ = m_creature->GetPositionZ();
 
-    if (m_creature->GetMapId() == 532 && m_creature->GetLevel() == 63) // kara, leash to work around kiting bug
+    if (m_creature->GetMapId() == 532 && m_creature->GetLevel() == 63) //kara, leash to work around kiting bug
     {
         if (m_creature->GetDistance(m_creature->GetHomePosition()) > 120.f)
         {
@@ -307,24 +317,24 @@ bool ScriptedAI::EnterEvadeIfOutOfCombatArea(const uint32 uiDiff)
         }
     }
 
-    switch (m_creature->GetEntry())
+    switch(m_creature->GetEntry())
     {
-    case NPC_BROODLORD: // broodlord (not move down stairs)
-        if (fZ > 448.60f)
+        case NPC_BROODLORD:                                 // broodlord (not move down stairs)
+            if (fZ > 448.60f)
+                return false;
+            break;
+        case NPC_VISCIDUS:
+            if (fZ < -30.0f)
+                return false;
+            break;
+        case NPC_SYLVANAS:
+        case NPC_VARIMATHRAS:
+            if (m_creature->GetDistance(fX, fY, fZ) < 120.0f)
+                return false;
+            break;
+        default:
+            sLog.outError("EnterEvadeIfOutOfCombatArea used for creature entry %u, but does not have any definition.", m_creature->GetEntry());
             return false;
-        break;
-    case NPC_VISCIDUS:
-        if (fZ < -30.0f)
-            return false;
-        break;
-    case NPC_SYLVANAS:
-    case NPC_VARIMATHRAS:
-        if (m_creature->GetDistance(fX, fY, fZ) < 120.0f)
-            return false;
-        break;
-    default:
-        sLog.outError("EnterEvadeIfOutOfCombatArea used for creature entry %u, but does not have any definition.", m_creature->GetEntry());
-        return false;
     }
 
     EnterEvadeMode();
@@ -367,29 +377,33 @@ void ScriptedAI::DoGoHome()
 // TrinityCore
 float ScriptedAI::DoGetThreat(Unit* pUnit)
 {
-    if (!pUnit)
-        return 0.0f;
+    if (!pUnit) return 0.0f;
     return me->GetThreatManager().getThreat(pUnit);
 }
 
 void ScriptedAI::DoModifyThreatPercent(Unit* pUnit, int32 pct)
 {
-    if (!pUnit)
-        return;
+    if (!pUnit) return;
     me->GetThreatManager().modifyThreatPercent(pUnit, pct);
 }
 
-void ScriptedAI::DoTeleportTo(float fX, float fY, float fZ) { me->NearTeleportTo(fX, fY, fZ, me->GetOrientation()); }
+void ScriptedAI::DoTeleportTo(float fX, float fY, float fZ)
+{
+    me->NearTeleportTo(fX, fY, fZ, me->GetOrientation());
+}
 
-void ScriptedAI::DoTeleportTo(const float fPos[4]) { me->NearTeleportTo(fPos[0], fPos[1], fPos[2], fPos[3]); }
+void ScriptedAI::DoTeleportTo(const float fPos[4])
+{
+    me->NearTeleportTo(fPos[0], fPos[1], fPos[2], fPos[3]);
+}
 
 void ScriptedAI::DoTeleportAll(float fX, float fY, float fZ, float fO)
 {
-    Map* map = me->GetMap();
+    Map *map = me->GetMap();
     if (!map->IsDungeon())
         return;
 
-    Map::PlayerList const& PlayerList = map->GetPlayers();
+    Map::PlayerList const &PlayerList = map->GetPlayers();
     for (const auto& i : PlayerList)
         if (Player* i_pl = i.getSource())
             if (i_pl->IsAlive())

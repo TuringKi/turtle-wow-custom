@@ -30,18 +30,21 @@ EndScriptData */
 
 enum eSpells
 {
-    SPELL_CLEAVE = 15284,
+    SPELL_CLEAVE        = 15284,
     SPELL_MORTAL_STRIKE = 16856,
-    SPELL_THUNDERCLAP = 23931,
-    SPELL_UPPERCUT = 22916,
-    SPELL_CHARGE = 22911,
-    SPELL_WARSTOMP = 16727,
+    SPELL_THUNDERCLAP   = 23931,
+    SPELL_UPPERCUT      = 22916,
+    SPELL_CHARGE        = 22911,
+    SPELL_WARSTOMP      = 16727,
 };
 
 struct boss_cairne_bloodhoofAI : public ScriptedAI
 {
 public:
-    boss_cairne_bloodhoofAI(Creature* pCreature) : ScriptedAI(pCreature) { Reset(); }
+    boss_cairne_bloodhoofAI(Creature* pCreature) : ScriptedAI(pCreature)
+    {
+        Reset();
+    }
 
     void Reset() override
     {
@@ -121,7 +124,10 @@ private:
     uint32 m_uiWarstompTimer;
 };
 
-CreatureAI* GetAI_boss_cairne_bloodhoof(Creature* pCreature) { return new boss_cairne_bloodhoofAI(pCreature); }
+CreatureAI* GetAI_boss_cairne_bloodhoof(Creature* pCreature)
+{
+    return new boss_cairne_bloodhoofAI(pCreature);
+}
 
 bool GossipHello_npc_cairne_bloodhoof(Player* pPlayer, Creature* pCreature)
 {
@@ -164,7 +170,7 @@ bool GossipHello_npc_saern_priderunner(Player* pPlayer, Creature* pCreature)
 
 void AddSC_thunder_bluff()
 {
-    Script* newscript;
+    Script *newscript;
 
     newscript = new Script;
     newscript->Name = "npc_cairne_bloodhoof";

@@ -23,19 +23,21 @@
     \ingroup realmd
 */
 
+#include "Common.h"
 #include "RealmList.h"
 #include "AuthCodes.h"
-#include "Common.h"
-#include "Config/Config.h"
-#include "Database/DatabaseEnv.h"
-#include "Policies/SingletonImp.h"
 #include "Util.h" // for Tokens typedef
+#include "Policies/SingletonImp.h"
+#include "Database/DatabaseEnv.h"
+#include "Config/Config.h"
 
 RealmList sRealmList;
 
 // list sorted from high to low build and first build used as low bound for accepted by default range (any > it will accepted by realmd at least)
-static RealmBuildInfo ExpectedRealmdClientBuilds[] = {
-    {7100, 1, 17, 1, ' ', {{}}, {{}}}, {0, 0, 0, 0, ' ', {{}}, {{}}} // terminator
+static RealmBuildInfo ExpectedRealmdClientBuilds[] =
+{
+	{7272,  1, 18, 1, ' ', {{}}, {{}}}, 
+    {0,     0, 0, 0,  ' ', {{}}, {{}}} // terminator
 };
 
 RealmBuildInfo const* FindBuildInfo(uint16 _build)
@@ -45,15 +47,17 @@ RealmBuildInfo const* FindBuildInfo(uint16 _build)
         return &ExpectedRealmdClientBuilds[0];
 
     // continue from 1 with explicit equal check
-    for (int i = 1; ExpectedRealmdClientBuilds[i].build; ++i)
-        if (_build == ExpectedRealmdClientBuilds[i].build)
+    for(int i = 1; ExpectedRealmdClientBuilds[i].build; ++i)
+        if(_build == ExpectedRealmdClientBuilds[i].build)
             return &ExpectedRealmdClientBuilds[i];
 
     // none appropriate build
     return nullptr;
 }
 
-RealmList::RealmList() : m_UpdateInterval(0), m_NextUpdateTime(time(nullptr)) {}
+RealmList::RealmList( ) : m_UpdateInterval(0), m_NextUpdateTime(time(nullptr))
+{
+}
 
 /// Load the realm list from the database
 void RealmList::Initialize(uint32 updateInterval)
@@ -64,7 +68,7 @@ void RealmList::Initialize(uint32 updateInterval)
     UpdateRealms(true);
 }
 
-void RealmList::UpdateRealm(uint32 ID, const std::string& name, const std::string& address, uint32 port, uint8 icon, RealmFlags realmflags, uint8 timezone, AccountTypes allowedSecurityLevel, float popu)
+void RealmList::UpdateRealm( uint32 ID, const std::string& name, const std::string& address, uint32 port, uint8 icon, RealmFlags realmflags, uint8 timezone, AccountTypes allowedSecurityLevel, float popu)
 {
     ///- Create new if not exist or update existed
     Realm& realm = m_realms[name];
@@ -92,7 +96,7 @@ void RealmList::UpdateRealm(uint32 ID, const std::string& name, const std::strin
 void RealmList::UpdateIfNeed()
 {
     // maybe disabled or updated recently
-    if (!m_UpdateInterval || m_NextUpdateTime > time(nullptr))
+    if(!m_UpdateInterval || m_NextUpdateTime > time(nullptr))
         return;
 
     m_NextUpdateTime = time(nullptr) + m_UpdateInterval;
@@ -108,7 +112,7 @@ void RealmList::UpdateRealms(bool init)
 {
     DETAIL_LOG("Updating Realm List...");
 
-    QueryResult* result = LoginDatabase.Query(
+    QueryResult *result = LoginDatabase.Query(
         //      0   1       2       3       4   5           6
         "SELECT id, name, address, port, icon, realmflags, timezone, "
         // 7                    8
@@ -120,28 +124,31 @@ void RealmList::UpdateRealms(bool init)
     static bool overrideAddr = (overrideAddrStr.compare("0.0.0.0") != 0);
 
     ///- Circle through results and add them to the realm map
-    if (result)
+    if(result)
     {
         do
         {
-            Field* fields = result->Fetch();
+            Field *fields = result->Fetch();
             uint8 allowedSecurityLevel = fields[7].GetUInt8();
             uint8 realmflags = fields[5].GetUInt8();
             std::string realmAddress = overrideAddr ? overrideAddrStr : fields[2].GetCppString();
 
-            if (realmflags & ~(REALM_FLAG_OFFLINE | REALM_FLAG_NEW_PLAYERS | REALM_FLAG_RECOMMENDED | REALM_FLAG_SPECIFYBUILD))
+            if (realmflags & ~(REALM_FLAG_OFFLINE|REALM_FLAG_NEW_PLAYERS|REALM_FLAG_RECOMMENDED|REALM_FLAG_SPECIFYBUILD))
             {
                 sLog.outError("Realm allowed have only OFFLINE Mask 0x2), or NEWPLAYERS (mask 0x20), or RECOMENDED (mask 0x40), or SPECIFICBUILD (mask 0x04) flags in DB");
-                realmflags &= (REALM_FLAG_OFFLINE | REALM_FLAG_NEW_PLAYERS | REALM_FLAG_RECOMMENDED | REALM_FLAG_SPECIFYBUILD);
+                realmflags &= (REALM_FLAG_OFFLINE|REALM_FLAG_NEW_PLAYERS|REALM_FLAG_RECOMMENDED|REALM_FLAG_SPECIFYBUILD);
             }
 
-            UpdateRealm(fields[0].GetUInt32(), fields[1].GetCppString(), realmAddress, fields[3].GetUInt32(), fields[4].GetUInt8(), RealmFlags(realmflags), fields[6].GetUInt8(), (allowedSecurityLevel <= SEC_SIGMACHAD ? AccountTypes(allowedSecurityLevel) : SEC_SIGMACHAD), fields[8].GetFloat());
+            UpdateRealm(
+                fields[0].GetUInt32(), fields[1].GetCppString(), realmAddress, fields[3].GetUInt32(),
+                fields[4].GetUInt8(), RealmFlags(realmflags), fields[6].GetUInt8(),
+                (allowedSecurityLevel <= SEC_SIGMACHAD ? AccountTypes(allowedSecurityLevel) : SEC_SIGMACHAD),
+                fields[8].GetFloat());
 
-            if (init)
+            if(init)
                 sLog.outString("Welcome to Turtle WoW!");
             sLog.outString("Login server is up and running.");
-        }
-        while (result->NextRow());
+        } while( result->NextRow() );
         delete result;
     }
 }

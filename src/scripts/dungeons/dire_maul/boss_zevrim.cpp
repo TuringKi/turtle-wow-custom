@@ -2,8 +2,8 @@
  * Auteur        : Daemon
  * All rights reserved */
 
-#include "dire_maul.h"
 #include "scriptPCH.h"
+#include "dire_maul.h"
 
 
 enum
@@ -17,7 +17,7 @@ struct boss_zevrimAI : public ScriptedAI
 {
     boss_zevrimAI(Creature* pCreature) : ScriptedAI(pCreature)
     {
-        m_pInstance = (instance_dire_maul*)pCreature->GetInstanceData();
+        m_pInstance = (instance_dire_maul*) pCreature->GetInstanceData();
         Reset();
     }
 
@@ -66,7 +66,10 @@ struct boss_zevrimAI : public ScriptedAI
     }
 };
 
-CreatureAI* GetAI_boss_zevrim(Creature* pCreature) { return new boss_zevrimAI(pCreature); }
+CreatureAI* GetAI_boss_zevrim(Creature* pCreature)
+{
+    return new boss_zevrimAI(pCreature);
+}
 
 void AddSC_boss_zevrim()
 {

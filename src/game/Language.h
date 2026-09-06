@@ -45,8 +45,8 @@ enum MangosStrings
     LANG_GMS_ON_SRV = 16,
     LANG_GMS_NOT_LOGGED = 17,
     LANG_YOU_IN_FLIGHT = 18,
-    // LANG_YOU_IN_BATTLEGROUND            = 19, not used
-    // LANG_TARGET_IN_FLIGHT               = 20, not used
+    //LANG_YOU_IN_BATTLEGROUND            = 19, not used
+    //LANG_TARGET_IN_FLIGHT               = 20, not used
     LANG_CHAR_IN_FLIGHT = 21,
     LANG_CHAR_NON_MOUNTED = 22,
     LANG_YOU_IN_COMBAT = 23,
@@ -126,7 +126,7 @@ enum MangosStrings
     LANG_YOU_CHANGE_ENERGY = 122,
     LANG_YOURS_ENERGY_CHANGED = 123,
 
-    LANG_CURRENT_ENERGY = 124, // log
+    LANG_CURRENT_ENERGY                 = 124,              //log
     LANG_YOU_CHANGE_RAGE = 125,
     LANG_YOURS_RAGE_CHANGED = 126,
     LANG_YOU_CHANGE_LVL = 127,
@@ -303,7 +303,7 @@ enum MangosStrings
     LANG_YOU_ENABLE_CHAT = 304,
 
     LANG_COMMAND_MODIFY_REP = 305,
-    // LANG_COMMAND_MODIFY_ARENA           = 306,
+    //LANG_COMMAND_MODIFY_ARENA           = 306,
     LANG_COMMAND_FACTION_NOTFOUND = 307,
     LANG_COMMAND_FACTION_UNKNOWN = 308,
     LANG_COMMAND_FACTION_INVPARAM = 309,
@@ -508,8 +508,8 @@ enum MangosStrings
     LANG_REMOVEALL_COOLDOWN = 492,
     LANG_REMOVE_COOLDOWN = 493,
 
-    LANG_ADDITEM = 494, // log
-    LANG_ADDITEMSET = 495, // log
+    LANG_ADDITEM                        = 494,              //log
+    LANG_ADDITEMSET                     = 495,              //log
     LANG_REMOVEITEM = 496,
     LANG_ITEM_CANNOT_CREATE = 497,
     LANG_INSERT_GUILD_NAME = 498,
@@ -542,7 +542,7 @@ enum MangosStrings
 
     LANG_GAMEOBJECT_NOT_EXIST = 522,
 
-    LANG_GAMEOBJECT_CURRENT = 523, // log
+    LANG_GAMEOBJECT_CURRENT             = 523,              //log
     LANG_GAMEOBJECT_DETAIL = 524,
     LANG_GAMEOBJECT_ADD = 525,
 
@@ -598,17 +598,17 @@ enum MangosStrings
     LANG_GUILD_NOT_FOUND = 562,
     LANG_GUILD_INV_ERR = 563,
     LANG_TOO_BIG_INDEX = 564,
-    LANG_SET_UINT = 565, // log
+    LANG_SET_UINT                       = 565,              //log
     LANG_SET_UINT_FIELD = 566,
-    LANG_SET_FLOAT = 567, // log
+    LANG_SET_FLOAT                      = 567,              //log
     LANG_SET_FLOAT_FIELD = 568,
-    LANG_GET_UINT = 569, // log
+    LANG_GET_UINT                       = 569,              //log
     LANG_GET_UINT_FIELD = 570,
-    LANG_GET_FLOAT = 571, // log
+    LANG_GET_FLOAT                      = 571,              //log
     LANG_GET_FLOAT_FIELD = 572,
     //                                    573,              //not used
     //                                    574,              //not used
-    LANG_CHANGE_INT32 = 575, // log
+    LANG_CHANGE_INT32                   = 575,              //log
     LANG_CHANGE_INT32_FIELD = 576,
 
     LANG_INVISIBLE_INVISIBLE = 577,
@@ -666,9 +666,9 @@ enum MangosStrings
     LANG_COMMAND_SOUND_NOT_FOUND = 617,
     LANG_COMMAND_SOUND_LIST = 618,
 
-    // LANG_BG_EY_START_ONE_MINUTE       = 636,
-    // LANG_BG_EY_START_HALF_MINUTE      = 637,
-    // LANG_BG_EY_HAS_BEGUN              = 638,
+    //LANG_BG_EY_START_ONE_MINUTE       = 636,
+    //LANG_BG_EY_START_HALF_MINUTE      = 637,
+    //LANG_BG_EY_HAS_BEGUN              = 638,
 
     // 639 - 649 not used
     LANG_BG_ALLY = 650,
@@ -692,30 +692,30 @@ enum MangosStrings
     LANG_BG_MARK_BY_MAIL = 666,
     LANG_NARAIN_LETTER = 667,
 
-    // LANG_BG_EY_HAS_TAKEN_A_M_TOWER    = 667,
-    // LANG_BG_EY_HAS_TAKEN_H_M_TOWER    = 668,
-    // LANG_BG_EY_HAS_TAKEN_A_D_RUINS    = 669,
-    // LANG_BG_EY_HAS_TAKEN_H_D_RUINS    = 670,
-    // LANG_BG_EY_HAS_TAKEN_A_B_TOWER    = 671,
-    // LANG_BG_EY_HAS_TAKEN_H_B_TOWER    = 672,
-    // LANG_BG_EY_HAS_TAKEN_A_F_RUINS    = 673,
-    // LANG_BG_EY_HAS_TAKEN_H_F_RUINS    = 674,
-    // LANG_BG_EY_HAS_LOST_A_M_TOWER     = 675,
-    // LANG_BG_EY_HAS_LOST_H_M_TOWER     = 676,
-    // LANG_BG_EY_HAS_LOST_A_D_RUINS     = 677,
-    // LANG_BG_EY_HAS_LOST_H_D_RUINS     = 678,
-    // LANG_BG_EY_HAS_LOST_A_B_TOWER     = 679,
-    // LANG_BG_EY_HAS_LOST_H_B_TOWER     = 680,
-    // LANG_BG_EY_HAS_LOST_A_F_RUINS     = 681,
-    // LANG_BG_EY_HAS_LOST_H_F_RUINS     = 682,
-    // LANG_BG_EY_HAS_TAKEN_FLAG         = 683,
-    // LANG_BG_EY_CAPTURED_FLAG_A        = 684,
-    // LANG_BG_EY_CAPTURED_FLAG_H        = 685,
-    // LANG_BG_EY_DROPPED_FLAG           = 686,
-    // LANG_BG_EY_RESETED_FLAG           = 687,
+    //LANG_BG_EY_HAS_TAKEN_A_M_TOWER    = 667,
+    //LANG_BG_EY_HAS_TAKEN_H_M_TOWER    = 668,
+    //LANG_BG_EY_HAS_TAKEN_A_D_RUINS    = 669,
+    //LANG_BG_EY_HAS_TAKEN_H_D_RUINS    = 670,
+    //LANG_BG_EY_HAS_TAKEN_A_B_TOWER    = 671,
+    //LANG_BG_EY_HAS_TAKEN_H_B_TOWER    = 672,
+    //LANG_BG_EY_HAS_TAKEN_A_F_RUINS    = 673,
+    //LANG_BG_EY_HAS_TAKEN_H_F_RUINS    = 674,
+    //LANG_BG_EY_HAS_LOST_A_M_TOWER     = 675,
+    //LANG_BG_EY_HAS_LOST_H_M_TOWER     = 676,
+    //LANG_BG_EY_HAS_LOST_A_D_RUINS     = 677,
+    //LANG_BG_EY_HAS_LOST_H_D_RUINS     = 678,
+    //LANG_BG_EY_HAS_LOST_A_B_TOWER     = 679,
+    //LANG_BG_EY_HAS_LOST_H_B_TOWER     = 680,
+    //LANG_BG_EY_HAS_LOST_A_F_RUINS     = 681,
+    //LANG_BG_EY_HAS_LOST_H_F_RUINS     = 682,
+    //LANG_BG_EY_HAS_TAKEN_FLAG         = 683,
+    //LANG_BG_EY_CAPTURED_FLAG_A        = 684,
+    //LANG_BG_EY_CAPTURED_FLAG_H        = 685,
+    //LANG_BG_EY_DROPPED_FLAG           = 686,
+    //LANG_BG_EY_RESETED_FLAG           = 687,
 
     LANG_RESTORED_ITEM = 699,
-    // LANG_ARENA_ONE_TOOLOW             = 700,
+    //LANG_ARENA_ONE_TOOLOW             = 700,
     LANG_ARENA_ONE_MINUTE = 701,
     LANG_ARENA_THIRTY_SECONDS = 702,
     LANG_ARENA_FIFTEEN_SECONDS = 703,
@@ -730,20 +730,20 @@ enum MangosStrings
 
     LANG_BG_QUEUE_ANNOUNCE_SELF = 711,
     LANG_BG_QUEUE_ANNOUNCE_WORLD = 712,
-    // LANG_YOUR_ARENA_LEVEL_REQ_ERROR   = 713,
+    //LANG_YOUR_ARENA_LEVEL_REQ_ERROR   = 713,
     //                                   = 714, not used
     LANG_YOUR_BG_LEVEL_REQ_ERROR = 715,
     //                                  = 716, not used
     LANG_BG_STARTED_ANNOUNCE_WORLD = 717,
-    // LANG_ARENA_QUEUE_ANNOUNCE_WORLD_JOIN= 718,
-    // LANG_ARENA_QUEUE_ANNOUNCE_WORLD_EXIT= 719,
+    //LANG_ARENA_QUEUE_ANNOUNCE_WORLD_JOIN= 718,
+    //LANG_ARENA_QUEUE_ANNOUNCE_WORLD_EXIT= 719,
 
     LANG_BG_GROUP_TOO_LARGE = 720, // "Your group is too large for this battleground. Please regroup to join."
-                                   // LANG_ARENA_GROUP_TOO_LARGE        = 721,              // "Your group is too large for this arena. Please regroup to join."
-                                   // LANG_ARENA_YOUR_TEAM_ONLY         = 722,              // "Your group has members not in your arena team. Please regroup to join."
-                                   // LANG_ARENA_NOT_ENOUGH_PLAYERS     = 723,              // "Your group does not have enough players to join this match."
-                                   // LANG_ARENA_GOLD_WINS              = 724,              // "The Gold Team wins!"
-                                   // LANG_ARENA_GREEN_WINS             = 725,              // "The Green Team wins!"
+    //LANG_ARENA_GROUP_TOO_LARGE        = 721,              // "Your group is too large for this arena. Please regroup to join."
+    //LANG_ARENA_YOUR_TEAM_ONLY         = 722,              // "Your group has members not in your arena team. Please regroup to join."
+    //LANG_ARENA_NOT_ENOUGH_PLAYERS     = 723,              // "Your group does not have enough players to join this match."
+    //LANG_ARENA_GOLD_WINS              = 724,              // "The Gold Team wins!"
+    //LANG_ARENA_GREEN_WINS             = 725,              // "The Green Team wins!"
                                    //                                  = 726, not used
     LANG_BG_GROUP_OFFLINE_MEMBER = 727, // "Your group has an offline member. Please remove him before joining."
     LANG_BG_GROUP_MIXED_FACTION = 728, // "Your group has players from the opposing faction. You can't join the battleground as a group."
@@ -756,16 +756,16 @@ enum MangosStrings
     LANG_CANNOT_SUMMON_TO_BG = 734, // "You cannot summon players to a battleground or arena map."
     LANG_CANNOT_GO_TO_BG_GM = 735, // "You must be in GM mode to teleport to a player in a battleground."
     LANG_CANNOT_GO_TO_BG_FROM_BG = 736, // "You cannot teleport to a battleground from another battleground. Please leave the current battleground first."
-                                        // LANG_DEBUG_ARENA_ON               = 737,
-                                        // LANG_DEBUG_ARENA_OFF              = 738,
+    //LANG_DEBUG_ARENA_ON               = 737,
+    //LANG_DEBUG_ARENA_OFF              = 738,
     LANG_DEBUG_BG_ON = 739,
     LANG_DEBUG_BG_OFF = 740,
-    // LANG_DIST_ARENA_POINTS_START        = 741,
-    // LANG_DIST_ARENA_POINTS_ONLINE_START = 742,
-    // LANG_DIST_ARENA_POINTS_ONLINE_END   = 743,
-    // LANG_DIST_ARENA_POINTS_TEAM_START   = 744,
-    // LANG_DIST_ARENA_POINTS_TEAM_END     = 745,
-    // LANG_DIST_ARENA_POINTS_END          = 746,
+    //LANG_DIST_ARENA_POINTS_START        = 741,
+    //LANG_DIST_ARENA_POINTS_ONLINE_START = 742,
+    //LANG_DIST_ARENA_POINTS_ONLINE_END   = 743,
+    //LANG_DIST_ARENA_POINTS_TEAM_START   = 744,
+    //LANG_DIST_ARENA_POINTS_TEAM_END     = 745,
+    //LANG_DIST_ARENA_POINTS_END          = 746,
     //                                   = 747, not used
     //                                   = 748, not used
     //                                   = 749, not used
@@ -773,11 +773,11 @@ enum MangosStrings
     LANG_BATTLEGROUND_PREMATURE_FINISH_WARNING_SECS = 751, // "Not enough players. This game will close in %u seconds."
     LANG_BATTLEGROUND_ONLY_ALLIANCE_USE = 752, // "Only The Alliance can use that portal"
     LANG_BATTLEGROUND_ONLY_HORDE_USE = 753, // "Only The Horde can use that portal"
-                                            //                                      = 754, not used
-                                            //                                      = 755, not used
-                                            //                                      = 756, not used
-                                            //                                      = 757, not used
-                                            //                                      = 758, not used
+//                                      = 754, not used
+//                                      = 755, not used
+//                                      = 756, not used
+//                                      = 757, not used
+//                                      = 758, not used
     LANG_BG_AV_TOWER_TAKEN = 759,
     LANG_BG_AV_TOWER_ASSAULTED = 760,
     LANG_BG_AV_TOWER_DEFENDED = 761,
@@ -804,7 +804,7 @@ enum MangosStrings
     LANG_BG_AV_NODE_TOWER_FROST_W = 781,
     LANG_BG_AV_NODE_GRAVE_FROST_HUT = 782,
 
-    //                                      = 783, not used
+//                                      = 783, not used
     LANG_BG_AV_START_ONE_MINUTE = 784,
     LANG_BG_AV_START_HALF_MINUTE = 785,
     LANG_BG_AV_HAS_BEGUN = 786,
@@ -971,13 +971,13 @@ enum MangosStrings
     LANG_NPC_GO_INFO_EVENT_STRING = 1150,
     LANG_NPC_GO_INFO_POOL_EVENT_STRING = 1151,
     LANG_COMMAND_ITEM_USABLE = 1152,
-    LANG_GET_BITSTR = 1153, // log
+    LANG_GET_BITSTR                     = 1153,             //log
     LANG_GET_BITSTR_FIELD = 1154,
-    LANG_GET_HEX = 1155, // log
+    LANG_GET_HEX                        = 1155,             //log
     LANG_GET_HEX_FIELD = 1156,
-    LANG_CHANGE_HEX = 1157, // log
+    LANG_CHANGE_HEX                     = 1157,             //log
     LANG_CHANGE_HEX_FIELD = 1158,
-    LANG_CHANGE_FLOAT = 1159, // log
+    LANG_CHANGE_FLOAT                   = 1159,             //log
     LANG_CHANGE_FLOAT_FIELD = 1160,
     //                                    1161 used in master branch
     //                                    1162 used in master branch
@@ -1102,7 +1102,7 @@ enum MangosStrings
     LANG_COMMAND_TICKETLISTCOMMENT = 2023,
     LANG_COMMAND_TICKETLISTADDCOMMENT = 2024,
     LANG_COMMAND_TICKETLISTAGECREATE = 2025,
-    LANG_COMMAND_TICKETSHOWESCALATEDLIST = 2026,
+    LANG_COMMAND_TICKETSHOWESCALATEDLIST= 2026,
     LANG_COMMAND_TICKETPENDING = 2027,
     LANG_COMMAND_TICKETRESET = 2028,
     LANG_COMMAND_TICKETLISTRESPONSE = 2029,
@@ -1132,7 +1132,7 @@ enum MangosStrings
     //                                    10000-10999
 
     // Use for custom patches             11000-11999
-    LANG_CHARACTERS_LIST_LINE_CHAT_ONLINE = 11001,
+    LANG_CHARACTERS_LIST_LINE_CHAT_ONLINE=11001,
     LANG_NPCINFO_LINK_ID = 11010,
     // NOT RESERVED IDS                   12000-1999999999
     // `db_script_string` table index     2000000000-2000009999 (MIN_DB_SCRIPT_STRING_ID-MAX_DB_SCRIPT_STRING_ID)

@@ -19,18 +19,18 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#include "Chat.h"
 #include "Common.h"
-#include "GMTicketMgr.h"
 #include "Language.h"
+#include "WorldPacket.h"
 #include "Log.h"
+#include "GMTicketMgr.h"
 #include "ObjectAccessor.h"
 #include "Player.h"
+#include "Chat.h"
 #include "SpellAuras.h"
 #include "World.h"
-#include "WorldPacket.h"
 
-void WorldSession::HandleGMTicketGetTicketOpcode(WorldPacket& /*recv_data*/)
+void WorldSession::HandleGMTicketGetTicketOpcode(WorldPacket & /*recv_data*/)
 {
     SendQueryTimeResponse();
 
@@ -45,7 +45,7 @@ void WorldSession::HandleGMTicketGetTicketOpcode(WorldPacket& /*recv_data*/)
         sTicketMgr.SendTicket(this, nullptr);
 }
 
-void WorldSession::HandleGMTicketUpdateTextOpcode(WorldPacket& recv_data)
+void WorldSession::HandleGMTicketUpdateTextOpcode(WorldPacket & recv_data)
 {
     uint8 type;
     std::string ticketText;
@@ -75,7 +75,7 @@ void WorldSession::HandleGMTicketUpdateTextOpcode(WorldPacket& recv_data)
     SendPacket(&data);
 }
 
-void WorldSession::HandleGMTicketDeleteTicketOpcode(WorldPacket& /*recv_data*/)
+void WorldSession::HandleGMTicketDeleteTicketOpcode(WorldPacket & /*recv_data*/)
 {
     if (GmTicket* ticket = sTicketMgr.GetTicketByPlayer(GetPlayer()->GetGUID()))
     {
@@ -112,7 +112,7 @@ void WorldSession::HandleGMTicketCreateOpcode(WorldPacket& recvData)
         std::string ticketText;
         std::string reservedForFutureUse;
 
-        recvData >> ticketType >> mapId >> x >> y >> z; // last check 2.4.3
+        recvData >> ticketType >> mapId >> x >> y >> z;                        // last check 2.4.3
         recvData >> ticketText;
         recvData >> reservedForFutureUse;
 
@@ -125,7 +125,7 @@ void WorldSession::HandleGMTicketCreateOpcode(WorldPacket& recvData)
         if (ticketType >= GMTICKET_MAX)
             return;
 
-        GmTicket newTicket{GetPlayer()};
+        GmTicket newTicket{ GetPlayer() };
         uint32 newTicketId = newTicket.GetId();
         newTicket.SetPosition(mapId, x, y, z);
         newTicket.SetMessage(ticketText);
@@ -148,7 +148,7 @@ void WorldSession::HandleGMTicketCreateOpcode(WorldPacket& recvData)
     SendPacket(&data);
 }
 
-void WorldSession::HandleGMTicketSystemStatusOpcode(WorldPacket& /*recv_data*/)
+void WorldSession::HandleGMTicketSystemStatusOpcode(WorldPacket & /*recv_data*/)
 {
     // Note: This only disables the ticket UI at client side and is not fully reliable
     // are we sure this is a uint32? Should ask Zor

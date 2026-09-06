@@ -18,32 +18,36 @@
  * limitations under the License.
  *
  ************************************************************************************/
-#include <dpp/restrequest.h>
 #include <dpp/role.h>
+#include <dpp/restrequest.h>
 
-namespace dpp
-{
+namespace dpp {
 
-    void cluster::role_create(const class role& r, command_completion_event_t callback) { rest_request<role>(this, API_PATH "/guilds", std::to_string(r.guild_id), "roles", m_post, r.build_json(), callback); }
+void cluster::role_create(const class role &r, command_completion_event_t callback) {
+	rest_request<role>(this, API_PATH "/guilds", std::to_string(r.guild_id), "roles", m_post, r.build_json(), callback);
+}
 
-    void cluster::role_delete(snowflake guild_id, snowflake role_id, command_completion_event_t callback) { rest_request<confirmation>(this, API_PATH "/guilds", std::to_string(guild_id), "roles/" + std::to_string(role_id), m_delete, "", callback); }
+void cluster::role_delete(snowflake guild_id, snowflake role_id, command_completion_event_t callback) {
+	rest_request<confirmation>(this, API_PATH "/guilds", std::to_string(guild_id), "roles/" + std::to_string(role_id), m_delete, "", callback);
+}
 
-    void cluster::role_edit(const class role& r, command_completion_event_t callback) { rest_request<role>(this, API_PATH "/guilds", std::to_string(r.guild_id), "roles/" + std::to_string(r.id), m_patch, r.build_json(true), callback); }
+void cluster::role_edit(const class role &r, command_completion_event_t callback) {
+	rest_request<role>(this, API_PATH "/guilds", std::to_string(r.guild_id), "roles/" + std::to_string(r.id) , m_patch, r.build_json(true), callback);
+}
 
-    void cluster::roles_edit_position(snowflake guild_id, const std::vector<role>& roles, command_completion_event_t callback)
-    {
-        if (roles.empty())
-        {
-            return;
-        }
-        json j = json::array();
-        for (auto& r : roles)
-        {
-            j.push_back({{"id", r.id}, {"position", r.position}});
-        }
-        rest_request_list<role>(this, API_PATH "/guilds", std::to_string(guild_id), "roles", m_patch, j.dump(), callback);
-    }
+void cluster::roles_edit_position(snowflake guild_id, const std::vector<role> &roles, command_completion_event_t callback) {
+	if (roles.empty()) {
+		return;
+	}
+	json j = json::array();
+	for (auto & r : roles) {
+		j.push_back({ {"id", r.id}, {"position", r.position} });
+	}
+	rest_request_list<role>(this, API_PATH "/guilds", std::to_string(guild_id), "roles", m_patch, j.dump(), callback);
+}
 
-    void cluster::roles_get(snowflake guild_id, command_completion_event_t callback) { rest_request_list<role>(this, API_PATH "/guilds", std::to_string(guild_id), "roles", m_get, "", callback); }
+void cluster::roles_get(snowflake guild_id, command_completion_event_t callback) {
+	rest_request_list<role>(this, API_PATH "/guilds", std::to_string(guild_id), "roles", m_get, "", callback);
+}
 
-}; // namespace dpp
+};

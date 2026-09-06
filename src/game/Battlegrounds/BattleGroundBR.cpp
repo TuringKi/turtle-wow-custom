@@ -1,22 +1,22 @@
-#include "BattleGroundBR.h"
+#include "Object.h"
+#include "Player.h"
 #include "BattleGround.h"
-#include "BattleGroundMgr.h"
+#include "BattleGroundBR.h"
 #include "Creature.h"
 #include "GameObject.h"
+#include "ObjectMgr.h"
+#include "BattleGroundMgr.h"
+#include "WorldPacket.h"
 #include "Language.h"
 #include "MapManager.h"
-#include "Object.h"
-#include "ObjectMgr.h"
-#include "Player.h"
 #include "World.h"
-#include "WorldPacket.h"
 
 uint32 BattleGroundBR::GetNextArenaId()
 {
     static std::atomic<uint32> arenaId = 0;
     static bool init = false;
 
-    // initial state, query.
+    //initial state, query.
     if (!init)
     {
         std::unique_ptr<QueryResult> res = std::unique_ptr<QueryResult>(CharacterDatabase.Query("SELECT MAX(arena_id) FROM arena_stats_single"));
@@ -34,9 +34,9 @@ uint32 BattleGroundBR::GetNextArenaId()
 
 BattleGroundBR::BattleGroundBR()
 {
-    m_StartMessageIds[BG_STARTING_EVENT_FIRST] = 0;
+    m_StartMessageIds[BG_STARTING_EVENT_FIRST]  = 0;
     m_StartMessageIds[BG_STARTING_EVENT_SECOND] = LANG_ARENA_THIRTY_SECONDS;
-    m_StartMessageIds[BG_STARTING_EVENT_THIRD] = LANG_ARENA_FIFTEEN_SECONDS;
+    m_StartMessageIds[BG_STARTING_EVENT_THIRD]  = LANG_ARENA_FIFTEEN_SECONDS;
     m_StartMessageIds[BG_STARTING_EVENT_FOURTH] = LANG_ARENA_BEGUN;
 
     m_StartDelayTimes[BG_STARTING_EVENT_FIRST] = BG_START_DELAY_1M;
@@ -48,7 +48,7 @@ BattleGroundBR::BattleGroundBR()
 }
 
 
-// somehow THIS is the reconstructuring constructor call.
+//somehow THIS is the reconstructuring constructor call.
 BattleGroundBR::BattleGroundBR(const BattleGroundBR& br) : BattleGround(br)
 {
     m_StartMessageIds[BG_STARTING_EVENT_FIRST] = 0;
@@ -99,7 +99,7 @@ void BattleGroundBR::StartingEventCloseDoors()
     // Plummet visibility distance so you cannot see enemy players until the match begins.
     // May be better to just update visibility code instead of this...
     // 40 is roughly to the middle of the map -- perfect area to not be able to see other team.
-    // GetBgMap()->SetVisibilityDistance(45.0f);
+    //GetBgMap()->SetVisibilityDistance(45.0f);
 }
 
 inline void ResetUnitHealthAndPower(Unit* pUnit)
@@ -114,10 +114,10 @@ inline void ResetUnitHealthAndPower(Unit* pUnit)
 
     switch (pUnit->GetPowerType())
     {
-    case POWER_FOCUS:
-    case POWER_ENERGY:
-        pUnit->SetPower(pUnit->GetPowerType(), pUnit->GetMaxPower(pUnit->GetPowerType()));
-        break;
+        case POWER_FOCUS:
+        case POWER_ENERGY:
+            pUnit->SetPower(pUnit->GetPowerType(), pUnit->GetMaxPower(pUnit->GetPowerType()));
+            break;
     }
 }
 
@@ -141,10 +141,10 @@ void BattleGroundBR::StartingEventOpenDoors()
     }
 }
 
-void BattleGroundBR::AddPlayer(Player* plr)
+void BattleGroundBR::AddPlayer(Player *plr)
 {
     BattleGround::AddPlayer(plr);
-    // create score and add it to map, default values are set in constructor
+    //create score and add it to map, default values are set in constructor
     BattleGroundBRScore* sc = new BattleGroundBRScore;
 
     m_PlayerScores[plr->GetObjectGuid()] = sc;
@@ -153,11 +153,15 @@ void BattleGroundBR::AddPlayer(Player* plr)
     plr->RemoveAllArenaSpellCooldown();
 }
 
-void BattleGroundBR::RemovePlayer(Player* /*plr*/, ObjectGuid /*guid*/) {}
+void BattleGroundBR::RemovePlayer(Player* /*plr*/, ObjectGuid /*guid*/)
+{
+}
 
-void BattleGroundBR::UpdateTeamScore(Team team) {}
+void BattleGroundBR::UpdateTeamScore(Team team)
+{
+}
 
-void BattleGroundBR::HandleAreaTrigger(Player* Source, uint32 Trigger)
+void BattleGroundBR::HandleAreaTrigger(Player *Source, uint32 Trigger)
 {
     // this is wrong way to implement these things. On official it done by gameobject spell cast.
     if (GetStatus() != STATUS_IN_PROGRESS)
@@ -180,7 +184,7 @@ bool BattleGroundBR::SetupBattleGround()
 
 void BattleGroundBR::Reset()
 {
-    // call parent's class reset
+    //call parent's class reset
     BattleGround::Reset();
 
     for (uint32 i = 0; i < BG_TEAMS_COUNT; ++i)
@@ -202,16 +206,19 @@ void BattleGroundBR::EndBattleGround(Team winner)
     uint32 repGain = isBGWeekend ? 90 : 60;
     RewardReputationToTeam(1008, repGain, winner);
     RewardReputationToTeam(1008, repGain / 4, loser);
-    RewardHonorToTeam(isBGWeekend ? 400 : 200, winner);
-    RewardHonorToTeam(isBGWeekend ? 100 : 50, loser);
-
+    RewardHonorToTeam(isBGWeekend ? 40 : 20, winner);
+    RewardHonorToTeam(isBGWeekend ? 10 : 5, loser);
+    
     for (const auto& bgPlayer : m_Players)
     {
         auto player = sObjectAccessor.FindPlayer(bgPlayer.first);
 
         if (player)
         {
-            CharacterDatabase.PExecute("INSERT INTO arena_stats_single (`arena_id`, `team_id`, `level`, `item_level`, `class`, `race`, `won`, `duration`) VALUES (%u, %u, %u, %u, %u, %u, %u, %u)", m_arenaId, player->GetTeam() == ALLIANCE ? 0 : 1, player->GetLevel(), player->GetAverageItemLevel(), player->GetClass(), player->GetRace(), player->GetTeam() == winner ? 1 : 0, m_totalTime / IN_MILLISECONDS);
+            CharacterDatabase.PExecute("INSERT INTO arena_stats_single (`arena_id`, `team_id`, `level`, `item_level`, `class`, `race`, `won`, `duration`) VALUES (%u, %u, %u, %u, %u, %u, %u, %u)",
+                m_arenaId, player->GetTeam() == ALLIANCE ? 0 : 1,
+                player->GetLevel(), player->GetAverageItemLevel(), 
+                player->GetClass(), player->GetRace(), player->GetTeam() == winner ? 1 : 0, m_totalTime / IN_MILLISECONDS);
         }
     }
 
@@ -219,7 +226,7 @@ void BattleGroundBR::EndBattleGround(Team winner)
     BattleGround::EndBattleGround(winner);
 }
 
-void BattleGroundBR::HandleKillPlayer(Player* player, Player* killer)
+void BattleGroundBR::HandleKillPlayer(Player *player, Player *killer)
 {
     if (GetStatus() != STATUS_IN_PROGRESS)
         return;
@@ -230,10 +237,10 @@ void BattleGroundBR::HandleKillPlayer(Player* player, Player* killer)
     player->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_SKINNABLE);
 }
 
-void BattleGroundBR::UpdatePlayerScore(Player* Source, uint32 type, uint32 value)
+void BattleGroundBR::UpdatePlayerScore(Player *Source, uint32 type, uint32 value)
 {
     BattleGroundScoreMap::iterator itr = m_PlayerScores.find(Source->GetObjectGuid());
-    if (itr == m_PlayerScores.end()) // player not found
+    if (itr == m_PlayerScores.end())                        // player not found
         return;
 
     BattleGround::UpdatePlayerScore(Source, type, value);
@@ -242,12 +249,12 @@ void BattleGroundBR::UpdatePlayerScore(Player* Source, uint32 type, uint32 value
     {
         switch (Source->GetTeam())
         {
-        case ALLIANCE:
-            m_AllianceDeaths++;
-            break;
-        case HORDE:
-            m_HordeDeaths++;
-            break;
+            case ALLIANCE:
+                m_AllianceDeaths++;
+                break;
+            case HORDE:
+                m_HordeDeaths++;
+                break;
         }
 
         // If both all team members are dead on either side, end arena.
@@ -258,6 +265,11 @@ void BattleGroundBR::UpdatePlayerScore(Player* Source, uint32 type, uint32 value
     }
 }
 
-WorldSafeLocsEntry const* BattleGroundBR::GetClosestGraveYard(Player* player) { return nullptr; }
+WorldSafeLocsEntry const* BattleGroundBR::GetClosestGraveYard(Player* player)
+{
+    return nullptr;
+}
 
-void BattleGroundBR::FillInitialWorldStates(WorldPacket& data, uint32& count) {}
+void BattleGroundBR::FillInitialWorldStates(WorldPacket& data, uint32& count)
+{
+}

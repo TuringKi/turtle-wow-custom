@@ -22,8 +22,14 @@
 
 static dtAssertFailFunc* sAssertFailFunc = 0;
 
-void dtAssertFailSetCustom(dtAssertFailFunc* assertFailFunc) { sAssertFailFunc = assertFailFunc; }
+void dtAssertFailSetCustom(dtAssertFailFunc *assertFailFunc)
+{
+	sAssertFailFunc = assertFailFunc;
+}
 
-dtAssertFailFunc* dtAssertFailGetCustom() { return sAssertFailFunc; }
+dtAssertFailFunc* dtAssertFailGetCustom()
+{
+	return sAssertFailFunc;
+}
 
 #endif

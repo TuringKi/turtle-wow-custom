@@ -5,17 +5,15 @@
 #ifndef UTIL_MALLOC_COUNTER_H_
 #define UTIL_MALLOC_COUNTER_H_
 
-namespace testing
-{
-    class MallocCounter
-    {
-    public:
-        MallocCounter(int x) {}
-        static const int THIS_THREAD_ONLY = 0;
-        long long HeapGrowth() { return 0; }
-        long long PeakHeapGrowth() { return 0; }
-        void Reset() {}
-    };
-} // namespace testing
+namespace testing {
+class MallocCounter {
+ public:
+  MallocCounter(int x) {}
+  static const int THIS_THREAD_ONLY = 0;
+  long long HeapGrowth() { return 0; }
+  long long PeakHeapGrowth() { return 0; }
+  void Reset() {}
+};
+}  // namespace testing
 
-#endif // UTIL_MALLOC_COUNTER_H_
+#endif  // UTIL_MALLOC_COUNTER_H_

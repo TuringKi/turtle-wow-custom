@@ -33,7 +33,7 @@ EndContentData */
 // Full quest event implementation (Missing Diplomat part 14 id:1265).
 // Author: Kampeador
 //-----------------------------------------------------------------------------
-static const Position tervoshSpawnPoint = {-3476.860840f, -4106.740723f, 17.107151f, 5.420159f};
+static const Position tervoshSpawnPoint = { -3476.860840f, -4106.740723f, 17.107151f, 5.420159f };
 
 enum
 {
@@ -54,7 +54,7 @@ enum
     MDQP_GUARDS_SALUTE = 2, // All Sentry Point guards withing 10 yards start facing Tervosh and use EMOTE_ONESHOT_SALUTE emote
     MDQP_GUARDS_RESTORE_MOVEMENT = 3, // Currently unused, core does this automatically.
     MDQP_WAITING = 4, // Wait for despawn
-    MDQP_TELEPORT_BACK = 5 // Tervosh despawn during this phase
+    MDQP_TELEPORT_BACK = 5  // Tervosh despawn during this phase
 };
 
 struct npc_archmage_tervoshAI : public ScriptedAI
@@ -68,7 +68,10 @@ struct npc_archmage_tervoshAI : public ScriptedAI
     // guards salute timer
     uint32 m_nextPhaseDelayTimer;
 
-    npc_archmage_tervoshAI(Creature* pCreature) : ScriptedAI(pCreature) { Reset(); }
+    npc_archmage_tervoshAI(Creature* pCreature) : ScriptedAI(pCreature)
+    {
+        Reset();
+    }
 
     // used on area-trigger: if a new player arrives, reset event duration.
     void resetDespawnDelay() { m_despawnDelayTimer = TERVOSH_SPAWN_DURATION; }
@@ -90,89 +93,84 @@ struct npc_archmage_tervoshAI : public ScriptedAI
             switch (m_eventPhase)
             {
             case MDQP_PREPARE_TO_ARRIVE:
+            {
+                if (m_nextPhaseDelayTimer < uiDiff)
                 {
-                    if (m_nextPhaseDelayTimer < uiDiff)
-                    {
-                        m_creature->SetVisibility(VISIBILITY_ON);
+                    m_creature->SetVisibility(VISIBILITY_ON);
 
-                        // switch phase
-                        m_nextPhaseDelayTimer = 1000; // delay for the visual effect of the arrival
-                        m_eventPhase = MDQP_ARRIVE;
-                    }
-                    else
-                        m_nextPhaseDelayTimer -= uiDiff;
+                    // switch phase
+                    m_nextPhaseDelayTimer = 1000; // delay for the visual effect of the arrival
+                    m_eventPhase = MDQP_ARRIVE;
                 }
-                break;
+                else
+                    m_nextPhaseDelayTimer -= uiDiff;
+            } break;
             case MDQP_ARRIVE:
+            {
+                // use a visual effect with 1 sec delay
+                if (m_nextPhaseDelayTimer < uiDiff)
                 {
-                    // use a visual effect with 1 sec delay
-                    if (m_nextPhaseDelayTimer < uiDiff)
-                    {
-                        m_creature->CastSpell(m_creature, SPELL_TELEPORT_VISUAL1, false);
+                    m_creature->CastSpell(m_creature, SPELL_TELEPORT_VISUAL1, false);
 
-                        // switch phase
-                        m_nextPhaseDelayTimer = 2000; // salute guards 2 sec delay
-                        m_eventPhase = MDQP_GUARDS_SALUTE;
-                    }
-                    else
-                        m_nextPhaseDelayTimer -= uiDiff;
+                    // switch phase
+                    m_nextPhaseDelayTimer = 2000; // salute guards 2 sec delay
+                    m_eventPhase = MDQP_GUARDS_SALUTE;
                 }
-                break;
+                else
+                    m_nextPhaseDelayTimer -= uiDiff;
+            } break;
             case MDQP_GUARDS_SALUTE:
+            {
+                if (m_nextPhaseDelayTimer < uiDiff)
                 {
-                    if (m_nextPhaseDelayTimer < uiDiff)
-                    {
-                        // find all guards nearby
-                        std::list<Creature*> guards;
-                        // All guards salute withing 10 yards.
-                        GetCreatureListWithEntryInGrid(guards, m_creature, NPC_SENTRY_POINT_GUARD, 10);
+                    // find all guards nearby
+                    std::list<Creature*> guards;
+                    // All guards salute withing 10 yards.
+                    GetCreatureListWithEntryInGrid(guards, m_creature, NPC_SENTRY_POINT_GUARD, 10);
 
-                        // make guards face private hendel
-                        for (auto const& g : guards)
+                    // make guards face private hendel
+                    for (auto const& g : guards)
+                    {
+                        if (!g->IsInCombat() && g->IsAlive())
                         {
-                            if (!g->IsInCombat() && g->IsAlive())
-                            {
-                                g->StopMoving(); // Movement will be restored automatically in the core
-                                g->SetFacingToObject(m_creature);
+                            g->StopMoving(); // Movement will be restored automatically in the core
+                            g->SetFacingToObject(m_creature);
 
-                                g->HandleEmote(EMOTE_ONESHOT_SALUTE);
-                            }
+                            g->HandleEmote(EMOTE_ONESHOT_SALUTE);
                         }
-
-                        m_eventPhase = MDQP_WAITING;
                     }
-                    else
-                        m_nextPhaseDelayTimer -= uiDiff;
+
+                    m_eventPhase = MDQP_WAITING;
                 }
-                break;
+                else
+                    m_nextPhaseDelayTimer -= uiDiff;
+            }break;
             case MDQP_WAITING:
+            {
+                // possible add a visual effect
+                if (m_despawnDelayTimer < uiDiff)
                 {
-                    // possible add a visual effect
-                    if (m_despawnDelayTimer < uiDiff)
-                    {
-                        // cast a visual spell effect
-                        m_creature->CastSpell(m_creature, SPELL_TELEPORT_VISUAL2, false);
+                    // cast a visual spell effect
+                    m_creature->CastSpell(m_creature, SPELL_TELEPORT_VISUAL2, false);
 
-                        // switch phase, delay despawn by 2 seconds, 1 sec teleport visual, 1 sec latency.
-                        m_nextPhaseDelayTimer = 2000; // next quest phase in 2 secs
-                        m_eventPhase = MDQP_TELEPORT_BACK;
-                    }
-                    else
-                        m_despawnDelayTimer -= uiDiff;
+                    // switch phase, delay despawn by 2 seconds, 1 sec teleport visual, 1 sec latency.
+                    m_nextPhaseDelayTimer = 2000; // next quest phase in 2 secs
+                    m_eventPhase = MDQP_TELEPORT_BACK;
                 }
-                break;
+                else
+                    m_despawnDelayTimer -= uiDiff;
+            } break;
 
             case MDQP_TELEPORT_BACK:
+            {
+                if (m_nextPhaseDelayTimer < uiDiff)
                 {
-                    if (m_nextPhaseDelayTimer < uiDiff)
-                    {
-                        // despawn
-                        static_cast<TemporarySummon*>(m_creature)->UnSummon();
-                    }
-                    else
-                        m_nextPhaseDelayTimer -= uiDiff;
+                    // despawn
+                    static_cast<TemporarySummon*>(m_creature)->UnSummon();
                 }
-                break;
+                else
+                    m_nextPhaseDelayTimer -= uiDiff;
+            } break;
             }
         }
         else
@@ -201,11 +199,16 @@ bool QuestRewarded_npc_archmage_tervosh(Player* pPlayer, Creature* pCreature, Qu
     return true;
 }
 
-CreatureAI* GetAI_npc_archmage_tervosh(Creature* pCreature) { return new npc_archmage_tervoshAI(pCreature); }
+CreatureAI* GetAI_npc_archmage_tervosh(Creature* pCreature)
+{
+    return new npc_archmage_tervoshAI(pCreature);
+}
 
 bool AreaTrigger_at_sentry_point(Player* pPlayer, AreaTriggerEntry const* /*pAt*/)
 {
-    if (!pPlayer || !pPlayer->IsAlive() || pPlayer->IsGameMaster() || pPlayer->GetQuestStatus(QUEST_MISSING_DIPLO_PT14) == QUEST_STATUS_COMPLETE || pPlayer->GetQuestStatus(QUEST_MISSING_DIPLO_PT14) == QUEST_STATUS_NONE)
+    if (!pPlayer || !pPlayer->IsAlive() || pPlayer->IsGameMaster() ||
+        pPlayer->GetQuestStatus(QUEST_MISSING_DIPLO_PT14) == QUEST_STATUS_COMPLETE ||
+        pPlayer->GetQuestStatus(QUEST_MISSING_DIPLO_PT14) == QUEST_STATUS_NONE)
         return false;
 
     // set quest completed
@@ -269,22 +272,25 @@ bool AreaTrigger_at_sentry_point(Player* pPlayer, AreaTriggerEntry const* /*pAt*
 
 enum
 {
-    QUEST_JAINAS_AUTOGRAPH = 558,
-    QUEST_MISSING_DIPLO_PT17 = 1267,
+    QUEST_JAINAS_AUTOGRAPH       = 558,
+    QUEST_MISSING_DIPLO_PT17     = 1267,
     NPC_SUMMONED_WATER_ELEMENTAL = 10955,
-    SPELL_JAINA_FIREBALL = 20678,
-    SPELL_JAINA_FIREBLAST = 20679,
-    SPELL_JAINA_BLIZZARD = 20680,
-    SPELL_JAINA_WATER_ELEMENTAL = 20681,
-    SPELL_JAINA_TELEPORT = 20682,
-    SPELL_JAINAS_AUTOGRAPH = 23122
+    SPELL_JAINA_FIREBALL         = 20678,
+    SPELL_JAINA_FIREBLAST        = 20679,
+    SPELL_JAINA_BLIZZARD         = 20680,
+    SPELL_JAINA_WATER_ELEMENTAL  = 20681,
+    SPELL_JAINA_TELEPORT         = 20682,
+    SPELL_JAINAS_AUTOGRAPH       = 23122
 };
 
 #define GOSSIP_ITEM_JAINA "I know this is rather silly but i have a young ward who is a bit shy and would like your autograph."
 
 struct npc_lady_jaina_proudmooreAI : public ScriptedAI
 {
-    npc_lady_jaina_proudmooreAI(Creature* pCreature) : ScriptedAI(pCreature) { Reset(); }
+    npc_lady_jaina_proudmooreAI(Creature* pCreature) : ScriptedAI(pCreature)
+    {
+        Reset();
+    }
 
     uint32 m_uiSpellTimer;
     uint32 m_uiSpecialTimer;
@@ -305,13 +311,13 @@ struct npc_lady_jaina_proudmooreAI : public ScriptedAI
             if (!urand(0, 4) && !m_creature->GetGuardianCountWithEntry(NPC_SUMMONED_WATER_ELEMENTAL))
             {
                 if (DoCastSpellIfCan(m_creature, SPELL_JAINA_WATER_ELEMENTAL) == CAST_OK)
-                    m_uiSpecialTimer = urand(10, 20) * IN_MILLISECONDS;
+                    m_uiSpecialTimer = urand(10, 20)*IN_MILLISECONDS;
             }
             else
             {
                 if (DoCastSpellIfCan(m_creature->GetVictim(), SPELL_JAINA_TELEPORT) == CAST_OK)
-                {
-                    m_uiSpecialTimer = urand(10, 30) * IN_MILLISECONDS;
+                { 
+                    m_uiSpecialTimer = urand(10, 30)*IN_MILLISECONDS;
 
                     if (m_creature->GetDistance2d(-4018.1f, -4525.24f) > 40.0f)
                     {
@@ -331,26 +337,26 @@ struct npc_lady_jaina_proudmooreAI : public ScriptedAI
         {
             switch (urand(0, 4))
             {
-            case 0:
-            case 1:
+                case 0:
+                case 1:
                 {
                     if (DoCastSpellIfCan(m_creature->GetVictim(), SPELL_JAINA_FIREBALL) == CAST_OK)
-                        m_uiSpellTimer = urand(3, 10) * IN_MILLISECONDS;
+                        m_uiSpellTimer = urand(3, 10)*IN_MILLISECONDS;
                     break;
                 }
-            case 2:
-            case 3:
+                case 2:
+                case 3:
                 {
                     if (DoCastSpellIfCan(m_creature->GetVictim(), SPELL_JAINA_FIREBLAST) == CAST_OK)
-                        m_uiSpellTimer = urand(3, 10) * IN_MILLISECONDS;
+                        m_uiSpellTimer = urand(3, 10)*IN_MILLISECONDS;
                     break;
                 }
-            case 4:
+                case 4:
                 {
                     if (Unit* pTarget = m_creature->SelectRandomUnfriendlyTarget(nullptr, 25.0f))
                     {
                         if (DoCastSpellIfCan(pTarget, SPELL_JAINA_BLIZZARD) == CAST_OK)
-                            m_uiSpellTimer = urand(1, 3) * IN_MILLISECONDS;
+                            m_uiSpellTimer = urand(1, 3)*IN_MILLISECONDS;
                     }
                     break;
                 }
@@ -363,7 +369,10 @@ struct npc_lady_jaina_proudmooreAI : public ScriptedAI
     }
 };
 
-CreatureAI* GetAI_npc_lady_jaina_proudmoore(Creature* pCreature) { return new npc_lady_jaina_proudmooreAI(pCreature); }
+CreatureAI* GetAI_npc_lady_jaina_proudmoore(Creature* pCreature)
+{
+    return new npc_lady_jaina_proudmooreAI(pCreature);
+}
 
 bool GossipHello_npc_lady_jaina_proudmoore(Player* pPlayer, Creature* pCreature)
 {
@@ -400,11 +409,11 @@ bool GossipSelect_npc_lady_jaina_proudmoore(Player* pPlayer, Creature* pCreature
 
 enum
 {
-    QUEST_SURVEY_ALCAZ = 11142,
-    SPELL_ALCAZ_SURVEY = 42295
+    QUEST_SURVEY_ALCAZ          = 11142,
+    SPELL_ALCAZ_SURVEY          = 42295
 };
 
-#define GOSSIP_RIDE "<Ride the gryphons to Survey Alcaz Island>"
+#define GOSSIP_RIDE             "<Ride the gryphons to Survey Alcaz Island>"
 
 bool GossipHello_npc_cassa_crimsonwing(Player* pPlayer, Creature* pCreature)
 {
@@ -470,32 +479,32 @@ struct npc_stinky_ignatzAI : public npc_escortAI
 
         switch (uiPointId)
         {
-        case 0:
-            DoScriptText(SAY_IGNATZ_START, m_creature);
-            break;
-        case 8:
-            DoScriptText(SAY_IGNATZ_1, m_creature);
-            break;
-        case 16:
-            timer = 4000;
-            if (GameObject* pGo = m_creature->FindNearestGameObject(GOBJ_BOGBEAN_PLANT, 40.0f))
-                if (!pGo->isSpawned())
-                    pGo->Respawn();
-            break;
-        case 18:
-            timer = 2000;
-            m_creature->SetStandState(UNIT_STAND_STATE_KNEEL);
-            break;
-        case 24:
-            if (Player* pPlayer = GetPlayerForEscort())
-            {
-                DoScriptText(SAY_IGNATZ_END, m_creature, pPlayer);
-                if (pPlayer->GetQuestStatus(QUEST_STINKYS_ESCAPE_A) == QUEST_STATUS_INCOMPLETE)
-                    pPlayer->GroupEventHappens(QUEST_STINKYS_ESCAPE_A, m_creature);
-                else if (pPlayer->GetQuestStatus(QUEST_STINKYS_ESCAPE_H) == QUEST_STATUS_INCOMPLETE)
-                    pPlayer->GroupEventHappens(QUEST_STINKYS_ESCAPE_H, m_creature);
-            }
-            break;
+            case 0:
+                DoScriptText(SAY_IGNATZ_START, m_creature);
+                break;
+            case 8:
+                DoScriptText(SAY_IGNATZ_1, m_creature);
+                break;
+            case 16:
+                timer = 4000;
+                if (GameObject* pGo = m_creature->FindNearestGameObject(GOBJ_BOGBEAN_PLANT, 40.0f))
+                    if (!pGo->isSpawned())
+                        pGo->Respawn();
+                break;
+            case 18:
+                timer = 2000;
+                m_creature->SetStandState(UNIT_STAND_STATE_KNEEL);
+                break;
+            case 24:
+                if (Player* pPlayer = GetPlayerForEscort())
+                {
+                    DoScriptText(SAY_IGNATZ_END, m_creature, pPlayer);
+                    if (pPlayer->GetQuestStatus(QUEST_STINKYS_ESCAPE_A) == QUEST_STATUS_INCOMPLETE)
+                        pPlayer->GroupEventHappens(QUEST_STINKYS_ESCAPE_A, m_creature);
+                    else if (pPlayer->GetQuestStatus(QUEST_STINKYS_ESCAPE_H) == QUEST_STATUS_INCOMPLETE)
+                        pPlayer->GroupEventHappens(QUEST_STINKYS_ESCAPE_H, m_creature);
+                }
+                break;
         }
     }
     void UpdateAI(const uint32 uiDiff) override
@@ -506,41 +515,41 @@ struct npc_stinky_ignatzAI : public npc_escortAI
             {
                 switch (currWaypoint)
                 {
-                case 16:
-                    if (timer < uiDiff)
-                    {
-                        if (Player* pPlayer = GetPlayerForEscort())
-                            DoScriptText(SAY_IGNATZ_3, m_creature, pPlayer);
-                        timer = 21000;
-                    }
-                    else
-                    {
-                        if (timer >= 1000 && timer < 1000 + uiDiff)
-                            DoScriptText(SAY_IGNATZ_2, m_creature);
-                        timer -= uiDiff;
-                    }
-                    break;
-                case 18:
-                    if (timer < uiDiff)
-                    {
-                        DoScriptText(SAY_IGNATZ_4, m_creature);
-                        timer = 21000;
-                    }
-                    else
-                    {
-                        if (timer >= 1000 && timer < 1000 + uiDiff)
+                    case 16 :
+                        if (timer < uiDiff)
                         {
-                            if (GameObject* pGo = m_creature->FindNearestGameObject(GOBJ_BOGBEAN_PLANT, 10.000000))
-                                pGo->Despawn();
-                            m_creature->SetStandState(UNIT_STAND_STATE_STAND);
+                            if (Player* pPlayer = GetPlayerForEscort())
+                                DoScriptText(SAY_IGNATZ_3, m_creature, pPlayer);
+                            timer = 21000;
                         }
-                        timer -= uiDiff;
-                    }
-                    break;
+                        else
+                        {
+                            if (timer >= 1000 && timer < 1000 + uiDiff)
+                                DoScriptText(SAY_IGNATZ_2, m_creature);
+                            timer -= uiDiff;
+                        }
+                        break;
+                    case 18 :
+                        if (timer < uiDiff)
+                        {
+                            DoScriptText(SAY_IGNATZ_4, m_creature);
+                            timer = 21000;
+                        }
+                        else
+                        {
+                            if (timer >= 1000 && timer < 1000 + uiDiff)
+                            {
+                                if (GameObject* pGo = m_creature->FindNearestGameObject(GOBJ_BOGBEAN_PLANT, 10.000000))
+                                    pGo->Despawn();
+                                m_creature->SetStandState(UNIT_STAND_STATE_STAND);
+                            }
+                            timer -= uiDiff;
+                        }
+                        break;
                 }
             }
         }
-        // DoMeleeAttackIfReady();
+        //DoMeleeAttackIfReady();
         npc_escortAI::UpdateAI(uiDiff);
     }
 };
@@ -557,7 +566,10 @@ bool QuestAccept_npc_stinky_ignatz(Player* pPlayer, Creature* pCreature, const Q
     return true;
 }
 
-CreatureAI* GetAI_npc_stinky_ignatz(Creature* pCreature) { return new npc_stinky_ignatzAI(pCreature); }
+CreatureAI* GetAI_npc_stinky_ignatz(Creature* pCreature)
+{
+    return new npc_stinky_ignatzAI(pCreature);
+}
 
 /*
  * Tabetha
@@ -570,17 +582,23 @@ enum
     NPC_MANA_SURGE = 6550
 };
 
-static const float ManaSurgesSpawnPoint[3] = {-4019.22f, -3383.91f, 38.2265f};
+static const float ManaSurgesSpawnPoint[3] =
+{
+    -4019.22f,	-3383.91f,	38.2265f
+};
 
 struct npc_tabethaAI : ScriptedAI
 {
-    explicit npc_tabethaAI(Creature* pCreature) : ScriptedAI(pCreature) { npc_tabethaAI::Reset(); }
+    explicit npc_tabethaAI(Creature* pCreature) : ScriptedAI(pCreature)
+    {
+        npc_tabethaAI::Reset();
+    }
 
-    uint32 m_uiNotInteractibleTimer;
-    uint32 m_uiManaSurgeSpawnTimer;
-    uint32 m_uiManaSurgesEventTimer;
-    uint8 m_uiWaveCount;
-    uint8 m_uiManaSurgesCount;
+    uint32  m_uiNotInteractibleTimer;
+    uint32  m_uiManaSurgeSpawnTimer;
+    uint32  m_uiManaSurgesEventTimer;
+    uint8   m_uiWaveCount;
+    uint8   m_uiManaSurgesCount;
 
     bool m_uiManaSurgesInProcess;
     bool m_uiManaRiftRespawned;
@@ -589,7 +607,7 @@ struct npc_tabethaAI : ScriptedAI
     {
         m_uiNotInteractibleTimer = 0;
         m_uiManaSurgeSpawnTimer = urand(1000, 5000);
-        m_uiManaSurgesEventTimer = 10 * MINUTE * IN_MILLISECONDS + 100;
+        m_uiManaSurgesEventTimer = 10 * MINUTE*IN_MILLISECONDS + 100;
         m_uiWaveCount = 1;
         m_uiManaSurgesCount = 0;
 
@@ -615,7 +633,15 @@ struct npc_tabethaAI : ScriptedAI
     {
         for (uint8 i = 0; i < count; ++i)
         {
-            if (Creature* pManaSurge = m_creature->SummonCreature(NPC_MANA_SURGE, ManaSurgesSpawnPoint[0] + frand(-3, 3), ManaSurgesSpawnPoint[1] + frand(-3, 3), ManaSurgesSpawnPoint[2], frand(0, 10), TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 10 * MINUTE * IN_MILLISECONDS))
+            if (Creature* pManaSurge =
+                m_creature->SummonCreature(
+                    NPC_MANA_SURGE,
+                    ManaSurgesSpawnPoint[0] + frand(-3, 3),
+                    ManaSurgesSpawnPoint[1] + frand(-3, 3),
+                    ManaSurgesSpawnPoint[2],
+                    frand(0, 10),
+                    TEMPSUMMON_TIMED_OR_DEAD_DESPAWN,
+                    10 * MINUTE*IN_MILLISECONDS))
             {
                 ++m_uiManaSurgesCount;
             }
@@ -627,8 +653,7 @@ struct npc_tabethaAI : ScriptedAI
         std::list<Creature*> manaSurges;
         GetCreatureListWithEntryInGrid(manaSurges, m_creature, NPC_MANA_SURGE, 75.0f);
 
-        if (manaSurges.empty())
-            return;
+        if (manaSurges.empty()) return;
 
         for (const auto& manaSurge : manaSurges)
             if (manaSurge->IsAlive())
@@ -709,14 +734,17 @@ struct npc_tabethaAI : ScriptedAI
     }
 };
 
-CreatureAI* GetAI_npc_tabetha(Creature* pCreature) { return new npc_tabethaAI(pCreature); }
+CreatureAI* GetAI_npc_tabetha(Creature* pCreature)
+{
+    return new npc_tabethaAI(pCreature);
+}
 
 enum
 {
     QUEST_MANA_SURGES = 1957
 };
 
-bool QuestAccept_npc_tabetha(Player* pPlayer, Creature* pCreature, Quest const* pQuest)
+bool QuestAccept_npc_tabetha(Player* pPlayer, Creature* pCreature, Quest const *pQuest)
 {
     if (pPlayer && pCreature && pQuest->GetQuestId() == QUEST_MANA_SURGES)
     {
@@ -745,7 +773,10 @@ enum Emberstrife
 
 struct npc_emberstrifeAI : ScriptedAI
 {
-    explicit npc_emberstrifeAI(Creature* pCreature) : ScriptedAI(pCreature) { npc_emberstrifeAI::Reset(); }
+    explicit npc_emberstrifeAI(Creature* pCreature) : ScriptedAI(pCreature)
+    {
+        npc_emberstrifeAI::Reset();
+    }
 
     uint32 m_uiCleaveTimer;
     uint32 m_uiFrenzyTimer;
@@ -801,7 +832,10 @@ struct npc_emberstrifeAI : ScriptedAI
     }
 };
 
-CreatureAI* GetAI_npc_emberstrife(Creature* pCreature) { return new npc_emberstrifeAI(pCreature); }
+CreatureAI* GetAI_npc_emberstrife(Creature* pCreature)
+{
+    return new npc_emberstrifeAI(pCreature);
+}
 
 /*
  * Unforged Seal of Ascension (Emberstrife support)
@@ -809,7 +843,10 @@ CreatureAI* GetAI_npc_emberstrife(Creature* pCreature) { return new npc_emberstr
 
 struct go_unforged_sealAI : GameObjectAI
 {
-    explicit go_unforged_sealAI(GameObject* pGo) : GameObjectAI(pGo) { m_uiDespawnTimer = (3 * MINUTE * IN_MILLISECONDS); }
+    explicit go_unforged_sealAI(GameObject* pGo) : GameObjectAI(pGo)
+    {
+        m_uiDespawnTimer = (3 * MINUTE * IN_MILLISECONDS);
+    }
 
     uint32 m_uiDespawnTimer;
 
@@ -829,7 +866,10 @@ struct go_unforged_sealAI : GameObjectAI
     }
 };
 
-GameObjectAI* GetAI_go_unforged_seal(GameObject* pGo) { return new go_unforged_sealAI(pGo); }
+GameObjectAI* GetAI_go_unforged_seal(GameObject* pGo)
+{
+    return new go_unforged_sealAI(pGo);
+}
 
 enum
 {
@@ -838,7 +878,10 @@ enum
 
 struct npc_balos_jackenAI : public ScriptedAI
 {
-    npc_balos_jackenAI(Creature* c) : ScriptedAI(c) { Reset(); }
+    npc_balos_jackenAI(Creature *c) : ScriptedAI(c)
+    {
+        Reset();
+    }
 
     uint32 resetFactionTimer;
 
@@ -848,24 +891,27 @@ struct npc_balos_jackenAI : public ScriptedAI
         m_creature->SetFactionTemplateId(54);
     }
 
-    void Reset() { SetDefaults(); }
+    void Reset()
+    {
+        SetDefaults();
+    }
 
-    void JustRespawned() { SetDefaults(); }
+    void JustRespawned()
+    {
+        SetDefaults();
+    }
 
     void UpdateAI(const uint32 diff)
     {
-        if (m_creature->GetFactionTemplateId() == 35)
-        {
+        if (m_creature->GetFactionTemplateId() == 35) {
             resetFactionTimer -= diff;
-            if (resetFactionTimer < diff)
-            {
+            if (resetFactionTimer < diff) {
                 m_creature->DisappearAndDie();
                 m_creature->Respawn();
             }
         }
 
-        if (m_creature->GetHealthPercent() <= 20.0f && m_creature->GetFactionTemplateId() != 35)
-        {
+        if (m_creature->GetHealthPercent() <= 20.0f && m_creature->GetFactionTemplateId() != 35) {
             m_creature->MonsterSay(SAY_EVADE_BALOS_JACKEN, LANG_COMMON);
             m_creature->SetFactionTemplateId(35);
             if (m_creature->GetVictim())
@@ -881,13 +927,17 @@ struct npc_balos_jackenAI : public ScriptedAI
         if (m_creature->GetFactionTemplateId() == 54)
             DoMeleeAttackIfReady();
     }
+
 };
 
-CreatureAI* GetAI_npc_balos_jacken(Creature* _Creature) { return new npc_balos_jackenAI(_Creature); }
+CreatureAI* GetAI_npc_balos_jacken(Creature *_Creature)
+{
+    return new npc_balos_jackenAI(_Creature);
+}
 
 void AddSC_dustwallow_marsh()
 {
-    Script* newscript;
+    Script *newscript;
 
     newscript = new Script;
     newscript->Name = "npc_lady_jaina_proudmoore";
@@ -895,7 +945,7 @@ void AddSC_dustwallow_marsh()
     newscript->pGossipHello = &GossipHello_npc_lady_jaina_proudmoore;
     newscript->pGossipSelect = &GossipSelect_npc_lady_jaina_proudmoore;
     newscript->RegisterSelf();
-
+    
     newscript = new Script;
     newscript->Name = "npc_archmage_tervosh";
     newscript->GetAI = &GetAI_npc_archmage_tervosh;

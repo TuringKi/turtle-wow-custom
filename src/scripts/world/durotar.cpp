@@ -33,7 +33,7 @@ enum LazyPeon
     SPELL_BUFF_SLEEP = 17743,
     SPELL_AWAKEN_PEON = 19938,
     SAY_SPELL_HIT = -1000600,
-    SAY_SPELL_HIT2 = -1000601, // Sleepy so sleepy
+    SAY_SPELL_HIT2 = -1000601, //Sleepy so sleepy
     LAZY_PEON_ENTRY = 10556,
     EMOTE_WORKING = 234,
     WORKING_DURATION = 120000
@@ -67,7 +67,10 @@ struct LazyPeonAI : public ScriptedAI
     uint8 state;
     ObjectGuid playerGuid;
 
-    void DoAction(const uint32 state) override { this->state = state; }
+    void DoAction(const uint32 state) override
+    {
+        this->state = state;
+    }
 
     void Reset() override {}
 
@@ -87,68 +90,68 @@ struct LazyPeonAI : public ScriptedAI
     {
         switch (state)
         {
-        case STATE_SLEEPING:
-            if (!m_creature->HasAura(SPELL_BUFF_SLEEP))
-                DoCastSpellIfCan(m_creature, SPELL_BUFF_SLEEP);
-            break;
-        case STATE_WORKING:
-            if (timer_before_sleep < diff)
-            {
-                state = STATE_MOVING_BACK;
-                m_creature->HandleEmoteState(0);
-                float x, y, z, o;
-                m_creature->GetHomePosition(x, y, z, o);
-                m_creature->GetMotionMaster()->MovePoint(1, x, y, z);
-            }
-            else
-                timer_before_sleep -= diff;
-            break;
-        case STATE_WAKEUP:
-            if (timer_before_working < diff)
-            {
-                m_creature->RemoveAurasDueToSpell(SPELL_BUFF_SLEEP);
-                state = STATE_START_MOVING_TO_LUMBERPILE;
-                timer_before_moving_to_lumberpile = 2000;
-                timer_before_working = 3000;
-            }
-            else
-                timer_before_working -= diff;
-            break;
-        case STATE_START_MOVING_TO_LUMBERPILE:
-            if (timer_before_moving_to_lumberpile < diff)
-            {
-                if (GameObject* LumberPile = m_creature->FindNearestGameObject(GO_LUMBERPILE, 20.0f))
+            case STATE_SLEEPING:
+                if (!m_creature->HasAura(SPELL_BUFF_SLEEP))
+                    DoCastSpellIfCan(m_creature, SPELL_BUFF_SLEEP);
+                break;
+            case STATE_WORKING:
+                if (timer_before_sleep < diff)
                 {
-                    m_creature->SetWalk(true);
-                    /*float inv_distance = 1.5 / m_creature->GetDistance(LumberPile);
-                    m_creature->GetMotionMaster()->MovePoint(1,
-                                                       LumberPile->GetPositionX() - inv_distance * (LumberPile->GetPositionX() - m_creature->GetPositionX()),
-                                                       LumberPile->GetPositionY() - inv_distance * (LumberPile->GetPositionY() - m_creature->GetPositionY()),
-                                                       LumberPile->GetPositionZ() - inv_distance * (LumberPile->GetPositionZ() - m_creature->GetPositionZ()),
-                                                       MOVE_PATHFINDING);//not enough...
-                                                       */
-                    float fX, fY, fZ;
-                    LumberPile->GetContactPoint(m_creature, fX, fY, fZ, CONTACT_DISTANCE + 0.2f);
-                    m_creature->GetMotionMaster()->MovePoint(1, fX, fY, fZ, MOVE_PATHFINDING);
-
+                    state = STATE_MOVING_BACK;
+                    m_creature->HandleEmoteState(0);
+                    float x, y, z, o;
+                    m_creature->GetHomePosition(x, y, z, o);
+                    m_creature->GetMotionMaster()->MovePoint(1, x, y, z);
+                }
+                else
+                    timer_before_sleep -= diff;
+                break;
+            case STATE_WAKEUP:
+                if (timer_before_working < diff)
+                {
+                    m_creature->RemoveAurasDueToSpell(SPELL_BUFF_SLEEP);
+                    state = STATE_START_MOVING_TO_LUMBERPILE;
                     timer_before_moving_to_lumberpile = 2000;
+                    timer_before_working = 3000;
                 }
-
-                if (Player* player = m_creature->GetMap()->GetPlayer(playerGuid))
+                else
+                    timer_before_working -= diff;
+                break;
+            case STATE_START_MOVING_TO_LUMBERPILE:
+                if (timer_before_moving_to_lumberpile < diff)
                 {
-                    if (urand(0, 1))
-                        DoScriptText(SAY_SPELL_HIT, m_creature, player);
-                    else
-                        DoScriptText(SAY_SPELL_HIT2, m_creature);
-                }
-                state = STATE_MOVING_TO_LUMBERPILE;
-            }
-            else
-                timer_before_moving_to_lumberpile -= diff;
-            break;
+                    if (GameObject* LumberPile = m_creature->FindNearestGameObject(GO_LUMBERPILE, 20.0f))
+                    {
+                        m_creature->SetWalk(true);
+                        /*float inv_distance = 1.5 / m_creature->GetDistance(LumberPile);
+                        m_creature->GetMotionMaster()->MovePoint(1,
+                                                           LumberPile->GetPositionX() - inv_distance * (LumberPile->GetPositionX() - m_creature->GetPositionX()),
+                                                           LumberPile->GetPositionY() - inv_distance * (LumberPile->GetPositionY() - m_creature->GetPositionY()),
+                                                           LumberPile->GetPositionZ() - inv_distance * (LumberPile->GetPositionZ() - m_creature->GetPositionZ()),
+                                                           MOVE_PATHFINDING);//not enough...
+                                                           */
+                        float fX, fY, fZ;
+                        LumberPile->GetContactPoint(m_creature, fX, fY, fZ, CONTACT_DISTANCE + 0.2f);
+                        m_creature->GetMotionMaster()->MovePoint(1, fX, fY, fZ, MOVE_PATHFINDING);
 
-        default:
-            break;
+                        timer_before_moving_to_lumberpile = 2000;
+                    }
+
+                    if (Player* player = m_creature->GetMap()->GetPlayer(playerGuid))
+                    {
+                        if (urand(0, 1))
+                            DoScriptText(SAY_SPELL_HIT,  m_creature, player);
+                        else
+                            DoScriptText(SAY_SPELL_HIT2, m_creature);
+                    }
+                    state = STATE_MOVING_TO_LUMBERPILE;
+                }
+                else
+                    timer_before_moving_to_lumberpile -= diff;
+                break;
+
+            default:
+                break;
         }
     }
 
@@ -156,7 +159,7 @@ struct LazyPeonAI : public ScriptedAI
     {
         if (MovementType == POINT_MOTION_TYPE && id == 1)
         {
-            // sLog.nostalrius("LazyPeons Movement inform.");
+            //sLog.nostalrius("LazyPeons Movement inform.");
             if (state == STATE_MOVING_TO_LUMBERPILE)
             {
                 state = STATE_WORKING;
@@ -174,7 +177,7 @@ struct LazyPeonAI : public ScriptedAI
     }
 };
 
-bool peon_wake_up(WorldObject* pCaster, uint32 spellId, SpellEffectIndex effIndex, Creature* crTarget)
+bool peon_wake_up(WorldObject* pCaster, uint32 spellId, SpellEffectIndex effIndex, Creature *crTarget)
 {
     if (spellId == SPELL_AWAKEN_PEON && crTarget->GetEntry() == LAZY_PEON_ENTRY && crTarget->HasAura(SPELL_BUFF_SLEEP))
     {
@@ -186,7 +189,10 @@ bool peon_wake_up(WorldObject* pCaster, uint32 spellId, SpellEffectIndex effInde
     return true;
 }
 
-CreatureAI* GetAI_LazyPeon(Creature* pCreature) { return new LazyPeonAI(pCreature); }
+CreatureAI* GetAI_LazyPeon(Creature* pCreature)
+{
+    return new LazyPeonAI(pCreature);
+}
 
 
 struct npc_den_commanderAI : ScriptedAI
@@ -221,43 +227,43 @@ struct npc_den_commanderAI : ScriptedAI
             switch (m_uiTick)
             {
             case 0:
+            {
+                m_creature->MonsterMoveWithSpeed(-580.90f, -4305.14f, 38.91f, 0, 2, MOVE_WALK);
+
+                if (m_creature->GetPositionX() == -580.90f)
                 {
-                    m_creature->MonsterMoveWithSpeed(-580.90f, -4305.14f, 38.91f, 0, 2, MOVE_WALK);
-
-                    if (m_creature->GetPositionX() == -580.90f)
-                    {
-                        m_creature->PMonsterSay(66162);
-                        m_uiDialogueTimer = 10000;
-                        m_uiTick++;
-                    }
-
-                    break;
+                    m_creature->PMonsterSay(66162);
+                    m_uiDialogueTimer = 10000;
+                    m_uiTick++;
                 }
+
+                break;
+            }
             case 1:
-                {
-                    m_creature->MonsterMoveWithSpeed(-576.38f, -4297.83f, 39.17f, 0, 2, MOVE_WALK);
+            {
+                m_creature->MonsterMoveWithSpeed(-576.38f, -4297.83f, 39.17f, 0, 2, MOVE_WALK);
 
-                    if (m_creature->GetPositionX() == -576.38f)
-                    {
-                        m_creature->PMonsterSay(66160);
-                        m_uiDialogueTimer = 10000;
-                        m_uiTick++;
-                    }
-                    break;
+                if (m_creature->GetPositionX() == -576.38f)
+                {
+                    m_creature->PMonsterSay(66160);
+                    m_uiDialogueTimer = 10000;
+                    m_uiTick++;
                 }
+                break;
+            }
             case 2:
-                {
-                    m_creature->MonsterMoveWithSpeed(-571.19f, -4288.76f, 39.18f, 0, 2, MOVE_WALK);
+            {
+                m_creature->MonsterMoveWithSpeed(-571.19f, -4288.76f, 39.18f, 0, 2, MOVE_WALK);
 
-                    if (m_creature->GetPositionX() == -571.19f)
-                    {
-                        m_creature->SetOrientation(5.59f);
-                        m_creature->PMonsterSay(66161);
-                        m_uiDialogueTimer = 10000;
-                        m_uiTick = 0;
-                    }
-                    break;
+                if (m_creature->GetPositionX() == -571.19f)
+                {
+                    m_creature->SetOrientation(5.59f);
+                    m_creature->PMonsterSay(66161);
+                    m_uiDialogueTimer = 10000;
+                    m_uiTick = 0;
                 }
+                break;
+            }
             }
         }
         else
@@ -270,20 +276,21 @@ struct npc_den_commanderAI : ScriptedAI
                 switch (m_uiTick2)
                 {
                 case 0:
-                    {
-                        m_creature->PMonsterSay(66158);
-                        uint32 rand = urand(5000, 15000);
-                        m_uiDialogueTimer2 = rand;
-                        m_uiTick2++;
-                    }
+                {
+                    m_creature->PMonsterSay(66158);
+                    uint32 rand = urand(5000, 15000);
+                    m_uiDialogueTimer2 = rand;
+                    m_uiTick2++;
+                }
 
                 case 1:
-                    {
-                        m_creature->PMonsterSay(66159);
-                        uint32 rand = urand(25000, 60000);
-                        m_uiDialogueTimer2 = rand;
-                        m_uiTick2 = 0;
-                    }
+                {
+                    m_creature->PMonsterSay(66159);
+                    uint32 rand = urand(25000, 60000);
+                    m_uiDialogueTimer2 = rand;
+                    m_uiTick2 = 0;
+                }
+
                 }
             }
         }
@@ -292,7 +299,10 @@ struct npc_den_commanderAI : ScriptedAI
     }
 };
 
-CreatureAI* GetAI_npc_den_commander(Creature* pCreature) { return new npc_den_commanderAI(pCreature); }
+CreatureAI* GetAI_npc_den_commander(Creature* pCreature)
+{
+    return new npc_den_commanderAI(pCreature);
+}
 
 struct npc_den_recruitAI : ScriptedAI
 {
@@ -300,6 +310,7 @@ struct npc_den_recruitAI : ScriptedAI
     {
         m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
         m_creature->SetRooted(true);
+
     }
 
     uint32 m_uiTick = 0;
@@ -324,58 +335,58 @@ struct npc_den_recruitAI : ScriptedAI
             switch (m_uiTick)
             {
             case 0: // setup targets
+            {
+                switch (m_creature->GetEntry())
                 {
-                    switch (m_creature->GetEntry())
+                case 160100: // grunt
+                {
+                    if (Creature* combatTarget = m_creature->FindNearestCreature(160101, 3, true))
                     {
-                    case 160100: // grunt
-                        {
-                            if (Creature* combatTarget = m_creature->FindNearestCreature(160101, 3, true))
-                            {
-                                m_creature->AddThreat(combatTarget, 5000);
-                                m_creature->AI()->AttackStart(combatTarget);
-                            }
-                        }
-                    case 160101: // grunt
-                        {
-                            if (Creature* combatTarget = m_creature->FindNearestCreature(160100, 3, true))
-                            {
-                                m_creature->AddThreat(combatTarget, 5000);
-                                m_creature->AI()->AttackStart(combatTarget);
-                            }
-                        }
+                        m_creature->AddThreat(combatTarget, 5000);
+                        m_creature->AI()->AttackStart(combatTarget);
                     }
-                    m_uiTick++;
-                    m_uiDialogueTimer = 1000;
                 }
+                case 160101: // grunt
+                {
+                    if (Creature* combatTarget = m_creature->FindNearestCreature(160100, 3, true))
+                    {
+                        m_creature->AddThreat(combatTarget, 5000);
+                        m_creature->AI()->AttackStart(combatTarget);
+                    }
+                }
+                }
+                m_uiTick++;
+                m_uiDialogueTimer = 1000;
+            }
             case 1:
+            {
+                uint32 randChance = urand(1, 100);
+
+                if (randChance > 49)
                 {
-                    uint32 randChance = urand(1, 100);
+                    uint32 randEmote = urand(1, 3);
 
-                    if (randChance > 49)
+                    switch (randEmote)
                     {
-                        uint32 randEmote = urand(1, 3);
-
-                        switch (randEmote)
-                        {
-                        case 1:
-                            m_creature->HandleEmote(18); // cry
-                            break;
-                        case 2:
-                            m_creature->HandleEmote(15); // roar
-                            break;
-                        case 3:
-                            m_creature->HandleEmote(11); // laugh
-                            break;
-                        }
+                    case 1:
+                        m_creature->HandleEmote(18); // cry
+                        break;
+                    case 2:
+                        m_creature->HandleEmote(15); // roar
+                        break;
+                    case 3:
+                        m_creature->HandleEmote(11); // laugh
+                        break;
                     }
-
-                    if (m_creature->GetHealthPercent() <= 20.0f)
-                        m_creature->SetFullHealth();
-
-                    uint32 rand = urand(10000, 30000);
-                    m_uiDialogueTimer = rand;
-                    break;
                 }
+
+                if (m_creature->GetHealthPercent() <= 20.0f)
+                    m_creature->SetFullHealth();
+
+                uint32 rand = urand(10000, 30000);
+                m_uiDialogueTimer = rand;
+                break;
+            }
             }
         }
         else
@@ -400,13 +411,17 @@ struct npc_den_recruitAI : ScriptedAI
         else
             m_uiDialogueTimer2 -= uiDiff;
     }
+
 };
 
-CreatureAI* GetAI_npc_den_recruitAI(Creature* pCreature) { return new npc_den_recruitAI(pCreature); }
+CreatureAI* GetAI_npc_den_recruitAI(Creature* pCreature)
+{
+    return new npc_den_recruitAI(pCreature);
+}
 
 void AddSC_durotar()
 {
-    Script* newscript;
+    Script *newscript;
 
     newscript = new Script;
     newscript->Name = "LazyPeons";

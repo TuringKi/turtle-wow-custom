@@ -34,13 +34,13 @@
 class WorldSocket;
 
 /// Manages all sockets connected to peers and network threads
-class WorldSocketMgr : public MangosSocketMgr<WorldSocket>
+class WorldSocketMgr: public MangosSocketMgr<WorldSocket>
 {
-public:
-    friend class ACE_Singleton<WorldSocketMgr, ACE_Thread_Mutex>;
-    friend class WorldSocket;
+    public:
+        friend class ACE_Singleton<WorldSocketMgr, ACE_Thread_Mutex>;
+        friend class WorldSocket;
 
-    static WorldSocketMgr* Instance();
+        static WorldSocketMgr* Instance();
 };
 
 #define sWorldSocketMgr WorldSocketMgr::Instance()

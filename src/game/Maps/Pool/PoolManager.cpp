@@ -20,13 +20,13 @@
  */
 
 #include "PoolManager.h"
-#include "Log.h"
-#include "MapManager.h"
-#include "MapPersistentStateMgr.h"
-#include "ObjectGuid.h"
 #include "ObjectMgr.h"
-#include "Policies/SingletonImp.h"
+#include "ObjectGuid.h"
+#include "Log.h"
+#include "MapPersistentStateMgr.h"
+#include "MapManager.h"
 #include "World.h"
+#include "Policies/SingletonImp.h"
 
 PoolManager sPoolMgr;
 
@@ -58,48 +58,48 @@ uint32 SpawnedPoolData::GetSpawnedObjects(uint32 pool_id) const
 }
 
 // Method that tell if a creature is spawned currently
-template <>
+template<>
 bool SpawnedPoolData::IsSpawnedObject<Creature>(uint32 db_guid) const
 {
     return mSpawnedCreatures.find(db_guid) != mSpawnedCreatures.end();
 }
 
 // Method that tell if a gameobject is spawned currently
-template <>
+template<>
 bool SpawnedPoolData::IsSpawnedObject<GameObject>(uint32 db_guid) const
 {
     return mSpawnedGameobjects.find(db_guid) != mSpawnedGameobjects.end();
 }
 
 // Method that tell if a pool is spawned currently
-template <>
+template<>
 bool SpawnedPoolData::IsSpawnedObject<Pool>(uint32 sub_pool_id) const
 {
     return mSpawnedPools.find(sub_pool_id) != mSpawnedPools.end();
 }
 
-template <>
+template<>
 void SpawnedPoolData::AddSpawn<Creature>(uint32 db_guid, uint32 pool_id)
 {
     mSpawnedCreatures.insert(db_guid);
     ++mSpawnedPools[pool_id];
 }
 
-template <>
+template<>
 void SpawnedPoolData::AddSpawn<GameObject>(uint32 db_guid, uint32 pool_id)
 {
     mSpawnedGameobjects.insert(db_guid);
     ++mSpawnedPools[pool_id];
 }
 
-template <>
+template<>
 void SpawnedPoolData::AddSpawn<Pool>(uint32 sub_pool_id, uint32 pool_id)
 {
     mSpawnedPools[sub_pool_id] = 0;
     ++mSpawnedPools[pool_id];
 }
 
-template <>
+template<>
 void SpawnedPoolData::RemoveSpawn<Creature>(uint32 db_guid, uint32 pool_id)
 {
     mSpawnedCreatures.erase(db_guid);
@@ -108,7 +108,7 @@ void SpawnedPoolData::RemoveSpawn<Creature>(uint32 db_guid, uint32 pool_id)
         --val;
 }
 
-template <>
+template<>
 void SpawnedPoolData::RemoveSpawn<GameObject>(uint32 db_guid, uint32 pool_id)
 {
     mSpawnedGameobjects.erase(db_guid);
@@ -117,7 +117,7 @@ void SpawnedPoolData::RemoveSpawn<GameObject>(uint32 db_guid, uint32 pool_id)
         --val;
 }
 
-template <>
+template<>
 void SpawnedPoolData::RemoveSpawn<Pool>(uint32 sub_pool_id, uint32 pool_id)
 {
     mSpawnedPools.erase(sub_pool_id);
@@ -128,7 +128,7 @@ void SpawnedPoolData::RemoveSpawn<Pool>(uint32 sub_pool_id, uint32 pool_id)
 
 ////////////////////////////////////////////////////////////
 // Methods of class PoolObject
-template <>
+template<>
 void PoolObject::CheckEventLinkAndReport<Creature>(uint32 poolId, int16 event_id, std::map<uint32, int16> const& creature2event, std::map<uint32, int16> const& /*go2event*/) const
 {
     std::map<uint32, int16>::const_iterator itr = creature2event.find(guid);
@@ -136,7 +136,7 @@ void PoolObject::CheckEventLinkAndReport<Creature>(uint32 poolId, int16 event_id
         sLog.outErrorDb("Creature (GUID: %u) expected to be listed in `game_event_creature` for event %u as part pool %u", guid, event_id, poolId);
 }
 
-template <>
+template<>
 void PoolObject::CheckEventLinkAndReport<GameObject>(uint32 poolId, int16 event_id, std::map<uint32, int16> const& /*creature2event*/, std::map<uint32, int16> const& go2event) const
 {
     std::map<uint32, int16>::const_iterator itr = go2event.find(guid);
@@ -144,7 +144,7 @@ void PoolObject::CheckEventLinkAndReport<GameObject>(uint32 poolId, int16 event_
         sLog.outErrorDb("Gameobject (GUID: %u) expected to be listed in `game_event_gameobject` for event %u as part pool %u", guid, event_id, poolId);
 }
 
-template <>
+template<>
 void PoolObject::CheckEventLinkAndReport<Pool>(uint32 /*poolId*/, int16 event_id, std::map<uint32, int16> const& creature2event, std::map<uint32, int16> const& go2event) const
 {
     sPoolMgr.CheckEventLinkAndReport(guid, event_id, creature2event, go2event);
@@ -249,7 +249,7 @@ PoolObject* PoolGroup<T>::RollOne(SpawnedPoolData& spawns, uint32 triggerFrom)
 // Main method to despawn a creature or gameobject in a pool
 // If no guid is passed, the pool is just removed (event end case)
 // If guid is filled, cache will be used and no removal will occur, it just fill the cache
-template <class T>
+template<class T>
 void PoolGroup<T>::DespawnObject(MapPersistentState& mapState, uint32 guid)
 {
     for (size_t i = 0; i < EqualChanced.size(); ++i)
@@ -282,7 +282,7 @@ void PoolGroup<T>::DespawnObject(MapPersistentState& mapState, uint32 guid)
 }
 
 // Method that is actualy doing the removal job on one creature
-template <>
+template<>
 void PoolGroup<Creature>::Despawn1Object(MapPersistentState& mapState, uint32 guid)
 {
     if (CreatureData const* data = sObjectMgr.GetCreatureData(guid))
@@ -299,7 +299,7 @@ void PoolGroup<Creature>::Despawn1Object(MapPersistentState& mapState, uint32 gu
 }
 
 // Same on one gameobject
-template <>
+template<>
 void PoolGroup<GameObject>::Despawn1Object(MapPersistentState& mapState, uint32 guid)
 {
     if (GameObjectData const* data = sObjectMgr.GetGOData(guid))
@@ -316,14 +316,14 @@ void PoolGroup<GameObject>::Despawn1Object(MapPersistentState& mapState, uint32 
 }
 
 // Same on one pool
-template <>
+template<>
 void PoolGroup<Pool>::Despawn1Object(MapPersistentState& mapState, uint32 child_pool_id)
 {
     sPoolMgr.DespawnPool(mapState, child_pool_id);
 }
 
 // Method for a pool only to remove any found record causing a circular dependency loop
-template <>
+template<>
 void PoolGroup<Pool>::RemoveOneRelation(uint16 child_pool_id)
 {
     for (PoolObjectList::iterator itr = ExplicitlyChanced.begin(); itr != ExplicitlyChanced.end(); ++itr)
@@ -408,8 +408,8 @@ void PoolGroup<T>::SpawnObject(MapPersistentState& mapState, uint32 limit, uint3
 
         if (obj->guid == triggerFrom && isTriggerSpawned)
         {
-            // MANGOS_ASSERT(spawns.IsSpawnedObject<T>(obj->guid));
-            // MANGOS_ASSERT(spawns.GetSpawnedObjects(poolId) > 0);
+            //MANGOS_ASSERT(spawns.IsSpawnedObject<T>(obj->guid));
+            //MANGOS_ASSERT(spawns.GetSpawnedObjects(poolId) > 0);
             ReSpawn1Object(mapState, obj);
             triggerFrom = 0;
             continue;
@@ -471,7 +471,7 @@ void PoolGroup<Creature>::Spawn1Object(MapPersistentState& mapState, PoolObject*
         if (dataMap && dataMap->IsLoaded(data->position.x, data->position.y))
         {
             Creature* pCreature = new Creature;
-            // DEBUG_LOG("Spawning creature %u",obj->guid);
+            //DEBUG_LOG("Spawning creature %u",obj->guid);
             if (!pCreature->LoadFromDB(obj->guid, dataMap))
             {
                 delete pCreature;
@@ -512,7 +512,7 @@ void PoolGroup<GameObject>::Spawn1Object(MapPersistentState& mapState, PoolObjec
         if (dataMap && dataMap->IsLoaded(data->position.x, data->position.y))
         {
             GameObject* pGameobject = new GameObject;
-            // DEBUG_LOG("Spawning gameobject %u", obj->guid);
+            //DEBUG_LOG("Spawning gameobject %u", obj->guid);
             if (!pGameobject->LoadFromDB(obj->guid, dataMap))
             {
                 delete pGameobject;
@@ -593,7 +593,9 @@ void PoolGroup<Pool>::ReSpawn1Object(MapPersistentState& /*mapState*/, PoolObjec
 ////////////////////////////////////////////////////////////
 // Methods of class PoolManager
 
-PoolManager::PoolManager() : max_pool_id(0) {}
+PoolManager::PoolManager() : max_pool_id(0)
+{
+}
 
 // Check listing all pool spawns in single instanceable map or only in non-instanceable maps
 // This applied to all pools have common mother pool
@@ -625,14 +627,16 @@ struct PoolMapChecker
         // pool spawns must be at single instanceable map
         if (mapEntry->Instanceable())
         {
-            sLog.outErrorDb("`%s` has %s spawned at instanceable map %u when one or several other spawned at different map %u in pool id %i, skipped.", tableName, elementName, mapid, poolMapEntry->id, pool_id);
+            sLog.outErrorDb("`%s` has %s spawned at instanceable map %u when one or several other spawned at different map %u in pool id %i, skipped.",
+                            tableName, elementName, mapid, poolMapEntry->id, pool_id);
             return false;
         }
 
         // pool spawns must be at single instanceable map
         if (poolMapEntry->Instanceable())
         {
-            sLog.outErrorDb("`%s` has %s spawned at map %u when one or several other spawned at different instanceable map %u in pool id %i, skipped.", tableName, elementName, mapid, poolMapEntry->id, pool_id);
+            sLog.outErrorDb("`%s` has %s spawned at map %u when one or several other spawned at different instanceable map %u in pool id %i, skipped.",
+                            tableName, elementName, mapid, poolMapEntry->id, pool_id);
             return false;
         }
 
@@ -658,14 +662,14 @@ bool CheckPoolAndChance(const char* table, uint16 pool_id, float chance)
 
 void PoolManager::LoadFromDB()
 {
-    QueryResult* result = WorldDatabase.Query("SELECT MAX(`entry`) FROM `pool_template`");
+    QueryResult *result = WorldDatabase.Query("SELECT MAX(`entry`) FROM `pool_template`");
     if (!result)
     {
         return;
     }
     else
     {
-        Field* fields = result->Fetch();
+        Field *fields = result->Fetch();
         max_pool_id = fields[0].GetUInt16();
         delete result;
     }
@@ -676,26 +680,27 @@ void PoolManager::LoadFromDB()
     if (!result)
     {
         mPoolTemplate.clear();
-
+        
         return;
     }
 
     do
     {
-        Field* fields = result->Fetch();
+        Field *fields = result->Fetch();
 
         uint16 pool_id = fields[0].GetUInt16();
 
         PoolTemplateData& pPoolTemplate = mPoolTemplate[pool_id];
-        pPoolTemplate.MaxLimit = fields[1].GetUInt32();
-        pPoolTemplate.PoolFlags = fields[2].GetUInt32();
+        pPoolTemplate.MaxLimit    = fields[1].GetUInt32();
+        pPoolTemplate.PoolFlags   = fields[2].GetUInt32();
         pPoolTemplate.description = fields[3].GetCppString();
-        pPoolTemplate.InstanceId = sWorld.getConfig(CONFIG_BOOL_CONTINENTS_INSTANCIATE) ? fields[4].GetUInt32() : 0;
+        pPoolTemplate.InstanceId  = sWorld.getConfig(CONFIG_BOOL_CONTINENTS_INSTANCIATE) ? fields[4].GetUInt32() : 0;
 
         pPoolTemplate.PoolFlags |= POOL_FLAG_AUTO_SPAWN;
+
     }
     while (result->NextRow());
-
+    
     delete result;
 
     PoolMapChecker mapChecker(mPoolTemplate);
@@ -705,22 +710,23 @@ void PoolManager::LoadFromDB()
     mPoolCreatureGroups.resize(max_pool_id + 1);
     mCreatureSearchMap.clear();
 
-    result = WorldDatabase.Query("SELECT `guid`, `pool_entry`, `chance`, 0, `flags` FROM `pool_creature` "
-                                 "UNION "
-                                 " SELECT `guid`, `pool_entry`, `chance`, `pool_creature_template`.`id`, `pool_creature_template`.`flags` "
-                                 "FROM `pool_creature_template` LEFT JOIN `creature` ON `creature`.`id` = `pool_creature_template`.`id`");
+    result = WorldDatabase.Query(
+            "SELECT `guid`, `pool_entry`, `chance`, 0, `flags` FROM `pool_creature` "
+            "UNION "
+            " SELECT `guid`, `pool_entry`, `chance`, `pool_creature_template`.`id`, `pool_creature_template`.`flags` "
+            "FROM `pool_creature_template` LEFT JOIN `creature` ON `creature`.`id` = `pool_creature_template`.`id`");
 
     if (result)
     {
         do
         {
-            Field* fields = result->Fetch();
+            Field *fields = result->Fetch();
 
-            uint32 guid = fields[0].GetUInt32();
-            uint16 pool_id = fields[1].GetUInt16();
-            float chance = fields[2].GetFloat();
+            uint32 guid     = fields[0].GetUInt32();
+            uint16 pool_id  = fields[1].GetUInt16();
+            float chance    = fields[2].GetFloat();
             uint32 entry_id = fields[3].GetUInt32();
-            uint32 flags = fields[4].GetUInt32();
+            uint32 flags    = fields[4].GetUInt32();
 
             const char* table = entry_id ? "pool_creature_template" : "pool_creature";
 
@@ -735,7 +741,8 @@ void PoolManager::LoadFromDB()
             // Also note: for added guid not important what case we skip from 2 tables
             if (uint16 alt_pool_id = IsPartOfAPool<Creature>(guid))
             {
-                sLog.outErrorDb("`%s` has guid %u for pool %u that already added to pool %u from `pool_creature_template` for creature entry %u, skipped.", table, guid, pool_id, alt_pool_id, entry_id);
+                sLog.outErrorDb("`%s` has guid %u for pool %u that already added to pool %u from `pool_creature_template` for creature entry %u, skipped.",
+                                table, guid, pool_id, alt_pool_id, entry_id);
                 continue;
             }
             if (!CheckPoolAndChance(table, pool_id, chance))
@@ -743,7 +750,7 @@ void PoolManager::LoadFromDB()
             if (!mapChecker.CheckAndRemember(data->position.mapId, pool_id, table, "creature guid"))
                 continue;
 
-            PoolTemplateData* pPoolTemplate = &mPoolTemplate[pool_id];
+            PoolTemplateData *pPoolTemplate = &mPoolTemplate[pool_id];
 
             PoolObject plObject = PoolObject(guid, chance, flags);
             PoolGroup<Creature>& cregroup = mPoolCreatureGroups[pool_id];
@@ -751,9 +758,10 @@ void PoolManager::LoadFromDB()
             cregroup.AddEntry(plObject, pPoolTemplate->MaxLimit);
             SearchPair p(guid, pool_id);
             mCreatureSearchMap.insert(p);
+
         }
         while (result->NextRow());
-
+        
         delete result;
     }
 
@@ -762,21 +770,21 @@ void PoolManager::LoadFromDB()
     mGameobjectSearchMap.clear();
     //                                     0       1             2        3   4
     result = WorldDatabase.Query("SELECT `guid`, `pool_entry`, `chance`, 0, `flags` FROM `pool_gameobject` "
-                                 "UNION "
-                                 "SELECT `guid`, `pool_entry`, `chance`, `pool_gameobject_template`.`id`, `pool_gameobject_template`.`flags` "
-                                 "FROM `pool_gameobject_template` LEFT JOIN `gameobject` ON `gameobject`.`id` = `pool_gameobject_template`.`id`");
+        "UNION "
+        "SELECT `guid`, `pool_entry`, `chance`, `pool_gameobject_template`.`id`, `pool_gameobject_template`.`flags` "
+        "FROM `pool_gameobject_template` LEFT JOIN `gameobject` ON `gameobject`.`id` = `pool_gameobject_template`.`id`");
 
     if (result)
     {
         do
         {
-            Field* fields = result->Fetch();
+            Field *fields = result->Fetch();
 
-            uint32 guid = fields[0].GetUInt32();
-            uint16 pool_id = fields[1].GetUInt16();
-            float chance = fields[2].GetFloat();
+            uint32 guid     = fields[0].GetUInt32();
+            uint16 pool_id  = fields[1].GetUInt16();
+            float chance    = fields[2].GetFloat();
             uint32 entry_id = fields[3].GetUInt32();
-            uint32 flags = fields[4].GetUInt32();
+            uint32 flags    = fields[4].GetUInt32();
 
             const char* table = entry_id ? "pool_gameobject_template" : "pool_gameobject";
 
@@ -787,7 +795,9 @@ void PoolManager::LoadFromDB()
                 continue;
             }
             GameObjectInfo const* goinfo = sObjectMgr.GetGameObjectInfo(data->id);
-            if (goinfo->type != GAMEOBJECT_TYPE_CHEST && goinfo->type != GAMEOBJECT_TYPE_GOOBER && goinfo->type != GAMEOBJECT_TYPE_FISHINGHOLE)
+            if (goinfo->type != GAMEOBJECT_TYPE_CHEST &&
+                    goinfo->type != GAMEOBJECT_TYPE_GOOBER &&
+                    goinfo->type != GAMEOBJECT_TYPE_FISHINGHOLE)
             {
                 sLog.outErrorDb("`%s` has a not lootable gameobject spawn (GUID: %u, type: %u) defined for pool id (%u), skipped.", table, guid, goinfo->type, pool_id);
                 continue;
@@ -797,7 +807,8 @@ void PoolManager::LoadFromDB()
             // Also note: for added guid not important what case we skip from 2 tables
             if (uint16 alt_pool_id = IsPartOfAPool<GameObject>(guid))
             {
-                sLog.outErrorDb("`%s` has guid %u for pool %u that already added to pool %u from `pool_gameobject_template` for gameobject entry %u, skipped.", table, guid, pool_id, alt_pool_id, entry_id);
+                sLog.outErrorDb("`%s` has guid %u for pool %u that already added to pool %u from `pool_gameobject_template` for gameobject entry %u, skipped.",
+                                table, guid, pool_id, alt_pool_id, entry_id);
                 continue;
             }
             if (!CheckPoolAndChance(table, pool_id, chance))
@@ -805,7 +816,7 @@ void PoolManager::LoadFromDB()
             if (!mapChecker.CheckAndRemember(data->position.mapId, pool_id, table, "gameobject guid"))
                 continue;
 
-            PoolTemplateData* pPoolTemplate = &mPoolTemplate[pool_id];
+            PoolTemplateData *pPoolTemplate = &mPoolTemplate[pool_id];
 
             PoolObject plObject = PoolObject(guid, chance, flags);
             PoolGroup<GameObject>& gogroup = mPoolGameobjectGroups[pool_id];
@@ -813,9 +824,10 @@ void PoolManager::LoadFromDB()
             gogroup.AddEntry(plObject, pPoolTemplate->MaxLimit);
             SearchPair p(guid, pool_id);
             mGameobjectSearchMap.insert(p);
+
         }
         while (result->NextRow());
-
+        
         delete result;
     }
 
@@ -828,12 +840,12 @@ void PoolManager::LoadFromDB()
     {
         do
         {
-            Field* fields = result->Fetch();
+            Field *fields = result->Fetch();
 
-            uint16 child_pool_id = fields[0].GetUInt16();
+            uint16 child_pool_id  = fields[0].GetUInt16();
             uint16 mother_pool_id = fields[1].GetUInt16();
-            float chance = fields[2].GetFloat();
-            uint32 flags = fields[3].GetFloat();
+            float chance          = fields[2].GetFloat();
+            uint32 flags          = fields[3].GetFloat();
 
             if (child_pool_id > max_pool_id)
             {
@@ -848,7 +860,7 @@ void PoolManager::LoadFromDB()
             if (!CheckPoolAndChance("pool_pool", mother_pool_id, chance))
                 continue;
 
-            PoolTemplateData* pPoolTemplateMother = &mPoolTemplate[mother_pool_id];
+            PoolTemplateData *pPoolTemplateMother = &mPoolTemplate[mother_pool_id];
 
             PoolObject plObject = PoolObject(child_pool_id, chance, flags);
             PoolGroup<Pool>& plgroup = mPoolPoolGroups[mother_pool_id];
@@ -859,6 +871,7 @@ void PoolManager::LoadFromDB()
 
             // update top independent pool flag
             mPoolTemplate[child_pool_id].PoolFlags &= ~POOL_FLAG_AUTO_SPAWN;
+
         }
         while (result->NextRow());
 
@@ -886,7 +899,8 @@ void PoolManager::LoadFromDB()
                     ss << "The pool(s) ";
                     for (const auto checkedPool : checkedPools)
                         ss << checkedPool << " ";
-                    ss << "create(s) a circular reference, which can cause the server to freeze.\nRemoving the last link between mother pool " << poolItr->first << " and child pool " << poolItr->second;
+                    ss << "create(s) a circular reference, which can cause the server to freeze.\nRemoving the last link between mother pool "
+                       << poolItr->first << " and child pool " << poolItr->second;
                     sLog.outErrorDb("%s", ss.str().c_str());
                     mPoolPoolGroups[poolItr->second].RemoveOneRelation(poolItr->first);
                     mPoolSearchMap.erase(poolItr);
@@ -895,7 +909,7 @@ void PoolManager::LoadFromDB()
             }
         }
 
-
+        
         delete result;
     }
 
@@ -924,7 +938,7 @@ void PoolManager::Initialize(MapPersistentState* state)
 
 // Call to spawn a pool, if cache if true the method will spawn only if cached entry is different
 // If it's same, the creature is respawned only (added back to map)
-template <>
+template<>
 void PoolManager::SpawnPoolGroup<Creature>(MapPersistentState& mapState, uint16 pool_id, uint32 db_guid, bool instantly)
 {
     if (!mPoolCreatureGroups[pool_id].isEmpty())
@@ -933,7 +947,7 @@ void PoolManager::SpawnPoolGroup<Creature>(MapPersistentState& mapState, uint16 
 
 // Call to spawn a pool, if cache if true the method will spawn only if cached entry is different
 // If it's same, the gameobject is respawned only (added back to map)
-template <>
+template<>
 void PoolManager::SpawnPoolGroup<GameObject>(MapPersistentState& mapState, uint16 pool_id, uint32 db_guid, bool instantly)
 {
     if (!mPoolGameobjectGroups[pool_id].isEmpty())
@@ -942,7 +956,7 @@ void PoolManager::SpawnPoolGroup<GameObject>(MapPersistentState& mapState, uint1
 
 // Call to spawn a pool, if cache if true the method will spawn only if cached entry is different
 // If it's same, the pool is respawned only
-template <>
+template<>
 void PoolManager::SpawnPoolGroup<Pool>(MapPersistentState& mapState, uint16 pool_id, uint32 sub_pool_id, bool instantly)
 {
     if (!mPoolPoolGroups[pool_id].isEmpty())
@@ -972,7 +986,13 @@ void PoolManager::DespawnPool(MapPersistentState& mapState, uint16 pool_id)
 }
 
 // Method that check chance integrity of the creatures and gameobjects in this pool
-bool PoolManager::CheckPool(uint16 pool_id) const { return pool_id <= max_pool_id && mPoolGameobjectGroups[pool_id].CheckPool() && mPoolCreatureGroups[pool_id].CheckPool() && mPoolPoolGroups[pool_id].CheckPool(); }
+bool PoolManager::CheckPool(uint16 pool_id) const
+{
+    return pool_id <= max_pool_id &&
+           mPoolGameobjectGroups[pool_id].CheckPool() &&
+           mPoolCreatureGroups[pool_id].CheckPool() &&
+           mPoolPoolGroups[pool_id].CheckPool();
+}
 
 // Method that check linking all elements to event
 void PoolManager::CheckEventLinkAndReport(uint16 pool_id, int16 event_id, std::map<uint32, int16> const& creature2event, std::map<uint32, int16> const& go2event) const
@@ -983,13 +1003,13 @@ void PoolManager::CheckEventLinkAndReport(uint16 pool_id, int16 event_id, std::m
 }
 
 // Method that exclude some elements from next spawn
-template <>
+template<>
 void PoolManager::SetExcludeObject<Creature>(uint16 pool_id, uint32 db_guid_or_pool_id, bool state)
 {
     mPoolCreatureGroups[pool_id].SetExcludeObject(db_guid_or_pool_id, state);
 }
 
-template <>
+template<>
 void PoolManager::SetExcludeObject<GameObject>(uint16 pool_id, uint32 db_guid_or_pool_id, bool state)
 {
     mPoolGameobjectGroups[pool_id].SetExcludeObject(db_guid_or_pool_id, state);
@@ -998,7 +1018,7 @@ void PoolManager::SetExcludeObject<GameObject>(uint16 pool_id, uint32 db_guid_or
 // Call to update the pool when a gameobject/creature part of pool [pool_id] is ready to respawn
 // Here we cache only the creature/gameobject whose guid is passed as parameter
 // Then the spawn pool call will use this cache to decide
-template <typename T>
+template<typename T>
 void PoolManager::UpdatePool(MapPersistentState& mapState, uint16 pool_id, uint32 db_guid_or_pool_id)
 {
     if (uint16 motherpoolid = IsPartOfAPool<Pool>(pool_id))
@@ -1013,9 +1033,13 @@ template void PoolManager::UpdatePool<Creature>(MapPersistentState& mapState, ui
 
 struct SpawnPoolInMapsWorker
 {
-    explicit SpawnPoolInMapsWorker(PoolManager& mgr, uint32 pool_id, bool instantly) : i_mgr(mgr), i_pool_id(pool_id), i_instantly(instantly) {}
+    explicit SpawnPoolInMapsWorker(PoolManager& mgr, uint32 pool_id, bool instantly)
+        : i_mgr(mgr), i_pool_id(pool_id), i_instantly(instantly) {}
 
-    void operator()(MapPersistentState* state) const { i_mgr.SpawnPool(*state, i_pool_id, i_instantly); }
+    void operator()(MapPersistentState* state) const
+    {
+        i_mgr.SpawnPool(*state, i_pool_id, i_instantly);
+    }
 
     PoolManager& i_mgr;
     uint32 i_pool_id;
@@ -1026,16 +1050,20 @@ struct SpawnPoolInMapsWorker
 void PoolManager::SpawnPoolInMaps(uint16 pool_id, bool instantly)
 {
     PoolTemplateData& poolTemplate = mPoolTemplate[pool_id];
-
+    
     SpawnPoolInMapsWorker worker(*this, pool_id, instantly);
     sMapPersistentStateMgr.DoForAllStatesWithMapId(poolTemplate.mapEntry->id, poolTemplate.InstanceId, worker);
 }
 
 struct DespawnPoolInMapsWorker
 {
-    explicit DespawnPoolInMapsWorker(PoolManager& mgr, uint32 pool_id) : i_mgr(mgr), i_pool_id(pool_id) {}
+    explicit DespawnPoolInMapsWorker(PoolManager& mgr, uint32 pool_id)
+        : i_mgr(mgr), i_pool_id(pool_id) {}
 
-    void operator()(MapPersistentState* state) { i_mgr.DespawnPool(*state, i_pool_id); }
+    void operator()(MapPersistentState* state)
+    {
+        i_mgr.DespawnPool(*state, i_pool_id);
+    }
 
     PoolManager& i_mgr;
     uint32 i_pool_id;
@@ -1057,19 +1085,23 @@ void PoolManager::InitSpawnPool(MapPersistentState& mapState, uint16 pool_id)
         SpawnPool(mapState, pool_id, true);
 }
 
-template <typename T>
+template<typename T>
 struct UpdatePoolInMapsWorker
 {
-    explicit UpdatePoolInMapsWorker(PoolManager& mgr, uint32 pool_id, uint32 db_guid_or_pool_id) : i_mgr(mgr), i_pool_id(pool_id), i_db_guid_or_pool_id(db_guid_or_pool_id) {}
+    explicit UpdatePoolInMapsWorker(PoolManager& mgr, uint32 pool_id, uint32 db_guid_or_pool_id)
+        : i_mgr(mgr), i_pool_id(pool_id), i_db_guid_or_pool_id(db_guid_or_pool_id) {}
 
-    void operator()(MapPersistentState* state) { i_mgr.UpdatePool<T>(*state, i_pool_id, i_db_guid_or_pool_id); }
+    void operator()(MapPersistentState* state)
+    {
+        i_mgr.UpdatePool<T>(*state, i_pool_id, i_db_guid_or_pool_id);
+    }
 
     PoolManager& i_mgr;
     uint32 i_pool_id;
     uint32 i_db_guid_or_pool_id;
 };
 
-template <typename T>
+template<typename T>
 void PoolManager::UpdatePoolInMaps(uint16 pool_id, uint32 db_guid_or_pool_id)
 {
     PoolTemplateData& poolTemplate = mPoolTemplate[pool_id];

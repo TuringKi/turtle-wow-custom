@@ -28,16 +28,15 @@ class Creature;
 
 class GuardAI : public CreatureAI
 {
-public:
-    explicit GuardAI(Creature* c);
+    public:
+        explicit GuardAI(Creature *c);
 
-    void MoveInLineOfSight(Unit*) override;
-    void AttackStart(Unit*) override;
-    void EnterCombat(Unit*) override;
-    void UpdateAI(const uint32) override;
-    static int Permissible(const Creature*);
-
-private:
-    bool IsAttackingPlayerOrFriendly(const Unit*) const;
+        void MoveInLineOfSight(Unit *) override;
+        void AttackStart(Unit *) override;
+        void EnterCombat(Unit *) override;
+        void UpdateAI(const uint32) override;
+        static int Permissible(const Creature *);
+    private:
+        bool IsAttackingPlayerOrFriendly(const Unit *) const;
 };
 #endif

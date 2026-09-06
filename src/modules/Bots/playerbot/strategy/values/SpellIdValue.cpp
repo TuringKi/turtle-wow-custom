@@ -88,7 +88,7 @@ uint32 SpellIdValue::Calculate()
         for (auto i = 0; i < CREATURE_MAX_SPELLS; i++)
         {
 
-            uint32 spellId = pet->m_spells[i];
+            uint32 spellId = pet->Creature::m_spells[i];
             if (!spellId)
             {
                 continue;

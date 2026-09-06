@@ -19,10 +19,10 @@
 #ifndef MANGOSSERVER_GAMEOBJECTMODEL_H
 #define MANGOSSERVER_GAMEOBJECTMODEL_H
 
-#include <G3D/AABox.h>
 #include <G3D/Matrix3.h>
-#include <G3D/Ray.h>
 #include <G3D/Vector3.h>
+#include <G3D/AABox.h>
+#include <G3D/Ray.h>
 #include "DBCStructure.h"
 #include "GameObject.h"
 
@@ -35,35 +35,35 @@ namespace VMAP
 
 class GameObjectModel
 {
-    bool collision_enabled;
-    G3D::AABox iBound;
-    G3D::Matrix3 iInvRot;
-    G3D::Vector3 iPos;
-    // G3D::Vector3 iRot;
-    float iInvScale;
-    float iScale;
-    std::shared_ptr<VMAP::WorldModel> iModel;
+        bool collision_enabled;
+        G3D::AABox iBound;
+        G3D::Matrix3 iInvRot;
+        G3D::Vector3 iPos;
+        //G3D::Vector3 iRot;
+        float iInvScale;
+        float iScale;
+        std::shared_ptr<VMAP::WorldModel> iModel;
 
-    GameObjectModel() : collision_enabled(false), iInvScale(0), iScale(0), iModel(nullptr) {}
-    bool initialize(const GameObject* const pGo, const GameObjectDisplayInfoEntry* pDisplayInfo);
+        GameObjectModel() : collision_enabled(false), iInvScale(0), iScale(0), iModel(nullptr) {}
+        bool initialize(const GameObject* const pGo, const GameObjectDisplayInfoEntry* pDisplayInfo);
 
-public:
-    std::string name;
+    public:
+        std::string name;
 
-    const G3D::AABox& getBounds() const { return iBound; }
+        const G3D::AABox& getBounds() const { return iBound; }
 
-    ~GameObjectModel();
+        ~GameObjectModel();
 
-    const G3D::Vector3& getPosition() const { return iPos; }
+        const G3D::Vector3& getPosition() const { return iPos;}
 
-    /** Enables\disables collision. */
-    void disable() { collision_enabled = false; }
-    void enable(bool enabled) { collision_enabled = enabled; }
+        /** Enables\disables collision. */
+        void disable() { collision_enabled = false;}
+        void enable(bool enabled) { collision_enabled = enabled;}
 
-    bool intersectRay(const G3D::Ray& ray, float& MaxDist, bool StopAtFirstHit) const;
+        bool intersectRay(const G3D::Ray& ray, float& MaxDist, bool StopAtFirstHit) const;
 
-    static GameObjectModel* construct(const GameObject* const pGo);
+        static GameObjectModel* construct(const GameObject* const pGo);
 
-    bool Relocate(GameObject const& go);
+        bool Relocate(GameObject const& go);
 };
 #endif

@@ -29,18 +29,18 @@
  */
 
 #include "MassMailMgr.h"
+#include "Policies/SingletonImp.h"
 #include "Database/DatabaseEnv.h"
 #include "Database/DatabaseImpl.h"
-#include "ObjectMgr.h"
-#include "Policies/SingletonImp.h"
 #include "SharedDefines.h"
 #include "World.h"
+#include "ObjectMgr.h"
 
 MassMailMgr sMassMailMgr;
 
 void MassMailMgr::AddMassMailTask(MailDraft* mailProto, MailSender const& sender, uint32 raceMask)
 {
-    if (RACEMASK_ALL_PLAYABLE & ~raceMask) // have races not included in mask
+    if (RACEMASK_ALL_PLAYABLE & ~raceMask)                  // have races not included in mask
     {
         std::ostringstream ss;
         ss << "SELECT `guid` FROM `characters` WHERE (1 << (`race` - 1)) & " << raceMask << " AND `deleteDate` IS NULL";
@@ -63,13 +63,17 @@ struct MassMailerQueryHandler
         {
             Field* fields = result->Fetch();
             recievers.insert(fields[0].GetUInt32());
+
         }
         while (result->NextRow());
         delete result;
     }
 } massMailerQueryHandler;
 
-void MassMailMgr::AddMassMailTask(MailDraft* mailProto, MailSender const& sender, char const* query) { CharacterDatabase.AsyncPQuery(&massMailerQueryHandler, &MassMailerQueryHandler::HandleQueryCallback, mailProto, sender, query); }
+void MassMailMgr::AddMassMailTask(MailDraft* mailProto, MailSender const& sender, char const* query)
+{
+    CharacterDatabase.AsyncPQuery(&massMailerQueryHandler, &MassMailerQueryHandler::HandleQueryCallback, mailProto, sender, query);
+}
 
 void MassMailMgr::Update(bool sendall /*= false*/)
 {

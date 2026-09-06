@@ -22,16 +22,16 @@
 #ifndef MANGOS_DBCSFRM_H
 #define MANGOS_DBCSFRM_H
 
-const char AreaTableEntryfmt[] = "niiiixxxxxissssssssxixxxi";
-const char AreaTriggerEntryfmt[] = "niffffffff";
-const char AuctionHouseEntryfmt[] = "niiixxxxxxxxx";
-const char BankBagSlotPricesEntryfmt[] = "ni";
-const char ChrClassesEntryfmt[] = "nxxixssssssssxxix";
-const char ChrRacesEntryfmt[] = "niixiixxiixxixixissssssssxxxx";
-const char ChatChannelsEntryfmt[] = "nixssssssssxxxxxxxxxx"; // ChatChannelsEntryfmt, index not used (more compact store)
-const char CinematicSequencesEntryfmt[] = "nxxxxxxxxx";
-const char CreatureDisplayInfofmt[] = "nixifxxxxxxx";
-const char CreatureDisplayInfoExtrafmt[] = "nixxxxxxxxxxxxxxxxx";
+const char AreaTableEntryfmt[]="niiiixxxxxissssssssxixxxi";
+const char AreaTriggerEntryfmt[]="niffffffff";
+const char AuctionHouseEntryfmt[]="niiixxxxxxxxx";
+const char BankBagSlotPricesEntryfmt[]="ni";
+const char ChrClassesEntryfmt[]="nxxixssssssssxxix";
+const char ChrRacesEntryfmt[]="niixiixxiixxixixissssssssxxxx";
+const char ChatChannelsEntryfmt[]="nixssssssssxxxxxxxxxx";                 // ChatChannelsEntryfmt, index not used (more compact store)
+const char CinematicSequencesEntryfmt[]="nxxxxxxxxx";
+const char CreatureDisplayInfofmt[]="nixifxxxxxxx";
+const char CreatureDisplayInfoExtrafmt[]="nixxxxxxxxxxxxxxxxx";
 const char CreatureModelDatafmt[] = "nisxfxxxxxxxxxxf";
 const char CreatureFamilyfmt[] = "nfifiiiissssssssxx";
 const char CreatureSpellDatafmt[] = "niiiixxxx";
@@ -53,30 +53,35 @@ const char MailTemplateEntryfmt[] = "nxxxxxxxxx";
 const char MapEntryfmt[] = "nxixssssssssxxxxxxxixxxxxxxxxxxxxxxxxxixxx";
 const char NamesProfanityEntryfmt[] = "ds";
 const char NamesReservedEntryfmt[] = "ds";
-const char QuestSortEntryfmt[] = "nxxxxxxxxx";
-const char SkillLinefmt[] = "nixssssssssxxxxxxxxxxi";
-const char SkillLineAbilityfmt[] = "niiiixxiiiiixxi";
+const char QuestSortEntryfmt[]="nxxxxxxxxx";
+const char SkillLinefmt[]="nixssssssssxxxxxxxxxxi";
+const char SkillLineAbilityfmt[]="niiiixxiiiiixxi";
 const char SkillRaceClassInfofmt[] = "diiiiiix";
 const char SkillTiersfmt[] = "niiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii";
 const char SpellCategoryfmt[] = "ni";
-const char SpellCastTimefmt[] = "niii";
-const char SpellDurationfmt[] = "niii";
-const char SpellFocusObjectfmt[] = "nxxxxxxxxx";
-const char SpellItemEnchantmentfmt[] = "niiiiiixxxiiissssssssxii";
-const char SpellRadiusfmt[] = "nfxx";
-const char SpellRangefmt[] = "nffxxxxxxxxxxxxxxxxxxx";
-const char SpellShapeshiftfmt[] = "nxxxxxxxxxxiix";
+const char SpellCastTimefmt[]="niii";
+const char SpellDurationfmt[]="niii";
+const char SpellFocusObjectfmt[]="nxxxxxxxxx";
+const char SpellItemEnchantmentfmt[]="niiiiiixxxiiissssssssxii";
+const char Spellfmt[] =
+    "niiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiifiiiiiiiiiiii"
+    "iiiiiiiiiiiiiiiiiiiiffffffiiiiiiiiiiiiiiiiiiiiifff"
+    "iiiiiiiiiiiifffiiiiissssssssissssssssissssssssisss"
+    "sssssiiiiiiiiiiiifffiii";
+const char SpellRadiusfmt[]="nfxx";
+const char SpellRangefmt[]="nffxxxxxxxxxxxxxxxxxxx";
+const char SpellShapeshiftfmt[]="nxxxxxxxxxxiix";
 char const SpellVisualfmt[] = "niiiiiiiiiiiiiii";
-const char SpellIconfmt[] = "ns";
+const char SpellIconfmt[]="ns";
 const char StableSlotPricesfmt[] = "ni";
-const char TalentEntryfmt[] = "niiiiiiiixxxxixxixxxi";
-const char TalentTabEntryfmt[] = "nxxxxxxxxxxxiix";
-const char TaxiNodesEntryfmt[] = "nifffssssssssxii";
-const char TaxiPathEntryfmt[] = "niii";
-const char TaxiPathNodeEntryfmt[] = "diiifffii";
-const char WMOAreaTableEntryfmt[] = "niiixxxxxiixxxxxxxxx";
-const char WorldMapAreaEntryfmt[] = "xinxffff";
-// const char WorldMapOverlayEntryfmt[]="nxiiiixxxxxxxxxxx";
-const char WorldSafeLocsEntryfmt[] = "nifffxxxxxxxxx";
+const char TalentEntryfmt[]="niiiiiiiixxxxixxixxxi";
+const char TalentTabEntryfmt[]="nxxxxxxxxxxxiix";
+const char TaxiNodesEntryfmt[]="nifffssssssssxii";
+const char TaxiPathEntryfmt[]="niii";
+const char TaxiPathNodeEntryfmt[]="diiifffii";
+const char WMOAreaTableEntryfmt[]="niiixxxxxiixxxxxxxxx";
+const char WorldMapAreaEntryfmt[]="xinxffff";
+//const char WorldMapOverlayEntryfmt[]="nxiiiixxxxxxxxxxx";
+const char WorldSafeLocsEntryfmt[]="nifffxxxxxxxxx";
 
 #endif

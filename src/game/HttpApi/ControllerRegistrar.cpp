@@ -1,6 +1,6 @@
-#include "Config.hpp"
 #include "TestController.hpp"
 #include "TransferController.hpp"
+#include "Config.hpp"
 
 namespace HttpApi
 {
@@ -9,4 +9,5 @@ namespace HttpApi
         new TestController();
         new TransferController(sConfig.GetStringDefault("HttpApi.TransferKey", "Gheor"));
     }
-} // namespace HttpApi
+}
+

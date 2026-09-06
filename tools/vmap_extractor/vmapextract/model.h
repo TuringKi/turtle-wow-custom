@@ -22,8 +22,8 @@
 #include "loadlib/loadlib.h"
 #include "vec3d.h"
 //#include "mpq.h"
-#include <vector>
 #include "modelheaders.h"
+#include <vector>
 #include "vmapexport.h"
 
 class WMOInstance;
@@ -33,45 +33,46 @@ Vec3D fixCoordSystem(Vec3D v);
 
 class Model
 {
-public:
-    ModelHeader header;
-    // nVertices = header.nBoundingVertices;
-    Vec3D* vertices;
-    uint16* indices;
-    size_t nIndices;
+    public:
+        ModelHeader header;
+        // nVertices = header.nBoundingVertices;
+        Vec3D* vertices;
+        uint16* indices;
+        size_t nIndices;
 
-    bool open(StringSet& failedPaths);
-    bool ConvertToVMAPModel(const char* outfilename);
+        bool open(StringSet& failedPaths);
+        bool ConvertToVMAPModel(const char* outfilename);
 
-    bool ok;
+        bool ok;
 
-    void ScaleRotateTranslate(float scale, Vec3D rot, float w, Vec3D pos);
+        void ScaleRotateTranslate(float scale, Vec3D rot, float w, Vec3D pos);
 
-    Model(std::string& filename);
-    ~Model() { _unload(); }
+        Model(std::string& filename);
+        ~Model() {_unload();}
 
-private:
-    void _unload()
-    {
-        delete[] vertices;
-        delete[] indices;
-        vertices = NULL;
-        indices = NULL;
-    }
-    std::string filename;
-    char outfilename;
+    private:
+        void _unload()
+        {
+            delete[] vertices;
+            delete[] indices;
+            vertices = NULL;
+            indices = NULL;
+        }
+        std::string filename;
+        char outfilename;
 };
 
 class ModelInstance
 {
-public:
-    uint32 id;
-    Vec3D pos, rot;
-    uint16 scale;
-    float sc;
+    public:
+        uint32 id;
+        Vec3D pos, rot;
+        uint16 scale;
+        float sc;
 
-    ModelInstance() : id(0), scale(0), sc(0.0f) {}
-    ModelInstance(MPQFile& f, const char* ModelInstName, uint32 mapID, uint32 tileX, uint32 tileY, FILE* pDirfile);
+        ModelInstance() : id(0), scale(0), sc(0.0f) {}
+        ModelInstance(MPQFile& f, const char* ModelInstName, uint32 mapID, uint32 tileX, uint32 tileY, FILE* pDirfile);
+
 };
 
 #endif

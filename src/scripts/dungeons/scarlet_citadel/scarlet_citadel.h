@@ -7,25 +7,22 @@
 
 #pragma once
 
-#include "Common.h"
-#include "Player.h"
-#include "ScriptedInstance.h"
 
 enum ScarletCitadelUnit : uint32
 {
     // Gameobjects
-    GO_DOOR_VENDOR_LEFT = 5000001,
-    GO_DOOR_VENDOR_RIGHT = 5000002,
-    GO_DOOR_DAELUS = 5000003,
+    GO_DOOR_VENDOR_LEFT   = 5000001,
+    GO_DOOR_VENDOR_RIGHT  = 5000002,
+    GO_DOOR_DAELUS        = 5000003,
     GO_DOOR_ARDAEUS_ENTER = 5000006,
-    GO_DOOR_ARDAEUS_EXIT = 5000007,
-    GO_DOOR_MARIELLA = 5000008,
-    GO_DOOR_RIGHT_WING = 5000009,
-    GO_DOOR_ABBENDIS = 5000010,
+    GO_DOOR_ARDAEUS_EXIT  = 5000007,
+    GO_DOOR_MARIELLA      = 5000008,
+    GO_DOOR_RIGHT_WING    = 5000009,
+    GO_DOOR_ABBENDIS      = 5000010,
 
     // Bosses
-    NPC_DAELUS = 2000000,
-    NPC_ARDAEUS = 2000001,
+    NPC_DAELUS   = 2000000,
+    NPC_ARDAEUS  = 2000001,
     NPC_MARIELLA = 2000002,
     NPC_ABBENDIS = 2000003,
 

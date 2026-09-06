@@ -14,8 +14,8 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#include <iostream>
 #include <string>
+#include <iostream>
 #include "Database/DatabaseEnv.h"
 #include "Log.h"
 
@@ -26,13 +26,13 @@ std::string g_db2Name;
 
 enum AtLoginFlags
 {
-    AT_LOGIN_NONE = 0x00,
-    AT_LOGIN_RENAME = 0x01,
-    AT_LOGIN_RESET_SPELLS = 0x02,
-    AT_LOGIN_RESET_TALENTS = 0x04,
-    // AT_LOGIN_CUSTOMIZE         = 0x08, -- used in post-3.x
-    // AT_LOGIN_RESET_PET_TALENTS = 0x10, -- used in post-3.x
-    AT_LOGIN_FIRST = 0x20,
+    AT_LOGIN_NONE              = 0x00,
+    AT_LOGIN_RENAME            = 0x01,
+    AT_LOGIN_RESET_SPELLS      = 0x02,
+    AT_LOGIN_RESET_TALENTS     = 0x04,
+    //AT_LOGIN_CUSTOMIZE         = 0x08, -- used in post-3.x
+    //AT_LOGIN_RESET_PET_TALENTS = 0x10, -- used in post-3.x
+    AT_LOGIN_FIRST             = 0x20,
 };
 
 std::string MakeConnectionString()
@@ -100,12 +100,13 @@ struct UniqueKeyData
             return std::make_pair(key, false);
 
         ++counter;
-        while (existingKeys1.find(counter) != existingKeys1.end() || existingKeys2.find(counter) != existingKeys2.end())
+        while (existingKeys1.find(counter) != existingKeys1.end() ||
+               existingKeys2.find(counter) != existingKeys2.end())
         {
             ++counter;
         }
 
-        replacedKeys.insert({key, counter});
+        replacedKeys.insert({ key, counter });
         return std::make_pair(counter, true);
     }
 };
@@ -134,8 +135,8 @@ bool UpdateCharacterGuids()
 
         characterGuids.existingKeys1.insert(guid);
         characterNames1.insert(name);
-    }
-    while (result->NextRow());
+
+    } while (result->NextRow());
 
     sLog.outInfo("Loading %s.characters...", g_db2Name.c_str());
     result.reset(CharacterDatabase2.Query("SELECT `guid`, `name` FROM `characters`"));
@@ -154,9 +155,9 @@ bool UpdateCharacterGuids()
         std::string name = fields[1].GetCppString();
 
         characterGuids.existingKeys2.insert(guid);
-        characterNames2.insert({guid, name});
-    }
-    while (result->NextRow());
+        characterNames2.insert({ guid, name });
+
+    } while (result->NextRow());
 
     if (INT32_MAX < int64(characterGuids.existingKeys1.size() + characterGuids.existingKeys2.size()))
     {
@@ -440,7 +441,7 @@ bool UpdateCharacterGuids()
             }
         }
     }
-
+    
     return true;
 }
 
@@ -457,8 +458,8 @@ void UpdateAutoIncrementField(char const* fieldName, char const* tableName)
             Field* fields = result->Fetch();
 
             maxId = fields[0].GetUInt32();
-        }
-        while (result->NextRow());
+
+        } while (result->NextRow());
 
         result.reset(CharacterDatabase2.PQuery("SELECT MAX(`%s`) FROM `%s`", fieldName, tableName));
         if (result)
@@ -471,8 +472,8 @@ void UpdateAutoIncrementField(char const* fieldName, char const* tableName)
 
                 if (db2Max > maxId)
                     maxId = db2Max;
-            }
-            while (result->NextRow());
+
+            } while (result->NextRow());
         }
 
         CharacterDatabase2.PExecute("UPDATE `%s` SET `%s` = `%s` + %u", tableName, fieldName, fieldName, maxId);
@@ -492,7 +493,7 @@ void UpdateAutoIncrementFields()
     UpdateAutoIncrementField("ticket_id", "character_ticket");
     UpdateAutoIncrementField("log_id", "guild_bank_log");
     UpdateAutoIncrementField("id", "guild_bank_tabs");
-    // UpdateAutoIncrementField("LogGuid", "guild_eventlog");
+    //UpdateAutoIncrementField("LogGuid", "guild_eventlog");
     UpdateAutoIncrementField("entry", "logs_warden");
     UpdateAutoIncrementField("transaction", "store_racechange");
 }
@@ -512,8 +513,8 @@ bool UpdateItemGuids()
 
             uint32 guid = fields[0].GetUInt32();
             itemGuids.existingKeys1.insert(guid);
-        }
-        while (result->NextRow());
+
+        } while (result->NextRow());
     }
 
     sLog.outInfo("Loading %s.item_instance...", g_db2Name.c_str());
@@ -527,8 +528,8 @@ bool UpdateItemGuids()
 
             uint32 guid = fields[0].GetUInt32();
             itemGuids.existingKeys2.insert(guid);
-        }
-        while (result->NextRow());
+
+        } while (result->NextRow());
     }
 
     if (INT32_MAX < int64(itemGuids.existingKeys1.size() + itemGuids.existingKeys2.size()))
@@ -629,8 +630,8 @@ bool UpdatePetitionGuids()
 
             uint32 guid = fields[0].GetUInt32();
             petitionGuids.existingKeys1.insert(guid);
-        }
-        while (result->NextRow());
+
+        } while (result->NextRow());
     }
 
     sLog.outInfo("Loading %s.petition...", g_db2Name.c_str());
@@ -644,8 +645,8 @@ bool UpdatePetitionGuids()
 
             uint32 guid = fields[0].GetUInt32();
             petitionGuids.existingKeys2.insert(guid);
-        }
-        while (result->NextRow());
+
+        } while (result->NextRow());
     }
 
     if (INT32_MAX < int64(petitionGuids.existingKeys1.size() + petitionGuids.existingKeys2.size()))
@@ -700,8 +701,8 @@ bool UpdatePetGuids()
 
             uint32 guid = fields[0].GetUInt32();
             petGuids.existingKeys1.insert(guid);
-        }
-        while (result->NextRow());
+
+        } while (result->NextRow());
     }
 
     sLog.outInfo("Loading %s.character_pet...", g_db2Name.c_str());
@@ -715,8 +716,8 @@ bool UpdatePetGuids()
 
             uint32 guid = fields[0].GetUInt32();
             petGuids.existingKeys2.insert(guid);
-        }
-        while (result->NextRow());
+
+        } while (result->NextRow());
     }
 
     if (INT32_MAX < int64(petGuids.existingKeys1.size() + petGuids.existingKeys2.size()))
@@ -775,8 +776,8 @@ bool UpdateCorpseGuids()
 
             uint32 guid = fields[0].GetUInt32();
             corpseGuids.existingKeys1.insert(guid);
-        }
-        while (result->NextRow());
+
+        } while (result->NextRow());
     }
 
     sLog.outInfo("Loading %s.corpse...", g_db2Name.c_str());
@@ -790,8 +791,8 @@ bool UpdateCorpseGuids()
 
             uint32 guid = fields[0].GetUInt32();
             corpseGuids.existingKeys2.insert(guid);
-        }
-        while (result->NextRow());
+
+        } while (result->NextRow());
     }
 
     if (INT32_MAX < int64(corpseGuids.existingKeys1.size() + corpseGuids.existingKeys2.size()))
@@ -844,8 +845,8 @@ bool UpdateGroupIds()
 
             uint32 groupId = fields[0].GetUInt32();
             groupIds.existingKeys1.insert(groupId);
-        }
-        while (result->NextRow());
+
+        } while (result->NextRow());
     }
 
     sLog.outInfo("Loading %s.groups...", g_db2Name.c_str());
@@ -859,8 +860,8 @@ bool UpdateGroupIds()
 
             uint32 groupId = fields[0].GetUInt32();
             groupIds.existingKeys2.insert(groupId);
-        }
-        while (result->NextRow());
+
+        } while (result->NextRow());
     }
 
     if (INT32_MAX < int64(groupIds.existingKeys1.size() + groupIds.existingKeys2.size()))
@@ -920,8 +921,8 @@ bool UpdateGuildIds()
 
             guildIds.existingKeys1.insert(guildId);
             guildNames1.insert(name);
-        }
-        while (result->NextRow());
+
+        } while (result->NextRow());
     }
 
     sLog.outInfo("Loading %s.guild...", g_db2Name.c_str());
@@ -937,9 +938,9 @@ bool UpdateGuildIds()
             std::string name = fields[1].GetCppString();
 
             guildIds.existingKeys2.insert(guildId);
-            guildNames2.insert({guildId, name});
-        }
-        while (result->NextRow());
+            guildNames2.insert({ guildId, name });
+
+        } while (result->NextRow());
     }
 
     if (INT32_MAX < int64(guildIds.existingKeys1.size() + guildIds.existingKeys2.size()))
@@ -976,7 +977,7 @@ bool UpdateGuildIds()
 
         return "DUPLICATE";
     };
-
+    
     sLog.outInfo("Updating guild names...");
     for (auto const& itr : guildNames2)
     {
@@ -1047,8 +1048,8 @@ bool UpdateInstanceIds()
 
             uint32 instanceId = fields[0].GetUInt32();
             instanceIds.existingKeys1.insert(instanceId);
-        }
-        while (result->NextRow());
+
+        } while (result->NextRow());
     }
 
     sLog.outInfo("Loading %s.instance...", g_db2Name.c_str());
@@ -1062,8 +1063,8 @@ bool UpdateInstanceIds()
 
             uint32 instanceId = fields[0].GetUInt32();
             instanceIds.existingKeys2.insert(instanceId);
-        }
-        while (result->NextRow());
+
+        } while (result->NextRow());
     }
 
     if (INT32_MAX < int64(instanceIds.existingKeys1.size() + instanceIds.existingKeys2.size()))
@@ -1130,8 +1131,8 @@ bool UpdateMailIds()
 
             uint32 mailId = fields[0].GetUInt32();
             mailIds.existingKeys1.insert(mailId);
-        }
-        while (result->NextRow());
+
+        } while (result->NextRow());
     }
 
     sLog.outInfo("Loading %s.mail...", g_db2Name.c_str());
@@ -1145,8 +1146,8 @@ bool UpdateMailIds()
 
             uint32 mailId = fields[0].GetUInt32();
             mailIds.existingKeys2.insert(mailId);
-        }
-        while (result->NextRow());
+
+        } while (result->NextRow());
     }
 
     if (INT32_MAX < int64(mailIds.existingKeys1.size() + mailIds.existingKeys2.size()))
@@ -1201,8 +1202,8 @@ bool UpdateItemTextIds()
 
             uint32 itemTextId = fields[0].GetUInt32();
             itemTextIds.existingKeys1.insert(itemTextId);
-        }
-        while (result->NextRow());
+
+        } while (result->NextRow());
     }
 
     sLog.outInfo("Loading %s.mail...", g_db2Name.c_str());
@@ -1216,8 +1217,8 @@ bool UpdateItemTextIds()
 
             uint32 itemTextId = fields[0].GetUInt32();
             itemTextIds.existingKeys2.insert(itemTextId);
-        }
-        while (result->NextRow());
+
+        } while (result->NextRow());
     }
 
     if (INT32_MAX < int64(itemTextIds.existingKeys1.size() + itemTextIds.existingKeys2.size()))
@@ -1276,8 +1277,8 @@ bool UpdateTransmogIds()
 
             uint32 transmogId = fields[0].GetUInt32();
             transmogIds.existingKeys1.insert(transmogId);
-        }
-        while (result->NextRow());
+
+        } while (result->NextRow());
     }
 
     sLog.outInfo("Loading %s.item_transmogs...", g_db2Name.c_str());
@@ -1291,8 +1292,8 @@ bool UpdateTransmogIds()
 
             uint32 transmogId = fields[0].GetUInt32();
             transmogIds.existingKeys2.insert(transmogId);
-        }
-        while (result->NextRow());
+
+        } while (result->NextRow());
     }
 
     if (INT32_MAX < int64(transmogIds.existingKeys1.size() + transmogIds.existingKeys2.size()))
@@ -1349,8 +1350,8 @@ bool UpdateAuctionIds()
 
             uint32 auctionId = fields[0].GetUInt32();
             auctionIds.existingKeys1.insert(auctionId);
-        }
-        while (result->NextRow());
+
+        } while (result->NextRow());
     }
 
     sLog.outInfo("Loading %s.auction...", g_db2Name.c_str());
@@ -1364,8 +1365,8 @@ bool UpdateAuctionIds()
 
             uint32 auctionId = fields[0].GetUInt32();
             auctionIds.existingKeys2.insert(auctionId);
-        }
-        while (result->NextRow());
+
+        } while (result->NextRow());
     }
 
     if (INT32_MAX < int64(auctionIds.existingKeys1.size() + auctionIds.existingKeys2.size()))
@@ -1418,8 +1419,8 @@ bool UpdateTicketIds()
 
             uint32 ticketId = fields[0].GetUInt32();
             ticketIds.existingKeys1.insert(ticketId);
-        }
-        while (result->NextRow());
+
+        } while (result->NextRow());
     }
 
     sLog.outInfo("Loading %s.gm_tickets...", g_db2Name.c_str());
@@ -1433,8 +1434,8 @@ bool UpdateTicketIds()
 
             uint32 ticketId = fields[0].GetUInt32();
             ticketIds.existingKeys2.insert(ticketId);
-        }
-        while (result->NextRow());
+
+        } while (result->NextRow());
     }
 
     if (INT32_MAX < int64(ticketIds.existingKeys1.size() + ticketIds.existingKeys2.size()))
@@ -1544,7 +1545,7 @@ int main(int argc, char* argv[])
         GetChar();
         return 1;
     }
-
+    
     if (!UpdateItemGuids())
     {
         GetChar();

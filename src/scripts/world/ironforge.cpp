@@ -62,17 +62,16 @@ bool GossipSelect_npc_tinker_mekkatorque(Player* pPlayer, Creature* pCreature, u
 
         pCreature->HandleEmote(EMOTE_ONESHOT_TALK_NOSHEATHE);
 
-        DoAfterTime(pCreature, 3 * IN_MILLISECONDS,
-                    [player = pPlayer, creature = pCreature]()
-                    {
-                        creature->MonsterSayToPlayer("You can count on the gnomes to support the high elven ascension into the Alliance!", player);
-                        creature->HandleEmote(EMOTE_ONESHOT_YES);
+        DoAfterTime(pCreature, 3 * IN_MILLISECONDS, [player = pPlayer, creature = pCreature]()
+            {
+                creature->MonsterSayToPlayer("You can count on the gnomes to support the high elven ascension into the Alliance!", player);
+                creature->HandleEmote(EMOTE_ONESHOT_YES);
 
-                        player->AddItem(83019, 1);
+                player->AddItem(83019, 1);
 
-                        creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                        creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_SPAWNING);
-                    });
+                creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_SPAWNING);
+            });
     }
     else if (uiAction == GOSSIP_ACTION_INFO_DEF + 2)
     {
@@ -85,18 +84,17 @@ bool GossipSelect_npc_tinker_mekkatorque(Player* pPlayer, Creature* pCreature, u
 
 enum eSpells
 {
-    SPELL_STORM_BOLT = 20685,
-    SPELL_KNOCK_AWAY = 20686,
-    SPELL_AVATAR = 19135,
-    SPELL_THUNDER_CLAP = 23931,
-    SPELL_LAY_ON_HAND = 17233,
-    SPELL_CHARGE = 22911,
+    SPELL_STORM_BOLT    = 20685,
+    SPELL_KNOCK_AWAY    = 20686,
+    SPELL_AVATAR        = 19135,
+    SPELL_THUNDER_CLAP  = 23931,
+    SPELL_LAY_ON_HAND   = 17233,
+    SPELL_CHARGE        = 22911,
 };
 
 bool QuestRewarded_boss_magni_bronzebeard(Player* pPlayer, Creature* pQuestGiver, Quest const* pQuest)
 {
-    if (!pQuestGiver || !pPlayer)
-        return false;
+    if (!pQuestGiver || !pPlayer) return false;
 
     if (pQuest->GetQuestId() == 40489) // Assaulting Hateforge
     {
@@ -110,13 +108,16 @@ bool QuestRewarded_boss_magni_bronzebeard(Player* pPlayer, Creature* pQuestGiver
 struct boss_magni_bronzebeardAI : public ScriptedAI
 {
 public:
-    boss_magni_bronzebeardAI(Creature* pCreature) : ScriptedAI(pCreature) { Reset(); }
+    boss_magni_bronzebeardAI(Creature* pCreature) : ScriptedAI(pCreature)
+    {
+        Reset();
+    }
 
     void Reset() override
     {
         m_uiStormBoltTimer = 10000;
         m_uiKnockAwayTimer = 20000;
-        m_uiAvatarTimer = 25000;
+        m_uiAvatarTimer= 25000;
         m_uiThunderClapTimer = 15000;
         m_uiChargeTimer = 10000;
         m_bHasUsedLOH = false;
@@ -213,15 +214,18 @@ private:
     bool m_bHasStormBolted;
 };
 
-CreatureAI* GetAI_boss_magni_bronzebeard(Creature* pCreature) { return new boss_magni_bronzebeardAI(pCreature); }
+CreatureAI* GetAI_boss_magni_bronzebeard(Creature* pCreature)
+{
+    return new boss_magni_bronzebeardAI(pCreature);
+}
 
-// https://database.turtle-wow.org/?npc=11145 Myolor Sunderfury
-// https://database.turtle-wow.org/?npc=11176 Krathok Moltenfist
+// https://database.turtle-wow.org/?npc=11145 Myolor Sunderfury 
+// https://database.turtle-wow.org/?npc=11176 Krathok Moltenfist 
 
 enum BMSpecs
 {
-    SPELL_ARMORSMITH = 9788,
-    SPELL_WEAPONSMITH = 9787,
+    SPELL_ARMORSMITH        = 9788,
+    SPELL_WEAPONSMITH       = 9787,
 
     NPC_MYOLOR_SUNDERFURY = 11145,
     NPC_KRATHOK_MOLENFIST = 11176,
@@ -229,19 +233,21 @@ enum BMSpecs
     GOSSIP_MYOLOR_SUNDERFURY = 3937,
     GOSSIP_KRATHOK_MOLENFIST = 3953,
 
-    QUEST_ARMORSMITH_ALLIANCE = 5283,
-    QUEST_ARMORSMITH_HORDE = 5301,
+    QUEST_ARMORSMITH_ALLIANCE  = 5283,
+    QUEST_ARMORSMITH_HORDE     = 5301,
     QUEST_WEAPONSMITH_ALLIANCE = 5284,
-    QUEST_WEAPONSMITH_HORDE = 5302
+    QUEST_WEAPONSMITH_HORDE    = 5302
 };
 
 bool GossipHello_npc_blacksmithing_specialisations(Player* pPlayer, Creature* pCreature)
 {
-    if ((pPlayer->GetQuestRewardStatus(QUEST_WEAPONSMITH_ALLIANCE) || pPlayer->GetQuestRewardStatus(QUEST_WEAPONSMITH_HORDE)) && pPlayer->GetSkillValue(SKILL_BLACKSMITHING) >= 225 && pPlayer->HasSpell(SPELL_WEAPONSMITH) && !pPlayer->HasSpell(SPELL_ARMORSMITH))
+    if ((pPlayer->GetQuestRewardStatus(QUEST_WEAPONSMITH_ALLIANCE) || pPlayer->GetQuestRewardStatus(QUEST_WEAPONSMITH_HORDE)) && 
+         pPlayer->GetSkillValue(SKILL_BLACKSMITHING) >= 225 && pPlayer->HasSpell(SPELL_WEAPONSMITH) && !pPlayer->HasSpell(SPELL_ARMORSMITH))
 
         pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_TALK, "I wish to become an armorsmith.", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
 
-    if ((pPlayer->GetQuestRewardStatus(QUEST_ARMORSMITH_ALLIANCE) || pPlayer->GetQuestRewardStatus(QUEST_ARMORSMITH_HORDE)) && pPlayer->GetSkillValue(SKILL_BLACKSMITHING) >= 225 && pPlayer->HasSpell(SPELL_ARMORSMITH) && !pPlayer->HasSpell(SPELL_WEAPONSMITH))
+    if ((pPlayer->GetQuestRewardStatus(QUEST_ARMORSMITH_ALLIANCE) || pPlayer->GetQuestRewardStatus(QUEST_ARMORSMITH_HORDE)) && 
+        pPlayer->GetSkillValue(SKILL_BLACKSMITHING) >= 225 && pPlayer->HasSpell(SPELL_ARMORSMITH) && !pPlayer->HasSpell(SPELL_WEAPONSMITH))
 
         pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_TALK, "I wish to become an weaponsmith.", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
 
@@ -268,7 +274,7 @@ bool GossipSelect_npc_blacksmithing_specialisations(Player* pPlayer, Creature* p
             ItemPrototype const* pItem = &itr.second;
             if (!pItem)
                 continue;
-
+            
             if (pItem->RequiredSkill != SKILL_BLACKSMITHING)
                 continue;
 
@@ -280,7 +286,9 @@ bool GossipSelect_npc_blacksmithing_specialisations(Player* pPlayer, Creature* p
 
             if (SpellEntry const* pTeachSpell = sSpellMgr.GetSpellEntry(pItem->Spells[0].SpellId))
             {
-                if (pTeachSpell->Effect[0] == SPELL_EFFECT_LEARN_SPELL && pTeachSpell->EffectTriggerSpell[0] != 0 && player->HasSpell(pTeachSpell->EffectTriggerSpell[0]))
+                if (pTeachSpell->Effect[0] == SPELL_EFFECT_LEARN_SPELL && 
+                    pTeachSpell->EffectTriggerSpell[0] != 0 &&
+                    player->HasSpell(pTeachSpell->EffectTriggerSpell[0]))
                 {
                     recipes.push_back(pTeachSpell->EffectTriggerSpell[0]);
                 }
@@ -297,18 +305,16 @@ bool GossipSelect_npc_blacksmithing_specialisations(Player* pPlayer, Creature* p
         pPlayer->SetSkill(SKILL_BLACKSMITHING, 0, 0);
         RemoveQuest(pPlayer, QUEST_WEAPONSMITH_ALLIANCE);
         RemoveQuest(pPlayer, QUEST_WEAPONSMITH_HORDE);
-        pPlayer->m_Events.AddLambdaEventAtOffset(
-            [pPlayer, currentSkill, maxSkill, recipes]()
-            {
-                pPlayer->LearnSpell(2018, false);
-                pPlayer->LearnSpell(3100, false);
-                pPlayer->LearnSpell(3538, false);
-                pPlayer->LearnSpell(9785, false);
-                pPlayer->SetSkill(SKILL_BLACKSMITHING, currentSkill, maxSkill);
-                for (auto spellId : recipes)
-                    pPlayer->LearnSpell(spellId, false);
-            },
-            1000);
+        pPlayer->m_Events.AddLambdaEventAtOffset([pPlayer, currentSkill, maxSkill, recipes]()
+        {
+            pPlayer->LearnSpell(2018, false);
+            pPlayer->LearnSpell(3100, false);
+            pPlayer->LearnSpell(3538, false);
+            pPlayer->LearnSpell(9785, false);
+            pPlayer->SetSkill(SKILL_BLACKSMITHING, currentSkill, maxSkill);
+            for (auto spellId : recipes)
+                pPlayer->LearnSpell(spellId, false);
+        }, 1000);
     }
 
     if (uiAction == GOSSIP_ACTION_INFO_DEF + 2)
@@ -320,18 +326,16 @@ bool GossipSelect_npc_blacksmithing_specialisations(Player* pPlayer, Creature* p
         pPlayer->SetSkill(SKILL_BLACKSMITHING, 0, 0);
         RemoveQuest(pPlayer, QUEST_ARMORSMITH_ALLIANCE);
         RemoveQuest(pPlayer, QUEST_ARMORSMITH_HORDE);
-        pPlayer->m_Events.AddLambdaEventAtOffset(
-            [pPlayer, currentSkill, maxSkill, recipes]()
-            {
-                pPlayer->LearnSpell(2018, false);
-                pPlayer->LearnSpell(3100, false);
-                pPlayer->LearnSpell(3538, false);
-                pPlayer->LearnSpell(9785, false);
-                pPlayer->SetSkill(SKILL_BLACKSMITHING, currentSkill, maxSkill);
-                for (auto spellId : recipes)
-                    pPlayer->LearnSpell(spellId, false);
-            },
-            1000);
+        pPlayer->m_Events.AddLambdaEventAtOffset([pPlayer, currentSkill, maxSkill, recipes]()
+        {
+            pPlayer->LearnSpell(2018, false);
+            pPlayer->LearnSpell(3100, false);
+            pPlayer->LearnSpell(3538, false);
+            pPlayer->LearnSpell(9785, false);
+            pPlayer->SetSkill(SKILL_BLACKSMITHING, currentSkill, maxSkill);
+            for (auto spellId : recipes)
+                pPlayer->LearnSpell(spellId, false);
+        }, 1000);
     }
 
     pPlayer->CLOSE_GOSSIP_MENU();
@@ -340,7 +344,7 @@ bool GossipSelect_npc_blacksmithing_specialisations(Player* pPlayer, Creature* p
 
 void AddSC_ironforge()
 {
-    Script* newscript;
+    Script *newscript;
 
     newscript = new Script;
     newscript->Name = "npc_blacksmithing_specialisations";
@@ -350,7 +354,7 @@ void AddSC_ironforge()
 
     newscript = new Script;
     newscript->Name = "npc_tinker_mekkatorque";
-    newscript->pGossipHello = &GossipHello_npc_tinker_mekkatorque;
+    newscript->pGossipHello  = &GossipHello_npc_tinker_mekkatorque;
     newscript->pGossipSelect = &GossipSelect_npc_tinker_mekkatorque;
     newscript->RegisterSelf();
 

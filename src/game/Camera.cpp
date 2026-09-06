@@ -20,13 +20,16 @@
  */
 
 #include "Camera.h"
-#include "CellImpl.h"
-#include "Errors.h"
 #include "GridNotifiersImpl.h"
+#include "CellImpl.h"
 #include "Log.h"
+#include "Errors.h"
 #include "Player.h"
 
-Camera::Camera(Player* pl) : m_owner(*pl), m_source(pl) { m_source->GetViewPoint().Attach(this); }
+Camera::Camera(Player* pl) : m_owner(*pl), m_source(pl)
+{
+    m_source->GetViewPoint().Attach(this);
+}
 
 Camera::~Camera()
 {
@@ -37,7 +40,10 @@ Camera::~Camera()
     m_source->GetViewPoint().Detach(this);
 }
 
-void Camera::ReceivePacket(WorldPacket* data) { m_owner.SendDirectMessage(data); }
+void Camera::ReceivePacket(WorldPacket *data)
+{
+    m_owner.SendDirectMessage(data);
+}
 
 void Camera::UpdateForCurrentViewPoint()
 {
@@ -49,7 +55,7 @@ void Camera::UpdateForCurrentViewPoint()
     UpdateVisibilityForOwner();
 }
 
-void Camera::SetView(WorldObject* obj, bool update_far_sight_field /*= true*/)
+void Camera::SetView(WorldObject *obj, bool update_far_sight_field /*= true*/)
 {
     MANGOS_ASSERT(obj);
 
@@ -97,7 +103,10 @@ void Camera::Event_ViewPointVisibilityChanged()
         ResetView();
 }
 
-void Camera::ResetView(bool update_far_sight_field /*= true*/) { SetView(&m_owner, update_far_sight_field); }
+void Camera::ResetView(bool update_far_sight_field /*= true*/)
+{
+    SetView(&m_owner, update_far_sight_field);
+}
 
 void Camera::Event_AddedToWorld()
 {
@@ -125,25 +134,45 @@ void Camera::Event_Moved()
     m_source->GetViewPoint().m_grid->AddWorldObject(this);
 }
 
-void Camera::UpdateVisibilityOf(WorldObject* target) { m_owner.UpdateVisibilityOf(m_source, target); }
+void Camera::UpdateVisibilityOf(WorldObject* target)
+{
+    m_owner.UpdateVisibilityOf(m_source, target);
+}
 
-template <class T>
-void Camera::UpdateVisibilityOf(T* target, UpdateData& data, std::set<WorldObject*>& vis)
+template<class T>
+void Camera::UpdateVisibilityOf(T * target, UpdateData &data, std::set<WorldObject*>& vis)
 {
     m_owner.template UpdateVisibilityOf<T>(m_source, target, data, vis);
 }
 
-template void Camera::UpdateVisibilityOf(Player*, UpdateData&, std::set<WorldObject*>&);
-template void Camera::UpdateVisibilityOf(Creature*, UpdateData&, std::set<WorldObject*>&);
-template void Camera::UpdateVisibilityOf(Corpse*, UpdateData&, std::set<WorldObject*>&);
-template void Camera::UpdateVisibilityOf(GameObject*, UpdateData&, std::set<WorldObject*>&);
-template void Camera::UpdateVisibilityOf(DynamicObject*, UpdateData&, std::set<WorldObject*>&);
+template void Camera::UpdateVisibilityOf(Player*        , UpdateData& , std::set<WorldObject*>&);
+template void Camera::UpdateVisibilityOf(Creature*      , UpdateData& , std::set<WorldObject*>&);
+template void Camera::UpdateVisibilityOf(Corpse*        , UpdateData& , std::set<WorldObject*>&);
+template void Camera::UpdateVisibilityOf(GameObject*    , UpdateData& , std::set<WorldObject*>&);
+template void Camera::UpdateVisibilityOf(DynamicObject* , UpdateData& , std::set<WorldObject*>&);
 
 void Camera::UpdateVisibilityForOwner()
 {
     // Temporary hackfix if the camera has no map assigned to it
     // TODO: Find out why/how this happens
-    if (!m_source->FindMap())
+    Map const* const sourceMap = m_source->FindMap();
+    if (!sourceMap)
+        return;
+
+    // Not while the map is being torn down. UnloadAll sets m_unloading and then
+    // deletes objects, and deleting one fires ViewPoint::Event_RemovedFromWorld
+    // -> this function -> Map::UpdateActiveObjectVisibility, which walks
+    // m_activeNonPlayers - a container of RAW pointers the unload is in the
+    // middle of invalidating. The freed entry is then read for its guid.
+    //
+    // Measured, twice: crash_2026-09-01_10-11-49 and crash_2026-08-31_11-01-01,
+    // both SIGSEGV under Player::IsInVisibleList with Map::UnloadAll /
+    // ObjectGridUnloader on the very same stack. Both were first read as a data
+    // race on m_visibleGUIDs - wrongly: the crash dump shows the set intact
+    // (25 elements) and exactly ONE of 52 threads anywhere near visibility. It
+    // is a lifetime bug, not a locking one. Nobody needs a visibility update
+    // for a map that is going away.
+    if (sourceMap->IsUnloading())
         return;
 
     std::shared_lock<std::shared_mutex> lock(GetOwner()->m_visibleGUIDs_lock);

@@ -1,32 +1,10 @@
-# Prerequisites
-*.d
-
-# Compiled Object files
-*.slo
-*.lo
-*.o
-*.obj
-
-# Precompiled Headers
-*.gch
-*.pch
-
-# Compiled Dynamic libraries
-*.so
-*.dylib
-*.dll
-
-# Fortran module files
-*.mod
-*.smod
-
-# Compiled Static libraries
-*.lai
-*.la
-*.a
-*.lib
-
-# Executables
+/samples/
+/data/
+/build/
+/build-*/
+/bin/
+/.vscode/
+*.kate-swp
 *.exe
 *.out
 *.app
@@ -36,4 +14,15 @@
 .vscode
 compile_commands.json
 .debug
+/src/shared/revision.h
+/database/
 
+# Local backup copies made before editing (never meant to be committed)
+*.bak
+*.bak.*
+*.bak-*
+
+# Routen, die der Rekorder selbst verworfen hat (DcRouteRecorder::
+# DiscardRoute benennt .route/.cpp in .bad um, wenn die Stuck-Leiter auf
+# einer aufgezeichneten Route auslief). Ausschuss, kein Repo-Inhalt.
+*.bad

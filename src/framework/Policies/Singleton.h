@@ -27,33 +27,44 @@
  */
 
 #include "CreationPolicy.h"
-#include "ObjectLifeTime.h"
 #include "ThreadingModel.h"
+#include "ObjectLifeTime.h"
 
 namespace MaNGOS
 {
-    template <typename T, class ThreadingModel = MaNGOS::SingleThreaded<T>, class CreatePolicy = MaNGOS::OperatorNew<T>, class LifeTimePolicy = MaNGOS::ObjectLifeTime<T>>
+    template
+    <
+    typename T,
+    class ThreadingModel = MaNGOS::SingleThreaded<T>,
+    class CreatePolicy = MaNGOS::OperatorNew<T>,
+    class LifeTimePolicy = MaNGOS::ObjectLifeTime<T>
+    >
     class Singleton
     {
-    public:
-        static T& Instance();
+        public:
 
-    protected:
-        Singleton() {}
+            static T& Instance();
 
-    private:
-        // Prohibited actions...this does not prevent hijacking.
-        Singleton(const Singleton&);
-        Singleton& operator=(const Singleton&);
+        protected:
 
-        // Singleton Helpers
-        static void DestroySingleton();
+            Singleton()
+            {
+            }
 
-        // data structure
-        typedef typename ThreadingModel::Lock Guard;
-        static T* si_instance;
-        static bool si_destroyed;
+        private:
+
+            // Prohibited actions...this does not prevent hijacking.
+            Singleton(const Singleton&);
+            Singleton& operator=(const Singleton&);
+
+            // Singleton Helpers
+            static void DestroySingleton();
+
+            // data structure
+            typedef typename ThreadingModel::Lock Guard;
+            static T *si_instance;
+            static bool si_destroyed;
     };
-} // namespace MaNGOS
+}
 
 #endif

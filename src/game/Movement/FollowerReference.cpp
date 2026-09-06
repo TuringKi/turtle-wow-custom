@@ -19,12 +19,21 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#include "FollowerReference.h"
-#include "TargetedMovementGenerator.h"
 #include "Unit.h"
+#include "TargetedMovementGenerator.h"
+#include "FollowerReference.h"
 
-void FollowerReference::targetObjectBuildLink() { getTarget()->AddFollower(this); }
+void FollowerReference::targetObjectBuildLink()
+{
+    getTarget()->AddFollower(this);
+}
 
-void FollowerReference::targetObjectDestroyLink() { getTarget()->RemoveFollower(this); }
+void FollowerReference::targetObjectDestroyLink()
+{
+    getTarget()->RemoveFollower(this);
+}
 
-void FollowerReference::sourceObjectDestroyLink() { getSource()->stopFollowing(); }
+void FollowerReference::sourceObjectDestroyLink()
+{
+    getSource()->stopFollowing();
+}

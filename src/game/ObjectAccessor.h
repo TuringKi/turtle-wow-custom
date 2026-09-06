@@ -29,16 +29,16 @@
 
 #include "UpdateData.h"
 
-#include "Corpse.h"
 #include "GridDefines.h"
-#include "MapNodes/AbstractPlayer.h"
-#include "MapNodes/MasterPlayer.h"
 #include "Object.h"
 #include "Player.h"
+#include "Corpse.h"
 #include "Transport.h"
+#include "MapNodes/MasterPlayer.h"
+#include "MapNodes/AbstractPlayer.h"
 
-#include <list>
 #include <set>
+#include <list>
 
 class Unit;
 class WorldObject;
@@ -47,7 +47,8 @@ class Map;
 template <class T>
 class HashMapHolder
 {
-public:
+    public:
+
     typedef robin_hood::unordered_map<ObjectGuid, T*> MapType;
     typedef std::shared_mutex LockType;
     typedef std::shared_lock<LockType> ReadGuard;
@@ -76,24 +77,25 @@ public:
 
     static LockType& GetLock() { return i_lock; }
 
-private:
-    // Non instanceable only static
+    private:
+
+        //Non instanceable only static
     HashMapHolder() {}
 
     static LockType i_lock;
     static MapType m_objectMap;
 };
 
-class ObjectAccessor : public MaNGOS::Singleton<ObjectAccessor, MaNGOS::ClassLevelLockable<ObjectAccessor, std::mutex>>
+class ObjectAccessor : public MaNGOS::Singleton<ObjectAccessor, MaNGOS::ClassLevelLockable<ObjectAccessor, std::mutex> >
 {
     friend class MaNGOS::OperatorNew<ObjectAccessor>;
 
     ObjectAccessor();
     ~ObjectAccessor();
-    ObjectAccessor(const ObjectAccessor&);
-    ObjectAccessor& operator=(const ObjectAccessor&);
+    ObjectAccessor(const ObjectAccessor &);
+    ObjectAccessor& operator=(const ObjectAccessor &);
 
-public:
+    public:
     typedef std::unordered_map<ObjectGuid, Corpse*> Player2CorpsesMapType;
 
     // Search player at any map in world and other objects at same map with `obj`
@@ -102,9 +104,24 @@ public:
 
     // Player access
     static Player* FindPlayer(ObjectGuid guid, bool isInWorld = false); // if need player at specific map better use Map::GetPlayer
+        // AzerothCore distinguishes connected-but-still-loading players from
+        // in-world ones; this accessor has a single lookup, so both names land
+        // on it.
+        static Player* FindConnectedPlayer(ObjectGuid guid) { return FindPlayer(guid); }
+        // AzerothCore spelling: the creature-typed lookup through a nearby
+        // object's map. GetUnit does the map walk; the cast keeps the type.
+        // AzerothCore also resolves these two through the accessor; both live
+        // on the seeker's own map here. Bodies in ObjectAccessor.cpp.
+        static GameObject* GetGameObject(WorldObject const& obj, ObjectGuid guid);
+        static DynamicObject* GetDynamicObject(WorldObject const& obj, ObjectGuid guid);
+        static Creature* GetCreature(WorldObject const& obj, ObjectGuid guid)
+        {
+            Unit* u = GetUnit(obj, guid);
+            return u ? u->ToCreature() : nullptr;
+        }
     static Player* FindPlayerNotInWorld(ObjectGuid guid);
-    static Player* FindPlayerByName(const char* name);
-    static Player* FindPlayerByNameNotInWorld(const char* name);
+        static Player* FindPlayerByName(const char *name);
+        static Player* FindPlayerByNameNotInWorld(const char *name);
 
     static MasterPlayer* FindMasterPlayer(ObjectGuid guid);
     static MasterPlayer* FindMasterPlayer(const char* name);
@@ -121,32 +138,38 @@ public:
 
     static void KickPlayer(ObjectGuid guid);
 
-    HashMapHolder<Player>::MapType& GetPlayers() { return HashMapHolder<Player>::GetContainer(); }
+        HashMapHolder<Player>::MapType& GetPlayers()
+        {
+            return HashMapHolder<Player>::GetContainer();
+        }
 
-    HashMapHolder<MasterPlayer>::MapType& GetMasterPlayers() { return HashMapHolder<MasterPlayer>::GetContainer(); }
+        HashMapHolder<MasterPlayer>::MapType& GetMasterPlayers()
+        {
+            return HashMapHolder<MasterPlayer>::GetContainer();
+        }
 
     void SaveAllPlayers();
 
     // Corpse access
     Corpse* GetCorpseForPlayerGUID(ObjectGuid guid);
     static Corpse* GetCorpseInMap(ObjectGuid guid, uint32 mapid);
-    void RemoveCorpse(Corpse* corpse);
+        void RemoveCorpse(Corpse *corpse);
     void AddCorpse(Corpse* corpse);
-    void AddCorpsesToGrid(GridPair const& gridpair, GridType& grid, Map* map);
+        void AddCorpsesToGrid(GridPair const& gridpair,GridType& grid,Map* map);
     void ConvertCorpseForPlayer(ObjectGuid player_guid, Player* looter = nullptr);
     void RemoveOldCorpses();
 
     // For call from Player/Corpse AddToWorld/RemoveFromWorld only
-    void AddObject(Corpse* object) { HashMapHolder<Corpse>::Insert(object); }
-    void AddObject(Player* object);
+        void AddObject(Corpse *object) { HashMapHolder<Corpse>::Insert(object); }
+        void AddObject(Player *object);
     void AddObject(Transport* object) { HashMapHolder<Transport>::Insert(object); }
     void AddObject(MasterPlayer* object);
-    void RemoveObject(Corpse* object) { HashMapHolder<Corpse>::Remove(object); }
-    void RemoveObject(Player* object);
+        void RemoveObject(Corpse *object) { HashMapHolder<Corpse>::Remove(object); }
+        void RemoveObject(Player *object);
     void RemoveObject(Transport* object) { HashMapHolder<Transport>::Remove(object); }
-    void RemoveObject(MasterPlayer* object);
+        void RemoveObject(MasterPlayer *object);
 
-private:
+    private:
     Player2CorpsesMapType i_player2corpse;
 
     using LockType = std::mutex;

@@ -20,18 +20,18 @@
  */
 
 #include "MotionMaster.h"
-#include "Creature.h"
 #include "CreatureAISelector.h"
+#include "Creature.h"
 
 #include "ConfusedMovementGenerator.h"
-#include "FearMovementGenerator.h"
 #include "FleeingMovementGenerator.h"
+#include "FearMovementGenerator.h"
 #include "HomeMovementGenerator.h"
 #include "IdleMovementGenerator.h"
 #include "PointMovementGenerator.h"
-#include "RandomMovementGenerator.h"
 #include "TargetedMovementGenerator.h"
 #include "WaypointMovementGenerator.h"
+#include "RandomMovementGenerator.h"
 
 #include "MoveSpline.h"
 #include "MoveSplineInit.h"
@@ -98,7 +98,7 @@ void MotionMaster::InitializeNewDefault(bool alwaysReplace)
         return;
 
     // Get the current generator and eject it from the stack
-    MovementGenerator* curr = top();
+    MovementGenerator *curr = top();
     pop();
 
     // Clear ALL other movement generators
@@ -144,7 +144,7 @@ MotionMaster::~MotionMaster()
     // just deallocate movement generator, but do not Finalize since it may access to already deallocated owner's memory
     while (!empty())
     {
-        MovementGenerator* m = top();
+        MovementGenerator * m = top();
         pop();
         if (!isStatic(m))
             delete m;
@@ -220,7 +220,7 @@ void MotionMaster::DirectClean(bool reset, bool all)
     std::vector<MovementGenerator*> mvtGensToFinalize;
     while (all ? !empty() : size() > 1)
     {
-        MovementGenerator* curr = top();
+        MovementGenerator *curr = top();
         pop();
         mvtGensToFinalize.push_back(curr);
     }
@@ -235,7 +235,7 @@ void MotionMaster::DirectClean(bool reset, bool all)
     {
         itr->Finalize(*m_owner);
         if (!isStatic(itr))
-            delete (itr);
+            delete(itr);
     }
 }
 
@@ -255,7 +255,7 @@ void MotionMaster::DelayedClean(bool reset, bool all)
     std::vector<MovementGenerator*> mvtGensToFinalize;
     while (all ? !empty() : size() > 1)
     {
-        MovementGenerator* curr = top();
+        MovementGenerator *curr = top();
         pop();
         mvtGensToFinalize.push_back(curr);
     }
@@ -273,21 +273,21 @@ void MotionMaster::DirectExpire(bool reset)
     if (empty() || size() == 1)
         return;
 
-    MovementGenerator* curr = top();
+    MovementGenerator *curr = top();
     pop();
 
     // also drop stored under top() targeted motions
     std::vector<MovementGenerator*> mvtGensToFinalize;
     while (!empty() && (top()->GetMovementGeneratorType() == CHASE_MOTION_TYPE || top()->GetMovementGeneratorType() == FOLLOW_MOTION_TYPE) && (curr->GetMovementGeneratorType() != DISTANCING_MOTION_TYPE))
     {
-        MovementGenerator* temp = top();
+        MovementGenerator *temp = top();
         pop();
         mvtGensToFinalize.push_back(temp);
     }
     for (auto const& itr : mvtGensToFinalize)
     {
         itr->Finalize(*m_owner);
-        delete (itr);
+        delete(itr);
     }
     // Store current top MMGen, as Finalize might push a new MMGen
     MovementGenerator* nowTop = empty() ? nullptr : top();
@@ -315,7 +315,7 @@ void MotionMaster::DelayedExpire(bool reset)
     if (empty() || size() == 1)
         return;
 
-    MovementGenerator* curr = top();
+    MovementGenerator *curr = top();
     pop();
 
     if (!m_expList)
@@ -325,7 +325,7 @@ void MotionMaster::DelayedExpire(bool reset)
     std::vector<MovementGenerator*> mvtGensToFinalize;
     while (!empty() && (top()->GetMovementGeneratorType() == CHASE_MOTION_TYPE || top()->GetMovementGeneratorType() == FOLLOW_MOTION_TYPE) && (curr->GetMovementGeneratorType() != DISTANCING_MOTION_TYPE))
     {
-        MovementGenerator* temp = top();
+        MovementGenerator *temp = top();
         pop();
         mvtGensToFinalize.push_back(temp);
     }
@@ -460,7 +460,8 @@ void MotionMaster::MoveSeekAssistance(float x, float y, float z)
         sLog.outError("%s attempt to seek assistance", m_owner->GetGuidStr().c_str());
     else
     {
-        DEBUG_FILTER_LOG(LOG_FILTER_AI_AND_MOVEGENSS, "%s seek assistance (X: %f Y: %f Z: %f)", m_owner->GetGuidStr().c_str(), x, y, z);
+        DEBUG_FILTER_LOG(LOG_FILTER_AI_AND_MOVEGENSS, "%s seek assistance (X: %f Y: %f Z: %f)",
+                         m_owner->GetGuidStr().c_str(), x, y, z);
         Mutate(new AssistanceMovementGenerator(x, y, z));
     }
 }
@@ -471,7 +472,8 @@ void MotionMaster::MoveSeekAssistanceDistract(uint32 time)
         sLog.outError("%s attempt to call distract after assistance", m_owner->GetGuidStr().c_str());
     else
     {
-        DEBUG_FILTER_LOG(LOG_FILTER_AI_AND_MOVEGENSS, "%s is distracted after assistance call (Time: %u)", m_owner->GetGuidStr().c_str(), time);
+        DEBUG_FILTER_LOG(LOG_FILTER_AI_AND_MOVEGENSS, "%s is distracted after assistance call (Time: %u)",
+                         m_owner->GetGuidStr().c_str(), time);
         Mutate(new AssistanceDistractMovementGenerator(time));
     }
 }
@@ -510,7 +512,34 @@ void MotionMaster::MoveFeared(Unit* enemy, uint32 time)
     }
 }
 
-void MotionMaster::MovePoint(uint32 id, const Movement::Location& location, uint32 options, float speed, float finalOrientation) { MovePoint(id, location.x, location.y, location.z, options, speed, finalOrientation); }
+void MotionMaster::MovePoint(uint32 id, const Movement::Location& location, uint32 options, float speed,
+    float finalOrientation)
+{
+    MovePoint(id, location.x, location.y, location.z, options, speed, finalOrientation);
+}
+
+void MotionMaster::MovePath(Movement::PointsArray const& pointPath, uint32 /*moveMode*/, bool flying, bool walk)
+{
+    // Need at least a start and an end vertex to build a spline.
+    if (pointPath.size() < 2)
+        return;
+
+    DEBUG_FILTER_LOG(LOG_FILTER_AI_AND_MOVEGENSS, "%s movement by path (%u points)",
+                     m_owner->GetGuidStr().c_str(), uint32(pointPath.size()));
+
+    // Interrupt any active spline before launching the new one so the path
+    // starts cleanly from the unit's current position (Launch() rewrites the
+    // first vertex to the live position).
+    if (!m_owner->IsStopped())
+        m_owner->StopMoving();
+
+    Movement::MoveSplineInit init(*m_owner, "MotionMaster::MovePath");
+    init.MovebyPath(pointPath);
+    init.SetWalk(walk);             // walk == false => run speed
+    if (flying)
+        init.SetFly();
+    init.Launch();
+}
 
 void MotionMaster::MoveWaypointAsDefault(uint32 startPoint /*=0*/, uint32 source /*=0==PATH_NO_PATH*/, uint32 initialDelay /*=0*/, uint32 overwriteGuid /*=0*/, uint32 overwriteEntry /*=0*/, bool repeat /*=true*/)
 {
@@ -584,12 +613,14 @@ void MotionMaster::MoveTaxiFlight(uint32 path, uint32 pathnode)
         }
         else
         {
-            sLog.outError("%s attempt taxi to (nonexistent Path %u node %u)", m_owner->GetGuidStr().c_str(), path, pathnode);
+            sLog.outError("%s attempt taxi to (nonexistent Path %u node %u)",
+                          m_owner->GetGuidStr().c_str(), path, pathnode);
         }
     }
     else
     {
-        sLog.outError("%s attempt taxi to (Path %u node %u)", m_owner->GetGuidStr().c_str(), path, pathnode);
+        sLog.outError("%s attempt taxi to (Path %u node %u)",
+                      m_owner->GetGuidStr().c_str(), path, pathnode);
     }
 }
 
@@ -612,7 +643,8 @@ void MotionMaster::MoveTaxiFlight()
                         debugString << "(Path " << foundPath << ")";
                     else
                     {
-                        sLog.outError("%s attempt taxi to (nonexistent Path %u)", m_owner->GetGuidStr().c_str(), foundPath);
+                        sLog.outError("%s attempt taxi to (nonexistent Path %u)",
+                            m_owner->GetGuidStr().c_str(), foundPath);
                         return;
                     }
                 }
@@ -639,7 +671,7 @@ void MotionMaster::MoveDistract(uint32 timer)
     Mutate(mgen);
 }
 
-void MotionMaster::Mutate(MovementGenerator* m)
+void MotionMaster::Mutate(MovementGenerator *m)
 {
     if (!empty())
     {
@@ -779,7 +811,7 @@ void MotionMaster::GetWaypointPathInformation(std::ostringstream& oss) const
     }
 }
 
-bool MotionMaster::GetDestination(float& x, float& y, float& z)
+bool MotionMaster::GetDestination(float &x, float &y, float &z)
 {
     // Often used in motion gen, lock target movespline while checking in case
     // they are async updating their spline too. Don't blocking lock, otherwise
@@ -813,17 +845,70 @@ void MotionMaster::UpdateFinalDistanceToTarget(float fDistance)
         top()->UpdateFinalDistance(fDistance);
 }
 
-void MotionMaster::MoveJump(float x, float y, float z, float horizontalSpeed, float max_height, uint32 id)
+void MotionMaster::MoveJump(float x, float y, float z, float horizontalSpeed, float /*max_height*/, uint32 /*id*/)
 {
-    // MOVE JUMP DOESN'T EXIST IN 1.12
-    /*Movement::MoveSplineInit init(*m_owner);
-    init.MoveTo(x,y,z);
-    init.SetParabolic(max_height, 0, true);
-    init.SetVelocity(horizontalSpeed);
-    // TODO: Effet moche. Ameliorer !
-    init.SetFall();
+    // 1.12 has no parabolic MONSTER_MOVE, which is why this used to be an
+    // empty body. That silence had a price: every drop-down step in every
+    // dungeon event called this and nothing happened, so the bot stood on the
+    // ledge until the run timed out. Wailing Caverns sat at 4/8 for 142 runs
+    // with the tank parked exactly on the lip it was supposed to leap from.
+    //
+    // What a jump has to do here is get the unit across an off-mesh gap and
+    // onto the landing spot. A straight spline does that: the destination
+    // carries the landing height, so the unit arrives where the event expects
+    // it and the step's arrival check (distance to the landing point) closes.
+    // No arc - the commented-out version called its own parabola "moche", and
+    // over nine yards of gap with five of drop the straight line is what a
+    // player does anyway: step off and come down.
+    //
+    // Launched exactly like MotionMaster::MovePath below: MoveSplineInit
+    // directly. No generator is needed because the one caller tests
+    // isMoving() to see the jump through - MoveFall does mutate an
+    // EffectMovementGenerator, because ITS caller reads the generator type.
+    // (An earlier version of this comment claimed the core has no such
+    // generator; it does, in PointMovementGenerator.h.)
+    if (!m_owner->IsStopped())
+        m_owner->StopMoving();
+
+    Movement::MoveSplineInit init(*m_owner, "MotionMaster::MoveJump");
+    init.MoveTo(x, y, z);
+    init.SetVelocity(horizontalSpeed > 0.0f ? horizontalSpeed : m_owner->GetSpeed(MOVE_RUN));
     init.Launch();
-    Mutate(new EffectMovementGenerator(id));*/
+}
+
+bool MotionMaster::MoveFall()
+{
+    // Was `return false;` in the header, so every caller's drop silently did
+    // nothing. Live consequence: the Wailing Caverns hole-drop logged
+    // "DropInHole: MoveFall from ..." 12415 times for a single bot while the
+    // party stood over the open shaft for the rest of the run.
+    Map* map = m_owner->GetMap();
+    if (!map)
+        return false;
+
+    float const x = m_owner->GetPositionX();
+    float const y = m_owner->GetPositionY();
+    float const z = m_owner->GetPositionZ();
+
+    // Straight down, vmap included, and far enough for a real shaft - the
+    // Wailing Caverns one is some seventy yards deep, well past the default
+    // search distance. The caller has already parked the unit over the open
+    // mouth, so the first floor found is the bottom and not a ledge.
+    float const ground = map->GetHeight(x, y, z, /*vmap*/ true, 300.0f);
+    if (ground <= INVALID_HEIGHT || z - ground < 1.0f)
+        return false;
+
+    Movement::MoveSplineInit init(*m_owner, "MotionMaster::MoveFall");
+    init.MoveTo(x, y, ground);          // same x/y: no horizontal travel, so
+    init.SetFall();                     // the descent cannot clip a wall
+    init.Launch();
+
+    // The caller tells "still falling" apart from "landed" by the generator
+    // type (EFFECT_MOTION_TYPE), deliberately not by MOVEMENTFLAG_FALLING -
+    // a server-side bot never clears that flag and would read as falling
+    // forever. So give it the generator to look at.
+    Mutate(new EffectMovementGenerator(0));
+    return true;
 }
 
 void MotionMaster::MoveCharge(Unit* target, uint32 delay, bool triggerAutoAttack)

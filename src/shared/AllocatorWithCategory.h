@@ -1,14 +1,14 @@
 #pragma once
-#include <memory>
 #include <type_traits>
-
+#include <memory>
+#include <optional>
+#include <vector>
 #include <list>
 #include <map>
-#include <set>
-#include <string.h>
 #include <unordered_map>
 #include <unordered_set>
-#include <vector>
+#include <set>
+#include <string.h>
 
 // following code was copy-pasted from C++ library
 // It's very difficult to read, and I'm not sure about cross-compiler support
@@ -16,24 +16,25 @@
 class IPerfMonitor
 {
 public:
-    virtual void ReportAlloc(const char* Category, size_t Bytes) = 0;
-    virtual void ReportDealloc(const char* Category, size_t Bytes) = 0;
+	
+	virtual void ReportAlloc(const char* Category, size_t Bytes) = 0;
+	virtual void ReportDealloc(const char* Category, size_t Bytes) = 0;
 };
 
 extern IPerfMonitor* gPerfMonitorInterface;
 
-template <typename TargetType>
+template<typename TargetType>
 class SizeGuide_Direct
 {
 public:
-    using TypeToSize = TargetType;
+	using TypeToSize = TargetType;
 };
 
-template <typename TargetType>
+template<typename TargetType>
 class SizeGuide_UniquePtr
 {
 public:
-    using TypeToSize = typename TargetType::element_type;
+	using TypeToSize = typename TargetType::element_type;
 };
 
 inline const char DefaultCategory[] = "Uncategorized";
@@ -60,172 +61,188 @@ inline const char DefaultCategory[] = "Uncategorized";
 #define _CRT_GUARDOVERFLOW
 #endif
 
-template <size_t alignment, std::enable_if_t<(alignment > __STDCPP_DEFAULT_NEW_ALIGNMENT__), int> = 0>
+template<size_t alignment, std::enable_if_t<(alignment > __STDCPP_DEFAULT_NEW_ALIGNMENT__), int> = 0>
 void* InternalAllocateMemory(size_t Count)
 {
-    return ::operator new (Count, std::align_val_t{alignment});
+	return ::operator new (Count, std::align_val_t{alignment});
 }
 
-template <size_t alignment, std::enable_if_t<(alignment <= __STDCPP_DEFAULT_NEW_ALIGNMENT__), int> = 0>
+template<size_t alignment, std::enable_if_t<(alignment <= __STDCPP_DEFAULT_NEW_ALIGNMENT__), int> = 0>
 void* InternalAllocateMemory(size_t Count)
 {
-    return ::operator new(Count);
+	return ::operator new (Count);
 }
 
-template <size_t alignment, std::enable_if_t<(alignment > __STDCPP_DEFAULT_NEW_ALIGNMENT__), int> = 0>
+template<size_t alignment, std::enable_if_t<(alignment > __STDCPP_DEFAULT_NEW_ALIGNMENT__), int> = 0>
 void InternalDeallocateMemory(void* Ptr, size_t Bytes)
 {
-    ::operator delete (Ptr, Bytes, std::align_val_t{alignment});
+	::operator delete(Ptr, Bytes, std::align_val_t{ alignment });
 }
 
-template <size_t alignment, std::enable_if_t<(alignment <= __STDCPP_DEFAULT_NEW_ALIGNMENT__), int> = 0>
+template<size_t alignment, std::enable_if_t<(alignment <= __STDCPP_DEFAULT_NEW_ALIGNMENT__), int> = 0>
 void InternalDeallocateMemory(void* Ptr, size_t Bytes)
 {
-    ::operator delete(Ptr, Bytes);
+	::operator delete(Ptr, Bytes);
 }
 
 template <class TargetType, const char* CategoryName>
-class AllocatorWithCategory
+class AllocatorWithCategory 
 {
 
 public:
-    static_assert(!std::is_const_v<TargetType>,
-                  "The C++ Standard forbids containers of const elements "
-                  "because allocator<const T> is ill-formed.");
-    static_assert(!std::is_function_v<TargetType>,
-                  "The C++ Standard forbids allocators for function elements "
-                  "because of [allocator.requirements].");
-    static_assert(!std::is_reference_v<TargetType>,
-                  "The C++ Standard forbids allocators for reference elements "
-                  "because of [allocator.requirements].");
+	static_assert(!std::is_const_v<TargetType>, "The C++ Standard forbids containers of const elements "
+		"because allocator<const T> is ill-formed.");
+	static_assert(!std::is_function_v<TargetType>, "The C++ Standard forbids allocators for function elements "
+		"because of [allocator.requirements].");
+	static_assert(!std::is_reference_v<TargetType>, "The C++ Standard forbids allocators for reference elements "
+		"because of [allocator.requirements].");
 
-    using _From_primary = AllocatorWithCategory;
+	using _From_primary = AllocatorWithCategory;
 
-    using value_type = TargetType;
+	using value_type = TargetType;
 
 #if _HAS_DEPRECATED_ALLOCATOR_MEMBERS
-    using pointer _CXX17_DEPRECATE_OLD_ALLOCATOR_MEMBERS = TargetType*;
-    using const_pointer _CXX17_DEPRECATE_OLD_ALLOCATOR_MEMBERS = const TargetType*;
+	using pointer _CXX17_DEPRECATE_OLD_ALLOCATOR_MEMBERS = TargetType*;
+	using const_pointer _CXX17_DEPRECATE_OLD_ALLOCATOR_MEMBERS = const TargetType*;
 
-    using reference _CXX17_DEPRECATE_OLD_ALLOCATOR_MEMBERS = TargetType&;
-    using const_reference _CXX17_DEPRECATE_OLD_ALLOCATOR_MEMBERS = const TargetType&;
+	using reference _CXX17_DEPRECATE_OLD_ALLOCATOR_MEMBERS = TargetType&;
+	using const_reference _CXX17_DEPRECATE_OLD_ALLOCATOR_MEMBERS = const TargetType&;
 #endif // _HAS_DEPRECATED_ALLOCATOR_MEMBERS
 
-    using size_type = size_t;
-    using difference_type = ptrdiff_t;
+	using size_type = size_t;
+	using difference_type = ptrdiff_t;
 
-    using propagate_on_container_move_assignment = std::true_type;
-    using is_always_equal _CXX20_DEPRECATE_IS_ALWAYS_EQUAL = std::true_type;
+	using propagate_on_container_move_assignment = std::true_type;
+	using is_always_equal _CXX20_DEPRECATE_IS_ALWAYS_EQUAL = std::true_type;
 
 #if _HAS_DEPRECATED_ALLOCATOR_MEMBERS
-    template <class _Other>
-    struct _CXX17_DEPRECATE_OLD_ALLOCATOR_MEMBERS rebind
-    {
-        using other = AllocatorWithCategory<_Other, CategoryName>;
-    };
+	template <class _Other>
+	struct _CXX17_DEPRECATE_OLD_ALLOCATOR_MEMBERS rebind
+	{
+		using other = AllocatorWithCategory<_Other, CategoryName>;
+	};
 
-    _CXX17_DEPRECATE_OLD_ALLOCATOR_MEMBERS [[nodiscard]] TargetType* address(TargetType& _Val) const noexcept { return std::addressof(_Val); }
+	_CXX17_DEPRECATE_OLD_ALLOCATOR_MEMBERS [[nodiscard]] TargetType* address(TargetType& _Val) const noexcept
+	{
+		return std::addressof(_Val);
+	}
 
-    _CXX17_DEPRECATE_OLD_ALLOCATOR_MEMBERS [[nodiscard]] const TargetType* address(const TargetType& _Val) const noexcept { return std::addressof(_Val); }
+	_CXX17_DEPRECATE_OLD_ALLOCATOR_MEMBERS [[nodiscard]] const TargetType* address(const TargetType& _Val) const noexcept
+	{
+		return std::addressof(_Val);
+	}
 #else
-    template <class _Other>
-    struct _CXX17_DEPRECATE_OLD_ALLOCATOR_MEMBERS rebind
-    {
-        using other = AllocatorWithCategory<_Other, CategoryName>;
-    };
+	template <class _Other>
+	struct _CXX17_DEPRECATE_OLD_ALLOCATOR_MEMBERS rebind
+	{
+		using other = AllocatorWithCategory<_Other, CategoryName>;
+	};
 #endif // _HAS_DEPRECATED_ALLOCATOR_MEMBERS
 
-    constexpr AllocatorWithCategory() noexcept {}
+	constexpr AllocatorWithCategory() noexcept {}
 
-    constexpr AllocatorWithCategory(const AllocatorWithCategory&) noexcept = default;
+	constexpr AllocatorWithCategory(const AllocatorWithCategory&) noexcept = default;
 
-    template <class _Other>
-    constexpr AllocatorWithCategory(const AllocatorWithCategory<_Other, CategoryName>&) noexcept
-    {
-    }
+	template <class _Other>
+	constexpr AllocatorWithCategory(const AllocatorWithCategory<_Other, CategoryName>&) noexcept {}
 
-    template <class _Other, const char* OtherName>
-    constexpr AllocatorWithCategory(const AllocatorWithCategory<_Other, OtherName>&) noexcept
-    {
-    }
+	template <class _Other, const char* OtherName>
+	constexpr AllocatorWithCategory(const AllocatorWithCategory<_Other, OtherName>&) noexcept {}
 
-    _CONSTEXPR20 ~AllocatorWithCategory() = default;
+	_CONSTEXPR20 ~AllocatorWithCategory() = default;
 
-    _CONSTEXPR20 AllocatorWithCategory<TargetType, CategoryName>& operator=(const AllocatorWithCategory&) = default;
+	_CONSTEXPR20 AllocatorWithCategory<TargetType, CategoryName>& operator=(const AllocatorWithCategory&) = default;
 
-    _CONSTEXPR20 void deallocate(TargetType* const _Ptr, const size_t _Count)
-    {
-        size_t BytesNeededToDeallocate = sizeof(TargetType) * _Count;
-        if (gPerfMonitorInterface != nullptr)
-        {
-            gPerfMonitorInterface->ReportDealloc(CategoryName, BytesNeededToDeallocate);
-        }
-        // std::_Deallocate<std::_New_alignof<TargetType>>(_Ptr, BytesNeededToDeallocate);
-        // operator delete(_Ptr, BytesNeededToDeallocate, std::align_val_t(std::alignment_of< TargetType >::value));
-        InternalDeallocateMemory<std::alignment_of<TargetType>::value>(_Ptr, BytesNeededToDeallocate);
-    }
+	_CONSTEXPR20 void deallocate(TargetType* const _Ptr, const size_t _Count)
+	{
+		size_t BytesNeededToDeallocate = sizeof(TargetType) * _Count;
+		if (gPerfMonitorInterface != nullptr)
+		{
+			gPerfMonitorInterface->ReportDealloc(CategoryName, BytesNeededToDeallocate);
+		}
+		//std::_Deallocate<std::_New_alignof<TargetType>>(_Ptr, BytesNeededToDeallocate);
+		//operator delete(_Ptr, BytesNeededToDeallocate, std::align_val_t(std::alignment_of< TargetType >::value));
+		InternalDeallocateMemory<std::alignment_of< TargetType >::value>(_Ptr, BytesNeededToDeallocate);
+	}
 
-    _NODISCARD_RAW_PTR_ALLOC _CONSTEXPR20 TargetType* allocate(const size_t _Count)
-    {
-        static_assert(sizeof(value_type) > 0, "value_type must be complete before calling allocate.");
-        size_t BytesNeededToAllocate = sizeof(TargetType) * _Count;
-        if (gPerfMonitorInterface != nullptr)
-        {
-            gPerfMonitorInterface->ReportAlloc(CategoryName, BytesNeededToAllocate);
-        }
-        // return static_cast<TargetType*>(std::_Allocate<std::_New_alignof<TargetType>>(BytesNeededToAllocate));
-        return (TargetType*)InternalAllocateMemory<std::alignment_of<TargetType>::value>(BytesNeededToAllocate);
-    }
+	_NODISCARD_RAW_PTR_ALLOC _CONSTEXPR20 TargetType* allocate(const size_t _Count)
+	{
+		static_assert(sizeof(value_type) > 0, "value_type must be complete before calling allocate.");
+		size_t BytesNeededToAllocate = sizeof(TargetType) * _Count;
+		if (gPerfMonitorInterface != nullptr)
+		{
+			gPerfMonitorInterface->ReportAlloc(CategoryName, BytesNeededToAllocate);
+		}
+		//return static_cast<TargetType*>(std::_Allocate<std::_New_alignof<TargetType>>(BytesNeededToAllocate));
+		return (TargetType*) InternalAllocateMemory<std::alignment_of< TargetType >::value>(BytesNeededToAllocate);
+	}
 
 #if _HAS_CXX23
-    _NODISCARD_RAW_PTR_ALLOC constexpr std::allocation_result<TargetType*> allocate_at_least(_CRT_GUARDOVERFLOW const size_t _Count) { return {allocate(_Count), _Count}; }
+	_NODISCARD_RAW_PTR_ALLOC constexpr std::allocation_result<TargetType*> allocate_at_least(
+		_CRT_GUARDOVERFLOW const size_t _Count)
+	{
+		return { allocate(_Count), _Count };
+	}
 #endif // _HAS_CXX23
 
 #if _HAS_DEPRECATED_ALLOCATOR_MEMBERS
-    _CXX17_DEPRECATE_OLD_ALLOCATOR_MEMBERS _NODISCARD_RAW_PTR_ALLOC TargetType* allocate(_CRT_GUARDOVERFLOW const size_t _Count, const void*) { return allocate(_Count); }
+	_CXX17_DEPRECATE_OLD_ALLOCATOR_MEMBERS _NODISCARD_RAW_PTR_ALLOC TargetType* allocate(
+		_CRT_GUARDOVERFLOW const size_t _Count, const void*)
+	{
+		return allocate(_Count);
+	}
 
-    template <class _Objty, class... _Types>
-    _CXX17_DEPRECATE_OLD_ALLOCATOR_MEMBERS void construct(_Objty* const _Ptr, _Types&&... _Args)
-    {
-        ::new (const_cast<void*>(static_cast<const volatile void*>(_Ptr))) _Objty(std::forward<_Types>(_Args)...);
-    }
+	template <class _Objty, class... _Types>
+	_CXX17_DEPRECATE_OLD_ALLOCATOR_MEMBERS void construct(_Objty* const _Ptr, _Types&&... _Args)
+	{
+		::new (const_cast<void*>(static_cast<const volatile void*>(_Ptr))) _Objty(std::forward<_Types>(_Args)...);
+	}
 
-    template <class _Uty>
-    _CXX17_DEPRECATE_OLD_ALLOCATOR_MEMBERS void destroy(_Uty* const _Ptr)
-    {
-        _Ptr->~_Uty();
-    }
+	template <class _Uty>
+	_CXX17_DEPRECATE_OLD_ALLOCATOR_MEMBERS void destroy(_Uty* const _Ptr)
+	{
+		_Ptr->~_Uty();
+	}
 
-    _CXX17_DEPRECATE_OLD_ALLOCATOR_MEMBERS [[nodiscard]] size_t max_size() const noexcept { return static_cast<size_t>(-1) / sizeof(TargetType); }
+	_CXX17_DEPRECATE_OLD_ALLOCATOR_MEMBERS [[nodiscard]] size_t max_size() const noexcept
+	{
+		return static_cast<size_t>(-1) / sizeof(TargetType);
+	}
 #endif // _HAS_DEPRECATED_ALLOCATOR_MEMBERS
 
 #if _HAS_CXX20
-    static constexpr size_t _Minimum_asan_allocation_alignment = std::_Asan_granularity;
+	static constexpr size_t _Minimum_asan_allocation_alignment = std::_Asan_granularity;
 #endif
 };
 
 template <class _Ty, class _Other, const char* Category1, const char* Category2>
 [[nodiscard]] _CONSTEXPR20 bool operator==(const AllocatorWithCategory<_Ty, Category1>&, const AllocatorWithCategory<_Other, Category2>&) noexcept
 {
-    return true;
+	return true;
 }
 
-template <typename Type, const char* CategoryName>
+template <class _Ty, class _Other, const char* Category1, const char* Category2>
+[[nodiscard]] _CONSTEXPR20 bool operator!=(const AllocatorWithCategory<_Ty, Category1>& left, const AllocatorWithCategory<_Other, Category2>& right) noexcept
+{
+	return !(left == right);
+}
+
+template<typename Type, const char* CategoryName>
 using turtle_vector = std::vector<Type, AllocatorWithCategory<Type, CategoryName>>;
 
-template <typename Type, const char* CategoryName>
+template<typename Type, const char* CategoryName>
 using turtle_list = std::list<Type, AllocatorWithCategory<Type, CategoryName>>;
 
-template <typename KeyType, typename ValueType, const char* CategoryName, class ComparePredicate = std::less<KeyType>>
+template<typename KeyType, typename ValueType, const char* CategoryName, class ComparePredicate = std::less<KeyType>>
 using turtle_map = std::map<KeyType, ValueType, ComparePredicate, AllocatorWithCategory<std::pair<const KeyType, ValueType>, CategoryName>>;
 
-template <typename KeyType, typename ValueType, const char* CategoryName, class Hasher = std::hash<KeyType>, class KeyEqual = std::equal_to<KeyType>>
+template<typename KeyType, typename ValueType, const char* CategoryName, class Hasher = std::hash<KeyType>, class KeyEqual = std::equal_to<KeyType>>
 using turtle_unordered_map = std::unordered_map<KeyType, ValueType, Hasher, KeyEqual, AllocatorWithCategory<std::pair<const KeyType, ValueType>, CategoryName>>;
 
-template <class KeyType, const char* CategoryName, class Predicate = std::less<KeyType>>
+template<class KeyType, const char* CategoryName, class Predicate = std::less<KeyType>>
 using turtle_set = std::set<KeyType, Predicate, AllocatorWithCategory<KeyType, CategoryName>>;
 
-template <class KeyType, const char* CategoryName, class Hasher = std::hash<KeyType>, class KeyEqual = std::equal_to<KeyType>>
+template<class KeyType, const char* CategoryName, class Hasher = std::hash<KeyType>, class KeyEqual = std::equal_to<KeyType>>
 using turtle_unordered_set = std::unordered_set<KeyType, Hasher, KeyEqual, AllocatorWithCategory<KeyType, CategoryName>>;
 
 #if 0

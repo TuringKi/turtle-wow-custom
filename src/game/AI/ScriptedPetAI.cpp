@@ -1,7 +1,7 @@
 /*
- * Copyright (C) 2012-2012 Anathema Engine project <http://valkyrie-wow.com/>
- * Copyright (C) 2005-2012 MaNGOS <http://getmangos.com/>
- */
+* Copyright (C) 2012-2012 Anathema Engine project <http://valkyrie-wow.com/>
+* Copyright (C) 2005-2012 MaNGOS <http://getmangos.com/>
+*/
 
 /* ScriptData
 SDName: ScriptedPetAI
@@ -13,7 +13,8 @@ EndScriptData */
 #include "ScriptedPetAI.h"
 #include "Pet.h"
 
-ScriptedPetAI::ScriptedPetAI(Creature* pCreature) : CreatureAI(pCreature) {}
+ScriptedPetAI::ScriptedPetAI(Creature* pCreature) : CreatureAI(pCreature)
+{}
 
 void ScriptedPetAI::MoveInLineOfSight(Unit* pWho)
 {
@@ -23,7 +24,8 @@ void ScriptedPetAI::MoveInLineOfSight(Unit* pWho)
     if (!m_creature->GetCharmInfo() || !m_creature->GetCharmInfo()->HasReactState(REACT_AGGRESSIVE))
         return;
 
-    if (!pWho || !m_creature->IsValidAttackTarget(pWho) || !pWho->IsVisibleForOrDetect(m_creature, m_creature, true) || !m_creature->CanInitiateAttack() || !pWho->IsInAccessablePlaceFor(m_creature) || !m_creature->CanAttack(pWho, true))
+    if (!pWho || !m_creature->IsValidAttackTarget(pWho) || !pWho->IsVisibleForOrDetect(m_creature, m_creature, true) ||
+        !m_creature->CanInitiateAttack() || !pWho->IsInAccessablePlaceFor(m_creature) || !m_creature->CanAttack(pWho, true))
         return;
 
     if (!m_creature->CanFly() && m_creature->GetDistanceZ(pWho) > CREATURE_Z_ATTACK_RANGE)
@@ -31,7 +33,7 @@ void ScriptedPetAI::MoveInLineOfSight(Unit* pWho)
 
     if (m_creature->IsWithinDistInMap(pWho, m_creature->GetAttackDistance(pWho), true, SizeFactor::None) && m_creature->IsWithinLOSInMap(pWho))
     {
-        // pWho->RemoveSpellsCausingAura(SPELL_AURA_MOD_STEALTH);
+        //pWho->RemoveSpellsCausingAura(SPELL_AURA_MOD_STEALTH);
         AttackStart(pWho);
     }
 }
@@ -47,7 +49,8 @@ void ScriptedPetAI::AttackedBy(Unit* pAttacker)
     if (m_creature->GetVictim())
         return;
 
-    if (m_creature->GetCharmInfo() && !m_creature->GetCharmInfo()->HasReactState(REACT_PASSIVE) && m_creature->CanReachWithMeleeAutoAttack(pAttacker))
+    if (m_creature->GetCharmInfo() && !m_creature->GetCharmInfo()->HasReactState(REACT_PASSIVE) &&
+        m_creature->CanReachWithMeleeAutoAttack(pAttacker))
         AttackStart(pAttacker);
 }
 
@@ -87,13 +90,13 @@ void ScriptedPetAI::JustRespawned()
 
 void ScriptedPetAI::UpdateAI(const uint32 uiDiff)
 {
-    if (!m_creature->IsAlive()) // should not be needed, IsAlive is checked in mangos before calling UpdateAI
+    if (!m_creature->IsAlive())                             // should not be needed, IsAlive is checked in mangos before calling UpdateAI
         return;
 
     // UpdateAllies() is done in the generic PetAI in Mangos, but we can't do this from script side.
     // Unclear what side effects this has, but is something to be resolved from Mangos.
 
-    if (Unit* const pTarget = m_creature->GetVictim()) // in combat
+    if (Unit * const pTarget = m_creature->GetVictim())                            // in combat
     {
         if (!pTarget->IsTargetable(true, m_creature->IsCharmerOrOwnerPlayerOrPlayerItself()))
         {
@@ -124,7 +127,7 @@ void ScriptedPetAI::UpdateAI(const uint32 uiDiff)
         {
             // Not correct in all cases.
             // When mob initiate attack by spell, pet should not start attack before spell landed.
-            if (Unit* const pTarget = pOwner->GetAttackerForHelper())
+            if (Unit * const pTarget = pOwner->GetAttackerForHelper())
             {
                 // Prevent scripted pets from breaking CC effects
                 if (!pTarget->HasAuraPetShouldAvoidBreaking())
@@ -135,7 +138,7 @@ void ScriptedPetAI::UpdateAI(const uint32 uiDiff)
                     for (const auto pAttacker : pOwner->GetAttackers())
                     {
                         if (pAttacker->IsInMap(m_creature) && pAttacker->IsTargetable(true, m_creature->IsCharmerOrOwnerPlayerOrPlayerItself()) && !pAttacker->HasAuraPetShouldAvoidBreaking())
-                        {
+                        { 
                             AttackStart(pAttacker);
                             return;
                         }

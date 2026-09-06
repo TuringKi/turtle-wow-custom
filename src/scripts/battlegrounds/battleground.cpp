@@ -51,11 +51,16 @@ struct npc_spirit_guideAI : ScriptedAI
         npc_spirit_guideAI::Reset();
     }
 
-    void Reset() override {}
+    void Reset() override
+    {
+    }
 
     uint32 uiTimerRez;
 
-    uint32 GetData(uint32 /*type*/) override { return uiTimerRez; }
+    uint32 GetData(uint32 /*type*/) override
+    {
+        return uiTimerRez;
+    }
 
     void UpdateAI(const uint32 uiDiff) override
     {
@@ -70,7 +75,9 @@ struct npc_spirit_guideAI : ScriptedAI
             for (const auto& itr : PlayerList)
             {
                 Player* pPlayer = itr.getSource();
-                if (!pPlayer || pPlayer->IsAlive() || !pPlayer->IsWithinDistInMap(m_creature, 20.0f) || team != pPlayer->GetTeam())
+                if (!pPlayer || pPlayer->IsAlive() ||
+                    !pPlayer->IsWithinDistInMap(m_creature, 20.0f) ||
+                    team != pPlayer->GetTeam())
                     continue;
 
                 if (pPlayer->HasAura(SPELL_WAITING_TO_RESURRECT))
@@ -88,10 +95,10 @@ struct npc_spirit_guideAI : ScriptedAI
             uiTimerRez -= uiDiff;
     }
 
-    void CorpseRemoved(uint32&) override
+    void CorpseRemoved(uint32 &) override
     {
         // TODO: would be better to cast a dummy spell
-        Map::PlayerList const& PlayerList = m_creature->GetMap()->GetPlayers();
+        Map::PlayerList const &PlayerList = m_creature->GetMap()->GetPlayers();
 
         for (const auto& itr : PlayerList)
         {
@@ -104,11 +111,18 @@ struct npc_spirit_guideAI : ScriptedAI
         }
     }
 
-    void AttackedBy(Unit* /*pWho*/) override {}
+    void AttackedBy(Unit* /*pWho*/) override
+    {
+    }
 
-    void AttackStart(Unit* /*pWho*/) override {}
+    void AttackStart(Unit* /*pWho*/) override
+    {
+    }
 
-    void DamageTaken(Unit* /*pFrom*/, uint32& damage) override { damage = 0; }
+    void DamageTaken(Unit* /*pFrom*/, uint32 &damage) override
+    {
+        damage = 0;
+    }
 };
 
 bool GossipHello_npc_spirit_guide(Player* pPlayer, Creature* pCreature)
@@ -117,15 +131,18 @@ bool GossipHello_npc_spirit_guide(Player* pPlayer, Creature* pCreature)
     return true;
 }
 
-CreatureAI* GetAI_npc_spirit_guide(Creature* pCreature) { return new npc_spirit_guideAI(pCreature); }
+CreatureAI* GetAI_npc_spirit_guide(Creature* pCreature)
+{
+    return new npc_spirit_guideAI(pCreature);
+}
 
 enum
 {
-    SPELL_SPAWN_EFFECT = 23235,
+    SPELL_SPAWN_EFFECT     = 23235,
     SPELL_BUFF_ALLIANCE_15 = 23033,
-    SPELL_BUFF_HORDE_15 = 23033,
+    SPELL_BUFF_HORDE_15    = 23033,
     SPELL_BUFF_ALLIANCE_10 = 23574,
-    SPELL_BUFF_HORDE_10 = 23033,
+    SPELL_BUFF_HORDE_10    = 23033,
 };
 /*
 [SQL]
@@ -175,23 +192,29 @@ struct npc_etendardAI : NullCreatureAI
     }
 };
 
-CreatureAI* GetAI_npc_etendard(Creature* pCreature) { return new npc_etendardAI(pCreature); }
+CreatureAI* GetAI_npc_etendard(Creature* pCreature)
+{
+    return new npc_etendardAI(pCreature);
+}
 
 enum FlagSpellsWS
 {
-    AT_SILVERWING_FLAG = 3646,
-    AT_WARSONG_FLAG = 3647,
+    AT_SILVERWING_FLAG   = 3646,
+    AT_WARSONG_FLAG      = 3647,
 
-    AURA_WARSONG_FLAG = 23333,
+    AURA_WARSONG_FLAG    = 23333,
     AURA_SILVERWING_FLAG = 23335,
 
-    GO_SILVERWING_FLAG = 179830,
-    GO_WARSONG_FLAG = 179831,
+    GO_SILVERWING_FLAG   = 179830,
+    GO_WARSONG_FLAG      = 179831,
 };
 
 struct go_wsg_flagAI : public GameObjectAI
 {
-    go_wsg_flagAI(GameObject* pGo) : GameObjectAI(pGo) { m_checkForPlayerTimer = 0; }
+    go_wsg_flagAI(GameObject * pGo) : GameObjectAI(pGo)
+    {
+        m_checkForPlayerTimer = 0;
+    }
 
     uint32 m_checkForPlayerTimer;
 
@@ -216,17 +239,17 @@ struct go_wsg_flagAI : public GameObjectAI
 
                 switch (me->GetEntry())
                 {
-                case GO_SILVERWING_FLAG:
-                    if (pPlayer->HasAura(AURA_WARSONG_FLAG))
-                        bg->HandleAreaTrigger(pPlayer, AT_SILVERWING_FLAG);
-                    break;
-                case GO_WARSONG_FLAG:
-                    if (pPlayer->HasAura(AURA_SILVERWING_FLAG))
-                        bg->HandleAreaTrigger(pPlayer, AT_WARSONG_FLAG);
-                    break;
-                default:
-                    sLog.outError("WSG flag script assigned to wrong gobject.");
-                    break;
+                    case GO_SILVERWING_FLAG:
+                        if (pPlayer->HasAura(AURA_WARSONG_FLAG))
+                            bg->HandleAreaTrigger(pPlayer, AT_SILVERWING_FLAG);
+                        break;
+                    case GO_WARSONG_FLAG:
+                        if (pPlayer->HasAura(AURA_SILVERWING_FLAG))
+                            bg->HandleAreaTrigger(pPlayer, AT_WARSONG_FLAG);
+                        break;
+                    default:
+                        sLog.outError("WSG flag script assigned to wrong gobject.");
+                        break;
                 }
             }
             m_checkForPlayerTimer = 1000;
@@ -236,7 +259,10 @@ struct go_wsg_flagAI : public GameObjectAI
     }
 };
 
-GameObjectAI* GetAIgo_wsg_flag(GameObject* pGo) { return new go_wsg_flagAI(pGo); }
+GameObjectAI* GetAIgo_wsg_flag(GameObject* pGo)
+{
+    return new go_wsg_flagAI(pGo);
+}
 
 void AddSC_battleground()
 {

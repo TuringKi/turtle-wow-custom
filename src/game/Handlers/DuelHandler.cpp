@@ -19,16 +19,17 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#include "Chat.h"
 #include "Common.h"
-#include "Log.h"
-#include "ObjectAccessor.h"
-#include "Opcodes.h"
-#include "Player.h"
-#include "UpdateData.h"
-#include "World.h"
 #include "WorldPacket.h"
 #include "WorldSession.h"
+#include "Log.h"
+#include "Opcodes.h"
+#include "UpdateData.h"
+#include "Player.h"
+#include "Chat.h"
+#include "ObjectAccessor.h"
+#include "World.h"
+#include "ScriptObjects.h"
 
 void WorldSession::HandleDuelAcceptedOpcode(WorldPacket& recvPacket)
 {
@@ -68,11 +69,16 @@ void WorldSession::HandleDuelAcceptedOpcode(WorldPacket& recvPacket)
 
     pl->SendDuelCountdown(3000);
     plTarget->SendDuelCountdown(3000);
+
+    ScriptRegistry<PlayerScript>::ForEachEnabledHook(PLAYERHOOK_ON_DUEL_START, [&](PlayerScript* script)
+    {
+        script->OnDuelStart(plTarget, pl);
+    });
 }
 
 void WorldSession::HandleDuelCancelledOpcode(WorldPacket& recvPacket)
 {
-    // DEBUG_LOG( "WORLD: received CMSG_DUEL_CANCELLED" );
+    //DEBUG_LOG( "WORLD: received CMSG_DUEL_CANCELLED" );
 
     auto pPlayer = GetPlayer();
     // no m_duel requested
@@ -86,7 +92,7 @@ void WorldSession::HandleDuelCancelledOpcode(WorldPacket& recvPacket)
         if (Player* pOpponent = sObjectAccessor.FindPlayer(pPlayer->m_duel->opponent))
             pOpponent->CombatStopWithPets(true);
 
-        pPlayer->CastSpell(GetPlayer(), 7267, true); // beg
+        pPlayer->CastSpell(GetPlayer(), 7267, true);    // beg
         pPlayer->DuelComplete(DUEL_WON);
         return;
     }

@@ -37,91 +37,91 @@
 typedef char my_bool;
 #endif
 
-// MySQL prepared statement class
+//MySQL prepared statement class
 class MySqlPreparedStatement : public SqlPreparedStatement
 {
 public:
-    MySqlPreparedStatement(const std::string& fmt, SqlConnection& conn, MYSQL* mysql);
+    MySqlPreparedStatement(const std::string& fmt, SqlConnection& conn, MYSQL * mysql);
     ~MySqlPreparedStatement() override;
 
-    // prepare statement
+    //prepare statement
     bool prepare() override;
 
-    // bind input parameters
+    //bind input parameters
     void bind(const SqlStmtParameters& holder) override;
 
-    // execute DML statement
+    //execute DML statement
     bool execute() override;
 
 protected:
-    // bind parameters
+    //bind parameters
     void addParam(int nIndex, const SqlStmtFieldData& data);
 
-    static enum_field_types ToMySQLType(const SqlStmtFieldData& data, my_bool& bUnsigned);
+    static enum_field_types ToMySQLType( const SqlStmtFieldData &data, my_bool &bUnsigned );
 
 private:
     void RemoveBinds();
 
-    MYSQL* m_pMySQLConn;
-    MYSQL_STMT* m_stmt;
-    MYSQL_BIND* m_pInputArgs;
-    MYSQL_BIND* m_pResult;
-    MYSQL_RES* m_pResultMetadata;
+    MYSQL * m_pMySQLConn;
+    MYSQL_STMT * m_stmt;
+    MYSQL_BIND * m_pInputArgs;
+    MYSQL_BIND * m_pResult;
+    MYSQL_RES *m_pResultMetadata;
 };
 
 
 class MySQLConnection : public SqlConnection
 {
-public:
-    MySQLConnection(Database& db) : SqlConnection(db), mMysql(nullptr) {}
-    ~MySQLConnection() override;
+    public:
+        MySQLConnection(Database& db) : SqlConnection(db), mMysql(nullptr) {}
+        ~MySQLConnection() override;
 
-    bool OpenConnection(bool reconnect) override;
-    bool Reconnect();
-    bool HandleMySQLError(uint32 errNo);
+        bool OpenConnection(bool reconnect) override;
+        bool Reconnect();
+        bool HandleMySQLError(uint32 errNo);
 
-    QueryResult* Query(const char* sql) override;
-    QueryNamedResult* QueryNamed(const char* sql) override;
-    bool Execute(const char* sql) override;
-    bool ExecuteMultiline(const char* sql) override;
+        QueryResult* Query(const char *sql) override;
+        QueryNamedResult* QueryNamed(const char *sql) override;
+        bool Execute(const char *sql) override;
+        bool ExecuteMultiline(const char* sql) override;
 
-    unsigned long escape_string(char* to, const char* from, unsigned long length) override;
+        unsigned long escape_string(char *to, const char *from, unsigned long length) override;
 
-    bool BeginTransaction() override;
-    bool CommitTransaction() override;
-    bool RollbackTransaction() override;
+        bool BeginTransaction() override;
+        bool CommitTransaction() override;
+        bool RollbackTransaction() override;
 
-protected:
-    SqlPreparedStatement* CreateStatement(const std::string& fmt) override;
+    protected:
+        SqlPreparedStatement * CreateStatement(const std::string& fmt) override;
 
-private:
-    bool _TransactionCmd(const char* sql);
-    bool _Query(const char* sql, MYSQL_RES** pResult, MYSQL_FIELD** pFields, uint64* pRowCount, uint32* pFieldCount);
+    private:
+        bool _TransactionCmd(const char *sql);
+        bool _Query(const char *sql, MYSQL_RES **pResult, MYSQL_FIELD **pFields, uint64* pRowCount, uint32* pFieldCount);
 
-    MYSQL* mMysql;
+        MYSQL *mMysql;
 };
 
 class DatabaseMysql : public Database
 {
     friend class MaNGOS::OperatorNew<DatabaseMysql>;
 
-public:
-    DatabaseMysql();
-    ~DatabaseMysql() override;
+    public:
+        DatabaseMysql();
+        ~DatabaseMysql() override;
 
-    //! Initializes Mysql and connects to a server.
-    /*! infoString should be formated like hostname;username;password;database. */
+        //! Initializes Mysql and connects to a server.
+        /*! infoString should be formated like hostname;username;password;database. */
 
-    // must be call before first query in thread
-    void ThreadStart() override;
-    // must be call before finish thread run
-    void ThreadEnd() override;
+        // must be call before first query in thread
+        void ThreadStart() override;
+        // must be call before finish thread run
+        void ThreadEnd() override;
 
-protected:
-    SqlConnection* CreateConnection() override;
+    protected:
+        SqlConnection* CreateConnection() override;
 
-private:
-    static size_t db_count;
+    private:
+        static size_t db_count;
 };
 
 #endif

@@ -14,30 +14,30 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#include "naxxramas.h"
 #include "scriptPCH.h"
+#include "naxxramas.h"
 
 enum
 {
-    SAY_PULL = -1533010, // slay them in the masters name
-    SAY_ENRAGE1 = -1533011, // you cannot hide from me!
-    SAY_ENRAGE2 = -1533012, // kneel before me, worm!
-    SAY_ENRAGE3 = -1533013, // Run while you can!
-    SAY_SLAY1 = -1533014, // You have failed!
-    SAY_SLAY2 = -1533015, // Pathethic Wretch
-    SAY_DEATH = -1533016, // the master... will avenge me!
+    SAY_PULL                    = -1533010, // slay them in the masters name
+    SAY_ENRAGE1                 = -1533011, // you cannot hide from me!
+    SAY_ENRAGE2                 = -1533012, // kneel before me, worm!
+    SAY_ENRAGE3                 = -1533013, // Run while you can!
+    SAY_SLAY1                   = -1533014, // You have failed!
+    SAY_SLAY2                   = -1533015, // Pathethic Wretch
+    SAY_DEATH                   = -1533016, // the master... will avenge me!
 
-    // SOUND_RANDOM_AGGRO          = 8955,   //soundId containing the 4 aggro sounds, we not using this
+    //SOUND_RANDOM_AGGRO          = 8955,   //soundId containing the 4 aggro sounds, we not using this
 
-    SPELL_POSIONBOLT_VOLLEY = 28796,
-    SPELL_ENRAGE = 28798,
+    SPELL_POSIONBOLT_VOLLEY     = 28796,
+    SPELL_ENRAGE                = 28798, 
 
-    SPELL_RAINOFFIRE = 28794, // Not sure if targeted AoEs work if casted directly upon a pPlayer
+    SPELL_RAINOFFIRE            = 28794,    //Not sure if targeted AoEs work if casted directly upon a pPlayer
 
-    SPELL_WIDOWS_EMBRACE = 28732, // Used by worshippers. ToDo: Spell does NOT add the attackspeed reduction, or is it just castspeed?
+    SPELL_WIDOWS_EMBRACE        = 28732,    // Used by worshippers. ToDo: Spell does NOT add the attackspeed reduction, or is it just castspeed?
 
-    MOB_FOLLOWER = 16505, // TODO: should aoe silence (small range, 8-10yd)
-    MOB_WORSHIPPER = 16506
+    MOB_FOLLOWER                = 16505,    // TODO: should aoe silence (small range, 8-10yd)
+    MOB_WORSHIPPER              = 16506
 };
 
 
@@ -62,8 +62,18 @@ static uint32 RAINOFFIRE_CD() { return urand(8000, 12000); }
 static uint32 const RAINOFFIRE_INITIAL_CD = 16000;
 
 static const float ADD_DESPAWN_TIME = 20000;
-static const float followerPos[2][4] = {{3359.75f, -3621.77f, 261.18f, 4.54f}, {3346.29f, -3619.32f, 261.18f, 4.61f}};
-static const float worshipPos[4][4] = {{3350.61f, -3619.74f, 261.18f, 4.65f}, {3341.36f, -3619.35f, 261.18f, 4.68f}, {3356.69f, -3621.17f, 261.18f, 4.38f}, {3364.08f, -3622.85f, 261.18f, 4.35f}};
+static const float followerPos[2][4] =
+{
+    { 3359.75f, -3621.77f, 261.18f, 4.54f },
+    {3346.29f, -3619.32f, 261.18f, 4.61f }
+};
+static const float worshipPos[4][4] =
+{
+    {3350.61f, -3619.74f, 261.18f, 4.65f},
+    {3341.36f, -3619.35f, 261.18f, 4.68f},
+    {3356.69f, -3621.17f, 261.18f, 4.38f},
+    {3364.08f, -3622.85f, 261.18f, 4.35f}
+};
 
 struct boss_faerlinaAI : public ScriptedAI
 {
@@ -82,14 +92,14 @@ struct boss_faerlinaAI : public ScriptedAI
     uint32 m_uiRainOfFireTimer;
     uint32 m_uiEnrageTimer;
 
-    ObjectGuid followers[2] = {0, 0};
-    ObjectGuid worshippers[4] = {0, 0, 0, 0};
+    ObjectGuid followers[2] = { 0,0 };
+    ObjectGuid worshippers[4] = { 0,0,0,0 };
 
     void Reset() override
     {
-        m_uiPoisonBoltVolleyTimer = INITIAL_POISONBOLT_VOLLEY_CD;
-        m_uiRainOfFireTimer = RAINOFFIRE_INITIAL_CD;
-        m_uiEnrageTimer = 60000;
+        m_uiPoisonBoltVolleyTimer   = INITIAL_POISONBOLT_VOLLEY_CD;
+        m_uiRainOfFireTimer         = RAINOFFIRE_INITIAL_CD;
+        m_uiEnrageTimer             = 60000;
     }
 
     void SpellHit(WorldObject* pCaster, const SpellEntry* pSpell) override
@@ -101,9 +111,9 @@ struct boss_faerlinaAI : public ScriptedAI
         /*
         note from wowhead:
         --
-        Note: You must sacrifice the worshiper AFTER she enrages if you want to stop her for the full 60 seconds.
+        Note: You must sacrifice the worshiper AFTER she enrages if you want to stop her for the full 60 seconds. 
         If you sacrifice the Worshiper before the enrage, it will merely delay the enrage for 30 seconds.
-        --
+        -- 
         Above note makes it seem that if she is not already enraged when widows embrace hits, we should do enrageTimer+=30000;
         while if she is enraged we set the timer to 60000 again.
         */
@@ -119,11 +129,12 @@ struct boss_faerlinaAI : public ScriptedAI
         if (m_pInstance && m_pInstance->GetData(TYPE_FAERLINA) == DONE)
             return;
         // 2 Followers.
-        for (int i = 0; i < 2; i++)
+        for (int i = 0; i < 2; i++) 
         {
-            if (followers[i].IsEmpty())
+            if (followers[i].IsEmpty()) 
             {
-                if (Creature* c = m_creature->SummonCreature(MOB_FOLLOWER, followerPos[i][0], followerPos[i][1], followerPos[i][2], followerPos[i][3], TEMPSUMMON_CORPSE_TIMED_DESPAWN, ADD_DESPAWN_TIME))
+                if (Creature* c = m_creature->SummonCreature(MOB_FOLLOWER, followerPos[i][0], followerPos[i][1], followerPos[i][2], followerPos[i][3],
+                    TEMPSUMMON_CORPSE_TIMED_DESPAWN, ADD_DESPAWN_TIME))
                 {
                     followers[i] = c->GetObjectGuid();
                 }
@@ -139,7 +150,8 @@ struct boss_faerlinaAI : public ScriptedAI
         {
             if (worshippers[i].IsEmpty())
             {
-                if (Creature* c = m_creature->SummonCreature(MOB_WORSHIPPER, worshipPos[i][0], worshipPos[i][1], worshipPos[i][2], worshipPos[i][3], TEMPSUMMON_CORPSE_TIMED_DESPAWN, ADD_DESPAWN_TIME))
+                if (Creature* c = m_creature->SummonCreature(MOB_WORSHIPPER, worshipPos[i][0], worshipPos[i][1], worshipPos[i][2], worshipPos[i][3],
+                    TEMPSUMMON_CORPSE_TIMED_DESPAWN, ADD_DESPAWN_TIME))
                 {
                     worshippers[i] = c->GetObjectGuid();
                 }
@@ -207,7 +219,11 @@ struct boss_faerlinaAI : public ScriptedAI
 
     void MoveInLineOfSight(Unit* pWho) override
     {
-        if (pWho->GetTypeId() == TYPEID_PLAYER && !m_creature->IsInCombat() && m_creature->IsWithinDistInMap(pWho, 30.0f) && !pWho->HasAuraType(SPELL_AURA_FEIGN_DEATH) && !pWho->HasAuraType(SPELL_AURA_MOD_UNATTACKABLE))
+        if (pWho->GetTypeId() == TYPEID_PLAYER
+            && !m_creature->IsInCombat()
+            && m_creature->IsWithinDistInMap(pWho, 30.0f)
+            && !pWho->HasAuraType(SPELL_AURA_FEIGN_DEATH)
+            && !pWho->HasAuraType(SPELL_AURA_MOD_UNATTACKABLE))
         {
             AttackStart(pWho);
         }
@@ -234,11 +250,11 @@ struct boss_faerlinaAI : public ScriptedAI
     {
         if (!m_creature->SelectHostileTarget() || !m_creature->GetVictim())
             return;
-
+        
         if (!m_pInstance->HandleEvadeOutOfHome(m_creature))
         {
             std::list<Creature*> creatures;
-            GetCreatureListWithEntryInGrid(creatures, m_creature, {NPC_NaxxramasFollower, NPC_NaxxramasWorshipper}, 150.0f);
+            GetCreatureListWithEntryInGrid(creatures, m_creature, { NPC_NaxxramasFollower, NPC_NaxxramasWorshipper}, 150.0f);
             for (Creature* pCreature : creatures)
             {
                 pCreature->AI()->EnterEvadeMode();
@@ -253,7 +269,7 @@ struct boss_faerlinaAI : public ScriptedAI
             {
                 m_uiPoisonBoltVolleyTimer = 2500; // retrying in 2.5sec
             }
-            else
+            else 
             {
                 if (DoCastSpellIfCan(m_creature->GetVictim(), SPELL_POSIONBOLT_VOLLEY) == CanCastResult::CAST_OK)
                 {
@@ -278,7 +294,7 @@ struct boss_faerlinaAI : public ScriptedAI
         else
             m_uiRainOfFireTimer -= uiDiff;
 
-        // Enrage_Timer
+        //Enrage_Timer
         if (m_uiEnrageTimer < uiDiff)
         {
             // widows embrace can be used as a preventive method rather than dispelling method for the enrage as well,
@@ -301,31 +317,33 @@ struct boss_faerlinaAI : public ScriptedAI
 
 struct mob_faerlina_rp : public ScriptedAI
 {
-    enum eEvents
-    {
+    enum eEvents {
         EVENT_KNEEL = 1,
         EVENT_CAST,
         EVENT_STAND,
         EVENT_UNAURA
     };
-
+    
     EventMap events;
 
-    mob_faerlina_rp(Creature* pCreature) : ScriptedAI(pCreature) { Reset(); }
+    mob_faerlina_rp(Creature* pCreature) : ScriptedAI(pCreature)
+    {
+        Reset();
+    }
 
     void Reset() override
     {
         events.Reset();
         events.ScheduleEvent(EVENT_KNEEL, Seconds(urand(5, 10)));
     }
-
+    
     std::list<Creature*> getGroup()
     {
         std::list<Creature*> creatures;
-        GetCreatureListWithEntryInGrid(creatures, m_creature, {NPC_NaxxramasAcolyte, NPC_NaxxramasCultist}, 11.0f);
+        GetCreatureListWithEntryInGrid(creatures, m_creature, { NPC_NaxxramasAcolyte, NPC_NaxxramasCultist }, 11.0f);
         return creatures;
     }
-
+    
     void UpdateAI(const uint32 diff) override
     {
         events.Update(diff);
@@ -378,9 +396,40 @@ struct mob_faerlina_rp : public ScriptedAI
     }
 };
 
-CreatureAI* GetAI_boss_faerlina(Creature* pCreature) { return new boss_faerlinaAI(pCreature); }
+CreatureAI* GetAI_boss_faerlina(Creature* pCreature)
+{
+    return new boss_faerlinaAI(pCreature);
+}
 
-CreatureAI* GetAI_mob_faerlina_rp(Creature* pCreature) { return new mob_faerlina_rp(pCreature); }
+CreatureAI* GetAI_mob_faerlina_rp(Creature* pCreature)
+{
+    return new mob_faerlina_rp(pCreature);
+}
+
+namespace
+{
+template <class T>
+SpellScript* GetSpellScript(SpellEntry const*)
+{
+    return new T();
+}
+
+void RegisterSpellScript(char const* name, SpellScript* (*getter)(SpellEntry const*))
+{
+    Script* script = new Script;
+    script->Name = name;
+    script->GetSpellScript = getter;
+    script->RegisterSelf();
+}
+
+struct spell_faerlina_poison_bolt_volley : public SpellScript
+{
+    void OnSetTargetMap(Spell* /*spell*/, SpellEffectIndex /*effIdx*/, uint32& /*targetMode*/, float& /*radius*/, uint32& unMaxTargets, bool& /*selectClosestTargets*/) const override
+    {
+        unMaxTargets = 10;
+    }
+};
+}
 
 void AddSC_boss_faerlina()
 {
@@ -394,4 +443,6 @@ void AddSC_boss_faerlina()
     NewScript->Name = "mob_faerlina_rp";
     NewScript->GetAI = &GetAI_mob_faerlina_rp;
     NewScript->RegisterSelf();
+
+    RegisterSpellScript("spell_faerlina_poison_bolt_volley", &GetSpellScript<spell_faerlina_poison_bolt_volley>);
 }

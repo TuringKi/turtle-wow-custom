@@ -1,6 +1,6 @@
-/**
+/** 
   \file G3D/GMutex.h
-
+   
   \created 2005-09-22
   \edited  2013-04-03
  */
@@ -8,124 +8,124 @@
 #ifndef G3D_GMutex_h
 #define G3D_GMutex_h
 
-#include <string>
+#include "G3D/platform.h"
 #include "G3D/AtomicInt32.h"
 #include "G3D/debugAssert.h"
-#include "G3D/platform.h"
+#include <string>
 
 #ifndef G3D_WINDOWS
-#include <pthread.h>
-#include <signal.h>
+#   include <pthread.h>
+#   include <signal.h>
 #endif
 
 #if defined(G3D_LINUX) || defined(G3D_OSX)
-#include <unistd.h> // For usleep
+#   include <unistd.h> // For usleep
 #endif
 
 
-namespace G3D
-{
+namespace G3D {
 
-    /**
-       \brief A mutual exclusion lock that busy-waits when locking.
+/**
+   \brief A mutual exclusion lock that busy-waits when locking.
 
-       On a machine with one (significant) thread per processor core,
-       a Spinlock may be substantially faster than a mutex.
+   On a machine with one (significant) thread per processor core,
+   a Spinlock may be substantially faster than a mutex.
 
-       \sa G3D::GThread, G3D::GMutex, G3D::AtomicInt32
+   \sa G3D::GThread, G3D::GMutex, G3D::AtomicInt32
+ */
+class Spinlock {
+private:
+
+    AtomicInt32   x;
+
+public:
+
+    inline Spinlock() : x(0) {}
+
+    /** Busy waits until the lock is unlocked, then locks it
+        exclusively.  Returns true if the lock succeeded on the first
+        try (indicating no contention). 
+        
+        Unlike a G3D::GMutex, a single thread cannot re-enter
+        Spinlock::lock() that it already locked.
      */
-    class Spinlock
-    {
-    private:
-        AtomicInt32 x;
-
-    public:
-        inline Spinlock() : x(0) {}
-
-        /** Busy waits until the lock is unlocked, then locks it
-            exclusively.  Returns true if the lock succeeded on the first
-            try (indicating no contention).
-
-            Unlike a G3D::GMutex, a single thread cannot re-enter
-            Spinlock::lock() that it already locked.
-         */
-        inline bool lock()
-        {
-            bool first = true;
-            while (x.compareAndSet(0, 1) == 1)
-            {
-                first = false;
-#ifdef G3D_WINDOWS
+    inline bool lock() {
+        bool first = true;
+        while (x.compareAndSet(0, 1) == 1) {
+            first = false;
+#           ifdef G3D_WINDOWS
                 Sleep(0);
-#else
+#           else
                 usleep(0);
-#endif
-            }
-            return first;
+#           endif
         }
+        return first;
+    }
 
-        inline void unlock() { x.compareAndSet(1, 0); }
-    };
+    inline void unlock() {
+        x.compareAndSet(1, 0);
+    }
 
-    /**
-     \brief Mutual exclusion lock used for synchronization.
+};
 
-     @sa G3D::GThread, G3D::AtomicInt32, G3D::Spinlock
-    */
-    class GMutex
-    {
-    private:
-#ifdef G3D_WINDOWS
-        CRITICAL_SECTION m_handle;
-#else
-        pthread_mutex_t m_handle;
-        pthread_mutexattr_t m_attr;
-#endif
+/**
+ \brief Mutual exclusion lock used for synchronization.
 
-        // Not implemented on purpose, don't use
-        GMutex(const GMutex& mlock);
-        GMutex& operator=(const GMutex&);
-        bool operator==(const GMutex&);
+ @sa G3D::GThread, G3D::AtomicInt32, G3D::Spinlock
+*/
+class GMutex {
+private:
+#   ifdef G3D_WINDOWS
+    CRITICAL_SECTION                    m_handle;
+#   else
+    pthread_mutex_t                     m_handle;
+    pthread_mutexattr_t                 m_attr;
+#   endif
 
-    public:
-        GMutex();
-        ~GMutex();
+    // Not implemented on purpose, don't use
+    GMutex(const GMutex &mlock);
+    GMutex &operator=(const GMutex &);
+    bool operator==(const GMutex&);
 
-        /** Locks the mutex or blocks until available. */
-        void lock();
+public:
+    GMutex();
+    ~GMutex();
 
-        /** Locks the mutex if it not already locked.
-            Returns true if lock successful, false otherwise. */
-        bool tryLock();
+    /** Locks the mutex or blocks until available. */
+    void lock();
 
-        /** Unlocks the mutex. */
-        void unlock();
-    };
+    /** Locks the mutex if it not already locked.
+        Returns true if lock successful, false otherwise. */
+    bool tryLock();
+
+    /** Unlocks the mutex. */
+    void unlock();
+};
 
 
-    /**
-        Automatically locks while in scope.
-    */
-    class GMutexLock
-    {
-    private:
-        GMutex* m;
+/**
+    Automatically locks while in scope.
+*/
+class GMutexLock {
+private:
+    GMutex* m;
 
-        // Not implemented on purpose, don't use
-        GMutexLock(const GMutexLock& mlock);
-        GMutexLock& operator=(const GMutexLock&);
-        bool operator==(const GMutexLock&);
+    // Not implemented on purpose, don't use
+    GMutexLock(const GMutexLock &mlock);
+    GMutexLock &operator=(const GMutexLock &);
+    bool operator==(const GMutexLock&);
 
-    public:
-        GMutexLock(GMutex* mutex)
-        {
-            m = mutex;
-            m->lock();
-        }
+public:
+    GMutexLock(GMutex* mutex) {
+        m = mutex;
+        m->lock();
+    }
 
-        ~GMutexLock() { m->unlock(); }
-    };
+    ~GMutexLock() {
+        m->unlock();
+    }
+};
 
-} // namespace G3D
+} // G3D
 
 #endif

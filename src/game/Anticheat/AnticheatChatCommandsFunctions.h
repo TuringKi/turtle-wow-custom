@@ -1,4 +1,4 @@
-// This file included in Chat.h in class header
+//This file included in Chat.h in class header
 
 
 bool HandleAnticheatInfoCommand(char* args);
@@ -12,7 +12,7 @@ bool HandleAnticheatBlacklistCommand(char* args);
 bool HandleAnticheatWhitelistCommand(char* args);
 bool HandleAnticheatDebugExtrapCommand(char* args);
 
-// fingerprint commands
+//fingerprint commands
 bool HandleAnticheatFingerprintListCommand(char* args);
 bool HandleAnticheatFingerprintHistoryCommand(char* args);
 bool HandleAnticheatFingerprintAHistoryCommand(char* args);

@@ -1,11 +1,11 @@
-#include "AccountAnalyser.hpp"
 #include "Database/DatabaseEnv.h"
 #include "Database/DatabaseImpl.h"
-#include "DiscordBot/Bot.hpp"
-#include "Player.h"
-#include "World.h"
-#include "WorldSession.h"
+#include "DiscordBot/Bot.hpp" 
 #include "re2/re2.h"
+#include "WorldSession.h"
+#include "World.h"
+#include "Player.h"
+#include "AccountAnalyser.hpp"
 
 template <typename T>
 bool Eq(T v, T g)
@@ -13,7 +13,7 @@ bool Eq(T v, T g)
     return v == g;
 }
 
-template <typename Check, typename... Args>
+template <typename Check, typename ...Args>
 bool AllVal(Check t, Args... args)
 {
     return (... && Eq<Check>(args, t));
@@ -23,13 +23,13 @@ AccountAnalyser::AccountAnalyser(WorldSession* session) : _session(session), _ac
 
 void AccountAnalyser::LoadFingerprintsCallback(QueryResult* result, uint32 SessionID)
 {
-    WorldSession* AccountSession = sWorld.FindSession(SessionID);
-    if (AccountSession == nullptr)
-    {
+	WorldSession* AccountSession = sWorld.FindSession(SessionID);
+	if (AccountSession == nullptr)
+	{
         if (result)
             delete result;
-        return;
-    }
+		return;
+	}
 
     if (!result)
     {
@@ -38,11 +38,10 @@ void AccountAnalyser::LoadFingerprintsCallback(QueryResult* result, uint32 Sessi
     }
 
     AccountSession->_analyser->_loadedSamples.reserve(result->GetRowCount());
-    do
-    {
+    do {
         auto fields = result->Fetch();
-
-
+        
+        
         uint32 fingerprint = fields[1].GetUInt32();
         uint32 accountId = fields[2].GetUInt32();
         std::string ipAddress = fields[3].GetString();
@@ -70,17 +69,35 @@ void AccountAnalyser::LoadFingerprintsCallback(QueryResult* result, uint32 Sessi
         if (cpuType.empty())
             useCpuData = false;
 
-        AnalysisInfo info{fingerprint, ipAddress, cpuType, activeCpus, totalCpus, pageSize, timeZoneBiasLow, suiteMask, mitPolicies, numPhysicalPages, sharedDataFlags, unparkedCpuCount, enclaveMask, qpcData, useExtendedData, useCpuData};
-
+        AnalysisInfo info
+        {
+            fingerprint,
+            ipAddress,
+            cpuType,
+            activeCpus,
+            totalCpus,
+            pageSize,
+            timeZoneBiasLow,
+            suiteMask,
+            mitPolicies,
+            numPhysicalPages,
+            sharedDataFlags,
+            unparkedCpuCount,
+            enclaveMask,
+            qpcData,
+            useExtendedData,
+            useCpuData
+        };
+        
         AccountSession->_analyser->_fingerprintSampleLookup.insert(fingerprint);
 
         AccountSession->_analyser->_loadedSamples.push_back(std::move(info));
-        // we wont get itr invalidation so we can safely ref all of this info.
-    }
-    while (result->NextRow());
+        //we wont get itr invalidation so we can safely ref all of this info.
+
+    } while (result->NextRow());
 
     ++AccountSession->_analyser->m_loadStep;
-
+    
     delete result;
 }
 
@@ -101,8 +118,7 @@ void AccountAnalyser::LoadIPHistoryCallback(QueryResult* result, uint32 SessionI
     }
 
     uint32 totalLogins = 0;
-    do
-    {
+    do {
         auto fields = result->Fetch();
 
         std::string ip = fields[0].GetCppString();
@@ -114,15 +130,15 @@ void AccountAnalyser::LoadIPHistoryCallback(QueryResult* result, uint32 SessionI
         if (!totalLogins)
             totalLogins = fields[2].GetUInt32();
 
-        // Improve this
+        //Improve this
         if (loginCount >= totalLogins / 100 * sWorld.getConfig(CONFIG_UINT32_ACCOUNT_TRUSTED_IP_PERCENTAGE))
             isTrusted = true;
         else
             isTrusted = false;
 
-        AccountSession->_analyser->_ipHistory.insert({ip, value});
-    }
-    while (result->NextRow());
+        AccountSession->_analyser->_ipHistory.insert({ ip, value });
+
+    } while (result->NextRow());
 
     AccountSession->_analyser->_totalLogins = totalLogins;
 
@@ -154,7 +170,8 @@ void AccountAnalyser::CheckExtendedPrintMark()
 {
     if (_markedExtendedPrints.find(_currentSample.GetHash()) != _markedExtendedPrints.end())
     {
-        std::string message = string_format("Marked extended print logged in! {} on account {} (ID {}). IP {}.", _currentSample.GetHash(), _session->GetUsername(), _session->GetAccountId(), _session->GetRemoteAddress().c_str());
+        std::string message = string_format("Marked extended print logged in! {} on account {} (ID {}). IP {}.", _currentSample.GetHash(), _session->GetUsername(), _session->GetAccountId(),
+            _session->GetRemoteAddress().c_str());
 
         sWorld.SendGMText(message);
 #ifdef USING_DISCORD_BOT
@@ -173,6 +190,7 @@ void AccountAnalyser::Initialize()
         _rescheduleTimer = 500;
         return;
     }
+
 
 
     auto accountData = sWorld.GetAccountData(_accountId);
@@ -194,7 +212,7 @@ void AccountAnalyser::Initialize()
     // Have a GM command to manually lock or unlock these actions for the player.
 
 
-    // First off, check if the IP we're logged in with is trusted, if so, do nothing regardless.
+    //First off, check if the IP we're logged in with is trusted, if so, do nothing regardless.
 
     if (sWorld.getConfig(CONFIG_BOOL_ANALYSIS_ALLOW_RELAXED_IP))
     {
@@ -203,7 +221,7 @@ void AccountAnalyser::Initialize()
 
         bool safe = false;
 
-        // We do not do perfect IP matching as the IPs are already valid here, we just need a quick capture group here.
+        //We do not do perfect IP matching as the IPs are already valid here, we just need a quick capture group here.
         static re2::RE2 ipPattern = R"((\d+).(\d+).(\d+).(\d+))";
 
         uint32 currentSampleOctets[4]{};
@@ -214,12 +232,12 @@ void AccountAnalyser::Initialize()
         {
             const auto& ip = elem.first;
 
-            // don't handle non-trusted IPs
+            //don't handle non-trusted IPs
             if (!elem.second.second)
                 continue;
 
             uint32 ipHistoryOctets[4]{};
-
+            
             re2::RE2::FullMatch(_currentSample.ipAddress, ipPattern, &ipHistoryOctets[0], &ipHistoryOctets[1], &ipHistoryOctets[2], &ipHistoryOctets[3]);
 
             if (ipHistoryOctets[0] && ipHistoryOctets[1] && ipHistoryOctets[0] == currentSampleOctets[0] && ipHistoryOctets[1] == currentSampleOctets[1])
@@ -229,7 +247,7 @@ void AccountAnalyser::Initialize()
             }
         }
 
-        // log soonTM
+        //log soonTM
         if (safe)
             return;
     }
@@ -240,22 +258,24 @@ void AccountAnalyser::Initialize()
     }
 
 
-    // Account logged in with unknown IP / untrusted IP
+
+   //Account logged in with unknown IP / untrusted IP
 
     uint32 susRating = 0;
 
+    
 
     const bool DetailedReportSearch = sWorld.getConfig(CONFIG_BOOL_ANALYSIS_DO_SHARED_DATA_DETAILED_REPORT);
 
     if (_fingerprintSampleLookup.find(_currentSample.fingerprint) == _fingerprintSampleLookup.end())
         susRating += sWorld.getConfig(CONFIG_UINT32_ANALYSIS_NO_FINGERPRINT_MATCH_WEIGHT);
 
-
+    
     if (!_currentSample.useExtendedData)
         susRating += sWorld.getConfig(CONFIG_UINT32_ANALYSIS_NO_EXTENDED_DATA_WEIGHT);
     else
     {
-        // populate known samples, hash them and check for a match if enabled.
+        //populate known samples, hash them and check for a match if enabled.
         size_t currentSampleHash = _currentSample.GetHash();
 
         bool foundHash = false;
@@ -268,7 +288,7 @@ void AccountAnalyser::Initialize()
             }
         }
 
-        // if we found a match and the config is set then we're fine with letting them in.
+        //if we found a match and the config is set then we're fine with letting them in.
         if (foundHash && sWorld.getConfig(CONFIG_BOOL_ANALYSIS_STOP_ON_CORRECT_EXTENDED_DATA))
             return;
 
@@ -294,7 +314,7 @@ void AccountAnalyser::Initialize()
             susRating += sWorld.getConfig(CONFIG_UINT32_ANALYSIS_NO_CPU_DATA_MATCH_WEIGHT);
     }
 
-
+     
     if (DetailedReportSearch)
     {
         constexpr size_t MaxAttr = static_cast<size_t>(AnalysisAttribute::MaxAttributes);
@@ -302,7 +322,23 @@ void AccountAnalyser::Initialize()
         std::array<bool, MaxAttr> processed{}; // value-init to false
 
 
-        static auto MakeAttributeTable = [](const AnalysisInfo& info) { return std::array<std::reference_wrapper<const uint32>, static_cast<size_t>(AnalysisAttribute::MaxAttributes)>{std::cref(info.activeCpus), std::cref(info.totalCpus), std::cref(info.pageSize), std::cref(info.timeZoneBias), std::cref(info.suiteMask), std::cref(info.mitPolicies), std::cref(info.numPhysicalPages), std::cref(info.sharedDataFlags), std::cref(info.unparkedCpuCount), std::cref(info.enclaveMask), std::cref(info.qpcData)}; };
+        static auto MakeAttributeTable = [](const AnalysisInfo& info)
+        {
+            return std::array<std::reference_wrapper<const uint32>, static_cast<size_t>(AnalysisAttribute::MaxAttributes)>
+            {
+                std::cref(info.activeCpus),
+                std::cref(info.totalCpus),
+                std::cref(info.pageSize),
+                std::cref(info.timeZoneBias),
+                std::cref(info.suiteMask),
+                std::cref(info.mitPolicies),
+                std::cref(info.numPhysicalPages),
+                std::cref(info.sharedDataFlags),
+                std::cref(info.unparkedCpuCount),
+                std::cref(info.enclaveMask),
+                std::cref(info.qpcData)
+            };
+        };
 
         const auto currentSampleTable = MakeAttributeTable(_currentSample);
 
@@ -334,7 +370,8 @@ void AccountAnalyser::Initialize()
     if (sWorld.getConfig(CONFIG_BOOL_ANALYSIS_LOG_DISCORD_SUMMARY))
     {
 #ifdef USING_DISCORD_BOT
-        sDiscordBot->SendMessageToChannel(1089390435350360134, string_format("Character {}({})/ Account ID({}) logged in from un-trusted IP. Suspicion rating {} / {}", _session->GetPlayerName(), _session->GetPlayer() ? _session->GetPlayer()->GetGUIDLow() : 0, _accountId, susRating, RatingThreshold));
+        sDiscordBot->SendMessageToChannel(1089390435350360134, string_format("Character {}({})/ Account ID({}) logged in from un-trusted IP. Suspicion rating {} / {}",
+            _session->GetPlayerName(), _session->GetPlayer() ? _session->GetPlayer()->GetGUIDLow() : 0, _accountId, susRating, RatingThreshold));
 #endif
     }
 
@@ -343,7 +380,8 @@ void AccountAnalyser::Initialize()
 #ifdef USING_DISCORD_BOT
         const static std::string SeniorGMPing = "<@&1085904084122468373> ";
 
-        sDiscordBot->SendMessageToChannel(1089390435350360134, string_format("{}WARNING! Character {}({})/ Account ID({}) logged in from un-trusted IP. Suspicion rating {} / {}. THRESHOLD BROKEN.", PingOnWarning ? SeniorGMPing.c_str() : "", _session->GetPlayerName(), _session->GetPlayer() ? _session->GetPlayer()->GetGUIDLow() : 0, _accountId, susRating, RatingThreshold));
+        sDiscordBot->SendMessageToChannel(1089390435350360134, string_format("{}WARNING! Character {}({})/ Account ID({}) logged in from un-trusted IP. Suspicion rating {} / {}. THRESHOLD BROKEN.",
+            PingOnWarning ? SeniorGMPing.c_str() : "", _session->GetPlayerName(), _session->GetPlayer() ? _session->GetPlayer()->GetGUIDLow() : 0, _accountId, susRating, RatingThreshold));
 #endif
         if (sWorld.getConfig(CONFIG_BOOL_ANALYSIS_AUTOMATIC_PUNIHSMENT))
             _session->MarkSuspicious();
@@ -356,22 +394,24 @@ void AccountAnalyser::LoadFromDB()
     if (!_enabled)
         return;
 
-    // Get extended fingerprint history first.
-    LoginDatabase.AsyncPQueryUnsafe(&AccountAnalyser::LoadFingerprintsCallback, _session->GetAccountId(), string_format("SELECT * FROM `system_fingerprint_usage` WHERE `account` = {}", _session->GetAccountId()).c_str());
+    //Get extended fingerprint history first.
+    LoginDatabase.AsyncPQueryUnsafe(&AccountAnalyser::LoadFingerprintsCallback,
+        _session->GetAccountId(), string_format("SELECT * FROM `system_fingerprint_usage` WHERE `account` = {}", _session->GetAccountId()).c_str());
 
-    LoginDatabase.AsyncPQueryUnsafe(&AccountAnalyser::LoadIPHistoryCallback, _session->GetAccountId(), string_format("SELECT `account_ip`, `login_count`, SUM(login_count) FROM `account_ip_logins` WHERE `account_id` = {}  ORDER BY `login_count` DESC", _session->GetAccountId()).c_str());
+    LoginDatabase.AsyncPQueryUnsafe(&AccountAnalyser::LoadIPHistoryCallback,
+        _session->GetAccountId(), string_format("SELECT `account_ip`, `login_count`, SUM(login_count) FROM `account_ip_logins` WHERE `account_id` = {}  ORDER BY `login_count` DESC", _session->GetAccountId()).c_str());
+
 }
 
 void AccountAnalyser::CheckExtendedHashes()
 {
-    // Check if any extended hashes are empty and fill if they are.
+    //Check if any extended hashes are empty and fill if they are.
     auto result = std::unique_ptr<QueryResult>(LoginDatabase.Query("SELECT * FROM `system_fingerprint_usage` WHERE `extendedHash` = 0 AND `suiteMask` != 0"));
 
     if (result)
     {
 
-        do
-        {
+        do {
             auto fields = result->Fetch();
             uint32 id = fields[0].GetUInt32();
             uint32 fingerprint = fields[1].GetUInt32();
@@ -401,11 +441,29 @@ void AccountAnalyser::CheckExtendedHashes()
             if (cpuType.empty())
                 useCpuData = false;
 
-            AnalysisInfo info{fingerprint, ipAddress, cpuType, activeCpus, totalCpus, pageSize, timeZoneBiasLow, suiteMask, mitPolicies, numPhysicalPages, sharedDataFlags, unparkedCpuCount, enclaveMask, qpcData, useExtendedData, useCpuData};
+            AnalysisInfo info
+            {
+                fingerprint,
+                ipAddress,
+                cpuType,
+                activeCpus,
+                totalCpus,
+                pageSize,
+                timeZoneBiasLow,
+                suiteMask,
+                mitPolicies,
+                numPhysicalPages,
+                sharedDataFlags,
+                unparkedCpuCount,
+                enclaveMask,
+                qpcData,
+                useExtendedData,
+                useCpuData
+            };
 
             LoginDatabase.DirectPExecute("UPDATE `system_fingerprint_usage` SET `extendedHash` = %llu WHERE `id` = %u", info.GetHash(), id);
-        }
-        while (result->NextRow());
+
+        } while (result->NextRow());
     }
 
 
@@ -413,12 +471,10 @@ void AccountAnalyser::CheckExtendedHashes()
 
     if (result)
     {
-        do
-        {
+        do {
             auto fields = result->Fetch();
             _markedExtendedPrints.insert(fields[0].GetUInt64());
-        }
-        while (result->NextRow());
+        } while (result->NextRow());
     }
 
     result = std::unique_ptr<QueryResult>(LoginDatabase.Query("SELECT `extendedPrint` FROM `hwprint_autobans`"));
@@ -426,12 +482,10 @@ void AccountAnalyser::CheckExtendedHashes()
     if (result)
     {
 
-        do
-        {
+        do {
             auto fields = result->Fetch();
             _autoBannedPrints.insert(fields[0].GetUInt64());
-        }
-        while (result->NextRow());
+        } while (result->NextRow());
     }
 }
 

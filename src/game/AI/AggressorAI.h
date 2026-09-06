@@ -26,14 +26,15 @@
 
 class AggressorAI : public CreatureAI
 {
-public:
-    explicit AggressorAI(Creature* c) : CreatureAI(c) {}
+    public:
 
-    void MoveInLineOfSight(Unit*) override;
-    void AttackStart(Unit*) override;
-    void UpdateAI(const uint32) override;
+        explicit AggressorAI(Creature *c) : CreatureAI(c) {}
 
-    static int Permissible(const Creature*);
+        void MoveInLineOfSight(Unit *) override;
+        void AttackStart(Unit *) override;
+        void UpdateAI(const uint32) override;
+
+        static int Permissible(const Creature *);
 };
 
 #endif

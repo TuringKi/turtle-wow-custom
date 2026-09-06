@@ -22,9 +22,9 @@
 #ifndef MANGOS_MOTIONMASTER_H
 #define MANGOS_MOTIONMASTER_H
 
+#include "Common.h"
 #include <stack>
 #include <vector>
-#include "Common.h"
 
 #include "ObjectGuid.h"
 
@@ -59,6 +59,9 @@ enum MovementGeneratorType
     PATROL_MOTION_TYPE = 16,
     CHARGE_MOTION_TYPE = 17,
     DISTANCING_MOTION_TYPE = 18,
+    // AzerothCore names the empty slot; nothing here ever reports it, so a
+    // ported switch simply never takes that arm.
+    NULL_MOTION_TYPE                = 255,
 };
 
 enum MMCleanFlag
@@ -78,27 +81,28 @@ enum MoveOptions
     MOVE_CYCLIC = 0x010,
     MOVE_FALLING = 0x020,
     MOVE_FORCE_DESTINATION = 0x040,
-    MOVE_EXCLUDE_STEEP_SLOPES = 0x080,
+    MOVE_EXCLUDE_STEEP_SLOPES= 0x080,
     MOVE_STRAIGHT_PATH = 0x100,
 };
 
-class MotionMaster : std::stack<MovementGenerator*>
+class MotionMaster : std::stack<MovementGenerator *>
 {
-    typedef stack<MovementGenerator*> Impl;
-    typedef std::vector<MovementGenerator*> ExpireList;
+        typedef stack<MovementGenerator *> Impl;
+        typedef std::vector<MovementGenerator *> ExpireList;
 
-public:
-    explicit MotionMaster(Unit* unit) : m_needsAsyncUpdate(false), m_owner(unit), m_expList(nullptr), m_cleanFlag(MMCF_NONE) {}
+    public:
+
+        explicit MotionMaster(Unit *unit) : m_needsAsyncUpdate(false), m_owner(unit), m_expList(nullptr), m_cleanFlag(MMCF_NONE) {}
     ~MotionMaster();
 
     void Initialize();
     void InitializeNewDefault(bool alwaysReplace);
 
     MovementGenerator const* GetCurrent() const { return top(); }
-    // MovementGenerator* top() { return std::stack<MovementGenerator *>::top(); }
+        //MovementGenerator* top() { return std::stack<MovementGenerator *>::top(); }
 
-    using Impl::empty;
     using Impl::top;
+        using Impl::empty;
 
     typedef container_type::const_iterator const_iterator;
     const_iterator begin() const { return c.begin(); }
@@ -130,13 +134,21 @@ public:
     void MoveRandom(bool use_current_position = false, float wander_distance = 0.0f, uint32 expire_time = 0);
     void MoveTargetedHome();
     void MoveFollow(Unit* target, float dist, float angle);
+        // bot's 5-arg form (extra flags ignored).
+        void MoveFollow(Unit* target, float dist, float angle, bool /*forceTarget*/, bool /*useAngle*/) { MoveFollow(target, dist, angle); }
     void MoveChase(Unit* target, float dist = 0.0f, float angle = 0.0f);
     void MoveConfused();
     void MoveFleeing(Unit* enemy, uint32 time = 0);
     void MoveFeared(Unit* enemy, uint32 time = 0);
     void MovePoint(uint32 id, const Movement::Location& location, uint32 options = MOVE_NONE, float speed = 0.0f, float finalOrientation = -10);
     void MovePoint(uint32 id, float x, float y, float z, uint32 options = MOVE_NONE, float speed = 0.0f, float finalOrientation = -10);
-    void MoveSeekAssistance(float x, float y, float z);
+        // AzerothCore appends generatePath and forceDestination. This generator
+        // always paths and never forces, so both are accepted and dropped -
+        // a ported caller asking for a straight line still gets a routed one.
+        void MovePoint(uint32 id, float x, float y, float z, uint32 options, float speed,
+                       float finalOrientation, bool /*generatePath*/, bool /*forceDestination*/)
+        { MovePoint(id, x, y, z, options, speed, finalOrientation); }
+        void MoveSeekAssistance(float x,float y,float z);
     void MoveSeekAssistanceDistract(uint32 timer);
     void MoveWaypoint(uint32 startPoint = 0, uint32 source = 0, uint32 initialDelay = 0, uint32 overwriteGuid = 0, uint32 overwriteEntry = 0, bool repeat = true);
     void MoveWaypointAsDefault(uint32 startPoint = 0, uint32 source = 0, uint32 initialDelay = 0, uint32 overwriteGuid = 0, uint32 overwriteEntry = 0, bool repeat = true);
@@ -147,6 +159,31 @@ public:
     void MoveCharge(Unit* target, uint32 delay = 0, bool triggerAutoAttack = false);
     bool MoveDistance(Unit* target, float distance);
     void ReInitializePatrolMovement();
+
+        // The bot module supplies a precomputed path of points and expects the
+        // unit to travel along it (chase, flee, travel and transport movement).
+        // Launches a spline through the points; walk == false selects run speed.
+        // moveMode is the bot's FORCED_MOVEMENT_* hint and is currently unused
+        // (run vs walk is driven by the explicit walk flag).
+        void MovePath(Movement::PointsArray const& pointPath, uint32 moveMode, bool flying, bool walk = false);
+        // AzerothCore spelling, and it takes the path by pointer.
+        void MoveSplinePath(Movement::PointsArray const* pointPath, uint32 moveMode)
+        { if (pointPath) MovePath(*pointPath, moveMode, false, false); }
+        // Drop straight down to the first floor below. Returns false when
+        // there is nothing to fall to. Implemented in MotionMaster.cpp - it
+        // was a stub returning false for the whole life of this port, which
+        // is why no dungeon drop-down ever happened.
+        bool MoveFall();
+        // DistanceYourself: cmangos move-away action. Stub no-op (multiple forms).
+        void DistanceYourself(float /*distance*/) {}
+        void DistanceYourself(Unit* /*target*/) {}
+        void DistanceYourself(Unit* /*target*/, float /*distance*/) {}
+        // MoveInFormation: cmangos formation movement. Stub no-op.
+        template<typename T> void MoveInFormation(T /*formationData*/, bool /*main*/ = false) {}
+        // PauseWaypoints: cmangos pauses waypoint movement. Stub no-op.
+        void PauseWaypoints(uint32 /*timer*/ = 0) {}
+        // MoveChase 7-arg form: cmangos has extra angle/options/relativeAngle args.
+        void MoveChase(Unit* target, float dist, float angle, bool /*moveBackward*/, bool /*walk*/, bool /*combatMove*/, bool /*delayedPathCalculation*/) { MoveChase(target, dist, angle); }
 
     MovementGeneratorType GetCurrentMovementGeneratorType() const;
     static char const* GetMovementGeneratorTypeName(MovementGeneratorType generator);
@@ -165,9 +202,8 @@ public:
 
     bool NeedsAsyncUpdate() const { return m_needsAsyncUpdate; }
     void SetNeedAsyncUpdate() { m_needsAsyncUpdate = true; }
-
-private:
-    void Mutate(MovementGenerator* m); // use Move* functions instead
+    private:
+        void Mutate(MovementGenerator *m);                  // use Move* functions instead
 
     void DirectClean(bool reset, bool all);
     void DelayedClean(bool reset, bool all);
@@ -176,8 +212,8 @@ private:
     void DelayedExpire(bool reset);
 
     bool m_needsAsyncUpdate;
-    Unit* m_owner;
-    ExpireList* m_expList;
+        Unit       *m_owner;
+        ExpireList *m_expList;
     uint8 m_cleanFlag;
 };
 #endif

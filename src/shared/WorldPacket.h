@@ -22,21 +22,27 @@
 #ifndef MANGOSSERVER_WORLDPACKET_H
 #define MANGOSSERVER_WORLDPACKET_H
 
-#include "ByteBuffer.h"
 #include "Common.h"
+#include "ByteBuffer.h"
 
 // Note: m_opcode and size stored in platfom dependent format
 // ignore endianess until send, and converted at receive
 class WorldPacket : public ByteBuffer
 {
-public:
+    public:
     // just container for later use
-    WorldPacket() : ByteBuffer(0), m_opcode(0), m_recvdTime(0) {}
-    explicit WorldPacket(uint16 opcode, size_t res = 200) : ByteBuffer(res), m_opcode(opcode), m_recvdTime(0) {}
+        WorldPacket()                                       : ByteBuffer(0), m_opcode(0), m_recvdTime(0)
+        {
+        }
+        explicit WorldPacket(uint16 opcode, size_t res=200) : ByteBuffer(res), m_opcode(opcode), m_recvdTime(0) { }
     // copy constructor
-    WorldPacket(const WorldPacket& packet) : ByteBuffer(packet), m_opcode(packet.m_opcode), m_recvdTime(0) {}
+        WorldPacket(const WorldPacket &packet)              : ByteBuffer(packet), m_opcode(packet.m_opcode), m_recvdTime(0)
+        {
+        }
 
-    WorldPacket(WorldPacket&& packet) : ByteBuffer(std::move(packet)), m_opcode(packet.m_opcode), m_recvdTime(packet.m_recvdTime) {}
+        WorldPacket(WorldPacket &&packet) : ByteBuffer(std::move(packet)), m_opcode(packet.m_opcode), m_recvdTime(packet.m_recvdTime)
+        {
+        }
 
 
     WorldPacket& operator=(const WorldPacket& rhs)
@@ -55,7 +61,7 @@ public:
         return *this;
     }
 
-    void Initialize(uint16 opcode, size_t newres = 200)
+        void Initialize(uint16 opcode, size_t newres=200)
     {
         clear();
         _storage.reserve(newres);
@@ -68,7 +74,7 @@ public:
     uint32 GetPacketTime() const { return m_recvdTime; }
     void FillPacketTime(uint32 t) { m_recvdTime = t; }
 
-protected:
+    protected:
     uint16 m_opcode;
     uint32 m_recvdTime;
 };

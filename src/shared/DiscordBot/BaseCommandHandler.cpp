@@ -1,9 +1,9 @@
 #include "BaseCommandHandler.hpp"
 
-#include <sstream>
 #include "AuthManager.hpp"
 #include "Bot.hpp"
 #include "Log.h"
+#include <sstream>
 
 
 namespace DiscordBot
@@ -16,7 +16,8 @@ namespace DiscordBot
     BaseCommandHandler::FormHandlerContainer BaseCommandHandler::_formSubmits;
 
 
-    void BaseCommandHandler::Register(const std::string& command, const parameter_registration_t& parameters, command_handler handler, const std::string& description, snowflake guild_id)
+    void BaseCommandHandler::Register(const std::string& command, const parameter_registration_t& parameters,
+        command_handler handler, const std::string& description, snowflake guild_id)
     {
         if (guild_id.empty())
             guild_id = 464719606632808469; // twow staff server ID by default.
@@ -47,7 +48,7 @@ namespace DiscordBot
             return false;
         }
 
-        // now check handler access.
+        //now check handler access.
         return itr->second->IsAuthorized(user);
     }
 
@@ -60,11 +61,11 @@ namespace DiscordBot
             handler->RegisterCommands(*_commandHandler);
             handler->RegisterFormSubmits(_formSubmits);
             bot.AddHandler(handler);
+
         }
         _commandHandler->register_commands();
-
-        bot.GetCore()->on_message_create(
-            [](const message_create_t& event)
+        
+        bot.GetCore()->on_message_create([](const message_create_t& event)
             {
                 if (event.msg.author.is_bot())
                     return;
@@ -83,8 +84,7 @@ namespace DiscordBot
                 }
             });
 
-        bot.GetCore()->on_slashcommand(
-            [](const dpp::slashcommand_t& event)
+        bot.GetCore()->on_slashcommand([](const dpp::slashcommand_t& event)
             {
                 command_interaction cmd = std::get<command_interaction>(event.command.data);
 
@@ -106,4 +106,4 @@ namespace DiscordBot
         itr->second(event);
     }
 
-} // namespace DiscordBot
+}

@@ -27,11 +27,18 @@ enum object_entries
     GO_VAULT_DOOR = 4000509,
 };
 
-const string dialog_lines[3] = {"Do you hear them?! In the walls... They're always watching!", "What even are you?! The watchers sent you, you're going to rip us apart!", "There is no leaving, not for any of us, they block our escape..."};
+const string dialog_lines[3] = { 
+    "Do you hear them?! In the walls... They're always watching!",
+    "What even are you?! The watchers sent you, you're going to rip us apart!",
+    "There is no leaving, not for any of us, they block our escape..."
+};
 
 struct instance_stormwind_vault : public ScriptedInstance
 {
-    explicit instance_stormwind_vault(Map* p_Map) : ScriptedInstance(p_Map) { Initialize(); };
+    explicit instance_stormwind_vault(Map* p_Map) : ScriptedInstance(p_Map)
+    {
+        Initialize();
+    };
 
     bool bride_killed;
     bool thamgrarr_killed;
@@ -51,9 +58,9 @@ struct instance_stormwind_vault : public ScriptedInstance
     {
         switch (pGo->GetEntry())
         {
-        case GO_VAULT_DOOR:
-            m_vaultDoorGuid = pGo->GetObjectGuid();
-            break;
+            case GO_VAULT_DOOR:
+                m_vaultDoorGuid = pGo->GetObjectGuid();
+                break;
         }
     }
 
@@ -64,7 +71,7 @@ struct instance_stormwind_vault : public ScriptedInstance
 
         switch (pCreature->GetEntry())
         {
-        case NPC_MADDENED_GUARD:
+            case NPC_MADDENED_GUARD:
             {
                 int32 line = urand(0, 2);
                 int32 chance = urand(0, 100);
@@ -72,7 +79,7 @@ struct instance_stormwind_vault : public ScriptedInstance
                     pCreature->PMonsterSay("%s", dialog_lines[line].c_str());
                 break;
             }
-        case NPC_ARCTIRAS:
+            case NPC_ARCTIRAS:
             {
                 if (GameObject* pDoor = GetMap()->GetGameObject(m_vaultDoorGuid))
                     pDoor->SetGoState(GO_STATE_READY);
@@ -85,11 +92,11 @@ struct instance_stormwind_vault : public ScriptedInstance
     {
         switch (pCreature->GetEntry())
         {
-        case NPC_ARCTIRAS:
-            if (bride_killed && thamgrarr_killed && aszosh_killed && damian_killed)
-                if (GameObject* pDoor = GetMap()->GetGameObject(m_vaultDoorGuid))
-                    pDoor->SetGoState(GO_STATE_ACTIVE);
-            break;
+            case NPC_ARCTIRAS:
+                if (bride_killed && thamgrarr_killed && aszosh_killed && damian_killed)
+                    if (GameObject* pDoor = GetMap()->GetGameObject(m_vaultDoorGuid))
+                        pDoor->SetGoState(GO_STATE_ACTIVE);
+                break;
         }
     }
 
@@ -97,20 +104,16 @@ struct instance_stormwind_vault : public ScriptedInstance
     {
         switch (boss->GetEntry())
         {
-        case NPC_BLACK_BRIDE:
-        case NPC_THAMGARR:
-        case NPC_AZOSH_GRIMFLAME:
-        case NPC_DAMIAN:
-        case NPC_ARCTIRAS:
+            case NPC_BLACK_BRIDE:
+            case NPC_THAMGARR:
+            case NPC_AZOSH_GRIMFLAME:
+            case NPC_DAMIAN:
+            case NPC_ARCTIRAS:
             {
-                if (NPC_BLACK_BRIDE)
-                    bride_killed = true;
-                if (NPC_THAMGARR)
-                    thamgrarr_killed = true;
-                if (NPC_AZOSH_GRIMFLAME)
-                    aszosh_killed = true;
-                if (NPC_DAMIAN)
-                    damian_killed = true;
+                if (NPC_BLACK_BRIDE) bride_killed = true;             
+                if (NPC_THAMGARR) thamgrarr_killed = true; 
+                if (NPC_AZOSH_GRIMFLAME) aszosh_killed = true; 
+                if (NPC_DAMIAN) damian_killed = true;
 
                 if (bride_killed && thamgrarr_killed && aszosh_killed && damian_killed)
                     if (GameObject* pDoor = GetMap()->GetGameObject(m_vaultDoorGuid))
@@ -146,13 +149,13 @@ struct stormwind_vault_rat_trap : public GameObjectAI
 
             switch (m_uiStep)
             {
-            case 0: // Not Activated
+                case 0: // Not Activated
                 {
                     if (Player* pPlayer = me->FindNearestPlayer(5.0f))
                     {
                         pPlayer->PlayDirectMusic(8740);
                         pPlayer->NearTeleportTo(me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), pPlayer->GetOrientation());
-
+                        
                         if (GameObject* pDoor = me->FindNearestGameObject(GO_RAT_DOOR_ONE, 20.0F))
                             pDoor->SetGoState(GO_STATE_READY);
                         if (GameObject* pDoor = me->FindNearestGameObject(GO_RAT_DOOR_TWO, 20.0F))
@@ -165,7 +168,7 @@ struct stormwind_vault_rat_trap : public GameObjectAI
                         m_uiUpdateTimer = 300;
                     break;
                 }
-            case 1: // Summon Mobs
+                case 1: // Summon Mobs
                 {
                     if (Player* pPlayer = me->FindNearestPlayer(5.0f))
                     {
@@ -179,7 +182,7 @@ struct stormwind_vault_rat_trap : public GameObjectAI
                     m_uiUpdateTimer = 1000;
                     break;
                 }
-            case 2: // Wait For Clear
+                case 2: // Wait For Clear
                 {
                     if (!me->FindNearestPlayer(5.0f) || !me->FindNearestCreature(NPC_VAULT_RAT, 5.0f))
                     {

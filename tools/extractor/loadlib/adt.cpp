@@ -11,19 +11,23 @@ bool isHole(int holes, int i, int j)
 {
     int testi = i / 2;
     int testj = j / 4;
-    if (testi > 3)
-        testi = 3;
-    if (testj > 3)
-        testj = 3;
+    if (testi > 3) testi = 3;
+    if (testj > 3) testj = 3;
     return (holes & holetab_h[testi] & holetab_v[testj]) != 0;
 }
 
 //
 // Adt file loader class
 //
-ADT_file::ADT_file() { a_grid = 0; }
+ADT_file::ADT_file()
+{
+    a_grid = 0;
+}
 
-ADT_file::~ADT_file() { free(); }
+ADT_file::~ADT_file()
+{
+    free();
+}
 
 void ADT_file::free()
 {
@@ -87,8 +91,8 @@ bool adt_MH2O::prepareLoadedData()
         return false;
 
     // Check liquid data
-    //    for (int i=0; i<ADT_CELLS_PER_GRID;i++)
-    //        for (int j=0; j<ADT_CELLS_PER_GRID;j++)
+//    for (int i=0; i<ADT_CELLS_PER_GRID;i++)
+//        for (int j=0; j<ADT_CELLS_PER_GRID;j++)
 
     return true;
 }
@@ -121,8 +125,8 @@ bool adt_MCVT::prepareLoadedData()
 
 bool adt_MCLQ::prepareLoadedData()
 {
-    //  if (!strncmp(fcc_txt, "MCLQ", 4))
-    //       return false;
+  //  if (!strncmp(fcc_txt, "MCLQ", 4))
+ //       return false;
 
     return true;
 }

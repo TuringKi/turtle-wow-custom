@@ -22,21 +22,20 @@
 #include "MovementGenerator.h"
 #include "Timer.h"
 
-template <class T>
-class ConfusedMovementGenerator : public MovementGeneratorMedium<T, ConfusedMovementGenerator<T>>
+template<class T>
+class ConfusedMovementGenerator : public MovementGeneratorMedium< T, ConfusedMovementGenerator<T> >
 {
-public:
-    explicit ConfusedMovementGenerator() : i_x(0.0f), i_y(0.0f), i_z(0.0f) {}
+    public:
+        explicit ConfusedMovementGenerator(): i_x(0.0f), i_y(0.0f), i_z(0.0f) {}
 
-    void Initialize(T&);
-    void Finalize(T&);
-    void Interrupt(T&);
-    void Reset(T&);
-    bool Update(T&, const uint32&);
+        void Initialize(T &);
+        void Finalize(T &);
+        void Interrupt(T &);
+        void Reset(T &);
+        bool Update(T &, const uint32 &);
 
-    MovementGeneratorType GetMovementGeneratorType() const { return CONFUSED_MOTION_TYPE; }
-
-private:
-    float i_x, i_y, i_z;
+        MovementGeneratorType GetMovementGeneratorType() const { return CONFUSED_MOTION_TYPE; }
+    private:
+        float i_x, i_y, i_z;
 };
 #endif

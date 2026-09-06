@@ -23,18 +23,23 @@
     \ingroup mangosd
 */
 
-#include "WorldRunnable.h"
-#include "BattleGroundMgr.h"
-#include "Common.h"
-#include "Database/DatabaseEnv.h"
-#include "MapManager.h"
-#include "Master.h"
-#include "ObjectAccessor.h"
-#include "PerfStats.h"
-#include "PerformanceMonitor.h"
-#include "Timer.h"
-#include "World.h"
 #include "WorldSocketMgr.h"
+#include "Common.h"
+#include "World.h"
+#include "WorldRunnable.h"
+#include "ScriptObjects.h"
+#include "Timer.h"
+#include "ObjectAccessor.h"
+#include "MapManager.h"
+#include "BattleGroundMgr.h"
+#include "Master.h"
+#include "PerfStats.h"
+#include "Database/DatabaseEnv.h"
+#include "PerformanceMonitor.h"
+
+#ifdef ENABLE_ELUNA
+#include "LuaEngine.h"
+#endif
 
 // Target server framerate is 1000/WORLD_SLEEP_CONST
 #define WORLD_SLEEP_CONST 50
@@ -44,7 +49,7 @@ void WorldRunnable::operator()()
 {
     thread_name("World");
     // Init new SQL thread for the world database
-    WorldDatabase.ThreadStart(); // let thread do safe mySQL requests (one connection call enough)
+    WorldDatabase.ThreadStart();                                // let thread do safe mySQL requests (one connection call enough)
     sWorld.InitResultQueue();
 
     Master::ArmAnticrash();
@@ -55,6 +60,11 @@ void WorldRunnable::operator()()
     // If we update faster, then slow down!
     uint32 prevTime = WorldTimer::getMSTime();
     uint32 currTime = 0u;
+
+#ifdef ENABLE_ELUNA
+    if (Eluna* eluna = sWorld.GetEluna())
+        eluna->OnStartup();
+#endif
 
     // While we have not World::m_stopEvent, update the world
     while (!World::IsStopped())
@@ -87,7 +97,7 @@ void WorldRunnable::operator()()
         }
 
         sWorld.Update(diff);
-        sPerfMonitor.Tick.End();
+		sPerfMonitor.Tick.End();
 
         // diff is the actual time since last tick
         // updateTime is the actual time taken to update this round
@@ -106,10 +116,14 @@ void WorldRunnable::operator()()
             std::this_thread::sleep_for(std::chrono::milliseconds(WORLD_SLEEP_CONST - updateTime));
         sPerfMonitor.WorldSleep.End();
 
-        sPerfMonitor.FrameEnd(diff);
+		sPerfMonitor.FrameEnd(diff);
     }
 
     sLog.outString("Shutting down world...");
+#ifdef ENABLE_ELUNA
+    if (Eluna* eluna = sWorld.GetEluna())
+        eluna->OnShutdown();
+#endif
     sWorld.Shutdown();
 
     // unload battleground templates before different singletons destroyed
@@ -117,6 +131,10 @@ void WorldRunnable::operator()()
 
     sLog.outString("Stopping network threads...");
     sWorldSocketMgr->StopNetwork();
+    ScriptRegistry<ServerScript>::ForEachEnabledHook(SERVERHOOK_ON_NETWORK_STOP, [](ServerScript* script)
+    {
+        script->OnNetworkStop();
+    });
 
     sLog.outString("Unloading all maps...");
     sMapMgr.UnloadAll(); // unload all grids (including locked in memory)

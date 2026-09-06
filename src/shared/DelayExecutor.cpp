@@ -27,9 +27,14 @@ using DelayExecutorLock = MaNGOS::ClassLevelLockable<DelayExecutor, std::mutex>;
 INSTANTIATE_SINGLETON_2(DelayExecutor, DelayExecutorLock);
 INSTANTIATE_CLASS_MUTEX(DelayExecutor, std::mutex);
 
-DelayExecutor* DelayExecutor::instance() { return &MaNGOS::Singleton<DelayExecutor, DelayExecutorLock>::Instance(); }
+DelayExecutor* DelayExecutor::instance()
+{
+    return &MaNGOS::Singleton<DelayExecutor, DelayExecutorLock>::Instance();
+}
 
-DelayExecutor::DelayExecutor() : pre_svc_hook_(0), post_svc_hook_(0), activated_(false) {}
+DelayExecutor::DelayExecutor() : pre_svc_hook_(0), post_svc_hook_(0), activated_(false)
+{
+}
 
 DelayExecutor::~DelayExecutor()
 {
@@ -111,6 +116,12 @@ int DelayExecutor::execute(ACE_Method_Request* new_req)
     return 0;
 }
 
-bool DelayExecutor::activated() { return activated_; }
+bool DelayExecutor::activated()
+{
+    return activated_;
+}
 
-void DelayExecutor::activated(bool s) { activated_ = s; }
+void DelayExecutor::activated(bool s)
+{
+    activated_ = s;
+}

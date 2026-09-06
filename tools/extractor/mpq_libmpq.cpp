@@ -30,38 +30,44 @@ MPQArchive::MPQArchive(const char* filename)
     {
         switch (result)
         {
-        case LIBMPQ_ERROR_MALLOC: /* error on file operation */
-            printf("Error opening archive '%s': Run off free RAM memory\n", filename);
-            break;
-        case LIBMPQ_ERROR_OPEN:
-            printf("Error opening archive '%s': Can't open archive\n", filename);
-            break;
-        case LIBMPQ_ERROR_SEEK:
-            printf("Error opening archive '%s': Can't seek begin of archive. File corrupt?\n", filename);
-            break;
-        case LIBMPQ_ERROR_FORMAT:
-            printf("Error opening archive '%s': Invalid MPQ format. File corrupt?\n", filename);
-            break;
-        case LIBMPQ_ERROR_READ:
-            printf("Error opening archive '%s': Can't read MPQ file. File corrupt?\n", filename);
-            break;
+            case LIBMPQ_ERROR_MALLOC:                   /* error on file operation */
+                printf("Error opening archive '%s': Run off free RAM memory\n", filename);
+                break;
+            case LIBMPQ_ERROR_OPEN:
+                printf("Error opening archive '%s': Can't open archive\n", filename);
+                break;
+            case LIBMPQ_ERROR_SEEK:
+                printf("Error opening archive '%s': Can't seek begin of archive. File corrupt?\n", filename);
+                break;
+            case LIBMPQ_ERROR_FORMAT:
+                printf("Error opening archive '%s': Invalid MPQ format. File corrupt?\n", filename);
+                break;
+            case LIBMPQ_ERROR_READ:
+                printf("Error opening archive '%s': Can't read MPQ file. File corrupt?\n", filename);
+                break;
         }
         return;
     }
     gOpenArchives.push_front(this);
 }
 
-void MPQArchive::close() { libmpq__archive_close(mpq_a); }
+void MPQArchive::close()
+{
+    libmpq__archive_close(mpq_a);
+}
 
-MPQFile::MPQFile(const char* filename) : eof(false), buffer(0), pointer(0), size(0)
+MPQFile::MPQFile(const char* filename):
+    eof(false),
+    buffer(0),
+    pointer(0),
+    size(0)
 {
     for (ArchiveSet::iterator i = gOpenArchives.begin(); i != gOpenArchives.end(); ++i)
     {
         mpq_archive* mpq_a = (*i)->mpq_a;
 
         uint32 filenum;
-        if (libmpq__file_number(mpq_a, filename, &filenum))
-            continue;
+        if (libmpq__file_number(mpq_a, filename, &filenum)) continue;
         libmpq__off_t transferred;
         libmpq__file_size_unpacked(mpq_a, filenum, &size);
 
@@ -75,10 +81,11 @@ MPQFile::MPQFile(const char* filename) : eof(false), buffer(0), pointer(0), size
         }
         buffer = new char[size];
 
-        // libmpq_file_getdata
+        //libmpq_file_getdata
         libmpq__file_read(mpq_a, filenum, (unsigned char*)buffer, size, &transferred);
         /*libmpq_file_getdata(&mpq_a, hash, fileno, (unsigned char*)buffer);*/
         return;
+
     }
     eof = true;
     buffer = 0;
@@ -86,10 +93,9 @@ MPQFile::MPQFile(const char* filename) : eof(false), buffer(0), pointer(0), size
 
 size_t MPQFile::read(void* dest, size_t bytes)
 {
-    if (eof)
-        return 0;
+    if (eof) return 0;
 
-    libmpq__off_t rpos = static_cast<libmpq__off_t>(pointer + bytes);
+    libmpq__off_t rpos = static_cast <libmpq__off_t> (pointer + bytes);
     if (rpos > size)
     {
         bytes = size - pointer;
@@ -117,8 +123,7 @@ void MPQFile::seekRelative(int offset)
 
 void MPQFile::close()
 {
-    if (buffer)
-        delete[] buffer;
+    if (buffer) delete[] buffer;
     buffer = 0;
     eof = true;
 }

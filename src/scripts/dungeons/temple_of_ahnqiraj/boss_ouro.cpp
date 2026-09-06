@@ -100,20 +100,20 @@ struct boss_ouroAI : public Scripted_NoMovementAI
 
     void Reset() override
     {
-        m_uiSweepTimer = urand(30000, 40000);
-        m_uiSandBlastTimer = urand(SANDBLAST_TIMER_INITIAL_MIN, SANDBLAST_TIMER_INITIAL_MAX);
-        m_uiSubmergeTimer = SUBMERGE_TIMER;
+        m_uiSweepTimer        = urand(30000, 40000);
+        m_uiSandBlastTimer    = urand(SANDBLAST_TIMER_INITIAL_MIN, SANDBLAST_TIMER_INITIAL_MAX);
+        m_uiSubmergeTimer     = SUBMERGE_TIMER;
         m_SummonBase = true;
         m_uiSubmergeInvisTimer = SUBMERGE_ANIMATION_INVIS;
-
-        m_uiNoMeleeTimer = 3000;
+        
+        m_uiNoMeleeTimer        = 3000;
         // Source : http://wowwiki.wikia.com/wiki/Ouro
         // "Ouro seems to give you about 10 seconds to get a MT in there when he pops up"
         m_justEmergedGraceTimer = 10000;
 
-        m_uiSummonMoundTimer = 10000;
-        m_bEnraged = false;
-        m_bSubmerged = false;
+        m_uiSummonMoundTimer  = 10000;
+        m_bEnraged            = false;
+        m_bSubmerged          = false;
 
 
         m_ouroTriggerGuid.Clear();
@@ -129,7 +129,7 @@ struct boss_ouroAI : public Scripted_NoMovementAI
 
     void DespawnCreatures(bool ShouldDespawnScarabs)
     {
-        std::list<Creature*> lCreature;
+        std::list<Creature *> lCreature;
         m_creature->GetCreatureListWithEntryInGrid(lCreature, NPC_DIRT_MOUND, 250.0f);
         if (ShouldDespawnScarabs)
             m_creature->GetCreatureListWithEntryInGrid(lCreature, NPC_OURO_SCARAB, 250.0f);
@@ -197,11 +197,11 @@ struct boss_ouroAI : public Scripted_NoMovementAI
             m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_SPAWNING);
             ClearTargetIcon();
 
-            m_bSubmerged = true;
+            m_bSubmerged      = true;
             m_uiSubmergeTimer = 30000;
-
+            
             m_justEmergedGraceTimer = 10000;
-            m_uiNoMeleeTimer = 3000;
+            m_uiNoMeleeTimer        = 3000;
             m_uiSubmergeInvisTimer = SUBMERGE_ANIMATION_INVIS;
             DoResetThreat();
         }
@@ -211,7 +211,7 @@ struct boss_ouroAI : public Scripted_NoMovementAI
         }
     }
 
-    void SetNewTarget(Unit& pNewTarget)
+    void SetNewTarget(Unit &pNewTarget)
     {
         const uint32 uiMaxThreat = m_creature->GetThreatManager().getThreat(m_creature->GetVictim());
 
@@ -227,13 +227,15 @@ struct boss_ouroAI : public Scripted_NoMovementAI
     {
         // at first we check for the current player-type target
         Unit* pMainTarget = m_creature->GetVictim();
-        if (pMainTarget->GetTypeId() == TYPEID_PLAYER && !pMainTarget->ToPlayer()->IsGameMaster() && m_creature->CanReachWithMeleeAutoAttack(pMainTarget) && m_creature->IsWithinLOSInMap(pMainTarget))
+        if (pMainTarget->GetTypeId() == TYPEID_PLAYER && !pMainTarget->ToPlayer()->IsGameMaster() &&
+            m_creature->CanReachWithMeleeAutoAttack(pMainTarget) && m_creature->IsWithinLOSInMap(pMainTarget))
         {
             return true;
         }
 
         // at second we look for any melee player-type target (if current target is not reachable)
-        if (Unit* pTarget = m_creature->SelectAttackingTarget(ATTACKING_TARGET_TOPAGGRO, 0, nullptr, SELECT_FLAG_PLAYER_NOT_GM | SELECT_FLAG_IN_LOS | SELECT_FLAG_IN_MELEE_RANGE))
+        if (Unit* pTarget = m_creature->SelectAttackingTarget(ATTACKING_TARGET_TOPAGGRO, 0, nullptr,
+            SELECT_FLAG_PLAYER_NOT_GM | SELECT_FLAG_IN_LOS | SELECT_FLAG_IN_MELEE_RANGE))
         {
             SetNewTarget(*pTarget);
             return true;
@@ -242,14 +244,16 @@ struct boss_ouroAI : public Scripted_NoMovementAI
         // reaching this point means there are no more reachable player-type targets in melee range
 
         // at third we take any melee pet target just to punch in the face
-        if (Unit* pTarget = m_creature->SelectAttackingTarget(ATTACKING_TARGET_TOPAGGRO, 0, nullptr, SELECT_FLAG_PET | SELECT_FLAG_IN_LOS | SELECT_FLAG_IN_MELEE_RANGE))
+        if (Unit* pTarget = m_creature->SelectAttackingTarget(ATTACKING_TARGET_TOPAGGRO, 0, nullptr,
+            SELECT_FLAG_PET | SELECT_FLAG_IN_LOS | SELECT_FLAG_IN_MELEE_RANGE))
         {
             SetNewTarget(*pTarget);
             return false;
         }
 
         // at fourth we take anything to wipe it out and log (whatever, just in case)
-        if (Unit* pTarget = m_creature->SelectAttackingTarget(ATTACKING_TARGET_TOPAGGRO, 0, nullptr, SELECT_FLAG_NOT_PLAYER | SELECT_FLAG_IN_LOS | SELECT_FLAG_IN_MELEE_RANGE))
+        if (Unit* pTarget = m_creature->SelectAttackingTarget(ATTACKING_TARGET_TOPAGGRO, 0, nullptr,
+            SELECT_FLAG_NOT_PLAYER | SELECT_FLAG_IN_LOS | SELECT_FLAG_IN_MELEE_RANGE))
         {
             SetNewTarget(*pTarget);
         }
@@ -356,7 +360,7 @@ struct boss_ouroAI : public Scripted_NoMovementAI
             }
             else
                 m_uiNoMeleeTimer -= uiDiff;
-
+            
             m_justEmergedGraceTimer -= std::min(uiDiff, m_justEmergedGraceTimer);
         }
         else
@@ -373,7 +377,7 @@ struct boss_ouroAI : public Scripted_NoMovementAI
 
                 if (DoCastSpellIfCan(m_creature, SPELL_BIRTH) == CAST_OK)
                 {
-                    // DoCastSpellIfCan(m_creature, SPELL_SUMMON_SCARABS, CF_TRIGGERED);
+                    //DoCastSpellIfCan(m_creature, SPELL_SUMMON_SCARABS, CF_TRIGGERED);
 
                     m_creature->RemoveAurasDueToSpell(SPELL_SUBMERGE_VISUAL);
                     m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
@@ -389,9 +393,9 @@ struct boss_ouroAI : public Scripted_NoMovementAI
                     for (const auto& target : lGroundRuptureTargets)
                         m_creature->CastSpell(target, SPELL_GROUND_RUPTURE, true);
 
-                    m_bSubmerged = false;
+                    m_bSubmerged        = false;
                     m_SummonBase = true;
-                    m_uiSubmergeTimer = SUBMERGE_TIMER;
+                    m_uiSubmergeTimer   = SUBMERGE_TIMER;
                     m_uiSubmergeInvisTimer = SUBMERGE_ANIMATION_INVIS;
                     m_uiSweepTimer = SWEEP_TIMER;
                     m_uiSandBlastTimer = urand(SANDBLAST_TIMER_MIN, SANDBLAST_TIMER_MAX);
@@ -399,7 +403,11 @@ struct boss_ouroAI : public Scripted_NoMovementAI
                     DespawnCreatures(false);
 
                     // Ouro should despawn instant on reset, not after going to his spawn point
-                    m_creature->SetHomePosition(m_creature->GetPositionX(), m_creature->GetPositionY(), m_creature->GetPositionZ(), m_creature->GetOrientation());
+                    m_creature->SetHomePosition(
+                        m_creature->GetPositionX(),
+                        m_creature->GetPositionY(),
+                        m_creature->GetPositionZ(),
+                        m_creature->GetOrientation());
                 }
             }
             else
@@ -422,11 +430,14 @@ struct boss_ouroAI : public Scripted_NoMovementAI
     }
 };
 
-CreatureAI* GetAI_boss_ouro(Creature* pCreature) { return new boss_ouroAI(pCreature); }
+CreatureAI* GetAI_boss_ouro(Creature* pCreature)
+{
+    return new boss_ouroAI(pCreature);
+}
 
 struct npc_ouro_spawnerAI : public Scripted_NoMovementAI
 {
-    npc_ouro_spawnerAI(Creature* pCreature) : Scripted_NoMovementAI(pCreature) { Reset(); }
+    npc_ouro_spawnerAI(Creature* pCreature) : Scripted_NoMovementAI(pCreature) {Reset();}
 
     bool m_bHasSummoned;
 
@@ -441,7 +452,12 @@ struct npc_ouro_spawnerAI : public Scripted_NoMovementAI
     void MoveInLineOfSight(Unit* pWho) override
     {
         // Spawn Ouro on LoS check
-        if (!m_bHasSummoned && !((Player*)pWho)->IsGameMaster() && pWho->GetTypeId() == TYPEID_PLAYER && m_creature->IsWithinDistInMap(pWho, 25.0f) && !pWho->HasAuraType(SPELL_AURA_FEIGN_DEATH) && !pWho->HasAuraType(SPELL_AURA_MOD_UNATTACKABLE))
+        if (!m_bHasSummoned
+            && !((Player*) pWho)->IsGameMaster()
+            && pWho->GetTypeId() == TYPEID_PLAYER
+            && m_creature->IsWithinDistInMap(pWho, 25.0f)
+            && !pWho->HasAuraType(SPELL_AURA_FEIGN_DEATH)
+            && !pWho->HasAuraType(SPELL_AURA_MOD_UNATTACKABLE))
         {
             if (DoCastSpellIfCan(m_creature, SPELL_SUMMON_OURO) == CAST_OK)
             {
@@ -463,14 +479,17 @@ struct npc_ouro_spawnerAI : public Scripted_NoMovementAI
         }
     }
 
-    void UpdateAI(const uint32 /*uiDiff*/) override {}
+    void UpdateAI(const uint32 /*uiDiff*/) override { }
 };
 
-CreatureAI* GetAI_npc_ouro_spawner(Creature* pCreature) { return new npc_ouro_spawnerAI(pCreature); }
+CreatureAI* GetAI_npc_ouro_spawner(Creature* pCreature)
+{
+    return new npc_ouro_spawnerAI(pCreature);
+}
 
 struct npc_dirt_moundAI : public ScriptedAI
 {
-    npc_dirt_moundAI(Creature* pCreature) : ScriptedAI(pCreature) { Reset(); }
+    npc_dirt_moundAI(Creature* pCreature) : ScriptedAI(pCreature) {Reset();}
 
     uint32 m_uiChangeTargetTimer;
     uint32 m_uiDespawnTimer;
@@ -486,25 +505,26 @@ struct npc_dirt_moundAI : public ScriptedAI
     void Reset() override
     {
         m_uiDespawnTimer = 30000;
-        m_TargetGUID.Clear();
-        m_CurrentTargetGUID.Clear();
+	    m_TargetGUID.Clear();
+	    m_CurrentTargetGUID.Clear();
 
         DoCastSpellIfCan(m_creature, SPELL_DIRTMOUND_PASSIVE);
         me->EnableMoveInLosEvent();
     }
 
-    void MoveInLineOfSight(Unit* who) override
+    void MoveInLineOfSight(Unit *who) override
     {
         if (!m_TargetGUID && who->GetTypeId() == TYPEID_PLAYER)
         {
-            m_TargetGUID = who->GetGUID();
-        }
+  	        m_TargetGUID = who->GetGUID();
+	    }
     }
 
     void UpdateAI(const uint32 uiDiff) override
     {
-        Unit* pTarget = m_creature->GetMap()->GetUnit(m_CurrentTargetGUID);
-        const bool bForceChangeTarget = !pTarget || pTarget->IsDead() || pTarget->IsImmuneToDamage(SPELL_SCHOOL_MASK_NATURE);
+        Unit *pTarget = m_creature->GetMap()->GetUnit(m_CurrentTargetGUID);
+        const bool bForceChangeTarget = !pTarget || pTarget->IsDead()
+            || pTarget->IsImmuneToDamage(SPELL_SCHOOL_MASK_NATURE);
 
         if (bForceChangeTarget || m_uiChangeTargetTimer < uiDiff)
         {
@@ -537,7 +557,10 @@ struct npc_dirt_moundAI : public ScriptedAI
     }
 };
 
-CreatureAI* GetAI_npc_dirt_mound(Creature* pCreature) { return new npc_dirt_moundAI(pCreature); }
+CreatureAI* GetAI_npc_dirt_mound(Creature* pCreature)
+{
+    return new npc_dirt_moundAI(pCreature);
+}
 
 struct npc_ouro_scarabAI : public ScriptedAI
 {
@@ -551,12 +574,12 @@ struct npc_ouro_scarabAI : public ScriptedAI
         me->EnableMoveInLosEvent();
     }
 
-    void MoveInLineOfSight(Unit* who) override
+    void MoveInLineOfSight(Unit *who) override
     {
         if (who->GetTypeId() == TYPEID_PLAYER && !m_creature->GetVictim() && !urand(0, 5))
-        {
+	    {
             AttackStart(who);
-        }
+	    }
     }
 
     void UpdateAI(const uint32 uiDiff) override
@@ -571,9 +594,12 @@ struct npc_ouro_scarabAI : public ScriptedAI
     }
 };
 
-CreatureAI* GetAI_npc_ouro_scarab(Creature* pCreature) { return new npc_ouro_scarabAI(pCreature); }
+CreatureAI* GetAI_npc_ouro_scarab(Creature* pCreature)
+{
+    return new npc_ouro_scarabAI(pCreature);
+}
 
-struct go_sandworm_baseAI : public GameObjectAI
+struct go_sandworm_baseAI: public GameObjectAI
 {
     go_sandworm_baseAI(GameObject* pGo) : GameObjectAI(pGo), m_bActive(true) {}
 
@@ -599,7 +625,10 @@ struct go_sandworm_baseAI : public GameObjectAI
     }
 };
 
-GameObjectAI* GetAIgo_sandworm_base(GameObject* pGo) { return new go_sandworm_baseAI(pGo); }
+GameObjectAI* GetAIgo_sandworm_base(GameObject *pGo)
+{
+    return new go_sandworm_baseAI(pGo);
+}
 
 void AddSC_boss_ouro()
 {

@@ -19,8 +19,8 @@
 #ifndef VMAPEXPORT_H
 #define VMAPEXPORT_H
 
-#include <set>
 #include <string>
+#include <set>
 #include <vector>
 
 typedef unsigned int uint32;
@@ -36,22 +36,22 @@ enum ModelFlags
 
 class ModelLOSMgr
 {
-public:
-    class LosModificator
-    {
     public:
-        bool operator<(LosModificator const& b) const { return id < b.id; }
-        bool enable;
-        uint32 id;
-        std::string filename;
-    };
-    static std::vector<LosModificator> modificators;
-    static bool IsLOSEnabled(uint32 spawnId, std::string model);
-    static bool Load();
+        class LosModificator
+        {
+            public:
+            bool operator<(LosModificator const& b) const { return id < b.id; }
+            bool enable;
+            uint32 id;
+            std::string filename;
+        };
+        static std::vector<LosModificator> modificators;
+        static bool IsLOSEnabled(uint32 spawnId, std::string model);
+        static bool Load();
 };
 
 extern const char* szWorkDirWmo;
-extern const char* szRawVMAPMagic; // vmap magic string for extracted raw vmap data
+extern const char* szRawVMAPMagic;                          // vmap magic string for extracted raw vmap data
 
 bool FileExists(const char* file);
 void strToLower(char* str);

@@ -31,20 +31,22 @@ EndContentData */
 ## at_childrens_week_spot
 ######*/
 
-uint32 TriggerOrphanSpell[6][3] = {
-    {3546, 14305, 1479}, // The Bough of the Eternals
-    {3547, 14444, 1800}, // Lordaeron Throne Room
-    {3548, 14305, 1558}, // The Stonewrought Dam
-    {3549, 14444, 911}, // Gateway to the Frontier
-    {3550, 14444, 910}, // Down at the Docks
-    {3552, 14305, 1687} // Spooky Lighthouse
+uint32 TriggerOrphanSpell[6][3] =
+{
+    {3546, 14305, 1479},   // The Bough of the Eternals
+    {3547, 14444, 1800},   // Lordaeron Throne Room
+    {3548, 14305, 1558},   // The Stonewrought Dam
+    {3549, 14444, 911},   // Gateway to the Frontier
+    {3550, 14444, 910},   // Down at the Docks
+    {3552, 14305, 1687}    // Spooky Lighthouse
 };
 
 bool AreaTrigger_at_childrens_week_spot(Player* pPlayer, const AreaTriggerEntry* pAt)
 {
     for (uint8 i = 0; i < 6; ++i)
     {
-        if (pAt->id == TriggerOrphanSpell[i][0] && pPlayer->GetMiniPet() && pPlayer->GetMiniPet()->GetEntry() == TriggerOrphanSpell[i][1])
+        if (pAt->id == TriggerOrphanSpell[i][0] &&
+            pPlayer->GetMiniPet() && pPlayer->GetMiniPet()->GetEntry() == TriggerOrphanSpell[i][1])
         {
             pPlayer->AreaExploredOrEventHappens(TriggerOrphanSpell[i][2]);
             return true;
@@ -59,8 +61,8 @@ bool AreaTrigger_at_childrens_week_spot(Player* pPlayer, const AreaTriggerEntry*
 
 enum
 {
-    QUEST_MANOR_RAVENHOLDT = 6681,
-    NPC_RAVENHOLDT = 13936
+    QUEST_MANOR_RAVENHOLDT  = 6681,
+    NPC_RAVENHOLDT          = 13936
 };
 
 bool AreaTrigger_at_ravenholdt(Player* pPlayer, const AreaTriggerEntry* pAt)
@@ -73,7 +75,7 @@ bool AreaTrigger_at_ravenholdt(Player* pPlayer, const AreaTriggerEntry* pAt)
 
 void AddSC_areatrigger_scripts()
 {
-    Script* newscript;
+    Script *newscript;
 
     newscript = new Script;
     newscript->Name = "at_ravenholdt";

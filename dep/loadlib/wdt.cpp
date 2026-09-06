@@ -27,16 +27,19 @@ WDT_file::WDT_file()
 {
     mphd = 0;
     main = 0;
-    wmo = 0;
+    wmo  = 0;
 }
 
-WDT_file::~WDT_file() { free(); }
+WDT_file::~WDT_file()
+{
+    free();
+}
 
 void WDT_file::free()
 {
     mphd = 0;
     main = 0;
-    wmo = 0;
+    wmo  = 0;
     FileLoader::free();
 }
 

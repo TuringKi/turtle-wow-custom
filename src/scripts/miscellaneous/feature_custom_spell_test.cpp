@@ -2,7 +2,10 @@
 
 struct boss_custom_spell_test_AI : public ScriptedAI
 {
-    boss_custom_spell_test_AI(Creature* c) : ScriptedAI(c) { Reset(); }
+    boss_custom_spell_test_AI(Creature* c) : ScriptedAI(c)
+    {
+        Reset();
+    }
 
     uint32 counter = 0;
     uint32 pyro_timer;
@@ -13,13 +16,24 @@ struct boss_custom_spell_test_AI : public ScriptedAI
         counter = 0;
     }
 
-    void Aggro(Unit* who) override {}
+    void Aggro(Unit* who) override
+    {
 
-    void Reset() override { SetDefaults(); }
+    }
 
-    void JustRespawned() override { SetDefaults(); }
+    void Reset() override
+    {
+        SetDefaults();
+    }
 
-    void JustReachedHome() override {}
+    void JustRespawned() override
+    {
+        SetDefaults();
+    }
+
+    void JustReachedHome() override
+    {
+    }
 
     void UpdateAI(const uint32 diff) override
     {
@@ -33,7 +47,7 @@ struct boss_custom_spell_test_AI : public ScriptedAI
             auto customSpellEntry = new SpellEntry(*spellEntry);
             customSpellEntry->EffectBasePoints[EFFECT_0] *= counter;
             me->CastCustomSpell(me->GetVictim(), customSpellEntry);
-            // me->CastSpell(me->GetVictim(), spellEntry, false);
+           // me->CastSpell(me->GetVictim(), spellEntry, false);
             pyro_timer = urand(9000, 14000);
         }
         else
@@ -43,7 +57,10 @@ struct boss_custom_spell_test_AI : public ScriptedAI
     }
 };
 
-CreatureAI* Get_AIboss_custom_spell_test_AI(Creature* creature) { return new boss_custom_spell_test_AI(creature); }
+CreatureAI* Get_AIboss_custom_spell_test_AI(Creature* creature)
+{
+    return new boss_custom_spell_test_AI(creature);
+}
 
 void AddSC_CUSTOM_SPELL()
 {

@@ -23,12 +23,12 @@
 #define MANGOS_CREATUREAI_H
 
 #include "Common.h"
-#include "Dynamic/FactoryHolder.h"
-#include "Dynamic/ObjectRegistry.h"
-#include "ObjectGuid.h"
-#include "ObjectMgr.h"
 #include "Platform/Define.h"
 #include "Policies/Singleton.h"
+#include "Dynamic/ObjectRegistry.h"
+#include "Dynamic/FactoryHolder.h"
+#include "ObjectGuid.h"
+#include "ObjectMgr.h"
 
 #include "Utilities/EventMap.h"
 
@@ -84,8 +84,10 @@ class ObjectDistanceOrderPred
 {
 public:
     ObjectDistanceOrderPred(const WorldObject* pRefObj, bool ascending = true) : m_refObj(pRefObj), m_ascending(ascending) {}
-    bool operator()(const WorldObject* pLeft, const WorldObject* pRight) const { return m_ascending ? m_refObj->GetDistanceOrder(pLeft, pRight) : !m_refObj->GetDistanceOrder(pLeft, pRight); }
-
+    bool operator()(const WorldObject* pLeft, const WorldObject* pRight) const
+    {
+        return m_ascending ? m_refObj->GetDistanceOrder(pLeft, pRight) : !m_refObj->GetDistanceOrder(pLeft, pRight);
+    }
 private:
     const WorldObject* m_refObj;
     const bool m_ascending;
@@ -145,16 +147,33 @@ struct DefaultTargetSelector : public zunary_function<Unit*, bool>
 
 class CreatureAI
 {
-public:
-    explicit CreatureAI(Creature* creature) : m_creature(creature), m_bUseAiAtControl(false), m_bMeleeAttack(true), m_bCombatMovement(true), m_uiCastingDelay(CREATURE_CASTING_DELAY), m_uLastAlertTime(0) { SetSpellsList(creature->GetCreatureInfo()->spell_list_id); }
+    public:
+        // AzerothCore lets a script veto a target. Scripts on this core have no
+        // such hook, so the default answer is the only answer: no veto. The one
+        // caller uses it to spot a mob that is unattackable by script - here
+        // that state is expressed through flags, which the caller checks too.
+        virtual bool CanAIAttack(Unit const* /*target*/) const { return true; }
+
+        explicit CreatureAI(Creature* creature) : m_creature(creature), m_bUseAiAtControl(false), m_bMeleeAttack(true), m_bCombatMovement(true), m_uiCastingDelay(CREATURE_CASTING_DELAY), m_uLastAlertTime(0)
+        {
+            SetSpellsList(creature->GetCreatureInfo()->spell_list_id);
+        }
 
     virtual ~CreatureAI();
     virtual void OnRemoveFromWorld() {}
 
     virtual uint32 GetData(uint32 /*type*/) { return 0; }
 
-    virtual void InformGuid(const ObjectGuid /*guid*/, uint32 /*type*/ = 0) {}
-    virtual void DoAction(const uint32 /*type*/ = 0) {}
+        // cmangos puts ReactState on AI; Penqle on Creature.
+        // Forward through m_creature.
+        ReactStates GetReactState() const;
+        void SetReactState(ReactStates st);
+        bool HasReactState(ReactStates st) const;
+        // IsPreventingDeath: cmangos has it (boss invuln check). Stub returns false.
+        bool IsPreventingDeath() const { return false; }
+
+        virtual void InformGuid(const ObjectGuid /*guid*/, uint32 /*type*/=0) {}
+        virtual void DoAction(const uint32 /*type*/=0) {}
     virtual void DoAction(Unit* /*pUnit*/, uint32 /*type*/) {}
 
     ///== Information about AI ========================
@@ -181,12 +200,12 @@ public:
     virtual void HealedBy(Unit* /*healer*/, uint32& /*amount_healed*/) {}
 
     // Called at any Damage to any victim (before damage apply)
-    virtual void DamageDeal(Unit* /*done_to*/, uint32& /*damage*/) {}
+        virtual void DamageDeal(Unit* /*done_to*/, uint32 & /*damage*/) {}
 
     // Called at any Damage from any attacker (before damage apply)
     // Note: it for recalculation damage or special reaction at damage
     // for attack reaction use AttackedBy called for not DOT damage in Unit::DealDamage also
-    virtual void DamageTaken(Unit* /*done_by*/, uint32& /*damage*/) {}
+        virtual void DamageTaken(Unit* /*done_by*/, uint32 & /*damage*/) {}
 
     // Called when the creature is killed
     virtual void JustDied(Unit*) {}
@@ -250,12 +269,12 @@ public:
     virtual void UpdateAI_corpse(const uint32 /*uiDiff*/) {}
 
     // Called by another script
-    virtual void OnScriptEventHappened(uint32 /*uiEvent*/, uint32 /*uiData*/, WorldObject* /*pInvoker*/){};
+        virtual void OnScriptEventHappened(uint32 /*uiEvent*/, uint32 /*uiData*/, WorldObject* /*pInvoker*/) {};
 
     ///== State checks =================================
 
     // called when the corpse of this creature gets removed
-    virtual void CorpseRemoved(uint32& /*respawnDelay*/) {}
+        virtual void CorpseRemoved(uint32 & /*respawnDelay*/) {}
 
     // Is corpse looting allowed ?
     virtual bool CanBeLooted() const { return true; }
@@ -268,6 +287,10 @@ public:
 
     // Does the creature melee attack.
     bool IsMeleeAttackEnabled() const { return m_bMeleeAttack; }
+
+        // bot's healer logic checks if a creature is a ranged caster.
+        // cmangos has a flag set per-AI; Penqle has none. Default to false (treat as melee).
+        virtual bool IsRangedUnit() const { return false; }
 
     // Triggers an alert when a Unit moves near stealth detection range.
     virtual void OnMoveInStealth(Unit* who);
@@ -378,8 +401,7 @@ public:
     void SetUseAiAtControl(bool v) { m_bUseAiAtControl = v; }
 
     bool IsCombatMovement() { return m_bCombatMovement; }
-
-protected:
+    protected:
     bool CanTriggerAlert(Unit const* who);
     void TriggerAlertDirect(Unit const* who);
     ///== Fields =======================================
@@ -396,7 +418,7 @@ struct SelectableAI : FactoryHolder<CreatureAI>, Permissible<Creature>
     explicit SelectableAI(const char* id) : FactoryHolder<CreatureAI>(id) {}
 };
 
-template <class REAL_AI>
+template<class REAL_AI>
 struct CreatureAIFactory : SelectableAI
 {
     explicit CreatureAIFactory(const char* name) : SelectableAI(name) {}

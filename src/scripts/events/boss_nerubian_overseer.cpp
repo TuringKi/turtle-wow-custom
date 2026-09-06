@@ -14,7 +14,10 @@ enum
 
 struct boss_nerubian_overseerAI : public ScriptedAI
 {
-    boss_nerubian_overseerAI(Creature* c) : ScriptedAI(c) { Reset(); }
+    boss_nerubian_overseerAI(Creature *c) : ScriptedAI(c)
+    {
+        Reset();
+    }
 
     uint32 WebSpray_Timer;
     uint32 WebExplode_Timer;
@@ -35,13 +38,23 @@ struct boss_nerubian_overseerAI : public ScriptedAI
         webTarget = nullptr;
     }
 
-    void Aggro(Unit* who) override {}
+    void Aggro(Unit *who) override
+    {
+    }
 
-    void Reset() override { SetDefaults(); }
+    void Reset() override
+    {
+        SetDefaults();
+    }
 
-    void JustRespawned() override { SetDefaults(); }
+    void JustRespawned() override
+    {
+        SetDefaults();
+    }
 
-    void KilledUnit(Unit* victim) override {}
+    void KilledUnit(Unit* victim) override
+    {
+    }
 
     void JustDied(Unit* /*pKiller*/) override
     {
@@ -51,9 +64,10 @@ struct boss_nerubian_overseerAI : public ScriptedAI
         uint32 m_respawn_delay_Timer = urand(120 * HOUR, 168 * HOUR);
 
         /** DRRS */
-        if (m_creature->GetSpawnFlags() & SPAWN_FLAG_DYNAMIC_RESPAWN_TIME && sWorld.GetActiveSessionCount() > BLIZZLIKE_REALM_POPULATION)
+        if (m_creature->GetSpawnFlags() & SPAWN_FLAG_DYNAMIC_RESPAWN_TIME &&
+            sWorld.GetActiveSessionCount() > BLIZZLIKE_REALM_POPULATION)
 
-            m_respawn_delay_Timer *= float(BLIZZLIKE_REALM_POPULATION) / float(sWorld.GetActiveSessionCount());
+        m_respawn_delay_Timer *= float(BLIZZLIKE_REALM_POPULATION) / float(sWorld.GetActiveSessionCount());
 
         m_creature->SetRespawnDelay(m_respawn_delay_Timer);
         m_creature->SetRespawnTime(m_respawn_delay_Timer);
@@ -72,7 +86,7 @@ struct boss_nerubian_overseerAI : public ScriptedAI
         Unit* nerublingTarget = m_creature->GetNearestVictimInRange(0, 30, false);
         for (int i = 0; i < 4; i++)
         {
-            Unit* nerubling = m_creature->SummonCreature(CREATURE_NERUBLING, x, y, z, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 30000);
+            Unit* nerubling = m_creature->SummonCreature(CREATURE_NERUBLING, x, y, z, 0,TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 30000);
 
             if (nerublingTarget)
             {
@@ -151,13 +165,17 @@ struct boss_nerubian_overseerAI : public ScriptedAI
 
         DoMeleeAttackIfReady();
     }
+
 };
 
-CreatureAI* GetAI_boss_nerubian_overseer(Creature* _Creature) { return new boss_nerubian_overseerAI(_Creature); }
+CreatureAI* GetAI_boss_nerubian_overseer(Creature *_Creature)
+{
+    return new boss_nerubian_overseerAI(_Creature);
+}
 
 void AddSC_boss_nerubian_overseer()
 {
-    Script* newscript;
+    Script *newscript;
     newscript = new Script;
     newscript->Name = "boss_nerubian_overseer";
     newscript->GetAI = &GetAI_boss_nerubian_overseer;

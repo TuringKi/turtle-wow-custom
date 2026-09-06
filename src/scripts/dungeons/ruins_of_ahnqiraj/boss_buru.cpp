@@ -1,5 +1,5 @@
-#include "ruins_of_ahnqiraj.h"
 #include "scriptPCH.h"
+#include "ruins_of_ahnqiraj.h"
 
 enum BossBuru
 {
@@ -22,7 +22,15 @@ enum BossBuru
     MODEL_BURU_NORMAL = 15654
 };
 
-static constexpr SpawnLocations Eggs[] = {{-9312.73f, 1281.51f, -63.56f}, {-9300.03f, 1304.52f, -63.25f}, {-9263.38f, 1293.48f, -63.84f}, {-9245.11f, 1280.30f, -63.33f}, {-9234.96f, 1244.95f, -63.05f}, {-9267.78f, 1249.26f, -63.58f}};
+static constexpr SpawnLocations Eggs[] =
+{
+    { -9312.73f, 1281.51f, -63.56f },
+    { -9300.03f, 1304.52f, -63.25f },
+    { -9263.38f, 1293.48f, -63.84f },
+    { -9245.11f, 1280.30f, -63.33f },
+    { -9234.96f, 1244.95f, -63.05f },
+    { -9267.78f, 1249.26f, -63.58f }
+};
 
 struct boss_buruAI : public ScriptedAI
 {
@@ -343,18 +351,27 @@ struct mob_buru_eggAI : public ScriptedAI
             const float damageFactor = 1.0f - (distance / 25.f);
             if (pBuru->IsAlive() && distance < 5.f && pBuru->GetHealthPercent() > 20.f)
             {
-                // pBuru->SetHealthPercent(pBuru->GetHealthPercent() - 10.f * damageFactor);
+                //pBuru->SetHealthPercent(pBuru->GetHealthPercent() - 10.f * damageFactor);
                 static_cast<boss_buruAI*>(pBuru->AI())->OnEggExploded();
             }
         }
     }
 
-    void UpdateAI(const uint32 uiDiff) override { return; }
+    void UpdateAI(const uint32 uiDiff) override
+    {
+        return;
+    }
 };
 
-CreatureAI* GetAI_boss_buru(Creature* pCreature) { return new boss_buruAI(pCreature); }
+CreatureAI* GetAI_boss_buru(Creature* pCreature)
+{
+    return new boss_buruAI(pCreature);
+}
 
-CreatureAI* GetAI_mob_buru_egg(Creature* pCreature) { return new mob_buru_eggAI(pCreature); }
+CreatureAI* GetAI_mob_buru_egg(Creature* pCreature)
+{
+    return new mob_buru_eggAI(pCreature);
+}
 
 void AddSC_boss_buru()
 {

@@ -47,10 +47,15 @@ public:
         }
     }
 
-    operator bool() const { return static_cast<bool>(_inputStream); }
+    operator bool() const 
+    {
+        return static_cast<bool>(_inputStream);
+    }
 
-    bool operator!() const { return !static_cast<bool>(*this); }
-
+    bool operator!() const
+    {
+        return !static_cast<bool>(*this);
+    }
 private:
     std::istringstream _inputStream;
 };

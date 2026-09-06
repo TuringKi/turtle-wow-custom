@@ -39,7 +39,10 @@ HmacHash::~HmacHash()
 #endif
 }
 
-void HmacHash::UpdateBigNumber(BigNumber* bn) { UpdateData(bn->AsByteArray()); }
+void HmacHash::UpdateBigNumber(BigNumber* bn)
+{
+    UpdateData(bn->AsByteArray());
+}
 
 void HmacHash::UpdateData(const std::vector<uint8>& data)
 {

@@ -2,17 +2,20 @@
 #include "scriptPCH.h"
 
 
-static constexpr int32 VOICE_SCRIPT_AGGRO{-1999957};
-static constexpr int32 VOICE_SCRIPT_DEAD{-1999958};
+static constexpr int32 VOICE_SCRIPT_AGGRO{ -1999957 };
+static constexpr int32 VOICE_SCRIPT_DEAD{ -1999958 };
 
-static constexpr uint32 SPELL_KNOCKBACK{28438};
-static constexpr uint32 SPELL_CLEAVE{19983};
-static constexpr uint32 SPELL_WAR_STOMP{11876};
+static constexpr uint32 SPELL_KNOCKBACK{ 28438 };
+static constexpr uint32 SPELL_CLEAVE{ 19983 };
+static constexpr uint32 SPELL_WAR_STOMP{ 11876 };
 
 class boss_hatereaver_annhilatorAI : public ScriptedAI
 {
 public:
-    explicit boss_hatereaver_annhilatorAI(Creature* pCreature) : ScriptedAI(pCreature) { boss_hatereaver_annhilatorAI::Reset(); }
+    explicit boss_hatereaver_annhilatorAI(Creature* pCreature) : ScriptedAI(pCreature)
+    {
+        boss_hatereaver_annhilatorAI::Reset();
+    }
 
     uint32 m_uiKnockback_Timer{};
     uint32 m_uiCleave_Timer{};
@@ -25,9 +28,15 @@ public:
         m_uiWarStomp = 45000;
     }
 
-    void Aggro(Unit* /*pWho*/) override { DoScriptText(VOICE_SCRIPT_AGGRO, m_creature); }
+    void Aggro(Unit* /*pWho*/) override
+    {
+        DoScriptText(VOICE_SCRIPT_AGGRO, m_creature);
+    }
 
-    void JustDied(Unit* /*pKiller*/) override { DoScriptText(VOICE_SCRIPT_DEAD, m_creature); }
+    void JustDied(Unit* /*pKiller*/) override
+    {
+        DoScriptText(VOICE_SCRIPT_DEAD, m_creature);
+    }
 
     void CastKnockback(const uint32& uiDiff)
     {
@@ -87,7 +96,10 @@ public:
     }
 };
 
-CreatureAI* GetAI_boss_hatereaver_annhilatorAI(Creature* pCreature) { return new boss_hatereaver_annhilatorAI(pCreature); }
+CreatureAI* GetAI_boss_hatereaver_annhilatorAI(Creature* pCreature)
+{
+    return new boss_hatereaver_annhilatorAI(pCreature);
+}
 
 
 void AddSC_boss_hatereaver_annhilator()

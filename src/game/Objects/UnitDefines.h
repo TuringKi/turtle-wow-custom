@@ -238,7 +238,7 @@ enum HitInfo
     HITINFO_SWINGNOHITSOUND = 0x00080000
 };
 
-// i would like to remove this: (it is defined in item.h
+//i would like to remove this: (it is defined in item.h
 enum InventorySlot
 {
     NULL_BAG = 0,
@@ -327,7 +327,7 @@ enum BaseModType
     PCT_MOD
 };
 
-#define MOD_END (PCT_MOD + 1)
+#define MOD_END (PCT_MOD+1)
 
 enum DeathState
 {
@@ -394,13 +394,17 @@ enum UnitState
     UNIT_STAT_CAN_NOT_MOVE = UNIT_STAT_ROOT | UNIT_STAT_STUNNED | UNIT_STAT_FEIGN_DEATH,
 
     // stay by different reasons
-    UNIT_STAT_NOT_MOVE = UNIT_STAT_ROOT | UNIT_STAT_STUNNED | UNIT_STAT_FEIGN_DEATH | UNIT_STAT_DISTRACTED,
+    UNIT_STAT_NOT_MOVE        = UNIT_STAT_ROOT | UNIT_STAT_STUNNED | UNIT_STAT_FEIGN_DEATH |
+                                UNIT_STAT_DISTRACTED,
 
     // stay or scripted movement for effect( = in player case you can't move by client command)
-    UNIT_STAT_NO_FREE_MOVE = UNIT_STAT_ROOT | UNIT_STAT_STUNNED | UNIT_STAT_TAXI_FLIGHT | UNIT_STAT_CONFUSED | UNIT_STAT_FLEEING,
+    UNIT_STAT_NO_FREE_MOVE    = UNIT_STAT_ROOT | UNIT_STAT_STUNNED |
+                                UNIT_STAT_TAXI_FLIGHT |
+                                UNIT_STAT_CONFUSED | UNIT_STAT_FLEEING,
 
     // not react at move in sight or other
-    UNIT_STAT_CAN_NOT_REACT = UNIT_STAT_STUNNED | UNIT_STAT_FEIGN_DEATH | UNIT_STAT_CONFUSED | UNIT_STAT_FLEEING,
+    UNIT_STAT_CAN_NOT_REACT   = UNIT_STAT_STUNNED | UNIT_STAT_FEIGN_DEATH |
+                                UNIT_STAT_CONFUSED | UNIT_STAT_FLEEING,
 
     // AI disabled by some reason
     UNIT_STAT_LOST_CONTROL = UNIT_STAT_FLEEING | UNIT_STAT_POSSESSED,
@@ -536,7 +540,7 @@ enum ActionBarIndex
     ACTION_BAR_INDEX_END = 10,
 };
 
-#define MAX_UNIT_ACTION_BAR_INDEX (ACTION_BAR_INDEX_END - ACTION_BAR_INDEX_START)
+#define MAX_UNIT_ACTION_BAR_INDEX (ACTION_BAR_INDEX_END-ACTION_BAR_INDEX_START)
 
 // used in CallForAllControlledUnits/CheckAllControlledUnits
 enum ControlledUnitMask
@@ -556,11 +560,12 @@ enum ReactiveType
     REACTIVE_DEFENSE = 1,
     REACTIVE_HUNTER_PARRY = 2,
     REACTIVE_CRIT = 3,
-    // REACTIVE_HUNTER_CRIT  = 4,
-    REACTIVE_OVERPOWER = 5
+    REACTIVE_PET_CRIT = 4,
+    REACTIVE_OVERPOWER = 5,
+    REACTIVE_ROGUE_DODGE = 6
 };
 
-#define MAX_REACTIVE 6
+#define MAX_REACTIVE 7
 
 // for Unit::AddAura
 enum AddAuraFlags
@@ -626,6 +631,20 @@ enum UnitDismountResult
     DISMOUNTRESULT_NOTMOUNTED = 1, // You're not mounted!
     DISMOUNTRESULT_NOTYOURPET = 2, // internal
     DISMOUNTRESULT_OK = 3 // no error
+};
+
+enum SpellProcEventTriggerCheck
+{
+    SPELL_PROC_TRIGGER_FAILED       = 0,
+    SPELL_PROC_TRIGGER_ROLL_FAILED  = 1,
+    SPELL_PROC_TRIGGER_OK           = 2,
+};
+
+enum SpellAuraProcResult
+{
+    SPELL_AURA_PROC_OK              = 0,                    // proc was processed, will remove charges
+    SPELL_AURA_PROC_FAILED          = 1,                    // proc failed - if at least one aura failed the proc, charges won't be taken
+    SPELL_AURA_PROC_CANT_TRIGGER    = 2                     // aura can't trigger - skip charges taking, move to next aura if exists
 };
 
 #endif

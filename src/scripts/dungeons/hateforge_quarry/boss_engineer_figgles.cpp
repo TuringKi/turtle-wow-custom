@@ -2,14 +2,17 @@
 #include "scriptPCH.h"
 
 
-static constexpr int32 VOICE_SCRIPT_AGGRO{-1999955};
-static constexpr int32 VOICE_SCRIPT_DEAD{-1999956};
-static constexpr uint32 SPELL_CORROSIVE_POISON{24111};
+static constexpr int32 VOICE_SCRIPT_AGGRO{ -1999955 };
+static constexpr int32 VOICE_SCRIPT_DEAD{ -1999956 };
+static constexpr uint32 SPELL_CORROSIVE_POISON{ 24111 };
 
 class boss_engineer_figglesAI : public ScriptedAI
 {
 public:
-    explicit boss_engineer_figglesAI(Creature* pCreature) : ScriptedAI(pCreature) { boss_engineer_figglesAI::Reset(); }
+    explicit boss_engineer_figglesAI(Creature* pCreature) : ScriptedAI(pCreature)
+    {
+        boss_engineer_figglesAI::Reset();
+    }
 
     bool m_bCorrosivePoisonCastedOnce{};
     uint32 m_uiCorrosivePoison_Timer{};
@@ -20,9 +23,15 @@ public:
         m_uiCorrosivePoison_Timer = 10000;
     }
 
-    void Aggro(Unit* /*pWho*/) override { DoScriptText(VOICE_SCRIPT_AGGRO, m_creature); }
+    void Aggro(Unit* /*pWho*/) override
+    {
+        DoScriptText(VOICE_SCRIPT_AGGRO, m_creature);
+    }
 
-    void JustDied(Unit* /*pKiller*/) override { DoScriptText(VOICE_SCRIPT_DEAD, m_creature); }
+    void JustDied(Unit* /*pKiller*/) override
+    {
+        DoScriptText(VOICE_SCRIPT_DEAD, m_creature);
+    }
 
     void CastCorrosivePoison(const uint32& uiDiff)
     {
@@ -51,7 +60,10 @@ public:
     }
 };
 
-CreatureAI* GetAI_boss_engineer_figglesAI(Creature* pCreature) { return new boss_engineer_figglesAI(pCreature); }
+CreatureAI* GetAI_boss_engineer_figglesAI(Creature* pCreature)
+{
+    return new boss_engineer_figglesAI(pCreature);
+}
 
 
 void AddSC_boss_engineer_figgles()

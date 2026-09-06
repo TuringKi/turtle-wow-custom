@@ -1,5 +1,5 @@
-﻿#include "quest_stormwind_rendezvous.h"
-#include "scriptPCH.h"
+﻿#include "scriptPCH.h"
+#include "quest_stormwind_rendezvous.h"
 
 npc_reginald_windsorAI::npc_reginald_windsorAI(Creature* pCreature) : ScriptedAI(pCreature)
 {
@@ -7,9 +7,15 @@ npc_reginald_windsorAI::npc_reginald_windsorAI(Creature* pCreature) : ScriptedAI
     npc_reginald_windsorAI::ResetCreature();
 }
 
-Player* npc_reginald_windsorAI::GetPlayer() const { return me->GetMap()->GetPlayer(playerGUID); }
+Player* npc_reginald_windsorAI::GetPlayer() const
+{
+    return me->GetMap()->GetPlayer(playerGUID);
+}
 
-Creature* npc_reginald_windsorAI::GetGuard(uint8 num) const { return me->GetMap()->GetCreature(GuardsGUIDs[num]); }
+Creature* npc_reginald_windsorAI::GetGuard(uint8 num) const
+{
+    return me->GetMap()->GetCreature(GuardsGUIDs[num]);
+}
 
 void npc_reginald_windsorAI::ResetCreature()
 {
@@ -183,14 +189,16 @@ uint32 GetRandomGuardText()
     case 6:
         return 8183; // ...nerves of thorium.
     }
-    return 8184; // A living legend...
+    return 8184; // A living legend... 
 }
 
 void npc_reginald_windsorAI::MoveInLineOfSight(Unit* Victim)
 {
     if (Victim && Victim->IsAlive())
     {
-        if (Victim->GetEntry() == NPC_STORMWIND_CITY_GUARD || Victim->GetEntry() == NPC_STORMWIND_ROYAL_GUARD || Victim->GetEntry() == NPC_STORMWIND_CITY_PATROL)
+        if (Victim->GetEntry() == NPC_STORMWIND_CITY_GUARD ||
+            Victim->GetEntry() == NPC_STORMWIND_ROYAL_GUARD ||
+            Victim->GetEntry() == NPC_STORMWIND_CITY_PATROL)
         {
             if (Victim->GetDistance2d(m_creature) < 8.0f && NeedCheck)
             {
@@ -254,8 +262,7 @@ void npc_reginald_windsorAI::UpdateAI(uint32 const uiDiff)
 
     if (unmountReginald)
     {
-        if (Timer <= uiDiff)
-        {
+        if (Timer <= uiDiff) {
             unmountReginald = false;
             if (Creature* pMercutio = m_creature->FindNearestCreature(NPC_MERCUTIO, 10.0f))
             {
@@ -264,8 +271,7 @@ void npc_reginald_windsorAI::UpdateAI(uint32 const uiDiff)
             }
             GreetPlayer = true;
             Timer = 5000;
-        }
-        else
+        } else
             Timer -= uiDiff;
     }
 
@@ -332,7 +338,11 @@ void npc_reginald_windsorAI::UpdateAI(uint32 const uiDiff)
             for (int i = 0; i < 6; i++)
             {
                 int Var = i + 1;
-                Creature* pSummon = m_creature->SummonCreature(NPC_STORMWIND_CITY_GUARD, WindsorEventMove[Var].x, WindsorEventMove[Var].y, WindsorEventMove[Var].z, WindsorEventMove[Var].o, TEMPSUMMON_TIMED_DESPAWN, 240 * IN_MILLISECONDS);
+                Creature* pSummon = m_creature->SummonCreature(NPC_STORMWIND_CITY_GUARD,
+                    WindsorEventMove[Var].x,
+                    WindsorEventMove[Var].y,
+                    WindsorEventMove[Var].z,
+                    WindsorEventMove[Var].o, TEMPSUMMON_TIMED_DESPAWN, 240 * IN_MILLISECONDS);
                 if (pSummon)
                 {
                     GuardsGUIDs[i] = pSummon->GetGUID();
@@ -453,8 +463,7 @@ void npc_reginald_windsorAI::UpdateAI(uint32 const uiDiff)
                 Y = General->GetPositionY() - WindsorEventMove[13].y;
                 Timer = 1000 + sqrt(X * X + Y * Y) / (m_creature->GetSpeed(MOVE_WALK) * 0.001f);
             }
-            else
-                Timer = 1000;
+            else Timer = 1000;
             break;
         case 23:
             if (Creature* General = m_creature->FindNearestCreature(NPC_MARCUS_JONATHAN, 150.0f))
@@ -504,7 +513,8 @@ void npc_reginald_windsorAI::UpdateAI(uint32 const uiDiff)
             if (Creature* Anduin = m_creature->FindNearestCreature(NPC_ANDUIN_WRYNN, 150.0f))
             {
                 Anduin->SetWalk(false);
-                Anduin->GetMotionMaster()->MovePoint(0, WindsorEventMove[14].x, WindsorEventMove[14].y, WindsorEventMove[14].z);
+                Anduin->GetMotionMaster()->MovePoint(0, WindsorEventMove[14].x, WindsorEventMove[14].y,
+                    WindsorEventMove[14].z);
             }
             Timer = 5000;
             break;
@@ -573,15 +583,15 @@ void npc_reginald_windsorAI::UpdateAI(uint32 const uiDiff)
             if (Creature* Bolvar = m_creature->FindNearestCreature(NPC_BOLVAR_FORDRAGON, 150.0f))
             {
                 Bolvar->SetWalk(false);
-                Bolvar->GetMotionMaster()->MovePoint(0, WindsorEventMove[15].x, WindsorEventMove[15].y, WindsorEventMove[15].z, MOVE_NONE, 0, 5.740616f);
+                Bolvar->GetMotionMaster()->MovePoint(0, WindsorEventMove[15].x, WindsorEventMove[15].y, WindsorEventMove[15].z,
+                    MOVE_NONE, 0, 5.740616f);
                 X = Bolvar->GetPositionX() - WindsorEventMove[15].x;
                 Y = Bolvar->GetPositionY() - WindsorEventMove[15].y;
                 Timer = 1000 + sqrt((X * X) + (Y * Y)) / (m_creature->GetSpeed(MOVE_WALK) * 0.001f);
             }
             if (Creature* Onyxia = m_creature->FindNearestCreature(NPC_LADY_ONYXIA, 150.0f))
                 DoScriptText(SAY_ONYXIA5, Onyxia);
-            else
-                Timer = 4000;
+            else Timer = 4000;
             break;
         case 66:
             if (Creature* Bolvar = m_creature->FindNearestCreature(NPC_BOLVAR_FORDRAGON, 150.0f))
@@ -710,7 +720,8 @@ void npc_reginald_windsorAI::UpdateAI(uint32 const uiDiff)
         if (Tick > 26 && Tick < 44)
         {
             int Var = Tick - 25;
-            m_creature->GetMotionMaster()->MovePoint(0, WindsorWaypoints[Var].x, WindsorWaypoints[Var].y, WindsorWaypoints[Var].z, MOVE_NONE, 0.0f, WindsorWaypoints[Var].o);
+            m_creature->GetMotionMaster()->MovePoint(0, WindsorWaypoints[Var].x, WindsorWaypoints[Var].y, WindsorWaypoints[Var].z,
+                MOVE_NONE, 0.0f, WindsorWaypoints[Var].o);
             X = m_creature->GetPositionX() - WindsorWaypoints[Var].x;
             Y = m_creature->GetPositionY() - WindsorWaypoints[Var].y;
             Timer = 1000 + sqrt(X * X + Y * Y) / (m_creature->GetSpeed(MOVE_WALK) * 0.001f);
@@ -718,7 +729,8 @@ void npc_reginald_windsorAI::UpdateAI(uint32 const uiDiff)
         else if (Tick > 44 && Tick < 50)
         {
             int Var = Tick - 26;
-            m_creature->GetMotionMaster()->MovePoint(0, WindsorWaypoints[Var].x, WindsorWaypoints[Var].y, WindsorWaypoints[Var].z, MOVE_NONE, 0.0f, WindsorWaypoints[Var].o);
+            m_creature->GetMotionMaster()->MovePoint(0, WindsorWaypoints[Var].x, WindsorWaypoints[Var].y, WindsorWaypoints[Var].z,
+                MOVE_NONE, 0.0f, WindsorWaypoints[Var].o);
             X = m_creature->GetPositionX() - WindsorWaypoints[Var].x;
             Y = m_creature->GetPositionY() - WindsorWaypoints[Var].y;
             Timer = 1000 + sqrt(X * X + Y * Y) / (m_creature->GetSpeed(MOVE_WALK) * 0.001f);
@@ -818,11 +830,14 @@ bool GossipSelect_npc_reginald_windsor(Player* pPlayer, Creature* pCreature, uin
     return true;
 }
 
-CreatureAI* GetAI_npc_reginald_windsor(Creature* pCreature) { return new npc_reginald_windsorAI(pCreature); }
+CreatureAI* GetAI_npc_reginald_windsor(Creature* pCreature)
+{
+    return new npc_reginald_windsorAI(pCreature);
+}
 
 /*
- * Squire Rowe
- */
+* Squire Rowe
+*/
 
 npc_squire_roweAI::npc_squire_roweAI(Creature* pCreature) : ScriptedAI(pCreature)
 {
@@ -884,7 +899,11 @@ void npc_squire_roweAI::UpdateAI(uint32 const uiDiff)
                 ++m_uiStep;
                 break;
             case 3:
-                if (Creature* pWindsor = m_creature->SummonCreature(NPC_REGINALD_WINDSOR, WindsorSummon.x, WindsorSummon.y, WindsorSummon.z, WindsorSummon.o, TEMPSUMMON_MANUAL_DESPAWN, 1.5 * HOUR * IN_MILLISECONDS, true))
+                if (Creature* pWindsor = m_creature->SummonCreature(NPC_REGINALD_WINDSOR,
+                    WindsorSummon.x,
+                    WindsorSummon.y,
+                    WindsorSummon.z,
+                    WindsorSummon.o, TEMPSUMMON_MANUAL_DESPAWN, 1.5 * HOUR * IN_MILLISECONDS, true))
                 {
                     auto pWindsorAI = static_cast<npc_reginald_windsorAI*>(pWindsor->AI());
 
@@ -922,7 +941,8 @@ void npc_squire_roweAI::UpdateAI(uint32 const uiDiff)
 
 bool GossipHello_npc_squire_rowe(Player* pPlayer, Creature* pCreature)
 {
-    if (pPlayer->GetQuestStatus(QUEST_STORMWIND_RENDEZVOUS) == QUEST_STATUS_COMPLETE && pPlayer->GetQuestStatus(QUEST_THE_GREAT_MASQUERADE) != QUEST_STATUS_COMPLETE)
+    if (pPlayer->GetQuestStatus(QUEST_STORMWIND_RENDEZVOUS) == QUEST_STATUS_COMPLETE &&
+        pPlayer->GetQuestStatus(QUEST_THE_GREAT_MASQUERADE) != QUEST_STATUS_COMPLETE)
     {
         auto pSquireRoweAI = static_cast<npc_squire_roweAI*>(pCreature->AI());
 
@@ -968,17 +988,26 @@ bool GossipSelect_npc_squire_rowe(Player* pPlayer, Creature* pCreature, uint32 /
     return true;
 }
 
-CreatureAI* GetAI_npc_squire_rowe(Creature* pCreature) { return new npc_squire_roweAI(pCreature); }
+CreatureAI* GetAI_npc_squire_rowe(Creature* pCreature)
+{
+    return new npc_squire_roweAI(pCreature);
+}
 
 static time_t globalWindsorLastSpawnTime = time_t(0);
 
-bool AreaTrigger_at_stormwind_gates(Player* pPlayer, AreaTriggerEntry const* /*pAt*/) { return false; }
+bool AreaTrigger_at_stormwind_gates(Player* pPlayer, AreaTriggerEntry const* /*pAt*/)
+{
+        return false;
+}
 
 /*
- * Mercutio
- */
+* Mercutio
+*/
 
-npc_mercutioAI::npc_mercutioAI(Creature* pCreature) : ScriptedAI(pCreature) { npc_mercutioAI::Reset(); }
+npc_mercutioAI::npc_mercutioAI(Creature* pCreature) : ScriptedAI(pCreature)
+{
+    npc_mercutioAI::Reset();
+}
 
 void npc_mercutioAI::MovementInform(uint32 uiType, uint32 uiPointId)
 {
@@ -992,7 +1021,10 @@ void npc_mercutioAI::MovementInform(uint32 uiType, uint32 uiPointId)
     }
 }
 
-CreatureAI* GetAI_npc_mercutio(Creature* pCreature) { return new npc_mercutioAI(pCreature); }
+CreatureAI* GetAI_npc_mercutio(Creature* pCreature)
+{
+    return new npc_mercutioAI(pCreature);
+}
 
 void AddSC_quest_stormwind_rendezvous()
 {

@@ -1,5 +1,35 @@
 #include "scriptPCH.h"
 
+namespace
+{
+template <class T>
+AuraScript* GetAuraScript(SpellEntry const*)
+{
+    return new T();
+}
+
+void RegisterAuraScript(char const* name, AuraScript* (*getter)(SpellEntry const*))
+{
+    Script* script = new Script;
+    script->Name = name;
+    script->GetAuraScript = getter;
+    script->RegisterSelf();
+}
+
+struct spell_arcane_overload : public AuraScript
+{
+    void OnAfterApply(Aura* aura, bool apply) override
+    {
+        if (apply)
+            return;
+
+        Unit* target = aura->GetTarget();
+        target->CastSpell(target, 51101, true);
+        target->CastSpell(target, 51099, true, nullptr, nullptr, aura->GetCasterGuid(), aura->GetSpellProto());
+    }
+};
+}
+
 enum
 {
     SPELL_ARCANE_OVERLOAD = 51100,
@@ -10,7 +40,10 @@ enum
 
 struct npc_anomalusAI : public ScriptedAI
 {
-    npc_anomalusAI(Creature* pCreature) : ScriptedAI(pCreature) { Reset(); }
+    npc_anomalusAI(Creature* pCreature) : ScriptedAI(pCreature)
+    {
+        Reset();
+    }
 
     uint32 m_arcaneOverloadTimer;
     uint32 m_unstableMagicTimer;
@@ -23,7 +56,10 @@ struct npc_anomalusAI : public ScriptedAI
         m_arcanePrisonTimer = 3000;
     }
 
-    float GetSpellTimerMultiplier() const { return std::max(30.0f, m_creature->GetHealthPercent()) / 100.0f; }
+    float GetSpellTimerMultiplier() const
+    {
+        return std::max(30.0f, m_creature->GetHealthPercent()) / 100.0f;
+    }
 
     bool SelectTargetAndTryCast(uint32 spellId)
     {
@@ -77,7 +113,10 @@ struct npc_anomalusAI : public ScriptedAI
     }
 };
 
-CreatureAI* GetAI_npc_anomalus(Creature* pCreature) { return new npc_anomalusAI(pCreature); }
+CreatureAI* GetAI_npc_anomalus(Creature* pCreature)
+{
+    return new npc_anomalusAI(pCreature);
+}
 
 enum
 {
@@ -123,7 +162,10 @@ struct npc_unstable_magic_zoneAI : public ScriptedAI
     }
 };
 
-CreatureAI* GetAI_npc_unstable_magic_zone(Creature* pCreature) { return new npc_unstable_magic_zoneAI(pCreature); }
+CreatureAI* GetAI_npc_unstable_magic_zone(Creature* pCreature)
+{
+    return new npc_unstable_magic_zoneAI(pCreature);
+}
 
 void AddSC_boss_anomalus()
 {
@@ -138,4 +180,6 @@ void AddSC_boss_anomalus()
     newscript->Name = "npc_unstable_magic_zone";
     newscript->GetAI = &GetAI_npc_unstable_magic_zone;
     newscript->RegisterSelf();
+
+    RegisterAuraScript("spell_arcane_overload", &GetAuraScript<spell_arcane_overload>);
 }

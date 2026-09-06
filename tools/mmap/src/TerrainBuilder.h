@@ -21,26 +21,26 @@
 
 #include <set>
 
-#include "../../../src/game/Maps/MoveMapSharedDefines.h"
 #include "MMapCommon.h"
+#include "../../../src/game/Maps/MoveMapSharedDefines.h"
 
-#include "VMapManager2.h"
 #include "WorldModel.h"
+#include "VMapManager2.h"
 
 #include "G3D/Array.h"
-#include "G3D/Matrix3.h"
 #include "G3D/Vector3.h"
+#include "G3D/Matrix3.h"
 
 
 namespace MMAP
 {
     enum Spot
     {
-        TOP = 1,
-        RIGHT = 2,
-        LEFT = 3,
-        BOTTOM = 4,
-        ENTIRE = 5
+        TOP     = 1,
+        RIGHT   = 2,
+        LEFT    = 3,
+        BOTTOM  = 4,
+        ENTIRE  = 5
     };
 
     enum Grid
@@ -76,77 +76,77 @@ namespace MMAP
         G3D::Array<uint8> liquidType;
 
         // offmesh connection data
-        G3D::Array<float> offMeshConnections; // [p0y,p0z,p0x,p1y,p1z,p1x] - per connection
+        G3D::Array<float> offMeshConnections;   // [p0y,p0z,p0x,p1y,p1z,p1x] - per connection
         G3D::Array<float> offMeshConnectionRads;
         G3D::Array<unsigned char> offMeshConnectionDirs;
         G3D::Array<unsigned char> offMeshConnectionsAreas;
         G3D::Array<unsigned short> offMeshConnectionsFlags;
 
         // Terrain or gobj model ?
-        bool IsTerrainTriangle(int tri) const { return tri < vmapFirstTriangle || tri >= vmapLastTriangle; }
+        bool IsTerrainTriangle(int tri) const { return tri < vmapFirstTriangle || tri >=  vmapLastTriangle; }
         int vmapFirstTriangle;
         int vmapLastTriangle;
     };
 
     class TerrainBuilder
     {
-    public:
-        TerrainBuilder(bool skipLiquid, bool quick);
-        ~TerrainBuilder();
+        public:
+            TerrainBuilder(bool skipLiquid, bool quick);
+            ~TerrainBuilder();
 
-        void loadMap(uint32 mapID, uint32 tileX, uint32 tileY, MeshData& meshData);
-        bool loadVMap(uint32 mapID, uint32 tileX, uint32 tileY, MeshData& meshData);
-        void unloadVMap(uint32 mapID, uint32 tileX, uint32 tileY);
-        void loadOffMeshConnections(uint32 mapID, uint32 tileX, uint32 tileY, MeshData& meshData, const char* offMeshFilePath);
+            void loadMap(uint32 mapID, uint32 tileX, uint32 tileY, MeshData& meshData);
+            bool loadVMap(uint32 mapID, uint32 tileX, uint32 tileY, MeshData& meshData);
+            void unloadVMap(uint32 mapID, uint32 tileX, uint32 tileY);
+            void loadOffMeshConnections(uint32 mapID, uint32 tileX, uint32 tileY, MeshData& meshData, const char* offMeshFilePath);
 
-        bool usesLiquids() { return !m_skipLiquid; }
+            bool usesLiquids() { return !m_skipLiquid; }
 
-        // vert and triangle methods
-        static void transform(vector<G3D::Vector3>& original, vector<G3D::Vector3>& transformed, float scale, G3D::Matrix3& rotation, G3D::Vector3& position);
-        static void copyVertices(vector<G3D::Vector3>& source, G3D::Array<float>& dest);
-        static void copyIndices(vector<VMAP::MeshTriangle>& source, G3D::Array<int>& dest, int offest, bool flip);
-        static void copyIndices(G3D::Array<int>& src, G3D::Array<int>& dest, int offset);
-        static void cleanVertices(G3D::Array<float>& verts, G3D::Array<int>& tris);
-        float getHeight(float x, float y) const;
-        bool IsUnderMap(float* pos /* y,z,x */);
+            // vert and triangle methods
+            static void transform(vector<G3D::Vector3>& original, vector<G3D::Vector3>& transformed,
+                                  float scale, G3D::Matrix3& rotation, G3D::Vector3& position);
+            static void copyVertices(vector<G3D::Vector3>& source, G3D::Array<float>& dest);
+            static void copyIndices(vector<VMAP::MeshTriangle>& source, G3D::Array<int>& dest, int offest, bool flip);
+            static void copyIndices(G3D::Array<int>& src, G3D::Array<int>& dest, int offset);
+            static void cleanVertices(G3D::Array<float>& verts, G3D::Array<int>& tris);
+            float getHeight(float x, float y) const;
+            bool IsUnderMap(float* pos /* y,z,x */);
+        private:
+            /// Loads a portion of a map's terrain
+            bool loadMap(uint32 mapID, uint32 tileX, uint32 tileY, MeshData& meshData, Spot portion);
 
-    private:
-        /// Loads a portion of a map's terrain
-        bool loadMap(uint32 mapID, uint32 tileX, uint32 tileY, MeshData& meshData, Spot portion);
+            /// Sets loop variables for selecting only certain parts of a map's terrain
+            void getLoopVars(Spot portion, int& loopStart, int& loopEnd, int& loopInc);
 
-        /// Sets loop variables for selecting only certain parts of a map's terrain
-        void getLoopVars(Spot portion, int& loopStart, int& loopEnd, int& loopInc);
+            /// Controls whether liquids are loaded
+            bool m_skipLiquid;
 
-        /// Controls whether liquids are loaded
-        bool m_skipLiquid;
+            /// Load the map terrain from file
+            bool loadHeightMap(uint32 mapID, uint32 tileX, uint32 tileY, G3D::Array<float>& vertices, G3D::Array<int>& triangles, Spot portion);
 
-        /// Load the map terrain from file
-        bool loadHeightMap(uint32 mapID, uint32 tileX, uint32 tileY, G3D::Array<float>& vertices, G3D::Array<int>& triangles, Spot portion);
+            /// Get the vector coordinate for a specific position
+            void getHeightCoord(int index, Grid grid, float xOffset, float yOffset, float* coord, float* v);
 
-        /// Get the vector coordinate for a specific position
-        void getHeightCoord(int index, Grid grid, float xOffset, float yOffset, float* coord, float* v);
+            /// Get the triangle's vector indices for a specific position
+            void getHeightTriangle(int square, Spot triangle, int* indices, bool liquid = false);
 
-        /// Get the triangle's vector indices for a specific position
-        void getHeightTriangle(int square, Spot triangle, int* indices, bool liquid = false);
+            /// Determines if the specific position's triangles should be rendered
+            bool isHole(int square, const uint16 holes[16][16]);
 
-        /// Determines if the specific position's triangles should be rendered
-        bool isHole(int square, const uint16 holes[16][16]);
+            /// Get the liquid vector coordinate for a specific position
+            void getLiquidCoord(int index, int index2, float xOffset, float yOffset, float* coord, float* v);
 
-        /// Get the liquid vector coordinate for a specific position
-        void getLiquidCoord(int index, int index2, float xOffset, float yOffset, float* coord, float* v);
+            /// Get the liquid type for a specific position
+            uint8 getLiquidType(int square, const uint8 liquid_type[16][16]);
 
-        /// Get the liquid type for a specific position
-        uint8 getLiquidType(int square, const uint8 liquid_type[16][16]);
-
-        // hide parameterless and copy constructor
-        TerrainBuilder();
-        TerrainBuilder(const TerrainBuilder& tb);
-        float* m_V9;
-        float* m_V8;
-        bool m_quick;
-        uint32 m_mapId;
-        VMAP::VMapManager2 vmapManager;
+            // hide parameterless and copy constructor
+            TerrainBuilder();
+            TerrainBuilder(const TerrainBuilder& tb);
+            float* m_V9;
+            float* m_V8;
+            bool m_quick;
+            uint32 m_mapId;
+            VMAP::VMapManager2 vmapManager;
     };
-} // namespace MMAP
+}
 
 #endif

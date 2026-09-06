@@ -22,7 +22,7 @@
 #ifndef _my_net_h
 #define _my_net_h
 
-#include "my_global.h" /* C_MODE_START, C_MODE_END */
+#include "my_global.h"                  /* C_MODE_START, C_MODE_END */
 
 C_MODE_START
 
@@ -44,8 +44,8 @@ C_MODE_START
 #endif
 
 #if !defined(__WIN__) && !defined(HAVE_BROKEN_NETINET_INCLUDES)
-#include <netinet/in.h>
 #include <netinet/in_systm.h>
+#include <netinet/in.h>
 #include <netinet/ip.h>
 #if !defined(alpha_linux_port)
 #include <netinet/tcp.h>
@@ -53,7 +53,7 @@ C_MODE_START
 #endif
 
 #if defined(__WIN__)
-#define O_NONBLOCK 1 /* For emulation of fcntl() */
+#define O_NONBLOCK 1    /* For emulation of fcntl() */
 
 /*
   SHUT_RDWR is called SD_BOTH in windows and

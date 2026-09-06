@@ -41,11 +41,11 @@
  * @warning This function is a blocking (synchronous) call and should only be used from within a separate thread.
  * Avoid direct use of this function inside an event handler.
  */
-slashcommand_map global_bulk_command_create_sync(const std::vector<slashcommand>& commands);
+slashcommand_map global_bulk_command_create_sync(const std::vector<slashcommand> &commands);
 
 /**
  * @brief Create a global slash command (a bot can have a maximum of 100 of these).
- *
+ * 
  * @see dpp::cluster::global_command_create
  * @see https://discord.com/developers/docs/interactions/application-commands#create-global-application-command
  * @param s Slash command to create
@@ -55,7 +55,7 @@ slashcommand_map global_bulk_command_create_sync(const std::vector<slashcommand>
  * @warning This function is a blocking (synchronous) call and should only be used from within a separate thread.
  * Avoid direct use of this function inside an event handler.
  */
-slashcommand global_command_create_sync(const slashcommand& s);
+slashcommand global_command_create_sync(const slashcommand &s);
 
 /**
  * @brief Get a global slash command
@@ -97,7 +97,7 @@ confirmation global_command_delete_sync(snowflake id);
  * @warning This function is a blocking (synchronous) call and should only be used from within a separate thread.
  * Avoid direct use of this function inside an event handler.
  */
-confirmation global_command_edit_sync(const slashcommand& s);
+confirmation global_command_edit_sync(const slashcommand &s);
 
 /**
  * @brief Get the application's global slash commands
@@ -127,7 +127,7 @@ slashcommand_map global_commands_get_sync();
  * @warning This function is a blocking (synchronous) call and should only be used from within a separate thread.
  * Avoid direct use of this function inside an event handler.
  */
-slashcommand_map guild_bulk_command_create_sync(const std::vector<slashcommand>& commands, snowflake guild_id);
+slashcommand_map guild_bulk_command_create_sync(const std::vector<slashcommand> &commands, snowflake guild_id);
 
 /**
  * @brief Get all slash command permissions of a guild
@@ -160,7 +160,7 @@ guild_command_permissions_map guild_commands_get_permissions_sync(snowflake guil
  * @warning This function is a blocking (synchronous) call and should only be used from within a separate thread.
  * Avoid direct use of this function inside an event handler.
  */
-guild_command_permissions_map guild_bulk_command_edit_permissions_sync(const std::vector<slashcommand>& commands, snowflake guild_id);
+guild_command_permissions_map guild_bulk_command_edit_permissions_sync(const std::vector<slashcommand> &commands, snowflake guild_id);
 
 /**
  * @brief Create a slash command local to a guild
@@ -176,7 +176,7 @@ guild_command_permissions_map guild_bulk_command_edit_permissions_sync(const std
  * @warning This function is a blocking (synchronous) call and should only be used from within a separate thread.
  * Avoid direct use of this function inside an event handler.
  */
-slashcommand guild_command_create_sync(const slashcommand& s, snowflake guild_id);
+slashcommand guild_command_create_sync(const slashcommand &s, snowflake guild_id);
 
 /**
  * @brief Delete a slash command local to a guild
@@ -207,7 +207,7 @@ confirmation guild_command_delete_sync(snowflake id, snowflake guild_id);
  * @warning This function is a blocking (synchronous) call and should only be used from within a separate thread.
  * Avoid direct use of this function inside an event handler.
  */
-confirmation guild_command_edit_permissions_sync(const slashcommand& s, snowflake guild_id);
+confirmation guild_command_edit_permissions_sync(const slashcommand &s, snowflake guild_id);
 
 /**
  * @brief Get a slash command of a guild
@@ -253,7 +253,7 @@ guild_command_permissions guild_command_get_permissions_sync(snowflake id, snowf
  * @warning This function is a blocking (synchronous) call and should only be used from within a separate thread.
  * Avoid direct use of this function inside an event handler.
  */
-confirmation guild_command_edit_sync(const slashcommand& s, snowflake guild_id);
+confirmation guild_command_edit_sync(const slashcommand &s, snowflake guild_id);
 
 /**
  * @brief Get the application's slash commands for a guild
@@ -284,7 +284,7 @@ slashcommand_map guild_commands_get_sync(snowflake guild_id);
  * @warning This function is a blocking (synchronous) call and should only be used from within a separate thread.
  * Avoid direct use of this function inside an event handler.
  */
-confirmation interaction_response_create_sync(snowflake interaction_id, const std::string& token, const interaction_response& r);
+confirmation interaction_response_create_sync(snowflake interaction_id, const std::string &token, const interaction_response &r);
 
 /**
  * @brief Edit response to a slash command
@@ -299,11 +299,11 @@ confirmation interaction_response_create_sync(snowflake interaction_id, const st
  * @warning This function is a blocking (synchronous) call and should only be used from within a separate thread.
  * Avoid direct use of this function inside an event handler.
  */
-confirmation interaction_response_edit_sync(const std::string& token, const message& m);
+confirmation interaction_response_edit_sync(const std::string &token, const message &m);
 
 /**
  * @brief Create a followup message to a slash command
- *
+ * 
  * @param token Token for the interaction webhook
  * @param m followup message to create
  * @return confirmation returned object on completion
@@ -312,14 +312,14 @@ confirmation interaction_response_edit_sync(const std::string& token, const mess
  * @warning This function is a blocking (synchronous) call and should only be used from within a separate thread.
  * Avoid direct use of this function inside an event handler.
  */
-confirmation interaction_followup_create_sync(const std::string& token, const message& m);
+confirmation interaction_followup_create_sync(const std::string &token, const message &m);
 
 /**
  * @brief Edit original followup message to a slash command
  * This is an alias for cluster::interaction_response_edit
  * @see dpp::cluster::interaction_followup_edit_original
  * @see cluster::interaction_response_edit
- *
+ * 
  * @param token Token for the interaction webhook
  * @param m message to edit, the ID should be set
  * @return confirmation returned object on completion
@@ -328,11 +328,11 @@ confirmation interaction_followup_create_sync(const std::string& token, const me
  * @warning This function is a blocking (synchronous) call and should only be used from within a separate thread.
  * Avoid direct use of this function inside an event handler.
  */
-confirmation interaction_followup_edit_original_sync(const std::string& token, const message& m);
+confirmation interaction_followup_edit_original_sync(const std::string &token, const message &m);
 
 /**
- * @brief
- *
+ * @brief 
+ * 
  * @param token Token for the interaction webhook
  * @return confirmation returned object on completion
  * \memberof dpp::cluster
@@ -340,7 +340,7 @@ confirmation interaction_followup_edit_original_sync(const std::string& token, c
  * @warning This function is a blocking (synchronous) call and should only be used from within a separate thread.
  * Avoid direct use of this function inside an event handler.
  */
-confirmation interaction_followup_delete_sync(const std::string& token);
+confirmation interaction_followup_delete_sync(const std::string &token);
 
 /**
  * @brief Edit followup message to a slash command
@@ -353,7 +353,7 @@ confirmation interaction_followup_delete_sync(const std::string& token);
  * @warning This function is a blocking (synchronous) call and should only be used from within a separate thread.
  * Avoid direct use of this function inside an event handler.
  */
-confirmation interaction_followup_edit_sync(const std::string& token, const message& m);
+confirmation interaction_followup_edit_sync(const std::string &token, const message &m);
 
 /**
  * @brief Get the followup message to a slash command
@@ -365,11 +365,11 @@ confirmation interaction_followup_edit_sync(const std::string& token, const mess
  * @warning This function is a blocking (synchronous) call and should only be used from within a separate thread.
  * Avoid direct use of this function inside an event handler.
  */
-message interaction_followup_get_sync(const std::string& token, snowflake message_id);
+message interaction_followup_get_sync(const std::string &token, snowflake message_id);
 
 /**
  * @brief Get all auto moderation rules for a guild
- *
+ * 
  * @param guild_id Guild id of the auto moderation rule
  * @return automod_rule_map returned object on completion
  * \memberof dpp::cluster
@@ -381,7 +381,7 @@ automod_rule_map automod_rules_get_sync(snowflake guild_id);
 
 /**
  * @brief Get a single auto moderation rule
- *
+ * 
  * @param guild_id Guild id of the auto moderation rule
  * @param rule_id  Rule id to retrieve
  * @return automod_rule returned object on completion
@@ -394,7 +394,7 @@ automod_rule automod_rule_get_sync(snowflake guild_id, snowflake rule_id);
 
 /**
  * @brief Create an auto moderation rule
- *
+ * 
  * @param guild_id Guild id of the auto moderation rule
  * @param r Auto moderation rule to create
  * @return automod_rule returned object on completion
@@ -407,7 +407,7 @@ automod_rule automod_rule_create_sync(snowflake guild_id, const automod_rule& r)
 
 /**
  * @brief Edit an auto moderation rule
- *
+ * 
  * @param guild_id Guild id of the auto moderation rule
  * @param r Auto moderation rule to edit. The rule's id must be set.
  * @return automod_rule returned object on completion
@@ -420,7 +420,7 @@ automod_rule automod_rule_edit_sync(snowflake guild_id, const automod_rule& r);
 
 /**
  * @brief Delete an auto moderation rule
- *
+ * 
  * @param guild_id Guild id of the auto moderation rule
  * @param rule_id Auto moderation rule id to delete
  * @return confirmation returned object on completion
@@ -433,13 +433,13 @@ confirmation automod_rule_delete_sync(snowflake guild_id, snowflake rule_id);
 
 /**
  * @brief Create a channel
- *
+ * 
  * Create a new channel object for the guild. Requires the `MANAGE_CHANNELS` permission. If setting permission overwrites,
  * only permissions your bot has in the guild can be allowed/denied. Setting `MANAGE_ROLES` permission in channels is only possible
  * for guild administrators. Returns the new channel object on success. Fires a `Channel Create Gateway` event.
- *
+ * 
  * All parameters to this endpoint are optional excluding `name`
- *
+ * 
  * @note This method supports audit log reasons set by the cluster::set_audit_reason() method.
  * @see dpp::cluster::channel_create
  * @see https://discord.com/developers/docs/resources/channel#create-channel
@@ -450,7 +450,7 @@ confirmation automod_rule_delete_sync(snowflake guild_id, snowflake rule_id);
  * @warning This function is a blocking (synchronous) call and should only be used from within a separate thread.
  * Avoid direct use of this function inside an event handler.
  */
-channel channel_create_sync(const class channel& c);
+channel channel_create_sync(const class channel &c);
 
 /**
  * @brief Remove a permission from a channel
@@ -465,7 +465,7 @@ channel channel_create_sync(const class channel& c);
  * @warning This function is a blocking (synchronous) call and should only be used from within a separate thread.
  * Avoid direct use of this function inside an event handler.
  */
-confirmation channel_delete_permission_sync(const class channel& c, snowflake overwrite_id);
+confirmation channel_delete_permission_sync(const class channel &c, snowflake overwrite_id);
 
 /**
  * @brief Delete a channel
@@ -483,7 +483,7 @@ confirmation channel_delete_sync(snowflake channel_id);
 
 /**
  * @brief Edit multiple channels positions
- *
+ * 
  * Modify the positions of a set of channel objects for the guild.
  * Requires `MANAGE_CHANNELS` permission. Fires multiple `Channel Update Gateway` events.
  * Only channels to be modified are required.
@@ -497,7 +497,7 @@ confirmation channel_delete_sync(snowflake channel_id);
  * @warning This function is a blocking (synchronous) call and should only be used from within a separate thread.
  * Avoid direct use of this function inside an event handler.
  */
-confirmation channel_edit_positions_sync(const std::vector<channel>& c);
+confirmation channel_edit_positions_sync(const std::vector<channel> &c);
 
 /**
  * @brief Edit a channel
@@ -511,7 +511,7 @@ confirmation channel_edit_positions_sync(const std::vector<channel>& c);
  * @warning This function is a blocking (synchronous) call and should only be used from within a separate thread.
  * Avoid direct use of this function inside an event handler.
  */
-channel channel_edit_sync(const class channel& c);
+channel channel_edit_sync(const class channel &c);
 
 /**
  * @brief Follow an announcement (news) channel
@@ -525,7 +525,7 @@ channel channel_edit_sync(const class channel& c);
  * @warning This function is a blocking (synchronous) call and should only be used from within a separate thread.
  * Avoid direct use of this function inside an event handler.
  */
-confirmation channel_follow_news_sync(const class channel& c, snowflake target_channel_id);
+confirmation channel_follow_news_sync(const class channel &c, snowflake target_channel_id);
 
 /**
  * @brief Get a channel
@@ -554,7 +554,7 @@ channel channel_get_sync(snowflake c);
  * @warning This function is a blocking (synchronous) call and should only be used from within a separate thread.
  * Avoid direct use of this function inside an event handler.
  */
-confirmation channel_invite_create_sync(const class channel& c, const class invite& i);
+confirmation channel_invite_create_sync(const class channel &c, const class invite &i);
 
 /**
  * @brief Get invites for a channel
@@ -568,7 +568,7 @@ confirmation channel_invite_create_sync(const class channel& c, const class invi
  * @warning This function is a blocking (synchronous) call and should only be used from within a separate thread.
  * Avoid direct use of this function inside an event handler.
  */
-invite_map channel_invites_get_sync(const class channel& c);
+invite_map channel_invites_get_sync(const class channel &c);
 
 /**
  * @brief Get all channels for a guild
@@ -599,7 +599,7 @@ channel create_dm_channel_sync(snowflake user_id);
 
 /**
  * @brief Get current user DM channels
- *
+ * 
  * @return channel_map returned object on completion
  * \memberof dpp::cluster
  * @throw dpp::rest_exception upon failure to execute REST function
@@ -623,7 +623,7 @@ channel_map current_user_get_dms_sync();
  * @warning This function is a blocking (synchronous) call and should only be used from within a separate thread.
  * Avoid direct use of this function inside an event handler.
  */
-message direct_message_create_sync(snowflake user_id, const message& m);
+message direct_message_create_sync(snowflake user_id, const message &m);
 
 /**
  * @brief Adds a recipient to a Group DM using their access token
@@ -639,7 +639,7 @@ message direct_message_create_sync(snowflake user_id, const message& m);
  * @warning This function is a blocking (synchronous) call and should only be used from within a separate thread.
  * Avoid direct use of this function inside an event handler.
  */
-confirmation gdm_add_sync(snowflake channel_id, snowflake user_id, const std::string& access_token, const std::string& nick);
+confirmation gdm_add_sync(snowflake channel_id, snowflake user_id, const std::string &access_token, const std::string &nick);
 
 /**
  * @brief Removes a recipient from a Group DM
@@ -690,7 +690,7 @@ confirmation guild_emoji_delete_sync(snowflake guild_id, snowflake emoji_id);
 
 /**
  * @brief Edit a single emoji.
- *
+ * 
  * You must ensure that the emoji passed contained image data using the emoji::load_image() method.
  * @see dpp::cluster::guild_emoji_edit
  * @see https://discord.com/developers/docs/resources/emoji#get-guild-emoji
@@ -763,7 +763,7 @@ gateway get_gateway_bot_sync();
  * @warning This function is a blocking (synchronous) call and should only be used from within a separate thread.
  * Avoid direct use of this function inside an event handler.
  */
-confirmation guild_current_member_edit_sync(snowflake guild_id, const std::string& nickname);
+confirmation guild_current_member_edit_sync(snowflake guild_id, const std::string &nickname);
 
 /**
  * @brief Get the audit log for a guild
@@ -804,7 +804,7 @@ confirmation guild_ban_add_sync(snowflake guild_id, snowflake user_id, uint32_t 
 
 /**
  * @brief Delete guild ban
- *
+ * 
  * Remove the ban for a user. Requires the `BAN_MEMBERS` permissions.
  * Fires a Guild Ban Remove Gateway event.
  * @see dpp::cluster::guild_ban_delete
@@ -822,9 +822,9 @@ confirmation guild_ban_delete_sync(snowflake guild_id, snowflake user_id);
 
 /**
  * @brief Create a guild
- *
+ * 
  * Create a new guild. Returns a guild object on success. `Fires a Guild Create Gateway` event.
- *
+ * 
  * When using the roles parameter, the first member of the array is used to change properties of the guild's everyone role.
  * If you are trying to bootstrap a guild with additional roles, keep this in mind. The required id field within each role object is an
  * integer placeholder, and will be replaced by the API upon consumption. Its purpose is to allow you to overwrite a role's permissions
@@ -844,11 +844,11 @@ confirmation guild_ban_delete_sync(snowflake guild_id, snowflake user_id);
  * @warning This function is a blocking (synchronous) call and should only be used from within a separate thread.
  * Avoid direct use of this function inside an event handler.
  */
-guild guild_create_sync(const class guild& g);
+guild guild_create_sync(const class guild &g);
 
 /**
  * @brief Delete a guild
- *
+ * 
  * Delete a guild permanently. User must be owner. Fires a `Guild Delete Gateway` event.
  *
  * @see dpp::cluster::guild_delete
@@ -864,10 +864,10 @@ confirmation guild_delete_sync(snowflake guild_id);
 
 /**
  * @brief Delete guild integration
- *
+ * 
  * Delete the attached integration object for the guild. Deletes any associated webhooks and kicks the associated bot if there is one.
  * Requires the `MANAGE_GUILD` permission. Fires a Guild Integrations Update Gateway event.
- *
+ * 
  * @see dpp::cluster::guild_delete_integration
  * @see https://discord.com/developers/docs/resources/guild#delete-guild-integration
  * @note This method supports audit log reasons set by the cluster::set_audit_reason() method.
@@ -883,10 +883,10 @@ confirmation guild_delete_integration_sync(snowflake guild_id, snowflake integra
 
 /**
  * @brief Edit a guild
- *
+ * 
  * Modify a guild's settings. Requires the `MANAGE_GUILD` permission. Returns the updated guild object on success.
  * Fires a `Guild Update Gateway` event.
- *
+ * 
  * @see dpp::cluster::guild_edit
  * @see https://discord.com/developers/docs/resources/guild#modify-guild
  * @note This method supports audit log reasons set by the cluster::set_audit_reason() method.
@@ -897,11 +897,11 @@ confirmation guild_delete_integration_sync(snowflake guild_id, snowflake integra
  * @warning This function is a blocking (synchronous) call and should only be used from within a separate thread.
  * Avoid direct use of this function inside an event handler.
  */
-guild guild_edit_sync(const class guild& g);
+guild guild_edit_sync(const class guild &g);
 
 /**
  * @brief Edit guild widget
- *
+ * 
  * Requires the `MANAGE_GUILD` permission.
  *
  * @see dpp::cluster::guild_edit_widget
@@ -915,11 +915,11 @@ guild guild_edit_sync(const class guild& g);
  * @warning This function is a blocking (synchronous) call and should only be used from within a separate thread.
  * Avoid direct use of this function inside an event handler.
  */
-guild_widget guild_edit_widget_sync(snowflake guild_id, const class guild_widget& gw);
+guild_widget guild_edit_widget_sync(snowflake guild_id, const class guild_widget &gw);
 
 /**
  * @brief Get single guild ban
- *
+ * 
  * Requires the `BAN_MEMBERS` permission.
  * @see dpp::cluster::guild_get_ban
  * @see https://discord.com/developers/docs/resources/guild#get-guild-ban
@@ -935,7 +935,7 @@ ban guild_get_ban_sync(snowflake guild_id, snowflake user_id);
 
 /**
  * @brief Get guild ban list
- *
+ * 
  * Requires the `BAN_MEMBERS` permission.
  * @see dpp::cluster::guild_get_bans
  * @see https://discord.com/developers/docs/resources/guild#get-guild-bans
@@ -957,7 +957,7 @@ guild guild_get_sync(snowflake guild_id);
 
 /**
  * @brief Get guild integrations
- *
+ * 
  * Requires the `MANAGE_GUILD` permission.
  *
  * @see dpp::cluster::guild_get_integrations
@@ -976,7 +976,7 @@ guild guild_get_preview_sync(snowflake guild_id);
 
 /**
  * @brief Get guild vanity url, if enabled
- *
+ * 
  * Returns a partial dpp::invite object for guilds with that feature enabled. Requires the `MANAGE_GUILD` permission. code will be null if a vanity url for the guild is not set.
  * @see dpp::cluster::guild_get_vanity
  * @see https://discord.com/developers/docs/resources/guild#get-guild-vanity-url
@@ -991,7 +991,7 @@ invite guild_get_vanity_sync(snowflake guild_id);
 
 /**
  * @brief Get guild widget
- *
+ * 
  * Requires the `MANAGE_GUILD` permission.
  *
  * @see dpp::cluster::guild_get_widget
@@ -1019,11 +1019,11 @@ guild_widget guild_get_widget_sync(snowflake guild_id);
  * @warning This function is a blocking (synchronous) call and should only be used from within a separate thread.
  * Avoid direct use of this function inside an event handler.
  */
-confirmation guild_modify_integration_sync(snowflake guild_id, const class integration& i);
+confirmation guild_modify_integration_sync(snowflake guild_id, const class integration &i);
 
 /**
  * @brief Get prune counts
- *
+ * 
  * Returns a prune object indicating the number of members that would be removed in a prune operation. Requires the `KICK_MEMBERS`
  * permission. By default, prune will not remove users with roles. You can optionally include specific roles in your prune by providing the
  * include_roles parameter. Any inactive user that has a subset of the provided role(s) will be counted in the prune and users with additional
@@ -1043,13 +1043,13 @@ prune guild_get_prune_counts_sync(snowflake guild_id, const struct prune& prunei
 
 /**
  * @brief Begin guild prune
- *
+ * 
  * Begin a prune operation. Requires the `KICK_MEMBERS` permission. Returns a prune object indicating the number of members
  * that were removed in the prune operation. For large guilds it's recommended to set the `compute_prune_count` option to false, forcing
  * 'pruned' to 0. Fires multiple `Guild Member Remove` Gateway events.
  * By default, prune will not remove users with roles. You can optionally include specific roles in your prune by providing the `include_roles`
  * parameter. Any inactive user that has a subset of the provided role(s) will be included in the prune and users with additional roles will not.
- *
+ * 
  * @see dpp::cluster::guild_begin_prune
  * @see https://discord.com/developers/docs/resources/guild#begin-guild-prune
  * @note This method supports audit log reasons set by the cluster::set_audit_reason() method.
@@ -1065,10 +1065,10 @@ prune guild_begin_prune_sync(snowflake guild_id, const struct prune& pruneinfo);
 
 /**
  * @brief Change current user nickname
- *
+ * 
  * Modifies the nickname of the current user in a guild.
  * Fires a `Guild Member Update` Gateway event.
- *
+ * 
  * @deprecated Deprecated in favor of Modify Current Member. Will be replaced by dpp::cluster::guild_current_member_edit
  * @note This method supports audit log reasons set by the cluster::set_audit_reason() method.
  * @see dpp::cluster::guild_set_nickname
@@ -1081,7 +1081,7 @@ prune guild_begin_prune_sync(snowflake guild_id, const struct prune& pruneinfo);
  * @warning This function is a blocking (synchronous) call and should only be used from within a separate thread.
  * Avoid direct use of this function inside an event handler.
  */
-confirmation guild_set_nickname_sync(snowflake guild_id, const std::string& nickname);
+confirmation guild_set_nickname_sync(snowflake guild_id, const std::string &nickname);
 
 /**
  * @brief Sync guild integration
@@ -1100,13 +1100,13 @@ confirmation guild_sync_integration_sync(snowflake guild_id, snowflake integrati
 
 /**
  * @brief Add guild member. Needs a specific oauth2 scope, from which you get the access_token.
- *
+ * 
  * Adds a user to the guild, provided you have a valid oauth2 access token for the user with the guilds.join scope.
  * Returns the guild_member, which is defaulted if the user is already a member of the guild. Fires a `Guild Member Add` Gateway event.
- *
+ * 
  * For guilds with Membership Screening enabled, this endpoint will default to adding new members as pending in the guild member object.
  * Members that are pending will have to complete membership screening before they become full members that can talk.
- *
+ * 
  * @note All parameters to this endpoint except for access_token are optional.
  * The bot must be a member of the guild with `CREATE_INSTANT_INVITE` permission.
  * @see dpp::cluster::guild_add_member
@@ -1119,11 +1119,11 @@ confirmation guild_sync_integration_sync(snowflake guild_id, snowflake integrati
  * @warning This function is a blocking (synchronous) call and should only be used from within a separate thread.
  * Avoid direct use of this function inside an event handler.
  */
-confirmation guild_add_member_sync(const guild_member& gm, const std::string& access_token);
+confirmation guild_add_member_sync(const guild_member& gm, const std::string &access_token);
 
 /**
  * @brief Edit the properties of an existing guild member
- *
+ * 
  * Modify attributes of a guild member. Returns the guild_member. Fires a `Guild Member Update` Gateway event.
  * To remove a timeout, set the `communication_disabled_until` to a non-zero time in the past, e.g. 1.
  * When moving members to channels, the API user must have permissions to both connect to the channel and have the `MOVE_MEMBERS` permission.
@@ -1156,7 +1156,7 @@ guild_member guild_get_member_sync(snowflake guild_id, snowflake user_id);
 
 /**
  * @brief Get all guild members
- *
+ * 
  * @note This endpoint is restricted according to whether the `GUILD_MEMBERS` Privileged Intent is enabled for your application.
  * @see dpp::cluster::guild_get_members
  * @see https://discord.com/developers/docs/resources/guild#get-guild-members
@@ -1173,7 +1173,7 @@ guild_member_map guild_get_members_sync(snowflake guild_id, uint16_t limit, snow
 
 /**
  * @brief Add role to guild member
- *
+ * 
  * Adds a role to a guild member. Requires the `MANAGE_ROLES` permission.
  * Fires a `Guild Member Update` Gateway event.
  * @see dpp::cluster::guild_member_add_role
@@ -1192,7 +1192,7 @@ confirmation guild_member_add_role_sync(snowflake guild_id, snowflake user_id, s
 
 /**
  * @brief Remove (kick) a guild member
- *
+ * 
  * Remove a member from a guild. Requires `KICK_MEMBERS` permission.
  * Fires a `Guild Member Remove` Gateway event.
  * @see dpp::cluster::guild_member_delete
@@ -1211,7 +1211,7 @@ confirmation guild_member_delete_sync(snowflake guild_id, snowflake user_id);
 
 /**
  * @brief Remove (kick) a guild member
- *
+ *  
  * Remove a member from a guild. Requires `KICK_MEMBERS` permission.
  * Fires a `Guild Member Remove` Gateway event.
  * @see dpp::cluster::guild_member_kick
@@ -1247,7 +1247,7 @@ confirmation guild_member_timeout_sync(snowflake guild_id, snowflake user_id, ti
 
 /**
  * @brief Remove role from guild member
- *
+ * 
  * Removes a role from a guild member. Requires the `MANAGE_ROLES` permission.
  * Fires a `Guild Member Update` Gateway event.
  * @see dpp::cluster::guild_member_delete_role
@@ -1323,7 +1323,7 @@ guild_member_map guild_search_members_sync(snowflake guild_id, const std::string
 
 /**
  * @brief Get guild invites
- *
+ * 
  * Returns a list of invite objects (with invite metadata) for the guild. Requires the `MANAGE_GUILD` permission.
  *
  * @see dpp::cluster::guild_get_invites
@@ -1338,10 +1338,10 @@ guild_member_map guild_search_members_sync(snowflake guild_id, const std::string
 invite_map guild_get_invites_sync(snowflake guild_id);
 
 
-invite invite_delete_sync(const std::string& invitecode);
+invite invite_delete_sync(const std::string &invitecode);
 
 
-invite invite_get_sync(const std::string& invitecode);
+invite invite_get_sync(const std::string &invitecode);
 
 /**
  * @brief Send a message to a channel. The callback function is called when the message has been sent
@@ -1355,7 +1355,7 @@ invite invite_get_sync(const std::string& invitecode);
  * @warning This function is a blocking (synchronous) call and should only be used from within a separate thread.
  * Avoid direct use of this function inside an event handler.
  */
-message message_create_sync(const struct message& m);
+message message_create_sync(const struct message &m);
 
 /**
  * @brief Crosspost a message. The callback function is called when the message has been sent
@@ -1388,7 +1388,7 @@ message message_crosspost_sync(snowflake message_id, snowflake channel_id);
  * @warning This function is a blocking (synchronous) call and should only be used from within a separate thread.
  * Avoid direct use of this function inside an event handler.
  */
-confirmation message_delete_bulk_sync(const std::vector<snowflake>& message_ids, snowflake channel_id);
+confirmation message_delete_bulk_sync(const std::vector<snowflake> &message_ids, snowflake channel_id);
 
 /**
  * @brief Delete a message from a channel. The callback function is called when the message has been edited
@@ -1418,7 +1418,7 @@ confirmation message_delete_sync(snowflake message_id, snowflake channel_id);
  * @warning This function is a blocking (synchronous) call and should only be used from within a separate thread.
  * Avoid direct use of this function inside an event handler.
  */
-message message_edit_sync(const struct message& m);
+message message_edit_sync(const struct message &m);
 
 /**
  * @brief Get a message
@@ -1452,7 +1452,7 @@ confirmation message_pin_sync(snowflake channel_id, snowflake message_id);
 
 /**
  * @brief Get multiple messages.
- *
+ * 
  * This function will attempt to fetch as many messages as possible using multiple API calls if needed.
  *
  * @see dpp::cluster::messages_get
@@ -1500,10 +1500,10 @@ message_map channel_pins_get_sync(snowflake channel_id);
 
 /**
  * @brief Create a role on a guild
- *
+ * 
  * Create a new role for the guild. Requires the `MANAGE_ROLES` permission. Returns the new role object on success.
  * Fires a `Guild Role Create` Gateway event.
- *
+ * 
  * @see dpp::cluster::role_create
  * @see https://discord.com/developers/docs/resources/guild#create-guild-role
  * @note This method supports audit log reasons set by the cluster::set_audit_reason() method.
@@ -1514,13 +1514,13 @@ message_map channel_pins_get_sync(snowflake channel_id);
  * @warning This function is a blocking (synchronous) call and should only be used from within a separate thread.
  * Avoid direct use of this function inside an event handler.
  */
-role role_create_sync(const class role& r);
+role role_create_sync(const class role &r);
 
 /**
  * @brief Delete a role
- *
+ * 
  * Requires the `MANAGE_ROLES` permission. Fires a `Guild Role Delete` Gateway event.
- *
+ * 
  * @see dpp::cluster::role_delete
  * @see https://discord.com/developers/docs/resources/guild#delete-guild-role
  * @note This method supports audit log reasons set by the cluster::set_audit_reason() method.
@@ -1536,9 +1536,9 @@ confirmation role_delete_sync(snowflake guild_id, snowflake role_id);
 
 /**
  * @brief Edit a role on a guild
- *
+ * 
  * Requires the `MANAGE_ROLES` permission. Returns the updated role on success. Fires a `Guild Role Update` Gateway event.
- *
+ * 
  * @see dpp::cluster::role_edit
  * @see https://discord.com/developers/docs/resources/guild#modify-guild-role
  * @note This method supports audit log reasons set by the cluster::set_audit_reason() method.
@@ -1549,7 +1549,7 @@ confirmation role_delete_sync(snowflake guild_id, snowflake role_id);
  * @warning This function is a blocking (synchronous) call and should only be used from within a separate thread.
  * Avoid direct use of this function inside an event handler.
  */
-role role_edit_sync(const class role& r);
+role role_edit_sync(const class role &r);
 
 /**
  * @brief Edit multiple role's position in a guild. Returns a list of all roles of the guild on success.
@@ -1568,7 +1568,7 @@ role role_edit_sync(const class role& r);
  * @warning This function is a blocking (synchronous) call and should only be used from within a separate thread.
  * Avoid direct use of this function inside an event handler.
  */
-role_map roles_edit_position_sync(snowflake guild_id, const std::vector<role>& roles);
+role_map roles_edit_position_sync(snowflake guild_id, const std::vector<role> &roles);
 
 /**
  * @brief Get a role for a guild
@@ -1700,7 +1700,7 @@ confirmation stage_instance_delete_sync(const snowflake channel_id);
  * @warning This function is a blocking (synchronous) call and should only be used from within a separate thread.
  * Avoid direct use of this function inside an event handler.
  */
-sticker guild_sticker_create_sync(sticker& s);
+sticker guild_sticker_create_sync(sticker &s);
 
 /**
  * @brief Delete a sticker from a guild
@@ -1743,7 +1743,7 @@ sticker guild_sticker_get_sync(snowflake id, snowflake guild_id);
  * @warning This function is a blocking (synchronous) call and should only be used from within a separate thread.
  * Avoid direct use of this function inside an event handler.
  */
-sticker guild_sticker_modify_sync(sticker& s);
+sticker guild_sticker_modify_sync(sticker &s);
 
 /**
  * @brief Get all guild stickers
@@ -1796,7 +1796,7 @@ sticker_pack_map sticker_packs_get_sync();
  * @warning This function is a blocking (synchronous) call and should only be used from within a separate thread.
  * Avoid direct use of this function inside an event handler.
  */
-guild guild_create_from_template_sync(const std::string& code, const std::string& name);
+guild guild_create_from_template_sync(const std::string &code, const std::string &name);
 
 /**
  * @brief Creates a template for the guild
@@ -1812,7 +1812,7 @@ guild guild_create_from_template_sync(const std::string& code, const std::string
  * @warning This function is a blocking (synchronous) call and should only be used from within a separate thread.
  * Avoid direct use of this function inside an event handler.
  */
-dtemplate guild_template_create_sync(snowflake guild_id, const std::string& name, const std::string& description);
+dtemplate guild_template_create_sync(snowflake guild_id, const std::string &name, const std::string &description);
 
 /**
  * @brief Deletes the template
@@ -1827,7 +1827,7 @@ dtemplate guild_template_create_sync(snowflake guild_id, const std::string& name
  * @warning This function is a blocking (synchronous) call and should only be used from within a separate thread.
  * Avoid direct use of this function inside an event handler.
  */
-confirmation guild_template_delete_sync(snowflake guild_id, const std::string& code);
+confirmation guild_template_delete_sync(snowflake guild_id, const std::string &code);
 
 /**
  * @brief Modifies the template's metadata.
@@ -1844,7 +1844,7 @@ confirmation guild_template_delete_sync(snowflake guild_id, const std::string& c
  * @warning This function is a blocking (synchronous) call and should only be used from within a separate thread.
  * Avoid direct use of this function inside an event handler.
  */
-dtemplate guild_template_modify_sync(snowflake guild_id, const std::string& code, const std::string& name, const std::string& description);
+dtemplate guild_template_modify_sync(snowflake guild_id, const std::string &code, const std::string &name, const std::string &description);
 
 /**
  * @brief Get guild templates
@@ -1873,7 +1873,7 @@ dtemplate_map guild_templates_get_sync(snowflake guild_id);
  * @warning This function is a blocking (synchronous) call and should only be used from within a separate thread.
  * Avoid direct use of this function inside an event handler.
  */
-dtemplate guild_template_sync_sync(snowflake guild_id, const std::string& code);
+dtemplate guild_template_sync_sync(snowflake guild_id, const std::string &code);
 
 /**
  * @brief Get a template
@@ -1886,7 +1886,7 @@ dtemplate guild_template_sync_sync(snowflake guild_id, const std::string& code);
  * @warning This function is a blocking (synchronous) call and should only be used from within a separate thread.
  * Avoid direct use of this function inside an event handler.
  */
-dtemplate template_get_sync(const std::string& code);
+dtemplate template_get_sync(const std::string &code);
 
 /**
  * @brief Join a thread
@@ -1955,7 +1955,7 @@ thread_map threads_get_joined_private_archived_sync(snowflake channel_id, snowfl
  * @warning This function is a blocking (synchronous) call and should only be used from within a separate thread.
  * Avoid direct use of this function inside an event handler.
  */
-thread_map threads_get_private_archived_sync(snowflake channel_id, time_t before_timestamp, uint16_t limit);
+thread_map threads_get_private_archived_sync(snowflake channel_id,  time_t before_timestamp, uint16_t limit);
 
 /**
  * @brief Get public archived threads in a channel (Sorted by archive_timestamp in descending order)
@@ -2096,13 +2096,13 @@ confirmation thread_member_remove_sync(snowflake thread_id, snowflake user_id);
  * @param image_blob Avatar data to upload (NOTE: Very heavily rate limited!)
  * @param type Type of image for avatar
  * @return user returned object on completion
- * @throw dpp::exception Image data is larger than the maximum size of 256 kilobytes
+ 	 * @throw dpp::exception Image data is larger than the maximum size of 256 kilobytes
  * \memberof dpp::cluster
  * @throw dpp::rest_exception upon failure to execute REST function
  * @warning This function is a blocking (synchronous) call and should only be used from within a separate thread.
  * Avoid direct use of this function inside an event handler.
  */
-user current_user_edit_sync(const std::string& nickname, const std::string& image_blob = "", const image_type type = i_png);
+user current_user_edit_sync(const std::string &nickname, const std::string& image_blob = "", const image_type type = i_png);
 
 /**
  * @brief Get current (bot) application
@@ -2134,11 +2134,11 @@ user_identified current_user_get_sync();
 
 /**
  * @brief Set the bot's voice state on a stage channel
- *
+ * 
  * **Caveats**
- *
+ * 
  * There are currently several caveats for this endpoint:
- *
+ * 
  * - `channel_id` must currently point to a stage channel.
  * - current user must already have joined `channel_id`.
  * - You must have the `MUTE_MEMBERS` permission to unsuppress yourself. You can always suppress yourself.
@@ -2146,7 +2146,7 @@ user_identified current_user_get_sync();
  * - You are able to set `request_to_speak_timestamp` to any present or future time.
  *
  * @see dpp::cluster::current_user_set_voice_state
- * @see https://discord.com/developers/docs/resources/guild#modify-current-user-voice-state
+ * @see https://discord.com/developers/docs/resources/guild#modify-current-user-voice-state 
  * @param guild_id Guild to set voice state on
  * @param channel_id Stage channel to set voice state on
  * @return confirmation returned object on completion
@@ -2164,15 +2164,15 @@ confirmation current_user_set_voice_state_sync(snowflake guild_id, snowflake cha
  * @brief Set a user's voice state on a stage channel
  *
  * **Caveats**
- *
+ * 
  * There are currently several caveats for this endpoint:
- *
+ * 
  * - `channel_id` must currently point to a stage channel.
  * - User must already have joined `channel_id`.
  * - You must have the `MUTE_MEMBERS` permission. (Since suppression is the only thing that is available currently)
  * - When unsuppressed, non-bot users will have their `request_to_speak_timestamp` set to the current time. Bot users will not.
  * - When suppressed, the user will have their `request_to_speak_timestamp` removed.
- *
+ * 
  * @see dpp::cluster::user_set_voice_state
  * @see https://discord.com/developers/docs/resources/guild#modify-user-voice-state
  * @param user_id The user to set the voice state of
@@ -2258,7 +2258,7 @@ voiceregion_map get_voice_regions_sync();
 
 /**
  * @brief Get guild voice regions.
- *
+ * 
  * Voice regions per guild are somewhat deprecated in preference of per-channel voice regions.
  * Returns a list of voice region objects for the guild. Unlike the similar /voice route, this returns VIP servers when
  * the guild is VIP-enabled.
@@ -2286,7 +2286,7 @@ voiceregion_map guild_get_voice_regions_sync(snowflake guild_id);
  * @warning This function is a blocking (synchronous) call and should only be used from within a separate thread.
  * Avoid direct use of this function inside an event handler.
  */
-webhook create_webhook_sync(const class webhook& w);
+webhook create_webhook_sync(const class webhook &w);
 
 /**
  * @brief Delete a webhook
@@ -2316,7 +2316,7 @@ confirmation delete_webhook_sync(snowflake webhook_id);
  * @warning This function is a blocking (synchronous) call and should only be used from within a separate thread.
  * Avoid direct use of this function inside an event handler.
  */
-confirmation delete_webhook_message_sync(const class webhook& wh, snowflake message_id, snowflake thread_id = 0);
+confirmation delete_webhook_message_sync(const class webhook &wh, snowflake message_id, snowflake thread_id = 0);
 
 /**
  * @brief Delete webhook with token
@@ -2330,7 +2330,7 @@ confirmation delete_webhook_message_sync(const class webhook& wh, snowflake mess
  * @warning This function is a blocking (synchronous) call and should only be used from within a separate thread.
  * Avoid direct use of this function inside an event handler.
  */
-confirmation delete_webhook_with_token_sync(snowflake webhook_id, const std::string& token);
+confirmation delete_webhook_with_token_sync(snowflake webhook_id, const std::string &token);
 
 /**
  * @brief Edit webhook
@@ -2353,7 +2353,7 @@ webhook edit_webhook_sync(const class webhook& wh);
  * the new content. The allowed_mentions field of the edit request controls how this happens. If there is no explicit
  * allowed_mentions in the edit request, the content will be parsed with default allowances, that is, without regard to
  * whether or not an allowed_mentions was present in the request that originally created the message.
- *
+ * 
  * @see dpp::cluster::edit_webhook_message
  * @see https://discord.com/developers/docs/resources/webhook#edit-webhook-message
  * @note the attachments array must contain all attachments that should be present after edit, including retained and new attachments provided in the request body.
@@ -2366,7 +2366,7 @@ webhook edit_webhook_sync(const class webhook& wh);
  * @warning This function is a blocking (synchronous) call and should only be used from within a separate thread.
  * Avoid direct use of this function inside an event handler.
  */
-message edit_webhook_message_sync(const class webhook& wh, const struct message& m, snowflake thread_id = 0);
+message edit_webhook_message_sync(const class webhook &wh, const struct message &m, snowflake thread_id = 0);
 
 /**
  * @brief Edit webhook with token (token is encapsulated in the webhook object)
@@ -2398,7 +2398,7 @@ webhook edit_webhook_with_token_sync(const class webhook& wh);
  * @warning This function is a blocking (synchronous) call and should only be used from within a separate thread.
  * Avoid direct use of this function inside an event handler.
  */
-message execute_webhook_sync(const class webhook& wh, const struct message& m, bool wait = false, snowflake thread_id = 0, const std::string& thread_name = "");
+message execute_webhook_sync(const class webhook &wh, const struct message &m, bool wait = false, snowflake thread_id = 0, const std::string& thread_name = "");
 
 /**
  * @brief Get channel webhooks
@@ -2453,7 +2453,7 @@ webhook get_webhook_sync(snowflake webhook_id);
  * @warning This function is a blocking (synchronous) call and should only be used from within a separate thread.
  * Avoid direct use of this function inside an event handler.
  */
-message get_webhook_message_sync(const class webhook& wh, snowflake message_id, snowflake thread_id = 0);
+message get_webhook_message_sync(const class webhook &wh, snowflake message_id, snowflake thread_id = 0);
 
 /**
  * @brief Get webhook using token
@@ -2467,7 +2467,7 @@ message get_webhook_message_sync(const class webhook& wh, snowflake message_id, 
  * @warning This function is a blocking (synchronous) call and should only be used from within a separate thread.
  * Avoid direct use of this function inside an event handler.
  */
-webhook get_webhook_with_token_sync(snowflake webhook_id, const std::string& token);
+webhook get_webhook_with_token_sync(snowflake webhook_id, const std::string &token);
 
 
 /* End of auto-generated definitions */

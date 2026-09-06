@@ -1,21 +1,21 @@
-#include "blackrock_spire.h"
 #include "scriptPCH.h"
+#include "blackrock_spire.h"
 
 enum
 {
     // Invocateur Main-noire
-    SPELL_BOULE_FEU = 12466, // Boule de feu
-    SPELL_NOVA_GIVRE = 15532, // Nova de givre
-    SPELL_SUMMON_DREADWEAVER = 15794,
-    SPELL_SUMMON_VETERAN = 15792,
+    SPELL_BOULE_FEU             = 12466, // Boule de feu
+    SPELL_NOVA_GIVRE            = 15532, // Nova de givre
+    SPELL_SUMMON_DREADWEAVER    = 15794,
+    SPELL_SUMMON_VETERAN        = 15792,
 
     // Veteran Main-noire
-    SPELL_CHARGE_BOUCLIER = 15749,
-    SPELL_COUP_BOUCLIER = 11972,
-    SPELL_FRAPPE = 14516,
+    SPELL_CHARGE_BOUCLIER       = 15749,
+    SPELL_COUP_BOUCLIER         = 11972,
+    SPELL_FRAPPE                = 14516,
 
-    SAY_SUMMONING_DREADWEAVER = -1900166,
-    SAY_SUMMONING_VETERAN = -1900167
+    SAY_SUMMONING_DREADWEAVER   = -1900166,
+    SAY_SUMMONING_VETERAN       = -1900167
 };
 
 // npc_blackhand_summoner
@@ -23,7 +23,7 @@ struct npc_blackhand_summonerAI : public ScriptedAI
 {
     npc_blackhand_summonerAI(Creature* pCreature) : ScriptedAI(pCreature)
     {
-        m_pInstance = (instance_blackrock_spire*)pCreature->GetInstanceData();
+        m_pInstance = (instance_blackrock_spire*) pCreature->GetInstanceData();
         Reset();
     }
 
@@ -93,7 +93,7 @@ struct npc_blackhand_summonerAI : public ScriptedAI
         }
         if (ManageTimer(uiDiff, &m_uiNovaGivreTimer))
         {
-            if (Unit* pTarget = m_creature->GetVictim()) // m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 0))
+            if (Unit* pTarget = m_creature->GetVictim())//m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 0))
             {
                 if (pTarget->GetDistance(m_creature) < 10.0f)
                 {
@@ -106,14 +106,17 @@ struct npc_blackhand_summonerAI : public ScriptedAI
     }
 };
 
-CreatureAI* GetAI_npc_blackhand_summoner(Creature* pCreature) { return new npc_blackhand_summonerAI(pCreature); }
+CreatureAI* GetAI_npc_blackhand_summoner(Creature* pCreature)
+{
+    return new npc_blackhand_summonerAI(pCreature);
+}
 
 // npc_blackhand_veteran
 struct npc_blackhand_veteranAI : public ScriptedAI
 {
     npc_blackhand_veteranAI(Creature* pCreature) : ScriptedAI(pCreature)
     {
-        m_pInstance = (instance_blackrock_spire*)pCreature->GetInstanceData();
+        m_pInstance = (instance_blackrock_spire*) pCreature->GetInstanceData();
         Reset();
     }
 
@@ -174,7 +177,7 @@ struct npc_blackhand_veteranAI : public ScriptedAI
             {
                 if (pTarget2->IsNonMeleeSpellCasted(false, false, true))
                 {
-                    if (!urand(0, 3)) // because otherwise they all decast at the same, which is stupid.
+                    if (!urand(0, 3)) //because otherwise they all decast at the same, which is stupid.
                     {
                         if (DoCastSpellIfCan(pTarget2, SPELL_COUP_BOUCLIER) == CAST_OK)
                             m_uiCoupBouclierTimer = 10000;
@@ -194,7 +197,10 @@ struct npc_blackhand_veteranAI : public ScriptedAI
     }
 };
 
-CreatureAI* GetAI_npc_blackhand_veteran(Creature* pCreature) { return new npc_blackhand_veteranAI(pCreature); }
+CreatureAI* GetAI_npc_blackhand_veteran(Creature* pCreature)
+{
+    return new npc_blackhand_veteranAI(pCreature);
+}
 
 void AddSC_ubrs_trash()
 {

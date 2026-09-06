@@ -1,13 +1,20 @@
 #include "WhisperTargetLimits.h"
 #include <algorithm>
 #include <memory>
+#include "WorldSession.h"
 #include "Database/DatabaseEnv.h"
 #include "World.h"
-#include "WorldSession.h"
 
-WhisperTargetLimits::WhisperTargetLimits(std::uint32_t account_id, std::uint32_t max_targets, std::uint32_t bypass_level, std::uint32_t decay, WorldSession* sess) : account_id_(account_id), max_targets_(max_targets), bypass_level_(bypass_level), decay_(decay), _sess(sess) { load_targets(); }
+WhisperTargetLimits::WhisperTargetLimits(std::uint32_t account_id, std::uint32_t max_targets, std::uint32_t bypass_level, std::uint32_t decay, WorldSession* sess)
+    : account_id_(account_id), max_targets_(max_targets), bypass_level_(bypass_level), decay_(decay), _sess(sess)
+{
+    load_targets();
+}
 
-WhisperTargetLimits::~WhisperTargetLimits() { save_targets(); }
+WhisperTargetLimits::~WhisperTargetLimits()
+{
+    save_targets();
+}
 
 void WhisperTargetLimits::save_targets()
 {
@@ -25,6 +32,8 @@ void WhisperTargetLimits::save_targets()
     };
 
     CharacterDatabase.PExecuteCallback("DELETE FROM `whisper_targets` WHERE `account` = %u", &callback, account_id_);
+
+
 }
 
 void WhisperTargetLimits::load_targets()
@@ -34,12 +43,10 @@ void WhisperTargetLimits::load_targets()
     if (!res)
         return;
 
-    do
-    {
+    do {
         auto fields = res->Fetch();
         targets_[fields[0].GetUInt32()] = fields[1].GetUInt64();
-    }
-    while (res->NextRow());
+    } while (res->NextRow());
 }
 
 bool WhisperTargetLimits::can_whisper(const std::uint32_t target_guid, const std::uint32_t level)

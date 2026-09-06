@@ -1,13 +1,14 @@
 #ifndef MANGOS_PLAYER_BROADCASTER_H
 #define MANGOS_PLAYER_BROADCASTER_H
 
-#include <cstddef>
-#include <list>
-#include <vector>
 #include "ObjectGuid.h"
-#include "Opcodes.h"
 #include "WorldPacket.h"
 #include "WorldSocket.h"
+#include "WorldPacket.h"
+#include "Opcodes.h"
+#include <list>
+#include <vector>
+#include <cstddef>
 
 class MovementBroadcaster;
 class Player;
@@ -26,7 +27,7 @@ class PlayerBroadcaster final
     WorldSocket* m_socket;
     ObjectGuid m_self;
 
-    std::map<ObjectGuid, std::shared_ptr<PlayerBroadcaster>> m_listeners;
+    std::map<ObjectGuid, std::shared_ptr<PlayerBroadcaster> > m_listeners;
     std::vector<BroadcastData> m_queue;
     std::mutex m_listeners_lock;
     std::mutex m_queue_lock;
@@ -34,7 +35,12 @@ class PlayerBroadcaster final
     void ProcessQueue(uint32& num_packets);
     void SendPacket(const WorldPacket& packet);
 
-    static inline bool CanSkipPacket(uint32 opcode) { return (opcode < MSG_MOVE_SET_RUN_SPEED_CHEAT || (opcode > MSG_MOVE_SET_TURN_RATE && opcode != MSG_MOVE_HEARTBEAT)); }
+    static inline bool CanSkipPacket(uint32 opcode)
+    {
+        return (opcode < MSG_MOVE_SET_RUN_SPEED_CHEAT ||
+                (opcode > MSG_MOVE_SET_TURN_RATE &&
+                 opcode != MSG_MOVE_HEARTBEAT));
+    }
 
     uint32 instanceId;
     uint32 lastUpdatePackets;

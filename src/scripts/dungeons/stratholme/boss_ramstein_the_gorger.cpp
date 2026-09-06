@@ -57,7 +57,7 @@ struct boss_ramstein_the_gorgerAI : public ScriptedAI
         Engaged = false;
     }
 
-    void Aggro(Unit* who) override
+    void Aggro(Unit *who) override
     {
         if (!m_pInstance)
             return;
@@ -80,16 +80,15 @@ struct boss_ramstein_the_gorgerAI : public ScriptedAI
         if (!m_creature->SelectHostileTarget() || !m_creature->GetVictim())
             return;
 
-        // Trample
+        //Trample
         if (Trample_Timer < diff)
         {
             DoCastSpellIfCan(m_creature, SPELL_TRAMPLE);
             Trample_Timer = 7000;
         }
-        else
-            Trample_Timer -= diff;
+        else Trample_Timer -= diff;
 
-        // Knockout
+        //Knockout
         if (Knockout_Timer < diff)
         {
             if (DoCastSpellIfCan(m_creature->GetVictim(), SPELL_KNOCKOUT) == CAST_OK)
@@ -98,17 +97,19 @@ struct boss_ramstein_the_gorgerAI : public ScriptedAI
                 Knockout_Timer = 10000;
             }
         }
-        else
-            Knockout_Timer -= diff;
+        else Knockout_Timer -= diff;
 
         DoMeleeAttackIfReady();
     }
 };
-CreatureAI* GetAI_boss_ramstein_the_gorger(Creature* pCreature) { return new boss_ramstein_the_gorgerAI(pCreature); }
+CreatureAI* GetAI_boss_ramstein_the_gorger(Creature* pCreature)
+{
+    return new boss_ramstein_the_gorgerAI(pCreature);
+}
 
 void AddSC_boss_ramstein_the_gorger()
 {
-    Script* newscript;
+    Script *newscript;
     newscript = new Script;
     newscript->Name = "boss_ramstein_the_gorger";
     newscript->GetAI = &GetAI_boss_ramstein_the_gorger;

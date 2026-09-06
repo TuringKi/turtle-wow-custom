@@ -17,27 +17,29 @@
    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA */
 
 #if defined(HAVE_OPENSSL) && !defined(EMBEDDED_LIBRARY)
-case OPT_SSL_KEY:
-case OPT_SSL_CERT:
-case OPT_SSL_CA:
-case OPT_SSL_CAPATH:
-case OPT_SSL_CIPHER:
-/*
-  Enable use of SSL if we are using any ssl option
-  One can disable SSL later by using --skip-ssl or --ssl=0
-*/
-opt_use_ssl = 1;
-break;
+    case OPT_SSL_KEY:
+    case OPT_SSL_CERT:
+    case OPT_SSL_CA:
+    case OPT_SSL_CAPATH:
+    case OPT_SSL_CIPHER:
+    /*
+      Enable use of SSL if we are using any ssl option
+      One can disable SSL later by using --skip-ssl or --ssl=0
+    */
+      opt_use_ssl= 1;
+      break;
 #ifdef MYSQL_CLIENT
-case OPT_SSL_MODE:
-if (my_strcasecmp(&my_charset_latin1, argument, "required"))
-{
-    fprintf(stderr, "Unknown value to --ssl-mode: '%s'. Use --ssl-mode=REQUIRED\n", argument);
-    exit(1);
-}
-else
-    opt_ssl_mode = SSL_MODE_REQUIRED;
-break;
+    case OPT_SSL_MODE:
+      if (my_strcasecmp(&my_charset_latin1, argument, "required"))
+      {
+        fprintf(stderr,
+                "Unknown value to --ssl-mode: '%s'. Use --ssl-mode=REQUIRED\n",
+                argument);
+        exit(1);
+      }
+      else
+        opt_ssl_mode= SSL_MODE_REQUIRED;
+      break;
 #endif /* MYSQL_CLIENT */
 #endif
 #endif /* SSLOPT_CASE_INCLUDED */

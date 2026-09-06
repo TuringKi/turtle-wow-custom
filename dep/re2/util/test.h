@@ -5,25 +5,25 @@
 #ifndef UTIL_TEST_H_
 #define UTIL_TEST_H_
 
-#include "util/logging.h"
 #include "util/util.h"
+#include "util/logging.h"
 
-namespace testing
-{
-    std::string TempDir();
-} // namespace testing
+namespace testing {
+std::string TempDir();
+}  // namespace testing
 
-#define TEST(x, y)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    \
-    void x##y(void);                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  \
-    TestRegisterer r##x##y(x##y, #x "." #y);                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          \
-    void x##y(void)
+#define TEST(x, y) \
+	void x##y(void); \
+	TestRegisterer r##x##y(x##y, # x "." # y); \
+	void x##y(void)
 
 void RegisterTest(void (*)(void), const char*);
 
-class TestRegisterer
-{
-public:
-    TestRegisterer(void (*fn)(void), const char* s) { RegisterTest(fn, s); }
+class TestRegisterer {
+ public:
+  TestRegisterer(void (*fn)(void), const char *s) {
+    RegisterTest(fn, s);
+  }
 };
 
 // fatal assertions
@@ -47,4 +47,4 @@ public:
 #define EXPECT_GT CHECK_GT
 #define EXPECT_GE CHECK_GE
 
-#endif // UTIL_TEST_H_
+#endif  // UTIL_TEST_H_

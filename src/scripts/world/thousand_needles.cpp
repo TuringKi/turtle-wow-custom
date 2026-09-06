@@ -51,34 +51,45 @@ enum
     ID_AMBUSH_3 = 4
 };
 
-float m_afBanditLoc[6][6] = {{-4905.479492f, -2062.732666f, 84.352f}, {-4915.201172f, -2073.528320f, 84.733f}, {-4878.883301f, -1986.947876f, 91.966f}, {-4877.503906f, -1966.113403f, 91.859f}, {-4767.985352f, -1873.169189f, 90.192f}, {-4788.861328f, -1888.007813f, 89.888f}};
+float m_afBanditLoc[6][6] =
+{
+    { -4905.479492f, -2062.732666f, 84.352f},
+    { -4915.201172f, -2073.528320f, 84.733f},
+    { -4878.883301f, -1986.947876f, 91.966f},
+    { -4877.503906f, -1966.113403f, 91.859f},
+    { -4767.985352f, -1873.169189f, 90.192f},
+    { -4788.861328f, -1888.007813f, 89.888f}
+};
 
 struct npc_lakota_windsongAI : public npc_escortAI
 {
-    npc_lakota_windsongAI(Creature* pCreature) : npc_escortAI(pCreature) { Reset(); }
+    npc_lakota_windsongAI(Creature* pCreature) : npc_escortAI(pCreature)
+    {
+        Reset();
+    }
 
-    void Reset() override {}
+    void Reset() override { }
 
     void WaypointReached(uint32 uiPointId) override
     {
         switch (uiPointId)
         {
-        case 8:
-            DoScriptText(SAY_LAKO_LOOK_OUT, m_creature);
-            DoSpawnBandits(ID_AMBUSH_1);
-            break;
-        case 14:
-            DoScriptText(SAY_LAKO_HERE_COME, m_creature);
-            DoSpawnBandits(ID_AMBUSH_2);
-            break;
-        case 21:
-            DoScriptText(SAY_LAKO_MORE, m_creature);
-            DoSpawnBandits(ID_AMBUSH_3);
-            break;
-        case 45:
-            if (Player* pPlayer = GetPlayerForEscort())
-                pPlayer->GroupEventHappens(QUEST_FREE_AT_LAST, m_creature);
-            break;
+            case 8:
+                DoScriptText(SAY_LAKO_LOOK_OUT, m_creature);
+                DoSpawnBandits(ID_AMBUSH_1);
+                break;
+            case 14:
+                DoScriptText(SAY_LAKO_HERE_COME, m_creature);
+                DoSpawnBandits(ID_AMBUSH_2);
+                break;
+            case 21:
+                DoScriptText(SAY_LAKO_MORE, m_creature);
+                DoSpawnBandits(ID_AMBUSH_3);
+                break;
+            case 45:
+                if (Player* pPlayer = GetPlayerForEscort())
+                    pPlayer->GroupEventHappens(QUEST_FREE_AT_LAST, m_creature);
+                break;
         }
     }
 
@@ -91,11 +102,16 @@ struct npc_lakota_windsongAI : public npc_escortAI
     void DoSpawnBandits(int uiAmbushId)
     {
         for (int i = 0; i < 2; ++i)
-            m_creature->SummonCreature(NPC_GRIM_BANDIT, m_afBanditLoc[i + uiAmbushId][0], m_afBanditLoc[i + uiAmbushId][1], m_afBanditLoc[i + uiAmbushId][2], 0.0f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 20000);
+            m_creature->SummonCreature(NPC_GRIM_BANDIT,
+                                       m_afBanditLoc[i + uiAmbushId][0], m_afBanditLoc[i + uiAmbushId][1], m_afBanditLoc[i + uiAmbushId][2], 0.0f,
+                                       TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 20000);
     }
 };
 
-CreatureAI* GetAI_npc_lakota_windsong(Creature* pCreature) { return new npc_lakota_windsongAI(pCreature); }
+CreatureAI* GetAI_npc_lakota_windsong(Creature* pCreature)
+{
+    return new npc_lakota_windsongAI(pCreature);
+}
 
 bool QuestAccept_npc_lakota_windsong(Player* pPlayer, Creature* pCreature, const Quest* pQuest)
 {
@@ -119,37 +135,45 @@ bool QuestAccept_npc_lakota_windsong(Player* pPlayer, Creature* pCreature, const
 
 enum
 {
-    SAY_START = -1000362,
-    SAY_WYVERN = -1000363,
-    SAY_COMPLETE = -1000364,
+    SAY_START           = -1000362,
+    SAY_WYVERN          = -1000363,
+    SAY_COMPLETE        = -1000364,
 
-    QUEST_HOMEWARD = 4770,
-    NPC_WYVERN = 4107
+    QUEST_HOMEWARD      = 4770,
+    NPC_WYVERN          = 4107
 };
 
-float m_afWyvernLoc[3][3] = {{-4990.606f, -906.057f, -5.343f}, {-4970.241f, -927.378f, -4.951f}, {-4985.364f, -952.528f, -5.199f}};
+float m_afWyvernLoc[3][3] =
+{
+    { -4990.606f, -906.057f, -5.343f},
+    { -4970.241f, -927.378f, -4.951f},
+    { -4985.364f, -952.528f, -5.199f}
+};
 
 struct npc_paoka_swiftmountainAI : public npc_escortAI
 {
-    npc_paoka_swiftmountainAI(Creature* pCreature) : npc_escortAI(pCreature) { Reset(); }
+    npc_paoka_swiftmountainAI(Creature* pCreature) : npc_escortAI(pCreature)
+    {
+        Reset();
+    }
 
-    void Reset() override {}
+    void Reset() override { }
 
     void WaypointReached(uint32 uiPointId) override
     {
         switch (uiPointId)
         {
-        case 15:
-            DoScriptText(SAY_WYVERN, m_creature);
-            DoSpawnWyvern();
-            break;
-        case 26:
-            DoScriptText(SAY_COMPLETE, m_creature);
-            break;
-        case 27:
-            if (Player* pPlayer = GetPlayerForEscort())
-                pPlayer->GroupEventHappens(QUEST_HOMEWARD, m_creature);
-            break;
+            case 15:
+                DoScriptText(SAY_WYVERN, m_creature);
+                DoSpawnWyvern();
+                break;
+            case 26:
+                DoScriptText(SAY_COMPLETE, m_creature);
+                break;
+            case 27:
+                if (Player* pPlayer = GetPlayerForEscort())
+                    pPlayer->GroupEventHappens(QUEST_HOMEWARD, m_creature);
+                break;
         }
     }
 
@@ -162,11 +186,16 @@ struct npc_paoka_swiftmountainAI : public npc_escortAI
     void DoSpawnWyvern()
     {
         for (const auto& pos : m_afWyvernLoc)
-            m_creature->SummonCreature(NPC_WYVERN, pos[0], pos[1], pos[2], 0.0f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 20000);
+            m_creature->SummonCreature(NPC_WYVERN,
+                                       pos[0], pos[1], pos[2], 0.0f,
+                                       TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 20000);
     }
 };
 
-CreatureAI* GetAI_npc_paoka_swiftmountain(Creature* pCreature) { return new npc_paoka_swiftmountainAI(pCreature); }
+CreatureAI* GetAI_npc_paoka_swiftmountain(Creature* pCreature)
+{
+    return new npc_paoka_swiftmountainAI(pCreature);
+}
 
 bool QuestAccept_npc_paoka_swiftmountain(Player* pPlayer, Creature* pCreature, const Quest* pQuest)
 {
@@ -195,7 +224,7 @@ enum
     SPELL_PLUCKY_CHICKEN = 9220
 };
 
-#define GOSSIP_ITEM_QUEST "Please tell me the Phrase.."
+#define GOSSIP_ITEM_QUEST   "Please tell me the Phrase.."
 
 struct npc_plucky_johnsonAI : public ScriptedAI
 {
@@ -271,7 +300,10 @@ struct npc_plucky_johnsonAI : public ScriptedAI
     }
 };
 
-CreatureAI* GetAI_npc_plucky_johnson(Creature* pCreature) { return new npc_plucky_johnsonAI(pCreature); }
+CreatureAI* GetAI_npc_plucky_johnson(Creature* pCreature)
+{
+    return new npc_plucky_johnsonAI(pCreature);
+}
 
 bool GossipHello_npc_plucky_johnson(Player* pPlayer, Creature* pCreature)
 {
@@ -329,8 +361,8 @@ bool go_panther_cage(Player* pPlayer, GameObject* pGo)
 
 enum
 {
-    NPC_GRENKA = 4490,
-    NPC_SCREECHING_HARPY = 4100
+    NPC_GRENKA              = 4490,
+    NPC_SCREECHING_HARPY    = 4100
 };
 
 struct Coords
@@ -339,13 +371,16 @@ struct Coords
     float x, y, z, o;
 };
 
-static const Coords Harpies[] = {{NPC_SCREECHING_HARPY, -5587.69f, -1571.45f, 11.21f, 6.14f},
+static const Coords Harpies[] = 
+{
+    { NPC_SCREECHING_HARPY, -5587.69f, -1571.45f, 11.21f, 6.14f },
 
-                                 {NPC_SCREECHING_HARPY, -5587.69f, -1571.45f, 11.21f, 6.14f},
-                                 {NPC_SCREECHING_HARPY, -5589.63f, -1575.89f, 11.75f, 6.02f},
+    { NPC_SCREECHING_HARPY, -5587.69f, -1571.45f, 11.21f, 6.14f },
+    { NPC_SCREECHING_HARPY, -5589.63f, -1575.89f, 11.75f, 6.02f },
 
-                                 {NPC_SCREECHING_HARPY, -5587.69f, -1571.45f, 11.21f, 6.14f},
-                                 {NPC_GRENKA, -5589.63f, -1575.89f, 11.75f, 6.02f}};
+    { NPC_SCREECHING_HARPY, -5587.69f, -1571.45f, 11.21f, 6.14f },
+    { NPC_GRENKA,           -5589.63f, -1575.89f, 11.75f, 6.02f }
+};
 
 struct npc_grenka_bloodscreechAI : ScriptedAI
 {
@@ -364,9 +399,19 @@ struct npc_grenka_bloodscreechAI : ScriptedAI
     uint32 m_uiTimer;
     ObjectGuid m_PlayerGuid;
 
-    void Reset() override {}
+    void Reset() override
+    {
+        
+    }
 
-    void DoSummon(uint8 index) const { m_creature->SummonCreature(Harpies[index].entry, Harpies[index].x, Harpies[index].y, Harpies[index].z, Harpies[index].o, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, MINUTE * IN_MILLISECONDS); }
+    void DoSummon(uint8 index) const
+    {
+        m_creature->SummonCreature(Harpies[index].entry,
+            Harpies[index].x,
+            Harpies[index].y,
+            Harpies[index].z,
+            Harpies[index].o, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, MINUTE*IN_MILLISECONDS);
+    }
 
     void JustSummoned(Creature* pSummoned) override
     {
@@ -377,7 +422,10 @@ struct npc_grenka_bloodscreechAI : ScriptedAI
         }
     }
 
-    void SummonedCreatureJustDied(Creature* pSummoned) override { pSummoned->loot.clear(); }
+    void SummonedCreatureJustDied(Creature* pSummoned) override
+    {
+        pSummoned->loot.clear();
+    }
 
     void UpdateAI(const uint32 uiDiff) override
     {
@@ -418,7 +466,10 @@ struct npc_grenka_bloodscreechAI : ScriptedAI
     }
 };
 
-CreatureAI* GetAI_npc_grenka_bloodscreech(Creature* pCreature) { return new npc_grenka_bloodscreechAI(pCreature); }
+CreatureAI* GetAI_npc_grenka_bloodscreech(Creature* pCreature)
+{
+    return new npc_grenka_bloodscreechAI(pCreature);
+}
 
 /*
  * Test of Endurance
@@ -438,7 +489,11 @@ bool ProcessEventId_event_test_of_endurance(uint32 eventId, Object* pSource, Obj
     if (pGO->FindNearestCreature(NPC_GRENKA, 100.0f))
         return true;
 
-    if (auto pGrenka = pGO->SummonCreature(Harpies[4].entry, Harpies[4].x, Harpies[4].y, Harpies[4].z, Harpies[4].o, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, MINUTE * IN_MILLISECONDS))
+    if (auto pGrenka = pGO->SummonCreature(Harpies[4].entry,
+        Harpies[4].x,
+        Harpies[4].y, 
+        Harpies[4].z, 
+        Harpies[4].o, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, MINUTE*IN_MILLISECONDS))
     {
         if (auto pGrenkaAI = static_cast<npc_grenka_bloodscreechAI*>(pGrenka->AI()))
             pGrenkaAI->m_PlayerGuid = pPlayer->GetObjectGuid();

@@ -29,12 +29,12 @@
 #include "Config/Config.h"
 
 #include <ace/Basic_Types.h>
-#include <ace/Message_Block.h>
-#include <ace/SOCK_Stream.h>
-#include <ace/Svc_Handler.h>
 #include <ace/Synch_Traits.h>
-#include <atomic>
+#include <ace/Svc_Handler.h>
+#include <ace/SOCK_Stream.h>
+#include <ace/Message_Block.h>
 #include <map>
+#include <atomic>
 
 #include <openssl/bn.h>
 #include <openssl/md5.h>
@@ -44,49 +44,56 @@
  */
 class PatchCache
 {
-public:
-    ~PatchCache();
-    PatchCache();
+    public:
+        ~PatchCache();
+        PatchCache();
 
-    static PatchCache* instance();
+        static PatchCache* instance();
 
-    struct PATCH_INFO
-    {
-        ACE_UINT8 md5[MD5_DIGEST_LENGTH];
-    };
+        struct PATCH_INFO
+        {
+            ACE_UINT8 md5[MD5_DIGEST_LENGTH];
+        };
 
-    typedef std::map<std::string, PATCH_INFO*> Patches;
+        typedef std::map<std::string, PATCH_INFO*> Patches;
 
-    Patches::const_iterator begin() const { return patches_.begin(); }
+        Patches::const_iterator begin() const
+        {
+            return patches_.begin();
+        }
 
-    Patches::const_iterator end() const { return patches_.end(); }
+        Patches::const_iterator end() const
+        {
+            return patches_.end();
+        }
 
-    void LoadPatchMD5(const char*);
-    bool GetHash(const char* pat, ACE_UINT8 mymd5[MD5_DIGEST_LENGTH]);
+        void LoadPatchMD5(const char*);
+        bool GetHash(const char * pat, ACE_UINT8 mymd5[MD5_DIGEST_LENGTH]);
 
-private:
-    void LoadPatchesInfo();
-    Patches patches_;
+    private:
+        void LoadPatchesInfo();
+        Patches patches_;
+
 };
 
-class PatchHandler : public ACE_Svc_Handler<ACE_SOCK_STREAM, ACE_NULL_SYNCH>
+class PatchHandler: public ACE_Svc_Handler<ACE_SOCK_STREAM, ACE_NULL_SYNCH>
 {
-protected:
-    typedef ACE_Svc_Handler<ACE_SOCK_STREAM, ACE_NULL_SYNCH> Base;
+    protected:
+        typedef ACE_Svc_Handler<ACE_SOCK_STREAM, ACE_NULL_SYNCH> Base;
 
-public:
-    PatchHandler(ACE_HANDLE socket, ACE_HANDLE patch);
-    virtual ~PatchHandler();
+    public:
+        PatchHandler(ACE_HANDLE socket, ACE_HANDLE patch);
+        virtual ~PatchHandler();
 
-    int open(void* = 0);
+        int open(void* = 0);
 
-protected:
-    virtual int svc(void);
+    protected:
+        virtual int svc(void);
 
-private:
-    ACE_HANDLE patch_fd_;
-    int32 SecondLimitBytes = 0;
-    uint32 LastUpdateMs = 0;
+    private:
+        ACE_HANDLE patch_fd_;
+		int32 SecondLimitBytes = 0;
+		uint32 LastUpdateMs = 0;
 };
 
 #endif /* _BK_PATCHHANDLER_H__ */

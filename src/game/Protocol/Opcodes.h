@@ -40,12 +40,12 @@
 /// Player state
 enum SessionStatus
 {
-    STATUS_AUTHED = 0, ///< Player authenticated (_player==nullptr, m_playerRecentlyLogout = false or will be reset before handler call)
-    STATUS_LOGGEDIN, ///< Player in game (_player!=nullptr, inWorld())
-    STATUS_TRANSFER, ///< Player transferring to another map (_player!=nullptr, !inWorld())
-    STATUS_LOGGEDIN_OR_RECENTLY_LOGGEDOUT, ///< _player!= nullptr or _player==nullptr && m_playerRecentlyLogout)
-    STATUS_NEVER, ///< Opcode not accepted from client (deprecated or server side only)
-    STATUS_UNHANDLED ///< We don' handle this opcode yet
+    STATUS_AUTHED = 0,                                      ///< Player authenticated (_player==nullptr, m_playerRecentlyLogout = false or will be reset before handler call)
+    STATUS_LOGGEDIN,                                        ///< Player in game (_player!=nullptr, inWorld())
+    STATUS_TRANSFER,                                        ///< Player transferring to another map (_player!=nullptr, !inWorld())
+    STATUS_LOGGEDIN_OR_RECENTLY_LOGGEDOUT,                  ///< _player!= nullptr or _player==nullptr && m_playerRecentlyLogout)
+    STATUS_NEVER,                                           ///< Opcode not accepted from client (deprecated or server side only)
+    STATUS_UNHANDLED                                        ///< We don' handle this opcode yet
 };
 
 class WorldPacket;
@@ -58,47 +58,47 @@ struct OpcodeHandler
     void (WorldSession::*handler)(WorldPacket& recvPacket);
 };
 
-typedef std::map<uint16, OpcodeHandler> OpcodeMap;
+typedef std::map< uint16, OpcodeHandler> OpcodeMap;
 
 class Opcodes
 {
-public:
-    Opcodes();
-    ~Opcodes();
+    public:
+        Opcodes();
+        ~Opcodes();
+    public:
+        void BuildOpcodeList();
+        void StoreOpcode(uint16 Opcode,char const* name, SessionStatus status, PacketProcessing process, void (WorldSession::*handler)(WorldPacket& recvPacket))
+        {
+            OpcodeHandler& ref = mOpcodeMap[Opcode];
+            ref.name = name;
+            ref.status = status;
+            ref.packetProcessing = process;
+            ref.handler = handler;
+        }
 
-public:
-    void BuildOpcodeList();
-    void StoreOpcode(uint16 Opcode, char const* name, SessionStatus status, PacketProcessing process, void (WorldSession::*handler)(WorldPacket& recvPacket))
-    {
-        OpcodeHandler& ref = mOpcodeMap[Opcode];
-        ref.name = name;
-        ref.status = status;
-        ref.packetProcessing = process;
-        ref.handler = handler;
-    }
+        /// Lookup opcode
+        inline OpcodeHandler const* LookupOpcode(uint16 id) const
+        {
+            OpcodeMap::const_iterator itr = mOpcodeMap.find(id);
+            if (itr != mOpcodeMap.end())
+                return &itr->second;
+            return nullptr;
+        }
 
-    /// Lookup opcode
-    inline OpcodeHandler const* LookupOpcode(uint16 id) const
-    {
-        OpcodeMap::const_iterator itr = mOpcodeMap.find(id);
-        if (itr != mOpcodeMap.end())
-            return &itr->second;
-        return nullptr;
-    }
+        /// compatible with other mangos branches access
 
-    /// compatible with other mangos branches access
+        inline OpcodeHandler const& operator[] (uint16 id) const
+        {
+            OpcodeMap::const_iterator itr = mOpcodeMap.find(id);
+            if (itr != mOpcodeMap.end())
+                return itr->second;
+            return emptyHandler;
+        }
 
-    inline OpcodeHandler const& operator[](uint16 id) const
-    {
-        OpcodeMap::const_iterator itr = mOpcodeMap.find(id);
-        if (itr != mOpcodeMap.end())
-            return itr->second;
-        return emptyHandler;
-    }
+        static OpcodeHandler const emptyHandler;
 
-    static OpcodeHandler const emptyHandler;
+        OpcodeMap mOpcodeMap;
 
-    OpcodeMap mOpcodeMap;
 };
 
 extern Opcodes opcodeTable;

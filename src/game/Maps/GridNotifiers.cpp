@@ -20,14 +20,14 @@
  */
 
 #include "GridNotifiers.h"
-#include "BattleGroundMgr.h"
-#include "Item.h"
-#include "Map.h"
-#include "ObjectAccessor.h"
-#include "Transport.h"
-#include "UpdateData.h"
 #include "WorldPacket.h"
 #include "WorldSession.h"
+#include "UpdateData.h"
+#include "Item.h"
+#include "Map.h"
+#include "Transport.h"
+#include "ObjectAccessor.h"
+#include "BattleGroundMgr.h"
 
 #include "MovementBroadcaster.h"
 #include "PlayerBroadcaster.h"
@@ -35,13 +35,15 @@
 
 using namespace MaNGOS;
 
-void VisibleChangesNotifier::Visit(CameraMapType& m)
+void
+VisibleChangesNotifier::Visit(CameraMapType &m)
 {
     for (const auto& iter : m)
         iter.getSource()->UpdateVisibilityOf(&i_object);
 }
 
-void VisibleNotifier::Notify()
+void
+VisibleNotifier::Notify()
 {
     Player& player = *i_camera.GetOwner();
     // at this moment i_clientGUIDs have guids that not iterate at grid level checks
@@ -55,21 +57,21 @@ void VisibleNotifier::Notify()
                 i_clientGUIDs.erase(itr->GetObjectGuid());
                 switch (itr->GetTypeId())
                 {
-                case TYPEID_GAMEOBJECT:
-                    player.UpdateVisibilityOf(&player, itr->ToGameObject(), i_data, i_visibleNow);
-                    break;
-                case TYPEID_PLAYER:
-                    player.UpdateVisibilityOf(&player, itr->ToPlayer(), i_data, i_visibleNow);
-                    itr->ToPlayer()->UpdateVisibilityOf(itr, &player);
-                    break;
-                case TYPEID_UNIT:
-                    player.UpdateVisibilityOf(&player, itr->ToCreature(), i_data, i_visibleNow);
-                    break;
-                case TYPEID_DYNAMICOBJECT:
-                    player.UpdateVisibilityOf(&player, (DynamicObject*)itr, i_data, i_visibleNow);
-                    break;
-                default:
-                    break;
+                    case TYPEID_GAMEOBJECT:
+                        player.UpdateVisibilityOf(&player, itr->ToGameObject(), i_data, i_visibleNow);
+                        break;
+                    case TYPEID_PLAYER:
+                        player.UpdateVisibilityOf(&player, itr->ToPlayer(), i_data, i_visibleNow);
+                        itr->ToPlayer()->UpdateVisibilityOf(itr, &player);
+                        break;
+                    case TYPEID_UNIT:
+                        player.UpdateVisibilityOf(&player, itr->ToCreature(), i_data, i_visibleNow);
+                        break;
+                    case TYPEID_DYNAMICOBJECT:
+                        player.UpdateVisibilityOf(&player, (DynamicObject*)itr, i_data, i_visibleNow);
+                        break;
+                    default:
+                        break;
                 }
             }
         }
@@ -80,16 +82,16 @@ void VisibleNotifier::Notify()
     if (player.GetMap())
         player.GetMap()->UpdateActiveObjectVisibility(&player, i_clientGUIDs, i_data, i_visibleNow);
 
-    for (auto iter = i_clientGUIDs.begin(); iter != i_clientGUIDs.end();)
-    {
-        if (player.IsObjectIsExclusiveVisible(*iter))
-        {
-            iter = i_clientGUIDs.erase(iter);
-            continue;
-        }
+	for (auto iter = i_clientGUIDs.begin(); iter != i_clientGUIDs.end();)
+	{
+		if (player.IsObjectIsExclusiveVisible(*iter))
+		{
+			iter = i_clientGUIDs.erase(iter);
+			continue;
+		}
 
-        iter++;
-    }
+		iter++;
+	}
 
     // generate outOfRange for not iterate objects
     i_data.AddOutOfRangeGUID(i_clientGUIDs);
@@ -112,7 +114,8 @@ void VisibleNotifier::Notify()
 
         player.m_visibleGUIDs.erase(*itr);
 
-        DEBUG_FILTER_LOG(LOG_FILTER_VISIBILITY_CHANGES, "%s is out of range (no in active cells set) now for %s", itr->GetString().c_str(), player.GetGuidStr().c_str());
+        DEBUG_FILTER_LOG(LOG_FILTER_VISIBILITY_CHANGES, "%s is out of range (no in active cells set) now for %s",
+                         itr->GetString().c_str(), player.GetGuidStr().c_str());
     }
     lock.unlock();
 
@@ -134,7 +137,8 @@ void VisibleNotifier::Notify()
     }
 }
 
-void MessageDeliverer::Visit(CameraMapType& m)
+void
+MessageDeliverer::Visit(CameraMapType &m)
 {
     for (const auto& iter : m)
     {
@@ -148,7 +152,7 @@ void MessageDeliverer::Visit(CameraMapType& m)
     }
 }
 
-void MessageDelivererExcept::Visit(CameraMapType& m)
+void MessageDelivererExcept::Visit(CameraMapType &m)
 {
     for (const auto& iter : m)
     {
@@ -163,7 +167,8 @@ void MessageDelivererExcept::Visit(CameraMapType& m)
 }
 
 
-void ObjectMessageDeliverer::Visit(CameraMapType& m)
+void
+ObjectMessageDeliverer::Visit(CameraMapType &m)
 {
     for (const auto& iter : m)
     {
@@ -172,13 +177,16 @@ void ObjectMessageDeliverer::Visit(CameraMapType& m)
     }
 }
 
-void MessageDistDeliverer::Visit(CameraMapType& m)
+void
+MessageDistDeliverer::Visit(CameraMapType &m)
 {
     for (const auto& iter : m)
     {
         Player* owner = iter.getSource()->GetOwner();
 
-        if ((i_toSelf || owner != &i_player) && (!i_ownTeamOnly || owner->GetTeam() == i_player.GetTeam()) && (!i_dist || iter.getSource()->GetBody()->IsWithinDist(&i_player, i_dist)))
+        if ((i_toSelf || owner != &i_player) &&
+                (!i_ownTeamOnly || owner->GetTeam() == i_player.GetTeam()) &&
+                (!i_dist || iter.getSource()->GetBody()->IsWithinDist(&i_player, i_dist)))
         {
             if (WorldSession* session = owner->GetSession())
                 session->SendPacket(i_message);
@@ -186,7 +194,8 @@ void MessageDistDeliverer::Visit(CameraMapType& m)
     }
 }
 
-void ObjectMessageDistDeliverer::Visit(CameraMapType& m)
+void
+ObjectMessageDistDeliverer::Visit(CameraMapType &m)
 {
     for (const auto& iter : m)
     {
@@ -198,8 +207,8 @@ void ObjectMessageDistDeliverer::Visit(CameraMapType& m)
     }
 }
 
-template <class T>
-void ObjectUpdater::Visit(GridRefManager<T>& m)
+template<class T> void
+ObjectUpdater::Visit(GridRefManager<T> &m)
 {
     for (typename GridRefManager<T>::iterator iter = m.begin(); iter != m.end(); ++iter)
     {
@@ -245,5 +254,5 @@ void MaNGOS::RespawnDo::operator()(GameObject* u) const
 }
 
 
-template void ObjectUpdater::Visit<GameObject>(GameObjectMapType&);
-template void ObjectUpdater::Visit<DynamicObject>(DynamicObjectMapType&);
+template void ObjectUpdater::Visit<GameObject>(GameObjectMapType &);
+template void ObjectUpdater::Visit<DynamicObject>(DynamicObjectMapType &);

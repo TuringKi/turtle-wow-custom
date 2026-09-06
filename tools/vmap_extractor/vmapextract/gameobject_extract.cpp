@@ -1,6 +1,6 @@
-#include "adtfile.h"
-#include "dbcfile.h"
 #include "model.h"
+#include "dbcfile.h"
+#include "adtfile.h"
 #include "vmapexport.h"
 
 #include <algorithm>
@@ -22,14 +22,14 @@ bool ExtractSingleModel(std::string& origPath, std::string& fixedName, StringSet
 
     fixedName = GetPlainName(origPath.c_str());
 
-    std::string output(szWorkDirWmo); // Stores output filename (possible changed)
+    std::string output(szWorkDirWmo);                       // Stores output filename (possible changed)
     output += "/";
     output += fixedName;
 
     if (FileExists(output.c_str()))
         return true;
 
-    Model mdl(origPath); // Possible changed fname
+    Model mdl(origPath);                                    // Possible changed fname
     if (!mdl.open(failedPaths))
         return false;
 
@@ -69,7 +69,7 @@ void ExtractGameobjectModels()
         if (!ch_ext)
             continue;
 
-        // strToLower(ch_ext);
+        //strToLower(ch_ext);
 
         bool result = false;
         if (!strcmp(ch_ext, ".wmo"))
@@ -81,7 +81,7 @@ void ExtractGameobjectModels()
             // TODO: extract .mdl files, if needed
             continue;
         }
-        else // if (!strcmp(ch_ext, ".mdx") || !strcmp(ch_ext, ".m2"))
+        else //if (!strcmp(ch_ext, ".mdx") || !strcmp(ch_ext, ".m2"))
         {
             std::string fixedName;
             result = ExtractSingleModel(path, fixedName, failedPaths);

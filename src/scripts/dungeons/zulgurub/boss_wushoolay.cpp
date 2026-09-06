@@ -24,12 +24,15 @@ EndScriptData */
 #include "scriptPCH.h"
 #include "zulgurub.h"
 
-#define SPELL_LIGHTNINGCLOUD 25033
-#define SPELL_LIGHTNINGWAVE 24819
+#define SPELL_LIGHTNINGCLOUD         25033
+#define SPELL_LIGHTNINGWAVE          24819
 
 struct boss_wushoolayAI : public ScriptedAI
 {
-    boss_wushoolayAI(Creature* pCreature) : ScriptedAI(pCreature) { Reset(); }
+    boss_wushoolayAI(Creature* pCreature) : ScriptedAI(pCreature)
+    {
+        Reset();
+    }
 
     uint32 LightningCloud_Timer;
     uint32 LightningWave_Timer;
@@ -45,36 +48,36 @@ struct boss_wushoolayAI : public ScriptedAI
         if (!m_creature->SelectHostileTarget() || !m_creature->GetVictim())
             return;
 
-        // LightningCloud_Timer
+        //LightningCloud_Timer
         if (LightningCloud_Timer < diff)
         {
             DoCastSpellIfCan(m_creature->GetVictim(), SPELL_LIGHTNINGCLOUD);
             LightningCloud_Timer = urand(15000, 20000);
         }
-        else
-            LightningCloud_Timer -= diff;
+        else LightningCloud_Timer -= diff;
 
-        // LightningWave_Timer
+        //LightningWave_Timer
         if (LightningWave_Timer < diff)
         {
             Unit* target = nullptr;
             target = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 0);
-            if (target)
-                DoCastSpellIfCan(target, SPELL_LIGHTNINGWAVE);
+            if (target) DoCastSpellIfCan(target, SPELL_LIGHTNINGWAVE);
 
             LightningWave_Timer = urand(12000, 16000);
         }
-        else
-            LightningWave_Timer -= diff;
+        else LightningWave_Timer -= diff;
 
         DoMeleeAttackIfReady();
     }
 };
-CreatureAI* GetAI_boss_wushoolay(Creature* pCreature) { return new boss_wushoolayAI(pCreature); }
+CreatureAI* GetAI_boss_wushoolay(Creature* pCreature)
+{
+    return new boss_wushoolayAI(pCreature);
+}
 
 void AddSC_boss_wushoolay()
 {
-    Script* newscript;
+    Script *newscript;
     newscript = new Script;
     newscript->Name = "boss_wushoolay";
     newscript->GetAI = &GetAI_boss_wushoolay;

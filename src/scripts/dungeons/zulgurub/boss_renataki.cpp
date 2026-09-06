@@ -24,13 +24,13 @@ EndScriptData */
 #include "scriptPCH.h"
 #include "zulgurub.h"
 
-#define SPELL_TRASH 3391
-#define SPELL_ENRAGE 8269
-#define SPELL_RED_LIGHTNING 24240
-#define SPELL_AMBUSH 24337
-#define SPELL_THOUSANDBLADES 24649
-#define SPELL_SURINER_ZONE 24698
-#define EQUIP_ID_MAIN_HAND 0 // was item display id 31818, but this id does not exist
+#define SPELL_TRASH             3391
+#define SPELL_ENRAGE            8269
+#define SPELL_RED_LIGHTNING     24240
+#define SPELL_AMBUSH            24337
+#define SPELL_THOUSANDBLADES    24649
+#define SPELL_SURINER_ZONE      24698
+#define EQUIP_ID_MAIN_HAND      0                           //was item display id 31818, but this id does not exist
 
 struct boss_renatakiAI : public ScriptedAI
 {
@@ -68,7 +68,10 @@ struct boss_renatakiAI : public ScriptedAI
         m_creature->SetUInt32Value(UNIT_VIRTUAL_ITEM_INFO + 1, 3);
     }
 
-    void JustDied(Unit* pKiller) override { LeaveVanish(); }
+    void JustDied(Unit* pKiller) override
+    {
+        LeaveVanish();
+    }
 
     void UpdateAI(const uint32 diff) override
     {
@@ -106,10 +109,9 @@ struct boss_renatakiAI : public ScriptedAI
             if (DoCastSpellIfCan(m_creature, SPELL_SURINER_ZONE) == CAST_OK)
                 Suriner_Timer = urand(9000, 11000);
         }
-        else
-            Suriner_Timer -= diff;
+        else Suriner_Timer -= diff;
 
-        // Invisible_Timer
+        //Invisible_Timer
         if (Invisible_Timer < diff)
         {
             EnterVanish();
@@ -117,10 +119,9 @@ struct boss_renatakiAI : public ScriptedAI
 
             Invisible_Timer = urand(30000, 42000);
         }
-        else
-            Invisible_Timer -= diff;
+        else Invisible_Timer -= diff;
 
-        // Resetting some aggro so he attacks other gamers
+        //Resetting some aggro so he attacks other gamers
         if (Aggro_Timer < diff)
         {
             Unit* target = nullptr;
@@ -134,16 +135,14 @@ struct boss_renatakiAI : public ScriptedAI
 
             Aggro_Timer = urand(7000, 20000);
         }
-        else
-            Aggro_Timer -= diff;
+        else Aggro_Timer -= diff;
 
         if (ThousandBlades_Timer < diff)
         {
             DoCastSpellIfCan(m_creature->GetVictim(), SPELL_THOUSANDBLADES);
             ThousandBlades_Timer = urand(7000, 12000);
         }
-        else
-            ThousandBlades_Timer -= diff;
+        else ThousandBlades_Timer -= diff;
 
         if (m_creature->IsAttackReady() && !urand(0, 2))
             m_creature->CastSpell(m_creature, SPELL_TRASH, true);
@@ -152,11 +151,14 @@ struct boss_renatakiAI : public ScriptedAI
     }
 };
 
-CreatureAI* GetAI_boss_renataki(Creature* pCreature) { return new boss_renatakiAI(pCreature); }
+CreatureAI* GetAI_boss_renataki(Creature* pCreature)
+{
+    return new boss_renatakiAI(pCreature);
+}
 
 void AddSC_boss_renataki()
 {
-    Script* newscript;
+    Script *newscript;
     newscript = new Script;
     newscript->Name = "boss_renataki";
     newscript->GetAI = &GetAI_boss_renataki;

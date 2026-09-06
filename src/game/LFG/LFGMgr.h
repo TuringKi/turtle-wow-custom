@@ -28,23 +28,23 @@
 #include <list>
 #include <map>
 
-#include "Common.h"
 #include "Policies/Singleton.h"
+#include "Common.h"
 
 enum ClassRoles
 {
-    LFG_ROLE_NONE = 0x00,
-    LFG_ROLE_TANK = 0x01,
+    LFG_ROLE_NONE   = 0x00,
+    LFG_ROLE_TANK   = 0x01,
     LFG_ROLE_HEALER = 0x02,
-    LFG_ROLE_DPS = 0x04
+    LFG_ROLE_DPS    = 0x04
 };
 
 enum RolesPriority
 {
-    LFG_PRIORITY_NONE = 0,
-    LFG_PRIORITY_LOW = 1,
+    LFG_PRIORITY_NONE   = 0,
+    LFG_PRIORITY_LOW    = 1,
     LFG_PRIORITY_NORMAL = 2,
-    LFG_PRIORITY_HIGH = 3
+    LFG_PRIORITY_HIGH   = 3
 };
 
 enum PlayerLeaveMethod
@@ -55,8 +55,8 @@ enum PlayerLeaveMethod
 
 enum GroupLeaveMethod
 {
-    GROUP_CLIENT_LEAVE = 0,
-    GROUP_SYSTEM_LEAVE = 1
+    GROUP_CLIENT_LEAVE  = 0,
+    GROUP_SYSTEM_LEAVE  = 1
 };
 
 #define MAX_DPS_COUNT = 3
@@ -86,42 +86,69 @@ struct LFGGroupQueueInfo
     uint32 groupTimer;
 };
 
+// cmangos LFG meeting-stone descriptor.
+// Penqle has no equivalent. Defined here (not in shim) so both host and bot module see complete type.
+struct MeetingStoneInfo {
+    uint32 dungeonId = 0;
+    uint32 minLevel = 0;
+    uint32 maxLevel = 0;
+    uint32 area = 0;
+    std::string name;
+};
+
 class LFGQueue
 {
-public:
-    LFGQueue() {}
-    ~LFGQueue() {}
+    public:
+        LFGQueue() {}
+        ~LFGQueue() {}
 
-    void AddToQueue(Player* leader, uint32 queAreaID);
-    void RestoreOfflinePlayer(Player* player);
-    bool IsPlayerInQueue(const ObjectGuid& plrGuid) const;
-    void RemovePlayerFromQueue(const ObjectGuid& plrGuid, PlayerLeaveMethod leaveMethod = PLAYER_CLIENT_LEAVE); // 0 == by default system (cmsg, leader leave), 1 == by lfg system (no need report text you left queu)
-    void RemoveGroupFromQueue(uint32 groupId, GroupLeaveMethod leaveMethod = GROUP_CLIENT_LEAVE);
-    void Update(uint32 diff);
-    void UpdateGroup(uint32 groupId);
+        void AddToQueue(Player* leader, uint32 queAreaID);
+        void RestoreOfflinePlayer(Player* player);
+        bool IsPlayerInQueue(const ObjectGuid& plrGuid) const;
+        // GetDungeonsForPlayer: cmangos LFG returns meeting stone set. Stub returns empty.
+        std::vector<MeetingStoneInfo> GetDungeonsForPlayer(class Player* /*player*/) const { return {}; }
+        // AddToQueue 1-arg form (cmangos signature).
+        void AddToQueue(class Player* leader) { AddToQueue(leader, 0); }
+        // CalculateTalentRoles / GetPriority (cmangos LFG matchmaking).
+        ClassRoles CalculateTalentRoles(class Player* /*player*/) const { return LFG_ROLE_NONE; }
+        RolesPriority GetPriority(Classes /*classId*/, ClassRoles /*roles*/) const { return LFG_PRIORITY_NONE; }
+        // bot calls these forms.
+        bool IsGroupInQueue(uint32 groupId) const { return m_QueuedGroups.find(groupId) != m_QueuedGroups.end(); }
+        void GetGroupQueueInfo(LFGGroupQueueInfo* info, uint32 groupId) const {
+            auto it = m_QueuedGroups.find(groupId);
+            if (it != m_QueuedGroups.end() && info) *info = it->second;
+        }
+        void GetPlayerQueueInfo(LFGPlayerQueueInfo* info, ObjectGuid plrGuid) const {
+            auto it = m_QueuedPlayers.find(plrGuid);
+            if (it != m_QueuedPlayers.end() && info) *info = it->second;
+        }
+        void RemovePlayerFromQueue(const ObjectGuid& plrGuid, PlayerLeaveMethod leaveMethod = PLAYER_CLIENT_LEAVE); // 0 == by default system (cmsg, leader leave), 1 == by lfg system (no need report text you left queu)
+        void RemoveGroupFromQueue(uint32 groupId, GroupLeaveMethod leaveMethod = GROUP_CLIENT_LEAVE);
+        void Update(uint32 diff);
+        void UpdateGroup(uint32 groupId);
 
-    static void BuildSetQueuePacket(WorldPacket& data, uint32 areaId, uint8 status);
-    static void BuildMemberAddedPacket(WorldPacket& data, ObjectGuid plrGuid);
-    static void BuildInProgressPacket(WorldPacket& data);
-    static void BuildCompletePacket(WorldPacket& data);
+        static void BuildSetQueuePacket(WorldPacket &data, uint32 areaId, uint8 status);
+        static void BuildMemberAddedPacket(WorldPacket &data, ObjectGuid plrGuid);
+        static void BuildInProgressPacket(WorldPacket &data);
+        static void BuildCompletePacket(WorldPacket &data);
 
-    static ClassRoles CalculateRoles(Classes playerClass);
-    static RolesPriority getPriority(Classes playerClass, ClassRoles playerRoles);
+        static ClassRoles CalculateRoles(Classes playerClass);
+        static RolesPriority getPriority(Classes playerClass, ClassRoles playerRoles);
 
-    static uint32 GetMaximumDPSSlots() { return 3u; }
+        static uint32 GetMaximumDPSSlots() { return 3u; }
 
-private:
-    typedef std::map<ObjectGuid, LFGPlayerQueueInfo> QueuedPlayersMap;
-    QueuedPlayersMap m_QueuedPlayers;
-    QueuedPlayersMap m_OfflinePlayers;
+    private:
+        typedef std::map<ObjectGuid, LFGPlayerQueueInfo> QueuedPlayersMap;
+        QueuedPlayersMap m_QueuedPlayers;
+        QueuedPlayersMap m_OfflinePlayers;
 
-    typedef std::map<uint32, LFGGroupQueueInfo> QueuedGroupsMap;
-    QueuedGroupsMap m_QueuedGroups;
+        typedef std::map<uint32, LFGGroupQueueInfo> QueuedGroupsMap;
+        QueuedGroupsMap m_QueuedGroups;
 
-    void FindInArea(std::list<ObjectGuid>& players, uint32 area, uint32 team, ObjectGuid const& exclude);
-    bool FindRoleToGroup(ObjectGuid playerGuid, Group* group, ClassRoles role);
+        void FindInArea(std::list<ObjectGuid>& players, uint32 area, uint32 team, ObjectGuid const& exclude);
+        bool FindRoleToGroup(ObjectGuid playerGuid, Group* group, ClassRoles role);
 
-    uint32 _groupSize = 5;
+        uint32 _groupSize = 5;
 };
 
 extern LFGQueue sLFGMgr;

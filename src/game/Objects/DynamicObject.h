@@ -22,8 +22,8 @@
 #ifndef MANGOSSERVER_DYNAMICOBJECT_H
 #define MANGOSSERVER_DYNAMICOBJECT_H
 
-#include "DBCEnums.h"
 #include "Object.h"
+#include "DBCEnums.h"
 
 enum DynamicObjectType
 {
@@ -36,54 +36,55 @@ class SpellEntry;
 
 class DynamicObject : public WorldObject
 {
-public:
-    typedef std::map<ObjectGuid, uint32> AffectedMap;
-    explicit DynamicObject();
-    virtual ~DynamicObject();
+    public:
+        typedef std::map<ObjectGuid, uint32> AffectedMap;
+        explicit DynamicObject();
+        virtual ~DynamicObject();
 
-    void AddToWorld() override;
-    void RemoveFromWorld() override;
+        void AddToWorld() override;
+        void RemoveFromWorld() override;
 
-    bool Create(uint32 guidlow, WorldObject* caster, uint32 spellId, SpellEffectIndex effIndex, float x, float y, float z, int32 duration, float radius, DynamicObjectType type);
-    void Update(uint32 update_diff, uint32 p_time) override;
-    void Delete();
-    uint32 GetSpellId() const { return m_spellId; }
-    SpellEffectIndex GetEffIndex() const { return m_effIndex; }
-    uint32 GetDuration() const { return m_aliveDuration; }
-    ObjectGuid const& GetCasterGuid() const { return GetGuidValue(DYNAMICOBJECT_CASTER); }
-    WorldObject* GetCaster() const;
-    Unit* GetUnitCaster() const;
-    float GetRadius() const { return m_radius; }
-    DynamicObjectType GetType() const { return (DynamicObjectType)GetByteValue(DYNAMICOBJECT_BYTES, 0); }
-    bool NeedsRefresh(Unit* unit) const;
-    void AddAffected(Unit* unit);
-    void RemoveAffected(Unit* unit);
-    void Delay(int32 delaytime);
-    char const* GetName() const final { return "DynamicObject"; }
+        bool Create(uint32 guidlow, WorldObject* caster, uint32 spellId, SpellEffectIndex effIndex, float x, float y, float z, int32 duration, float radius, DynamicObjectType type);
+        void Update(uint32 update_diff, uint32 p_time) override;
+        void Delete();
+        uint32 GetSpellId() const { return m_spellId; }
+        SpellEffectIndex GetEffIndex() const { return m_effIndex; }
+        uint32 GetDuration() const { return m_aliveDuration; }
+        ObjectGuid const& GetCasterGuid() const { return GetGuidValue(DYNAMICOBJECT_CASTER); }
+        WorldObject* GetCaster() const;
+        Unit* GetUnitCaster() const;
+        float GetRadius() const { return m_radius; }
+        DynamicObjectType GetType() const { return (DynamicObjectType)GetByteValue(DYNAMICOBJECT_BYTES,0); }
+        bool NeedsRefresh(Unit *unit) const;
+        void AddAffected(Unit* unit);
+        void RemoveAffected(Unit* unit);
+        // bot calls IsAffecting(Unit*).
+        bool IsAffecting(Unit* /*unit*/) const { return false; }
+        void Delay(int32 delaytime);
+        char const* GetName() const final { return "DynamicObject"; }
 
-    bool IsHostileTo(WorldObject const* target) const override;
-    bool IsFriendlyTo(WorldObject const* target) const override;
-    uint32 GetFactionTemplateId() const final;
-    uint32 GetLevel() const final;
+        bool IsHostileTo(WorldObject const* target) const override;
+        bool IsFriendlyTo(WorldObject const* target) const override;
+        uint32 GetFactionTemplateId() const final;
+        uint32 GetLevel() const final;
 
-    float GetObjectBoundingRadius() const override // overwrite WorldObject version
-    {
-        return 0.0f; // dynamic object not have real interact size
-    }
+        float GetObjectBoundingRadius() const override // overwrite WorldObject version
+        {
+            return 0.0f;                                    // dynamic object not have real interact size
+        }
 
-    bool IsVisibleForInState(WorldObject const* pDetector, WorldObject const* viewPoint, bool inVisibleList) const override;
+        bool IsVisibleForInState(WorldObject const* pDetector, WorldObject const* viewPoint, bool inVisibleList) const override;
 
-    GridReference<DynamicObject>& GetGridRef() { return m_gridRef; }
+        GridReference<DynamicObject> &GetGridRef() { return m_gridRef; }
 
-protected:
-    uint32 m_spellId;
-    SpellEffectIndex m_effIndex;
-    int32 m_aliveDuration;
-    float m_radius; // radius apply persistent effect, 0 = no persistent effect
-    bool m_positive;
-    AffectedMap m_affected;
-
-private:
-    GridReference<DynamicObject> m_gridRef;
+    protected:
+        uint32 m_spellId;
+        SpellEffectIndex m_effIndex;
+        int32 m_aliveDuration;
+        float m_radius;                                     // radius apply persistent effect, 0 = no persistent effect
+        bool m_positive;
+        AffectedMap m_affected;
+    private:
+        GridReference<DynamicObject> m_gridRef;
 };
 #endif

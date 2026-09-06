@@ -28,7 +28,7 @@ EndScriptData */
 #include "sunken_temple.h"
 
 // This is also the needed order for activation: S, N, SW, SE, NW, NE
-// static const uint32 m_aAtalaiStatueEvents[MAX_STATUES] = {EVENT_ID_STATUE_1, EVENT_ID_STATUE_2, EVENT_ID_STATUE_3, EVENT_ID_STATUE_4, EVENT_ID_STATUE_5, EVENT_ID_STATUE_6};
+//static const uint32 m_aAtalaiStatueEvents[MAX_STATUES] = {EVENT_ID_STATUE_1, EVENT_ID_STATUE_2, EVENT_ID_STATUE_3, EVENT_ID_STATUE_4, EVENT_ID_STATUE_5, EVENT_ID_STATUE_6};
 static const uint64 m_aAtalaiStatueEvents[6] = {GO_ATALAI_STATUE_1, GO_ATALAI_STATUE_2, GO_ATALAI_STATUE_3, GO_ATALAI_STATUE_4, GO_ATALAI_STATUE_5, GO_ATALAI_STATUE_6};
 
 struct SummonLocations
@@ -38,15 +38,18 @@ struct SummonLocations
 
 struct instance_sunken_temple : public ScriptedInstance
 {
-    instance_sunken_temple(Map* pMap) : ScriptedInstance(pMap) { Initialize(); };
+    instance_sunken_temple(Map* pMap) : ScriptedInstance(pMap)
+    {
+        Initialize();
+    };
 
     uint32 m_auiEncounter[SUNKENTEMPLE_MAX_ENCOUNTER];
     std::string strInstData;
 
-    uint64 m_luiProtectorGUIDs[6]; // Jammalan door handling
-    uint8 m_uiStatueCounter; // Atalarion Statue Event
+    uint64 m_luiProtectorGUIDs[6];                      // Jammalan door handling
+    uint8 m_uiStatueCounter;                            // Atalarion Statue Event
     uint8 m_uiCurrentStatueVar;
-    uint8 m_uiFlameCounter; // Avatar of Hakkar Event
+    uint8 m_uiFlameCounter;                             // Avatar of Hakkar Event
     uint32 m_uiAltarTimer;
     bool m_bIsFirstHakkarWave;
     bool m_bCanSummonBloodkeeper;
@@ -100,9 +103,9 @@ struct instance_sunken_temple : public ScriptedInstance
         if (!pAtalarion)
             return;
 
-        // Player* pPlayer = GetPlayerInMap();
-        // if (!pPlayer)
-        // return;
+        //Player* pPlayer = GetPlayerInMap();
+        //if (!pPlayer)
+        //return;
         /*Map::PlayerList const& players = instance->GetPlayers();
         if (players.isEmpty())
             return;*/
@@ -117,7 +120,7 @@ struct instance_sunken_temple : public ScriptedInstance
         DoRespawnGameObject(m_uiIdolHakkarGUID, HOUR * IN_MILLISECONDS);
 
         // Spawn the big green lights
-        for (uint64 guid : m_luiBigLightGUIDs)
+       for (uint64 guid : m_luiBigLightGUIDs)
             DoRespawnGameObject(guid, HOUR * IN_MILLISECONDS);
     }
 
@@ -156,42 +159,42 @@ struct instance_sunken_temple : public ScriptedInstance
         int countLight = 0;
         switch (pGo->GetEntry())
         {
-        case GO_JAMMALAN_BARRIER:
-            m_uiJammalanBarrierGUID = pGo->GetGUID();
-            if (m_auiEncounter[1] == DONE)
-                pGo->SetGoState(GO_STATE_ACTIVE);
-            break;
-        case GO_IDOL_OF_HAKKAR:
-            m_uiIdolHakkarGUID = pGo->GetGUID();
-            break;
-        case GO_ATALAI_STATUE_1:
-            m_luiAtalaiStatueGUIDs[0] = pGo->GetGUID();
-            break;
-        case GO_ATALAI_STATUE_2:
-            m_luiAtalaiStatueGUIDs[1] = pGo->GetGUID();
-            break;
-        case GO_ATALAI_STATUE_3:
-            m_luiAtalaiStatueGUIDs[2] = pGo->GetGUID();
-            break;
-        case GO_ATALAI_STATUE_4:
-            m_luiAtalaiStatueGUIDs[3] = pGo->GetGUID();
-            break;
-        case GO_ATALAI_STATUE_5:
-            m_luiAtalaiStatueGUIDs[4] = pGo->GetGUID();
-            break;
-        case GO_ATALAI_STATUE_6:
-            m_luiAtalaiStatueGUIDs[5] = pGo->GetGUID();
-            break;
-        case GO_ATALAI_LIGHT_BIG:
-            for (uint64 guid : m_luiBigLightGUIDs)
-            {
-                if (guid != 0 && guid != pGo->GetGUID())
-                    ++countLight;
-            }
-            m_luiBigLightGUIDs[countLight] = pGo->GetGUID();
-            break;
-        default:
-            break;
+            case GO_JAMMALAN_BARRIER:
+                m_uiJammalanBarrierGUID = pGo->GetGUID();
+                if (m_auiEncounter[1] == DONE)
+                    pGo->SetGoState(GO_STATE_ACTIVE);
+                break;
+            case GO_IDOL_OF_HAKKAR:
+                m_uiIdolHakkarGUID = pGo->GetGUID();
+                break;
+            case GO_ATALAI_STATUE_1:
+                m_luiAtalaiStatueGUIDs[0] = pGo->GetGUID();
+                break;
+            case GO_ATALAI_STATUE_2:
+                m_luiAtalaiStatueGUIDs[1] = pGo->GetGUID();
+                break;
+            case GO_ATALAI_STATUE_3:
+                m_luiAtalaiStatueGUIDs[2] = pGo->GetGUID();
+                break;
+            case GO_ATALAI_STATUE_4:
+                m_luiAtalaiStatueGUIDs[3] = pGo->GetGUID();
+                break;
+            case GO_ATALAI_STATUE_5:
+                m_luiAtalaiStatueGUIDs[4] = pGo->GetGUID();
+                break;
+            case GO_ATALAI_STATUE_6:
+                m_luiAtalaiStatueGUIDs[5] = pGo->GetGUID();
+                break;
+            case GO_ATALAI_LIGHT_BIG:
+                for (uint64 guid : m_luiBigLightGUIDs)
+                {
+                    if (guid != 0 && guid != pGo->GetGUID())
+                        ++countLight;
+                }
+                m_luiBigLightGUIDs[countLight] = pGo->GetGUID();
+                break;
+            default:
+                break;
         }
     }
 
@@ -199,69 +202,69 @@ struct instance_sunken_temple : public ScriptedInstance
     {
         switch (pCreature->GetEntry())
         {
-        case NPC_ZOLO:
-            m_luiProtectorGUIDs[0] = pCreature->GetGUID();
-            break;
-        case NPC_GASHER:
-            m_luiProtectorGUIDs[1] = pCreature->GetGUID();
-            break;
-        case NPC_LORO:
-            m_luiProtectorGUIDs[2] = pCreature->GetGUID();
-            break;
-        case NPC_HUKKU:
-            m_luiProtectorGUIDs[3] = pCreature->GetGUID();
-            break;
-        case NPC_ZULLOR:
-            m_luiProtectorGUIDs[4] = pCreature->GetGUID();
-            break;
-        case NPC_MIJAN:
-            m_luiProtectorGUIDs[5] = pCreature->GetGUID();
-            break;
-        case NPC_JAMMALAN:
-            m_uiJammalanGUID = pCreature->GetGUID();
-            break;
-        case NPC_ATALARION:
-            m_uiAtalarionGUID = pCreature->GetGUID();
-            if (m_auiEncounter[0] != SPECIAL)
-            {
-                pCreature->SetVisibility(VISIBILITY_OFF);
-                pCreature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                pCreature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_SPAWNING);
-                pCreature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_NPC);
-            }
-            break;
-        case NPC_SHADE_OF_ERANIKUS:
-            m_uiShadeEranikusGUID = pCreature->GetGUID();
-            if (m_auiEncounter[2] != DONE) // TYPE_JAMMALAN
-            {
-                pCreature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                pCreature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_SPAWNING);
-                pCreature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_NPC);
-                pCreature->SetStandState(UNIT_STAND_STATE_SLEEP);
-            }
-            break;
-        case NPC_DREAMSCYTH:
-            m_uiDreamscythGUID = pCreature->GetGUID();
-            if (m_auiEncounter[2] != DONE) // TYPE_JAMMALAN
-            {
-                pCreature->SetVisibility(VISIBILITY_OFF);
-                pCreature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                pCreature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_SPAWNING);
-                pCreature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_NPC);
-                pCreature->GetMotionMaster()->MoveIdle();
-            }
-            break;
-        case NPC_WEAVER:
-            m_uiWeaverGUID = pCreature->GetGUID();
-            if (m_auiEncounter[2] != DONE) // TYPE_JAMMALAN
-            {
-                pCreature->SetVisibility(VISIBILITY_OFF);
-                pCreature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                pCreature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_SPAWNING);
-                pCreature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_NPC);
-                pCreature->GetMotionMaster()->MoveIdle();
-            }
-            break;
+            case NPC_ZOLO:
+                m_luiProtectorGUIDs[0] = pCreature->GetGUID();
+                break;
+            case NPC_GASHER:
+                m_luiProtectorGUIDs[1] = pCreature->GetGUID();
+                break;
+            case NPC_LORO:
+                m_luiProtectorGUIDs[2] = pCreature->GetGUID();
+                break;
+            case NPC_HUKKU:
+                m_luiProtectorGUIDs[3] = pCreature->GetGUID();
+                break;
+            case NPC_ZULLOR:
+                m_luiProtectorGUIDs[4] = pCreature->GetGUID();
+                break;
+            case NPC_MIJAN:
+                m_luiProtectorGUIDs[5] = pCreature->GetGUID();
+                break;
+            case NPC_JAMMALAN:
+                m_uiJammalanGUID = pCreature->GetGUID();
+                break;
+            case NPC_ATALARION:
+                m_uiAtalarionGUID = pCreature->GetGUID();
+                if (m_auiEncounter[0] != SPECIAL)
+                {
+                    pCreature->SetVisibility(VISIBILITY_OFF);
+                    pCreature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                    pCreature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_SPAWNING);
+                    pCreature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_NPC);
+                }
+                break;
+            case NPC_SHADE_OF_ERANIKUS:
+                m_uiShadeEranikusGUID = pCreature->GetGUID();
+                if (m_auiEncounter[2] != DONE)      // TYPE_JAMMALAN
+                {
+                    pCreature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                    pCreature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_SPAWNING);
+                    pCreature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_NPC);
+                    pCreature->SetStandState(UNIT_STAND_STATE_SLEEP);
+                }
+                break;
+            case NPC_DREAMSCYTH:
+                m_uiDreamscythGUID = pCreature->GetGUID();
+                if (m_auiEncounter[2] != DONE)      // TYPE_JAMMALAN
+                {
+                    pCreature->SetVisibility(VISIBILITY_OFF);
+                    pCreature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                    pCreature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_SPAWNING);
+                    pCreature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_NPC);
+                    pCreature->GetMotionMaster()->MoveIdle();
+                }
+                break;
+            case NPC_WEAVER:
+                m_uiWeaverGUID = pCreature->GetGUID();
+                if (m_auiEncounter[2] != DONE)      // TYPE_JAMMALAN
+                {
+                    pCreature->SetVisibility(VISIBILITY_OFF);
+                    pCreature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                    pCreature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_SPAWNING);
+                    pCreature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_NPC);
+                    pCreature->GetMotionMaster()->MoveIdle();
+                }
+                break;
         }
     }
 
@@ -269,23 +272,23 @@ struct instance_sunken_temple : public ScriptedInstance
     {
         switch (pCreature->GetEntry())
         {
-        case NPC_DREAMSCYTH:
-            DoScriptText(SAY_DREAMSCYTHE_AGGRO, pCreature);
-            break;
-        case NPC_ATALARION:
-            if (pCreature->GetVisibility() == VISIBILITY_ON)
-                DoScriptText(SAY_ATALALARION_AGGRO, pCreature);
-            else
-            {
-                pCreature->AI()->EnterEvadeMode();
-                pCreature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                pCreature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_SPAWNING);
-                pCreature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_NPC);
-            }
-            break;
-        case NPC_SHADE_OF_ERANIKUS:
-            pCreature->SetStandState(UNIT_STAND_STATE_STAND);
-            break;
+            case NPC_DREAMSCYTH:
+                DoScriptText(SAY_DREAMSCYTHE_AGGRO, pCreature);
+                break;
+            case NPC_ATALARION:
+                if (pCreature->GetVisibility() == VISIBILITY_ON)
+                    DoScriptText(SAY_ATALALARION_AGGRO, pCreature);
+                else
+                {
+                    pCreature->AI()->EnterEvadeMode();
+                    pCreature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                    pCreature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_SPAWNING);
+                    pCreature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_NPC);
+                }
+                break;
+            case NPC_SHADE_OF_ERANIKUS:
+                pCreature->SetStandState(UNIT_STAND_STATE_STAND);
+                break;
         }
     }
 
@@ -293,191 +296,191 @@ struct instance_sunken_temple : public ScriptedInstance
     {
         switch (uiType)
         {
-        case TYPE_ATALARION:
-            if (uiData == DONE)
-            {
-                DoSpawnAtalarionIfCan();
-                for (uint64 guid : m_luiAtalaiStatueGUIDs)
+            case TYPE_ATALARION:
+                if (uiData == DONE)
                 {
-                    if (GameObject* pGob = instance->GetGameObject(guid))
-                        pGob->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_NO_INTERACT);
+                    DoSpawnAtalarionIfCan();
+                    for (uint64 guid : m_luiAtalaiStatueGUIDs)
+                    {
+                        if (GameObject* pGob = instance->GetGameObject(guid))
+                            pGob->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_NO_INTERACT);
+                    }
                 }
-            }
-            else if (uiData == IN_PROGRESS)
-            {
-                GameObject* pStatue = instance->GetGameObject(m_uiAtalaiStatueGUID);
-                if (!pStatue)
-                    break;
-                Creature* pAtalarion = instance->GetCreature(GetData64(NPC_ATALARION));
-                if (!pAtalarion)
-                    break;
-
-                // Send the GO entry to process
-                if (ProcessStatueEvent(pStatue->GetEntry()))
+                else if (uiData == IN_PROGRESS)
                 {
-                    pStatue->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_NO_INTERACT);
-                    // Activate the green light if the correct statue is activated
-                    if (GameObject* pLight = GetClosestGameObjectWithEntry(pStatue, GO_ATALAI_LIGHT, INTERACTION_DISTANCE))
-                        DoRespawnGameObject(pLight->GetGUID(), HOUR * IN_MILLISECONDS);
-                }
-                else
-                {
+                    GameObject* pStatue = instance->GetGameObject(m_uiAtalaiStatueGUID);
+                    if (!pStatue)
+                        break;
                     Creature* pAtalarion = instance->GetCreature(GetData64(NPC_ATALARION));
                     if (!pAtalarion)
                         break;
 
-                    // If the wrong statue was activated, then trigger trap
-                    // We don't know actually which trap goes to which statue so we need to search for each
-                    switch (urand(0, 2))
+                    // Send the GO entry to process
+                    if (ProcessStatueEvent(pStatue->GetEntry()))
                     {
-                    case 0:
-                        if (GameObject* pTrap = GetClosestGameObjectWithEntry(pStatue, GO_ATALAI_TRAP_1, INTERACTION_DISTANCE))
-                            pTrap->Use(pAtalarion);
-                        break;
-                    case 1:
-                        if (GameObject* pTrap = GetClosestGameObjectWithEntry(pStatue, GO_ATALAI_TRAP_2, INTERACTION_DISTANCE))
-                            pTrap->Use(pAtalarion);
-                        break;
-                    case 2:
-                        if (GameObject* pTrap = GetClosestGameObjectWithEntry(pStatue, GO_ATALAI_TRAP_3, INTERACTION_DISTANCE))
-                            pTrap->Use(pAtalarion);
-                        break;
+                        pStatue->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_NO_INTERACT);
+                        // Activate the green light if the correct statue is activated
+                        if (GameObject* pLight = GetClosestGameObjectWithEntry(pStatue, GO_ATALAI_LIGHT, INTERACTION_DISTANCE))
+                            DoRespawnGameObject(pLight->GetGUID(), HOUR * IN_MILLISECONDS);
                     }
-                }
-            }
-            m_auiEncounter[0] = uiData;
-            break;
-        case TYPE_PROTECTORS:
-            m_auiEncounter[1] = uiData;
-            if (uiData == DONE)
-            {
-                bool bAllDead = true;
-                for (uint64 guid : m_luiProtectorGUIDs)
-                {
-                    if (Creature* pProt = instance->GetCreature(guid))
+                    else
                     {
-                        if (pProt->IsAlive())
-                        {
-                            bAllDead = false;
+                        Creature* pAtalarion = instance->GetCreature(GetData64(NPC_ATALARION));
+                        if (!pAtalarion)
                             break;
+
+                        // If the wrong statue was activated, then trigger trap
+                        // We don't know actually which trap goes to which statue so we need to search for each
+                        switch (urand(0, 2))
+                        {
+                            case 0:
+                                if (GameObject* pTrap = GetClosestGameObjectWithEntry(pStatue, GO_ATALAI_TRAP_1, INTERACTION_DISTANCE))
+                                    pTrap->Use(pAtalarion);
+                                break;
+                            case 1:
+                                if (GameObject* pTrap = GetClosestGameObjectWithEntry(pStatue, GO_ATALAI_TRAP_2, INTERACTION_DISTANCE))
+                                    pTrap->Use(pAtalarion);
+                                break;
+                            case 2:
+                                if (GameObject* pTrap = GetClosestGameObjectWithEntry(pStatue, GO_ATALAI_TRAP_3, INTERACTION_DISTANCE))
+                                    pTrap->Use(pAtalarion);
+                                break;
                         }
                     }
                 }
-
-                if (bAllDead)
+                m_auiEncounter[0] = uiData;
+                break;
+            case TYPE_PROTECTORS:
+                m_auiEncounter[1] = uiData;
+                if (uiData == DONE)
                 {
-                    if (GameObject* pGob = instance->GetGameObject(m_uiJammalanBarrierGUID))
-                        if (pGob->GetGoState() != GO_STATE_ACTIVE) // Fermée
-                            DoUseDoorOrButton(m_uiJammalanBarrierGUID);
-
-                    // Intro yell
-                    if (Creature* pJam = instance->GetCreature(m_uiJammalanGUID))
-                        DoScriptText(SAY_JAMMALAN_INTRO, pJam);
-                }
-            }
-            break;
-        case TYPE_JAMMALAN:
-            m_auiEncounter[2] = uiData;
-            if (uiData == DONE)
-            {
-                if (Creature* pEranikus = instance->GetCreature(m_uiShadeEranikusGUID))
-                {
-                    pEranikus->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                    pEranikus->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_SPAWNING);
-                    pEranikus->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_NPC);
-                }
-                if (Creature* pDream = instance->GetCreature(m_uiDreamscythGUID))
-                {
-                    pDream->SetVisibility(VISIBILITY_ON);
-                    pDream->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                    pDream->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_SPAWNING);
-                    pDream->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_NPC);
-                    pDream->GetMotionMaster()->MoveWaypoint();
-                    DoScriptText(SAY_DREAMSCYTHE_INTRO, pDream);
-                }
-                if (Creature* pWeav = instance->GetCreature(m_uiWeaverGUID))
-                {
-                    pWeav->SetVisibility(VISIBILITY_ON);
-                    pWeav->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                    pWeav->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_SPAWNING);
-                    pWeav->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_NPC);
-                    pWeav->GetMotionMaster()->MoveWaypoint();
-                }
-            }
-            else if (uiData == IN_PROGRESS)
-            {
-                Creature* pJam = instance->GetCreature(m_uiJammalanGUID);
-                if (!pJam)
-                    break;
-
-                std::vector<uint32> mobsEntries;
-                std::vector<uint32>::iterator entriesIt;
-                mobsEntries.push_back(5263); // Mummified Atal'ai
-                mobsEntries.push_back(5271); // Atal'ai Deathwalker
-                mobsEntries.push_back(5273); // Atal'ai High Priest
-
-                for (entriesIt = mobsEntries.begin(); entriesIt != mobsEntries.end(); ++entriesIt)
-                {
-                    std::list<Creature*> tmpMobsList;
-                    GetCreatureListWithEntryInGrid(tmpMobsList, pJam, (*entriesIt), 150.0f);
-                    while (!tmpMobsList.empty())
+                    bool bAllDead = true;
+                    for (uint64 guid : m_luiProtectorGUIDs)
                     {
-                        Creature* curr = tmpMobsList.front();
-                        tmpMobsList.pop_front();
-                        // Creature invoquee
-                        if (!curr->GetDBTableGUIDLow())
-                            continue;
+                        if (Creature* pProt = instance->GetCreature(guid))
+                        {
+                            if (pProt->IsAlive())
+                            {
+                                bAllDead = false;
+                                break;
+                            }
+                        }
+                    }
 
-                        if (curr->IsAlive())
-                            curr->SetInCombatWithZone();
+                    if (bAllDead)
+                    {
+                        if (GameObject* pGob = instance->GetGameObject(m_uiJammalanBarrierGUID))
+                            if (pGob->GetGoState() != GO_STATE_ACTIVE) // Fermée
+                                DoUseDoorOrButton(m_uiJammalanBarrierGUID);
+
+                        // Intro yell
+                        if (Creature* pJam = instance->GetCreature(m_uiJammalanGUID))
+                            DoScriptText(SAY_JAMMALAN_INTRO, pJam);
                     }
                 }
-                mobsEntries.clear();
-            }
-            break;
-        case TYPE_MALFURION:
-            m_auiEncounter[3] = uiData;
-            break;
-        case TYPE_AVATAR:
-            m_auiEncounter[4] = uiData;
-            break;
-        case TYPE_ERANIKUS:
-            m_auiEncounter[5] = uiData;
-            if (uiData == IN_PROGRESS)
-            {
-                Creature* pEranikus = instance->GetCreature(m_uiShadeEranikusGUID);
-                if (!pEranikus)
-                    break;
-
-                std::vector<uint32> mobsEntries;
-                std::vector<uint32>::iterator entriesIt;
-                mobsEntries.push_back(5277); // Nightmare Scalebane
-                mobsEntries.push_back(5280); // Nightmare Wyrmkin
-                mobsEntries.push_back(8319); // Nightmare Whelp
-                mobsEntries.push_back(5283); // Nightmare Wanderer
-
-                for (entriesIt = mobsEntries.begin(); entriesIt != mobsEntries.end(); ++entriesIt)
+                break;
+            case TYPE_JAMMALAN:
+                m_auiEncounter[2] = uiData;
+                if (uiData == DONE)
                 {
-                    std::list<Creature*> tmpMobsList;
-                    GetCreatureListWithEntryInGrid(tmpMobsList, pEranikus, (*entriesIt), 300.0f);
-                    while (!tmpMobsList.empty())
+                    if (Creature* pEranikus = instance->GetCreature(m_uiShadeEranikusGUID))
                     {
-                        Creature* curr = tmpMobsList.front();
-                        tmpMobsList.pop_front();
-                        // Creature invoquee
-                        if (!curr->GetDBTableGUIDLow())
-                            continue;
-
-                        if (curr->IsAlive())
-                            curr->SetInCombatWithZone();
+                        pEranikus->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                        pEranikus->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_SPAWNING);
+                        pEranikus->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_NPC);
+                    }
+                    if (Creature* pDream = instance->GetCreature(m_uiDreamscythGUID))
+                    {
+                        pDream->SetVisibility(VISIBILITY_ON);
+                        pDream->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                        pDream->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_SPAWNING);
+                        pDream->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_NPC);
+                        pDream->GetMotionMaster()->MoveWaypoint();
+                        DoScriptText(SAY_DREAMSCYTHE_INTRO, pDream);
+                    }
+                    if (Creature* pWeav = instance->GetCreature(m_uiWeaverGUID))
+                    {
+                        pWeav->SetVisibility(VISIBILITY_ON);
+                        pWeav->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                        pWeav->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_SPAWNING);
+                        pWeav->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_NPC);
+                        pWeav->GetMotionMaster()->MoveWaypoint();
                     }
                 }
-                mobsEntries.clear();
-            }
-            break;
-        case TYPE_ETERNAL_FLAME:
-            m_uiFlameCounter = uiData;
-            break;
+                else if (uiData == IN_PROGRESS)
+                {
+                    Creature* pJam = instance->GetCreature(m_uiJammalanGUID);
+                    if (!pJam)
+                        break;
+
+                    std::vector<uint32> mobsEntries;
+                    std::vector<uint32>::iterator entriesIt;
+                    mobsEntries.push_back(5263);    // Mummified Atal'ai
+                    mobsEntries.push_back(5271);    // Atal'ai Deathwalker
+                    mobsEntries.push_back(5273);    // Atal'ai High Priest
+
+                    for (entriesIt = mobsEntries.begin(); entriesIt != mobsEntries.end(); ++entriesIt)
+                    {
+                        std::list<Creature*> tmpMobsList;
+                        GetCreatureListWithEntryInGrid(tmpMobsList, pJam, (*entriesIt), 150.0f);
+                        while (!tmpMobsList.empty())
+                        {
+                            Creature* curr = tmpMobsList.front();
+                            tmpMobsList.pop_front();
+                            // Creature invoquee
+                            if (!curr->GetDBTableGUIDLow())
+                                continue;
+
+                            if (curr->IsAlive())
+                                curr->SetInCombatWithZone();
+                        }
+                    }
+                    mobsEntries.clear();
+                }
+                break;
+            case TYPE_MALFURION:
+                m_auiEncounter[3] = uiData;
+                break;
+            case TYPE_AVATAR:
+                m_auiEncounter[4] = uiData;
+                break;
+            case TYPE_ERANIKUS:
+                m_auiEncounter[5] = uiData;
+                if (uiData == IN_PROGRESS)
+                {
+                    Creature* pEranikus = instance->GetCreature(m_uiShadeEranikusGUID);
+                    if (!pEranikus)
+                        break;
+
+                    std::vector<uint32> mobsEntries;
+                    std::vector<uint32>::iterator entriesIt;
+                    mobsEntries.push_back(5277);    // Nightmare Scalebane
+                    mobsEntries.push_back(5280);    // Nightmare Wyrmkin
+                    mobsEntries.push_back(8319);    // Nightmare Whelp
+                    mobsEntries.push_back(5283);    // Nightmare Wanderer
+
+                    for (entriesIt = mobsEntries.begin(); entriesIt != mobsEntries.end(); ++entriesIt)
+                    {
+                        std::list<Creature*> tmpMobsList;
+                        GetCreatureListWithEntryInGrid(tmpMobsList, pEranikus, (*entriesIt), 300.0f);
+                        while (!tmpMobsList.empty())
+                        {
+                            Creature* curr = tmpMobsList.front();
+                            tmpMobsList.pop_front();
+                            // Creature invoquee
+                            if (!curr->GetDBTableGUIDLow())
+                                continue;
+
+                            if (curr->IsAlive())
+                                curr->SetInCombatWithZone();
+                        }
+                    }
+                    mobsEntries.clear();
+                }
+                break;
+            case TYPE_ETERNAL_FLAME:
+                m_uiFlameCounter = uiData;
+                break;
         }
 
         if (uiData == DONE)
@@ -485,7 +488,8 @@ struct instance_sunken_temple : public ScriptedInstance
             OUT_SAVE_INST_DATA;
 
             std::ostringstream saveStream;
-            saveStream << m_auiEncounter[0] << " " << m_auiEncounter[1] << " " << m_auiEncounter[2] << " " << m_auiEncounter[3] << " " << m_auiEncounter[4] << " " << m_auiEncounter[5];
+            saveStream << m_auiEncounter[0] << " " << m_auiEncounter[1] << " " << m_auiEncounter[2] << " "
+                       << m_auiEncounter[3] << " " << m_auiEncounter[4] << " " << m_auiEncounter[5];
 
             strInstData = saveStream.str();
 
@@ -498,58 +502,61 @@ struct instance_sunken_temple : public ScriptedInstance
     {
         switch (uiType)
         {
-        case NPC_SHADE_OF_HAKKAR:
-            m_uiShadeHakkarGUID = uiData;
-            break;
-        case NPC_ATALARION:
-            m_uiAtalarionGUID = uiData;
-            break;
-        case NPC_AVATAR_OF_HAKKAR:
-            m_uiAvatarHakkarGUID = uiData;
-            break;
-        case GO_ATALAI_STATUE_1:
-            m_uiAtalaiStatueGUID = uiData;
-            break;
-        case GO_ATALAI_STATUE_2:
-            m_uiAtalaiStatueGUID = uiData;
-            break;
-        case GO_ATALAI_STATUE_3:
-            m_uiAtalaiStatueGUID = uiData;
-            break;
-        case GO_ATALAI_STATUE_4:
-            m_uiAtalaiStatueGUID = uiData;
-            break;
-        case GO_ATALAI_STATUE_5:
-            m_uiAtalaiStatueGUID = uiData;
-            break;
-        case GO_ATALAI_STATUE_6:
-            m_uiAtalaiStatueGUID = uiData;
-            break;
+            case NPC_SHADE_OF_HAKKAR:
+                m_uiShadeHakkarGUID = uiData;
+                break;
+            case NPC_ATALARION:
+                m_uiAtalarionGUID = uiData;
+                break;
+            case NPC_AVATAR_OF_HAKKAR:
+                m_uiAvatarHakkarGUID = uiData;
+                break;
+            case GO_ATALAI_STATUE_1:
+                m_uiAtalaiStatueGUID = uiData;
+                break;
+            case GO_ATALAI_STATUE_2:
+                m_uiAtalaiStatueGUID = uiData;
+                break;
+            case GO_ATALAI_STATUE_3:
+                m_uiAtalaiStatueGUID = uiData;
+                break;
+            case GO_ATALAI_STATUE_4:
+                m_uiAtalaiStatueGUID = uiData;
+                break;
+            case GO_ATALAI_STATUE_5:
+                m_uiAtalaiStatueGUID = uiData;
+                break;
+            case GO_ATALAI_STATUE_6:
+                m_uiAtalaiStatueGUID = uiData;
+                break;
         }
     }
 
-    const char* Save() override { return strInstData.c_str(); }
+    const char* Save() override
+    {
+        return strInstData.c_str();
+    }
 
     uint32 GetData(uint32 uiType) override
     {
         switch (uiType)
         {
-        case TYPE_ATALARION:
-            return m_auiEncounter[0];
-        case TYPE_PROTECTORS:
-            return m_auiEncounter[1];
-        case TYPE_JAMMALAN:
-            return m_auiEncounter[2];
-        case TYPE_MALFURION:
-            return m_auiEncounter[3];
-        case TYPE_AVATAR:
-            return m_auiEncounter[4];
-        case TYPE_ERANIKUS:
-            return m_auiEncounter[5];
-        case TYPE_ETERNAL_FLAME:
-            return m_uiFlameCounter;
-        default:
-            return 0;
+            case TYPE_ATALARION:
+                return m_auiEncounter[0];
+            case TYPE_PROTECTORS:
+                return m_auiEncounter[1];
+            case TYPE_JAMMALAN:
+                return m_auiEncounter[2];
+            case TYPE_MALFURION:
+                return m_auiEncounter[3];
+            case TYPE_AVATAR:
+                return m_auiEncounter[4];
+            case TYPE_ERANIKUS:
+                return m_auiEncounter[5];
+            case TYPE_ETERNAL_FLAME:
+                return m_uiFlameCounter;
+            default:
+                return 0;
         }
     }
 
@@ -557,12 +564,12 @@ struct instance_sunken_temple : public ScriptedInstance
     {
         switch (uiType)
         {
-        case NPC_SHADE_OF_HAKKAR:
-            return m_uiShadeHakkarGUID;
-        case NPC_ATALARION:
-            return m_uiAtalarionGUID;
-        case NPC_AVATAR_OF_HAKKAR:
-            return m_uiAvatarHakkarGUID;
+            case NPC_SHADE_OF_HAKKAR:
+                return m_uiShadeHakkarGUID;
+            case NPC_ATALARION:
+                return m_uiAtalarionGUID;
+            case NPC_AVATAR_OF_HAKKAR:
+                return m_uiAvatarHakkarGUID;
         }
         return 0;
     }
@@ -591,7 +598,7 @@ struct instance_sunken_temple : public ScriptedInstance
         std::istringstream loadStream(chrIn);
         loadStream >> m_auiEncounter[0] >> m_auiEncounter[1] >> m_auiEncounter[2] >> m_auiEncounter[3] >> m_auiEncounter[4] >> m_auiEncounter[5];
 
-        for (uint32& i : m_auiEncounter)
+        for (uint32 & i : m_auiEncounter)
         {
             if (i == IN_PROGRESS)
                 i = NOT_STARTED;
@@ -601,7 +608,10 @@ struct instance_sunken_temple : public ScriptedInstance
     }
 };
 
-InstanceData* GetInstance_instance_sunken_temple(Map* pMap) { return new instance_sunken_temple(pMap); }
+InstanceData* GetInstance_instance_sunken_temple(Map* pMap)
+{
+    return new instance_sunken_temple(pMap);
+}
 
 void AddSC_instance_sunken_temple()
 {

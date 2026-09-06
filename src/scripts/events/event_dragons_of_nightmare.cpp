@@ -2,23 +2,19 @@
  *
  */
 
+#include "scriptPCH.h"
+#include "ScriptedPetAI.h"
 #include "event_dragons_of_nightmare.h"
 #include "HardcodedEvents.h"
-#include "ScriptedPetAI.h"
-#include "scriptPCH.h"
 
 uint32 GetDrakeVar(uint32 entry)
 {
     switch (entry)
     {
-    case NPC_YSONDRE:
-        return VAR_PERM_1;
-    case NPC_LETHON:
-        return VAR_PERM_2;
-    case NPC_EMERISS:
-        return VAR_PERM_3;
-    default:
-        return VAR_PERM_4; // Taerar
+        case NPC_YSONDRE:  return VAR_PERM_1;
+        case NPC_LETHON:   return VAR_PERM_2;
+        case NPC_EMERISS:  return VAR_PERM_3;
+        default:           return VAR_PERM_4; // Taerar
     }
 }
 
@@ -42,7 +38,10 @@ void boss_dragon_of_nightmareAI::Reset()
     m_uiEventCounter = 1;
 }
 
-void boss_dragon_of_nightmareAI::Aggro(Unit* /*pWho*/) { DoCastSpellIfCan(m_creature, SPELL_MARK_OF_NATURE, CF_TRIGGERED | CF_AURA_NOT_PRESENT); }
+void boss_dragon_of_nightmareAI::Aggro(Unit* /*pWho*/)
+{
+    DoCastSpellIfCan(m_creature, SPELL_MARK_OF_NATURE, CF_TRIGGERED | CF_AURA_NOT_PRESENT);
+}
 
 void boss_dragon_of_nightmareAI::EnterEvadeMode()
 {
@@ -52,7 +51,10 @@ void boss_dragon_of_nightmareAI::EnterEvadeMode()
     ScriptedAI::EnterEvadeMode();
 }
 
-void boss_dragon_of_nightmareAI::JustDied(Unit* pKiller) { ScriptedAI::JustDied(pKiller); }
+void boss_dragon_of_nightmareAI::JustDied(Unit* pKiller)
+{
+    ScriptedAI::JustDied(pKiller);
+}
 
 void boss_dragon_of_nightmareAI::UpdateAI(const uint32 uiDiff)
 {
@@ -95,7 +97,7 @@ void boss_dragon_of_nightmareAI::UpdateAI(const uint32 uiDiff)
         DoCastSpellIfCan(m_creature, SPELL_SEEPING_FOG_RIGHT, CF_TRIGGERED);
         DoCastSpellIfCan(m_creature, SPELL_SEEPING_FOG_LEFT, CF_TRIGGERED);
 
-        m_uiSeepingFogTimer = 2 * MINUTE * IN_MILLISECONDS + 300;
+        m_uiSeepingFogTimer = 2 * MINUTE*IN_MILLISECONDS + 300;
     }
     else
         m_uiSeepingFogTimer -= uiDiff;
@@ -136,9 +138,15 @@ struct npc_dream_fogAI : ScriptedPetAI
 
     uint32 m_uiChangeTargetTimer;
 
-    void Reset() override { m_uiChangeTargetTimer = 0; }
+    void Reset() override
+    {
+        m_uiChangeTargetTimer = 0;
+    }
 
-    void ResetCreature() override { DoCastSpellIfCan(m_creature, SPELL_DREAM_FOG_AURA, CF_TRIGGERED | CF_AURA_NOT_PRESENT); }
+    void ResetCreature() override
+    {
+        DoCastSpellIfCan(m_creature, SPELL_DREAM_FOG_AURA, CF_TRIGGERED | CF_AURA_NOT_PRESENT);
+    }
 
     void AttackedBy(Unit*) override {}
 
@@ -187,7 +195,10 @@ struct npc_dream_fogAI : ScriptedPetAI
  *
  */
 
-go_putrid_shroomAI::go_putrid_shroomAI(GameObject* pGo) : GameObjectAI(pGo) { m_uiDespawnTimer = 2 * MINUTE * IN_MILLISECONDS + 1000; }
+go_putrid_shroomAI::go_putrid_shroomAI(GameObject* pGo) : GameObjectAI(pGo)
+{
+    m_uiDespawnTimer = 2 * MINUTE*IN_MILLISECONDS + 1000;
+}
 
 void go_putrid_shroomAI::UpdateAI(uint32 const uiDiff)
 {
@@ -197,15 +208,30 @@ void go_putrid_shroomAI::UpdateAI(uint32 const uiDiff)
         m_uiDespawnTimer -= uiDiff;
 }
 
-CreatureAI* GetAI_npc_dream_fog(Creature* pCreature) { return new npc_dream_fogAI(pCreature); }
+CreatureAI* GetAI_npc_dream_fog(Creature* pCreature)
+{
+    return new npc_dream_fogAI(pCreature);
+}
 
-CreatureAI* GetAI_npc_spirit_shade(Creature* pCreature) { return new npc_spirit_shadeAI(pCreature); }
+CreatureAI* GetAI_npc_spirit_shade(Creature* pCreature)
+{
+    return new npc_spirit_shadeAI(pCreature);
+}
 
-CreatureAI* GetAI_npc_shade_of_taerar(Creature* pCreature) { return new npc_shade_of_taerarAI(pCreature); }
+CreatureAI* GetAI_npc_shade_of_taerar(Creature* pCreature)
+{
+    return new npc_shade_of_taerarAI(pCreature);
+}
 
-CreatureAI* GetAI_npc_demented_druid(Creature* pCreature) { return new npc_demented_druidAI(pCreature); }
+CreatureAI* GetAI_npc_demented_druid(Creature* pCreature)
+{
+    return new npc_demented_druidAI(pCreature);
+}
 
-GameObjectAI* GetAI_go_putrid_shroom(GameObject* pGo) { return new go_putrid_shroomAI(pGo); }
+GameObjectAI* GetAI_go_putrid_shroom(GameObject* pGo)
+{
+    return new go_putrid_shroomAI(pGo);
+}
 
 CreatureAI* GetAI_boss_dragon_of_nightmare(Creature* pCreature)
 {
@@ -227,12 +253,12 @@ CreatureAI* GetAI_boss_dragon_of_nightmare(Creature* pCreature)
         return new boss_ysondreAI(pCreature);
     default:
         return nullptr;
-    }
+    } 
 }
 
 void AddSC_dragons_of_nightmare()
 {
-    Script* pNewScript;
+    Script *pNewScript;
 
     pNewScript = new Script;
     pNewScript->Name = "npc_dream_fog";

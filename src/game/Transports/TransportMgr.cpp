@@ -16,11 +16,11 @@
  */
 
 #include "TransportMgr.h"
-#include "MapManager.h"
-#include "MoveMap.h"
-#include "MoveSpline.h"
-#include "ObjectMgr.h"
 #include "Transport.h"
+#include "MoveSpline.h"
+#include "MapManager.h"
+#include "ObjectMgr.h"
+#include "MoveMap.h"
 #include "World.h"
 
 TransportMgr sTransportMgr;
@@ -36,14 +36,14 @@ TransportTemplate::~TransportTemplate()
         delete spline;
 }
 
-TransportMgr::TransportMgr() {}
+TransportMgr::TransportMgr() { }
 
-TransportMgr::~TransportMgr() {}
+TransportMgr::~TransportMgr() { }
 
 void TransportMgr::Unload()
 {
     // let os clean the memory, sometimes crashes on delete, dunno why
-    // for (auto const& pTransport : m_shipTransports)
+    //for (auto const& pTransport : m_shipTransports)
     //    delete pTransport;
     m_shipTransports.clear();
 
@@ -74,7 +74,7 @@ void TransportMgr::LoadTransportTemplates()
             continue;
         }
 
-        if (goInfo->moTransport.taxiPathId >= sTaxiPathNodesByPath.size())
+        if (goInfo->moTransport.taxiPathId >= sTaxiPathNodesByPath.size() || sTaxiPathNodesByPath[goInfo->moTransport.taxiPathId].empty())
         {
             sLog.outErrorDb("Transport %u (name: %s) has an invalid path specified in `gameobject_template`.`data0` (%u) field, skipped.", entry, goInfo->name.c_str(), goInfo->moTransport.taxiPathId);
             continue;
@@ -100,7 +100,7 @@ void TransportMgr::LoadTransportTemplates()
 class SplineRawInitializer
 {
 public:
-    SplineRawInitializer(Movement::PointsArray& points) : _points(points) {}
+    SplineRawInitializer(Movement::PointsArray& points) : _points(points) { }
 
     void operator()(uint8& mode, bool& cyclic, Movement::PointsArray& points, int& lo, int& hi) const
     {
@@ -369,7 +369,7 @@ Transport* TransportMgr::CreateTransport(uint32 entry, uint32 guid /*= 0*/)
     {
         for (size_t i = 0; i < tInfo->keyFrames.size(); ++i)
         {
-            sLog.outString("Map: %u | X: %f | Y: %f | O: %f | Teleport: %u | Update: %u | TimeTo: %u | TimeFrom: %u",
+            sLog.outString("Map: %u | X: %f | Y: %f | O: %f | Teleport: %u | Update: %u | TimeTo: %u | TimeFrom: %u", 
                 tInfo->keyFrames[i].Node->mapid, tInfo->keyFrames[i].Node->x, tInfo->keyFrames[i].Node->y, tInfo->keyFrames[i].InitialOrientation,
                 tInfo->keyFrames[i].IsTeleportFrame(), tInfo->keyFrames[i].IsUpdateFrame(), tInfo->keyFrames[i].TimeTo, tInfo->keyFrames[i].TimeFrom);
         }
@@ -409,7 +409,7 @@ Transport* TransportMgr::CreateTransport(uint32 entry, uint32 guid /*= 0*/)
     Map* newMap = sMapMgr.CreateMap(mapId, trans);
     trans->SetMap(newMap);
     MANGOS_ASSERT(trans->m_maps.find(newMap) != trans->m_maps.end());
-
+    
     return trans;
 }
 

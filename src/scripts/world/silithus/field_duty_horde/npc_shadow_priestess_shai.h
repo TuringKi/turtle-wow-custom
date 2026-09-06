@@ -12,11 +12,16 @@ private:
     AbilityTimer m_mindBlastTimer = AbilityTimer(17194, 6000, 10000, 2000);
     // We do an aura check before casting this, so it's ok to have a low cooldown
     AbilityTimer m_shadowWordPainTimer = AbilityTimer(17146, 2000, 5000, 500);
-
 public:
-    npc_shadow_priestess_shai(Creature* creature) : ScriptedAI(creature) { npc_shadow_priestess_shai::Reset(); }
+    npc_shadow_priestess_shai(Creature* creature) : ScriptedAI(creature)
+    {
+        npc_shadow_priestess_shai::Reset();
+    }
 
-    void Reset() override { m_gcdTimer.Reset(); }
+    void Reset() override
+    {
+        m_gcdTimer.Reset();
+    }
 
     void UpdateAI(const uint32 uiDiff) override
     {
@@ -79,7 +84,10 @@ public:
         DoMeleeAttackIfReady();
     }
 
-    static CreatureAI* GetAI(Creature* creature) { return new npc_shadow_priestess_shai(creature); }
+    static CreatureAI* GetAI(Creature* creature)
+    {
+        return new npc_shadow_priestess_shai(creature);
+    }
 
     static void register_script()
     {

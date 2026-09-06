@@ -5,9 +5,9 @@
  * absent permission of Nolin.
  */
 
-#include "trashbosses_scarlet_citadel.hpp"
-#include "scarlet_citadel.h"
 #include "scriptPCH.h"
+#include "scarlet_citadel.h"
+#include "trashbosses_scarlet_citadel.hpp"
 
 
 class npc_eric_vesper_AI : public ScriptedAI
@@ -20,6 +20,7 @@ public:
     }
 
 private:
+
     uint32 m_uiLightningCloud_Timer{};
     uint32 m_uiLightningWave_Timer{};
     uint32 m_uiDrainMana_Timer{};
@@ -92,12 +93,17 @@ public:
     {
         if (m_uiCheckPulse < uiDiff)
         {
-            Map::PlayerList const& PlayerList{m_creature->GetMap()->GetPlayers()};
+            Map::PlayerList const& PlayerList{ m_creature->GetMap()->GetPlayers() };
             for (const auto& itr : PlayerList)
             {
                 if (!itr.getSource()->IsGameMaster() && itr.getSource()->IsAlive())
                 {
-                    if (itr.getSource()->IsInRange3d(nsERIC_VESPER::fAreatrigger[0][0], nsERIC_VESPER::fAreatrigger[0][1], nsERIC_VESPER::fAreatrigger[0][2], nsERIC_VESPER::fAreatrigger[0][3], nsERIC_VESPER::fAreatrigger[0][4]))
+                    if (itr.getSource()->IsInRange3d(
+                        nsERIC_VESPER::fAreatrigger[0][0],
+                        nsERIC_VESPER::fAreatrigger[0][1],
+                        nsERIC_VESPER::fAreatrigger[0][2],
+                        nsERIC_VESPER::fAreatrigger[0][3],
+                        nsERIC_VESPER::fAreatrigger[0][4]))
                     {
                         SummonAdds();
                     }
@@ -116,7 +122,12 @@ public:
     {
         for (const auto& itr : nsERIC_VESPER::pairlol)
         {
-            if (Creature * pSummoned{m_creature->SummonCreature(itr.second, nsERIC_VESPER::vfAddSpawn[0].m_fX, nsERIC_VESPER::vfAddSpawn[0].m_fY, nsERIC_VESPER::vfAddSpawn[0].m_fZ, nsERIC_VESPER::vfAddSpawn[0].m_fO, TEMPSUMMON_MANUAL_DESPAWN)})
+            if (Creature* pSummoned{ m_creature->SummonCreature(itr.second,
+                nsERIC_VESPER::vfAddSpawn[0].m_fX,
+                nsERIC_VESPER::vfAddSpawn[0].m_fY,
+                nsERIC_VESPER::vfAddSpawn[0].m_fZ,
+                nsERIC_VESPER::vfAddSpawn[0].m_fO,
+                TEMPSUMMON_MANUAL_DESPAWN)})
             {
                 pSummoned->MonsterMoveWithSpeed(itr.first.m_fX, itr.first.m_fY, itr.first.m_fZ, itr.first.m_fO, 5.f, MOVE_PATHFINDING);
                 pSummoned->SetHomePosition(itr.first.m_fX, itr.first.m_fY, itr.first.m_fZ, itr.first.m_fO);
@@ -141,13 +152,13 @@ public:
     {
         if (!m_vSpawnedAdds.empty())
         {
-            if (const auto map{m_creature->GetMap()})
+            if (const auto map{ m_creature->GetMap() })
             {
                 for (const auto& guid : m_vSpawnedAdds)
                 {
-                    if (Creature * pCreature{map->GetCreature(guid)})
+                    if (Creature* pCreature{ map->GetCreature(guid) })
                     {
-                        if (TemporarySummon * tmpSumm{static_cast<TemporarySummon*>(pCreature)})
+                        if (TemporarySummon* tmpSumm{ static_cast<TemporarySummon*>(pCreature) })
                         {
                             tmpSumm->UnSummon();
                         }
@@ -163,7 +174,7 @@ public:
     {
         if (m_uiLightningCloud_Timer < uiDiff)
         {
-            if (Unit * pClosestTarget{m_creature->FindNearestHostilePlayer(15.f)})
+            if (Unit* pClosestTarget{ m_creature->FindNearestHostilePlayer(15.f) })
             {
                 if (DoCastSpellIfCan(pClosestTarget, nsERIC_VESPER::SPELL_LIGHTNING_CLOUD) == CanCastResult::CAST_OK)
                 {
@@ -181,7 +192,7 @@ public:
     {
         if (m_uiLightningWave_Timer < uiDiff)
         {
-            if (Unit * pTargetLowestHP{m_creature->FindLowestHpHostileUnit(50.f)})
+            if (Unit* pTargetLowestHP{ m_creature->FindLowestHpHostileUnit(50.f) })
             {
                 if (m_creature->IsWithinLOSInMap(pTargetLowestHP))
                 {
@@ -202,7 +213,7 @@ public:
     {
         if (m_uiDrainMana_Timer < uiDiff)
         {
-            if (Unit * pTarget{m_creature->GetHostileCasterInRange(0, 50.f)})
+            if (Unit* pTarget{ m_creature->GetHostileCasterInRange(0, 50.f) })
             {
                 if (m_creature->IsWithinLOSInMap(pTarget))
                 {
@@ -236,13 +247,13 @@ public:
 
     void DoExplosion()
     {
-        Map::PlayerList const& PlayerList{m_creature->GetMap()->GetPlayers()};
+        Map::PlayerList const& PlayerList{ m_creature->GetMap()->GetPlayers() };
         if (PlayerList.isEmpty())
             return;
 
         for (const auto& itr : PlayerList)
         {
-            if (Player * pPlayer{itr.getSource()})
+            if (Player* pPlayer{ itr.getSource() })
             {
                 if (pPlayer->IsAlive() && !pPlayer->IsGameMaster())
                 {
@@ -259,30 +270,30 @@ public:
         if (m_uiRandomFightText_Timer < uiDiff)
         {
             std::string strRandomText{};
-            const uint32 uiRnd{urand(0, 3)};
+            const uint32 uiRnd{ urand(0, 3) };
             switch (uiRnd)
             {
-            case 0:
+                case 0:
                 {
                     strRandomText = nsERIC_VESPER::TEXT_RANDOM0;
                     break;
                 }
-            case 1:
+                case 1:
                 {
                     strRandomText = nsERIC_VESPER::TEXT_RANDOM1;
                     break;
                 }
-            case 2:
+                case 2:
                 {
                     strRandomText = nsERIC_VESPER::TEXT_RANDOM2;
                     break;
                 }
-            case 3:
+                case 3:
                 {
                     strRandomText = nsERIC_VESPER::TEXT_RANDOM3;
                     break;
                 }
-            default:
+                default:
                 {
                     sLog.outError("[SC] Brother Eric Vesper: RandomFightTexts(const uint32& uiDiff): i out of range.");
                     break;
@@ -331,15 +342,22 @@ public:
     }
 };
 
-CreatureAI* GetAI_npc_eric_vesper(Creature* pCreature) { return new npc_eric_vesper_AI(pCreature); }
+CreatureAI* GetAI_npc_eric_vesper(Creature* pCreature)
+{
+    return new npc_eric_vesper_AI(pCreature);
+}
 
 
 class npc_darkcaller_rayn_AI : public ScriptedAI
 {
 public:
-    explicit npc_darkcaller_rayn_AI(Creature* pCreature) : ScriptedAI(pCreature) { npc_darkcaller_rayn_AI::Reset(); }
+    explicit npc_darkcaller_rayn_AI(Creature* pCreature) : ScriptedAI(pCreature)
+    {
+        npc_darkcaller_rayn_AI::Reset();
+    }
 
 private:
+
     uint32 m_uiMindControl_Timer{};
     uint32 m_uiShadowVolley_Timer{};
     uint32 m_uiMindFlay_Timer{};
@@ -358,7 +376,10 @@ public:
         m_uiShadowformCheck_Timer = nsRayn::TIMER_SHADOWFORM_CHECK;
     }
 
-    void JustDied(Unit* /*pKiller*/) override { m_creature->SetRespawnDelay(nsRayn::SEVEN_DAYS); }
+    void JustDied(Unit* /*pKiller*/) override
+    {
+        m_creature->SetRespawnDelay(nsRayn::SEVEN_DAYS);
+    }
 
     void CheckForShadowform(const uint32& uiDiff)
     {
@@ -369,8 +390,7 @@ public:
                 m_creature->AddAura(nsRayn::SPELL_SHADOWFORM);
             }
 
-            m_uiShadowformCheck_Timer = nsRayn::TIMER_SHADOWFORM_CHECK;
-            ;
+            m_uiShadowformCheck_Timer = nsRayn::TIMER_SHADOWFORM_CHECK;;
         }
         else
         {
@@ -384,7 +404,7 @@ public:
         {
             if (m_creature->GetThreatManager().getThreatList().size() > 1)
             {
-                if (Unit * pRandomTarget{m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 0, nullptr, SELECT_FLAG_PLAYER)})
+                if (Unit* pRandomTarget{ m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 0, nullptr, SELECT_FLAG_PLAYER) })
                 {
                     if (m_creature->IsWithinLOSInMap(pRandomTarget))
                     {
@@ -436,7 +456,7 @@ public:
     {
         if (m_uiImpendingDoom_Timer < uiDiff)
         {
-            if (Unit * pRandomManaTarget{m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 0, nullptr, SELECT_FLAG_PLAYER | SELECT_FLAG_POWER_MANA)})
+            if (Unit* pRandomManaTarget{ m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 0, nullptr, SELECT_FLAG_PLAYER | SELECT_FLAG_POWER_MANA) })
             {
                 if (DoCastSpellIfCan(pRandomManaTarget, nsRayn::SPELL_IMPENDING_DOOM) == CanCastResult::CAST_OK)
                 {
@@ -466,7 +486,10 @@ public:
     }
 };
 
-CreatureAI* GetAI_npc_darkcaller_rayn(Creature* pCreature) { return new npc_darkcaller_rayn_AI(pCreature); }
+CreatureAI* GetAI_npc_darkcaller_rayn(Creature* pCreature)
+{
+    return new npc_darkcaller_rayn_AI(pCreature);
+}
 
 
 void AddSC_trash_bosses_scarlet_citadel()

@@ -2,36 +2,39 @@
 
 #include "HttpApi/Authorizers/ApiKeyAuthorizer.hpp"
 
-#include "AccountMgr.h"
-#include "Mail.h"
-#include "ObjectMgr.h"
 #include "World.h"
+#include "ObjectMgr.h"
+#include "Mail.h"
+#include "AccountMgr.h"
 
 using namespace httplib;
 
 namespace HttpApi
 {
-    TransferController::TransferController(std::string key) { _authorizer = std::make_unique<ApiKeyAuthorizer>(key.c_str()); }
+    TransferController::TransferController(std::string key)
+    {
+        _authorizer = std::make_unique<ApiKeyAuthorizer>(key.c_str());
+    }
 
     std::string DumpReturnToString(DumpReturn dumpReturn)
     {
         switch (dumpReturn)
         {
-        case DUMP_SUCCESS:
-            return "Dump success";
-        case DUMP_FILE_OPEN_ERROR:
-            return "Error with file open";
-        case DUMP_TOO_MANY_CHARS:
-            return "Too many characters on import";
-        case DUMP_UNEXPECTED_END:
-            return "Unexpeced end on the import file";
-        case DUMP_FILE_BROKEN:
-            return "Dump file broken";
+            case DUMP_SUCCESS:
+                return "Dump success";
+            case DUMP_FILE_OPEN_ERROR:
+                return "Error with file open";
+            case DUMP_TOO_MANY_CHARS:
+                return "Too many characters on import";
+            case DUMP_UNEXPECTED_END:
+                return "Unexpeced end on the import file";
+            case DUMP_FILE_BROKEN:
+                return "Dump file broken";
         }
         return "";
     }
 
-    // This is part 1 of transfer procedure, will EXTRACT char data.
+    //This is part 1 of transfer procedure, will EXTRACT char data.
     void InitTransferAction(const Request& req, Response& resp, const ContentReader& reader)
     {
         if (!req.has_header("Content-Type"))
@@ -42,11 +45,9 @@ namespace HttpApi
 
 
         std::string body;
-        reader(
-            [&](const char* data, size_t data_length)
-            {
-                body.append(data, data_length);
-                return true;
+        reader([&](const char* data, size_t data_length) {
+            body.append(data, data_length);
+            return true;
             });
 
         sLog.out(LOG_API, "Init transfer started.");
@@ -89,7 +90,7 @@ namespace HttpApi
             return;
         }
 
-        // 1st of Oct, 2023 for now.
+        //1st of Oct, 2023 for now.
         constexpr uint64 CreationCutoffTimestamp = 1696122966;
 
         if (accountData->CreatedAt > CreationCutoffTimestamp)
@@ -99,9 +100,11 @@ namespace HttpApi
         }
 
 
-        // Convert shellcoin current price, remove the shellcoins from the player and compensate in gold.
 
-        auto result = std::unique_ptr<QueryResult>(CharacterDatabase.PQuery("SELECT SUM(count) FROM item_instance WHERE itemEntry = 81118 AND owner_guid = %u GROUP BY owner_guid", lowGuid));
+        //Convert shellcoin current price, remove the shellcoins from the player and compensate in gold.
+
+        auto result = std::unique_ptr<QueryResult>(CharacterDatabase.PQuery("SELECT SUM(count) FROM item_instance WHERE itemEntry = 81118 AND owner_guid = %u GROUP BY owner_guid",
+            lowGuid));
 
 
         if (result)
@@ -114,7 +117,7 @@ namespace HttpApi
             CharacterDatabase.DirectPExecute("DELETE FROM item_instance WHERE itemEntry = 81118 AND owner_guid = %u", lowGuid);
         }
 
-        // Add fashion coins because transferred chars lose their xmog on transfer.
+        //Add fashion coins because transferred chars lose their xmog on transfer.
 
         result = std::unique_ptr<QueryResult>(CharacterDatabase.PQuery("SELECT COUNT(*) FROM item_instance WHERE transmogrifyId != 0 AND owner_guid = %u", lowGuid));
 
@@ -145,8 +148,8 @@ namespace HttpApi
         rapidjson::Document retDoc;
         retDoc.SetObject();
 
-        rapidjson::Value transferStatusValue{true};
-        rapidjson::Value realmId{realmID};
+        rapidjson::Value transferStatusValue{ true };
+        rapidjson::Value realmId{ realmID };
         retDoc.AddMember("transferStatus", transferStatusValue, retDoc.GetAllocator());
 
         auto dataRef = rapidjson::StringRef(pDumpData.c_str());
@@ -164,8 +167,8 @@ namespace HttpApi
     std::unordered_map<std::string, time_t> transferredNames;
 
 
-    // This is part 2 of the transfer procedure. This will IMPORT the pdump data and call the necessary import functions.
-    // This should be done on the world thread on the OTHER server where extractions take place to do a successful transfer.
+    //This is part 2 of the transfer procedure. This will IMPORT the pdump data and call the necessary import functions.
+    //This should be done on the world thread on the OTHER server where extractions take place to do a successful transfer.
     void ProceedTransferAction(const Request& req, Response& resp, const ContentReader& reader)
     {
         if (!req.has_header("Content-Type"))
@@ -176,11 +179,9 @@ namespace HttpApi
 
 
         std::string body;
-        reader(
-            [&](const char* data, size_t data_length)
-            {
-                body.append(data, data_length);
-                return true;
+        reader([&](const char* data, size_t data_length) {
+            body.append(data, data_length);
+        return true;
             });
 
         rapidjson::Document d;
@@ -217,18 +218,18 @@ namespace HttpApi
 
         uint32 guid = 0;
         std::string charName = "";
-
+        
         std::shared_ptr<uint32> guidPtr = std::make_shared<uint32>(0);
         std::function<void(bool)> transCallback = [guidPtr, accountId, oldGuidLow](bool transSuccess)
         {
             if (transSuccess)
             {
-                // only set char active if transaction for migration transfer succeeded.
+                //only set char active if transaction for migration transfer succeeded.
                 CharacterDatabase.PExecute("UPDATE `characters` SET `active` = 1 WHERE `guid` = %u", *guidPtr);
                 CharacterDatabase.PExecute("UPDATE `characters` SET `customFlags` = `customFlags` | 0x20 WHERE `guid` = %u", *guidPtr); // add WAS_TRANSFERRED custom flag to take away items after login.
 
-                // Set all purchase logs to new char guid to fix HC not getting proper refunds.
-                if (*guidPtr && oldGuidLow)
+                //Set all purchase logs to new char guid to fix HC not getting proper refunds.
+                if (*guidPtr && oldGuidLow)               
                     LoginDatabase.PExecute("UPDATE shop_logs SET guid = %u WHERE guid = %u", *guidPtr, oldGuidLow);
             }
             else
@@ -238,7 +239,7 @@ namespace HttpApi
         auto res = PlayerDumpReader().LoadStringDump(pdumpData, accountId, charName, guid, &transCallback);
         sLog.out(LOG_API, "Result of transfer for targetAccount:%u\nres:%s.\nnewGuid:%u\nplayername:%s", accountId, DumpReturnToString(res).c_str(), guid, charName.c_str());
 
-        if (res == DumpReturn::DUMP_SUCCESS)
+        if (res == DumpReturn::DUMP_SUCCESS) 
         {
             *guidPtr = guid;
 
@@ -257,19 +258,20 @@ namespace HttpApi
             sLog.out(LOG_API, "Sucessfully accepted transfer import. AccountId:%u, newGuid:%u,playername:%s", accountId, guid, charName.c_str());
         }
         else
-            sLog.out(LOG_API, "FAILED dump import.Account:%u\nres:%u.\newGuid:%u\nplayername:%s\ndump result:%s", accountId, (uint32)res, guid, charName.c_str(), DumpReturnToString(res).c_str());
+            sLog.out(LOG_API, "FAILED dump import.Account:%u\nres:%u.\newGuid:%u\nplayername:%s\ndump result:%s", accountId, (uint32)res, guid, charName.c_str(), DumpReturnToString(res)
+            .c_str());
 
         rapidjson::Document retDoc;
         retDoc.SetObject();
 
-        rapidjson::Value transferResult{res};
+        rapidjson::Value transferResult{ res };
         retDoc.AddMember("transferResult", transferResult, retDoc.GetAllocator());
 
         rapidjson::StringBuffer buffer;
         rapidjson::Writer<rapidjson::StringBuffer> writer(buffer);
 
-
+        
         retDoc.Accept(writer);
         resp.set_content(buffer.GetString(), "application/json");
     }
-} // namespace HttpApi
+}

@@ -21,8 +21,8 @@ SDComment:
 SDCategory: Scholomance
 EndScriptData */
 
-#include "scholomance.h"
 #include "scriptPCH.h"
+#include "scholomance.h"
 
 #define SPELL_VOLATILEINFECTION 24928
 #define SPELL_DARKPLAGUE_AURA 12038
@@ -31,7 +31,10 @@ EndScriptData */
 
 struct boss_lorekeeperpolkeltAI : public ScriptedAI
 {
-    boss_lorekeeperpolkeltAI(Creature* pCreature) : ScriptedAI(pCreature) { Reset(); }
+    boss_lorekeeperpolkeltAI(Creature* pCreature) : ScriptedAI(pCreature)
+    {
+        Reset();
+    }
 
     uint32 VolatileInfection_Timer;
     uint32 Darkplague_Timer;
@@ -45,9 +48,12 @@ struct boss_lorekeeperpolkeltAI : public ScriptedAI
         NoxiousCatalyst_Timer = 35000;
     }
 
-    void Aggro(Unit* /*pWho*/) override { DoCastSpellIfCan(m_creature, SPELL_DARKPLAGUE_AURA, CF_TRIGGERED | CF_AURA_NOT_PRESENT); }
-
-    void JustDied(Unit* killer) override
+    void Aggro(Unit* /*pWho*/) override
+    {
+        DoCastSpellIfCan(m_creature, SPELL_DARKPLAGUE_AURA, CF_TRIGGERED | CF_AURA_NOT_PRESENT);        
+    }
+    
+    void JustDied(Unit *killer) override
     {
         if (ScriptedInstance* pInstance = (ScriptedInstance*)m_creature->GetInstanceData())
             pInstance->SetData(TYPE_POLKELT, DONE);
@@ -58,41 +64,41 @@ struct boss_lorekeeperpolkeltAI : public ScriptedAI
         if (!m_creature->SelectHostileTarget() || !m_creature->GetVictim())
             return;
 
-        // VolatileInfection_Timer
+        //VolatileInfection_Timer
         if (VolatileInfection_Timer < diff)
         {
             DoCastSpellIfCan(m_creature->GetVictim(), SPELL_VOLATILEINFECTION);
             VolatileInfection_Timer = 32000;
         }
-        else
-            VolatileInfection_Timer -= diff;
+        else VolatileInfection_Timer -= diff;
 
-        // CorrosiveAcid_Timer
+        //CorrosiveAcid_Timer
         if (CorrosiveAcid_Timer < diff)
         {
             DoCastSpellIfCan(m_creature->GetVictim(), SPELL_CORROSIVEACID);
             CorrosiveAcid_Timer = 25000;
         }
-        else
-            CorrosiveAcid_Timer -= diff;
+        else CorrosiveAcid_Timer -= diff;
 
-        // NoxiousCatalyst_Timer
+        //NoxiousCatalyst_Timer
         if (NoxiousCatalyst_Timer < diff)
         {
             DoCastSpellIfCan(m_creature->GetVictim(), SPELL_NOXIOUSCATALYST);
             NoxiousCatalyst_Timer = 38000;
         }
-        else
-            NoxiousCatalyst_Timer -= diff;
+        else NoxiousCatalyst_Timer -= diff;
 
         DoMeleeAttackIfReady();
     }
 };
-CreatureAI* GetAI_boss_lorekeeperpolkelt(Creature* pCreature) { return new boss_lorekeeperpolkeltAI(pCreature); }
+CreatureAI* GetAI_boss_lorekeeperpolkelt(Creature* pCreature)
+{
+    return new boss_lorekeeperpolkeltAI(pCreature);
+}
 
 void AddSC_boss_lorekeeperpolkelt()
 {
-    Script* newscript;
+    Script *newscript;
     newscript = new Script;
     newscript->Name = "boss_lorekeeper_polkelt";
     newscript->GetAI = &GetAI_boss_lorekeeperpolkelt;

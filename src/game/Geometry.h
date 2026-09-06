@@ -33,7 +33,7 @@ namespace Geometry
         return ang;
     }
 
-    template <class T>
+    template<class T>
     float GetAngle(T const& ownPos, T const& targetPos)
     {
         return GetAngle(ownPos.x, ownPos.y, targetPos.x, targetPos.y);
@@ -47,7 +47,7 @@ namespace Geometry
         return (dist > 0 ? dist : 0);
     }
 
-    template <class A, class B>
+    template<class A, class B>
     float GetDistance2D(A const& from, B const& to)
     {
         return GetDistance2D(from.x, from.y, to.x, to.y);
@@ -62,7 +62,7 @@ namespace Geometry
         return (dist > 0 ? dist : 0);
     }
 
-    template <class A, class B>
+    template<class A, class B>
     float GetDistance3D(A const& from, B const& to)
     {
         return GetDistance3D(from.x, from.y, from.z, to.x, to.y, to.z);
@@ -102,11 +102,11 @@ namespace Geometry
         return o;
     }
 
-    template <class A, class B>
+    template<class A, class B>
     inline bool IsPointLeftOfLine(A lineStart, A lineEnd, B point)
     {
         return (lineEnd.x - lineStart.x) * (point.y - lineStart.y) - (lineEnd.y - lineStart.y) * (point.x - lineStart.x) > 0;
     }
-} // namespace Geometry
+}
 
 #endif

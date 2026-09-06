@@ -16,10 +16,10 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#include "wdtfile.h"
-#include <cstdio>
-#include "adtfile.h"
 #include "vmapexport.h"
+#include "wdtfile.h"
+#include "adtfile.h"
+#include <cstdio>
 
 char* wdtGetPlainName(char* FileName)
 {
@@ -30,13 +30,16 @@ char* wdtGetPlainName(char* FileName)
     return FileName;
 }
 
-WDTFile::WDTFile(char* file_name, char* file_name1) : WDT(file_name) { filename.append(file_name1, strlen(file_name1)); }
+WDTFile::WDTFile(char* file_name, char* file_name1): WDT(file_name)
+{
+    filename.append(file_name1, strlen(file_name1));
+}
 
 bool WDTFile::init(char* map_id, unsigned int mapID)
 {
     if (WDT.isEof())
     {
-        // printf("Can't find WDT file.\n");
+        //printf("Can't find WDT file.\n");
         return false;
     }
 
@@ -95,7 +98,7 @@ bool WDTFile::init(char* map_id, unsigned int mapID)
                 string gWMO_mapname;
                 string fake_mapname;
                 fake_mapname = "65 65 ";
-                // gWMO_mapname = fake_mapname + filename;
+                //gWMO_mapname = fake_mapname + filename;
                 gWMO_mapname = fake_mapname + std::string(map_id);
                 for (int i = 0; i < gnWMO; ++i)
                 {
@@ -114,7 +117,10 @@ bool WDTFile::init(char* map_id, unsigned int mapID)
     return true;
 }
 
-WDTFile::~WDTFile(void) { WDT.close(); }
+WDTFile::~WDTFile(void)
+{
+    WDT.close();
+}
 
 ADTFile* WDTFile::GetMap(int x, int z)
 {

@@ -17,48 +17,48 @@
 
 // todo: Make sure he's immune to frost damage.
 
-#include "MovementGenerator.h"
-#include "naxxramas.h"
 #include "scriptPCH.h"
+#include "naxxramas.h"
+#include "MovementGenerator.h"
 
 enum
 {
-    EMOTE_BREATH = -1533082,
-    EMOTE_ENRAGE = -1533083,
+    EMOTE_BREATH       = -1533082,
+    EMOTE_ENRAGE       = -1533083,
 
-    SPELL_ICEBOLT = 28522,
-    SPELL_STUN_IMMUNE = 28782,
+    SPELL_ICEBOLT       = 28522,
+    SPELL_STUN_IMMUNE   = 28782,
 
     // SPELL_SUMM_ICEBLOCK = 28535, // we manually summon an iceblock in SpellHitTarget
 
-    // SPELL_FROST_BREATH = 29318,
-    SPELL_FROST_BREATH = 28524, // triggers the damage and explosion visual, 7sec cast
-    SPELL_FROST_BREATH_DUMMY = 30101, // shows the falling ball thing
+    //SPELL_FROST_BREATH = 29318,
+    SPELL_FROST_BREATH        = 28524, // triggers the damage and explosion visual, 7sec cast
+    SPELL_FROST_BREATH_DUMMY  = 30101, // shows the falling ball thing
 
-    SPELL_FROST_AURA = 28529,
-    SPELL_LIFE_DRAIN = 28542,
-    SPELL_BESERK = 26662,
-    SPELL_CLEAVE = 19983,
-    SPELL_TAIL_SWEEP = 15847,
+    SPELL_FROST_AURA   = 28529,
+    SPELL_LIFE_DRAIN   = 28542,
+    SPELL_BESERK       = 26662,
+    SPELL_CLEAVE        = 19983,
+    SPELL_TAIL_SWEEP    = 15847,
 
     // each blizzard has 30sec duration supposedly
-    SPELL_SUMMON_BLIZ1 = 28561, // summons creature 16474
-    SPELL_SUMMON_BLIZ2 = 28560, // unimplemented script effect
+    SPELL_SUMMON_BLIZ1      = 28561, // summons creature 16474
+    SPELL_SUMMON_BLIZ2      = 28560, // unimplemented script effect
     SPELL_BLIZZARD_PERIODIC = 28534, // triggers 28547 every 3 second
-    SPELL_BLIZZARD = 28547, // deals dmg every 2 seconds. Stationary, lasts for 15sec
+    SPELL_BLIZZARD          = 28547, // deals dmg every 2 seconds. Stationary, lasts for 15sec
 
-    SPELL_PERIODIC_BUFFET = 29327, // periodically does 29328
-    SPELL_WING_BUFFET = 29328, // is it the spell he does on takeoff, or another one?
+    SPELL_PERIODIC_BUFFET   = 29327, // periodically does 29328
+    SPELL_WING_BUFFET       = 29328, // is it the spell he does on takeoff, or another one?
 
 
     SPELL_SAPPHIRON_DIES = 29357, // adds camera-shake.
-
+    
     GO_ICEBLOCK = 181247,
 
     MOVE_POINT_LIFTOFF = 1,
     MOVE_POINT_FLYPOINT = 2,
 
-    NPC_WING_BUFFET = 17025,
+    NPC_WING_BUFFET = 17025, 
     NPC_BLIZZARD = 16474,
 };
 
@@ -80,18 +80,18 @@ enum Events
 
 enum Phase
 {
-    PHASE_GROUND = 1,
-    PHASE_LIFT_OFF = 2,
-    PHASE_AIR_BOLTS = 3,
+    PHASE_GROUND     = 1,
+    PHASE_LIFT_OFF   = 2,
+    PHASE_AIR_BOLTS  = 3,
     PHASE_AIR_BREATH = 4,
-    PHASE_LANDING = 5,
+    PHASE_LANDING    = 5,
 
     PHASE_SKELETON,
     PHASE_SUMMONING,
     PHASE_DEAD
 };
 
-static const float aLiftOffPosition[3] = {3521.300f, -5237.560f, 138.261f};
+static const float aLiftOffPosition[3] = { 3521.300f, -5237.560f, 138.261f };
 uint32 SPAWN_ANIM_TIMER = 21500;
 static constexpr float AGGRO_RADIUS = 70.0f;
 
@@ -176,18 +176,18 @@ struct boss_sapphironAI : public ScriptedAI
             wingBuffetCreature = 0;
         }
     }
-
+    
     void DeleteAndDispellIceBlocks()
     {
         std::list<GameObject*> iceblocks;
         GetGameObjectListWithEntryInGrid(iceblocks, m_creature, GO_ICEBLOCK, 300.0f);
-        for (GameObject* ib : iceblocks)
+        for(GameObject* ib : iceblocks)
         {
             ib->DeleteLater();
         }
     }
 
-    void DamageTaken(Unit* pDoneBy, uint32&) override
+    void DamageTaken(Unit* pDoneBy, uint32&) override 
     {
         if (m_creature->GetMeleeZLimit() < 1.0f)
         {
@@ -204,7 +204,7 @@ struct boss_sapphironAI : public ScriptedAI
         m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_SPAWNING);
         m_creature->SetVisibility(VISIBILITY_ON);
         m_creature->SetInCombatWithZone();
-        if (Unit* pUnit = m_creature->SelectAttackingTarget(ATTACKING_TARGET_NEAREST, 0))
+        if (Unit* pUnit = m_creature->SelectAttackingTarget(ATTACKING_TARGET_NEAREST,0))
         {
             AttackStart(pUnit);
         }
@@ -233,7 +233,8 @@ struct boss_sapphironAI : public ScriptedAI
         if (GameObject* skeleton = m_pInstance->GetSingleGameObjectFromStorage(GO_SAPPHIRON_SPAWN))
         {
             skeleton->Despawn();
-            m_creature->SummonGameObject(GO_SAPPHIRON_SPAWN, skeleton->GetPositionX(), skeleton->GetPositionY(), skeleton->GetPositionZ(), skeleton->GetOrientation(), 0, 0, 0, 0, SPAWN_ANIM_TIMER);
+            m_creature->SummonGameObject(GO_SAPPHIRON_SPAWN, skeleton->GetPositionX(), skeleton->GetPositionY(), skeleton->GetPositionZ(),
+                skeleton->GetOrientation(), 0, 0, 0, 0, SPAWN_ANIM_TIMER);
         }
         else
         {
@@ -262,11 +263,11 @@ struct boss_sapphironAI : public ScriptedAI
         m_creature->GetHomePosition(x, y, z, o);
 
         // Large aggro radius
-        Map::PlayerList const& PlayerList = m_creature->GetMap()->GetPlayers();
+        Map::PlayerList const &PlayerList = m_creature->GetMap()->GetPlayers();
         for (const auto& itr : PlayerList)
         {
             Player* pPlayer = itr.getSource();
-
+            
             float dx = pPlayer->GetPositionX() - x;
             float dy = pPlayer->GetPositionY() - y;
             float dz = pPlayer->GetPositionZ() - z;
@@ -274,7 +275,7 @@ struct boss_sapphironAI : public ScriptedAI
             dist = (dist > 0 ? dist : 0);
             if (dist > AGGRO_RADIUS)
                 continue;
-
+            
 
             bool alert;
             if (!pPlayer->IsVisibleForOrDetect(m_creature, m_creature, true, false, &alert))
@@ -330,7 +331,7 @@ struct boss_sapphironAI : public ScriptedAI
         if (m_pInstance)
             m_pInstance->SetData(TYPE_SAPPHIRON, DONE);
     }
-
+    
     void RescheduleIcebolt()
     {
         if (++Icebolt_Count < 5)
@@ -354,10 +355,10 @@ struct boss_sapphironAI : public ScriptedAI
             {
                 if (pTarget->IsDead())
                     continue;
-
+                
                 if (std::find(iceboltTargets.begin(), iceboltTargets.end(), pTarget->GetObjectGuid()) != iceboltTargets.end())
                     continue;
-
+                
                 suitableUnits.push_back(pTarget);
             }
 
@@ -370,11 +371,11 @@ struct boss_sapphironAI : public ScriptedAI
         auto it = suitableUnits.begin();
         std::advance(it, urand(0, suitableUnits.size() - 1));
         Unit* target = *it;
-
+        
         iceboltTargets.push_back(target->GetObjectGuid());
         m_creature->SetFacingToObject(target);
         DoCastSpellIfCan(target, SPELL_ICEBOLT, CF_TRIGGERED);
-
+        
         RescheduleIcebolt();
     }
 
@@ -399,13 +400,13 @@ struct boss_sapphironAI : public ScriptedAI
 
             m_creature->HandleEmote(EMOTE_ONESHOT_LIFTOFF);
             m_creature->SetHover(true);
-
+            
             m_creature->m_TargetNotReachableTimer = 0;
             if (m_creature->GetTemporaryFactionFlags() & TEMPFACTION_RESTORE_COMBAT_STOP)
                 m_creature->ClearTemporaryFaction();
 
-            // m_creature->SetFly(true);
-            // m_creature->SetLevitate(true);
+            //m_creature->SetFly(true);
+            //m_creature->SetLevitate(true);
             m_creature->SetMeleeZLimit(0.0f);
         }
         else
@@ -428,8 +429,14 @@ struct boss_sapphironAI : public ScriptedAI
 
     void UpdateReachable(uint32 update_diff)
     {
-        bool unreachableTarget = !m_creature->GetMotionMaster()->empty() && m_creature->GetVictim() && m_creature->GetMotionMaster()->GetCurrentMovementGeneratorType() == CHASE_MOTION_TYPE && !m_creature->HasDistanceCasterMovement() && (!m_creature->IsWithinDistInMap(m_creature->GetVictim(), m_creature->GetMaxChaseDistance(m_creature->GetVictim())) || !m_creature->IsWithinLOSInMap(m_creature->GetVictim())) && !m_creature->GetMotionMaster()->GetCurrent()->IsReachable();
-
+        bool unreachableTarget = 
+            !m_creature->GetMotionMaster()->empty() &&
+             m_creature->GetVictim() &&
+             m_creature->GetMotionMaster()->GetCurrentMovementGeneratorType() == CHASE_MOTION_TYPE &&
+            !m_creature->HasDistanceCasterMovement() &&
+           (!m_creature->IsWithinDistInMap(m_creature->GetVictim(), m_creature->GetMaxChaseDistance(m_creature->GetVictim())) || !m_creature->IsWithinLOSInMap(m_creature->GetVictim())) &&
+            !m_creature->GetMotionMaster()->GetCurrent()->IsReachable();
+        
         if (unreachableTarget)
         {
             m_TargetNotReachableTimer += update_diff;
@@ -437,7 +444,7 @@ struct boss_sapphironAI : public ScriptedAI
         else
             m_TargetNotReachableTimer = 0;
     }
-
+    
     void UpdateAI(const uint32 uiDiff) override
     {
         if (phase == PHASE_SKELETON)
@@ -463,7 +470,7 @@ struct boss_sapphironAI : public ScriptedAI
             AggroRadius(uiDiff);
             if (!m_creature->SelectHostileTarget() || !m_creature->GetVictim())
                 return;
-
+         
             UpdateReachable(uiDiff);
             if (m_TargetNotReachableTimer > 10000)
             {
@@ -482,7 +489,7 @@ struct boss_sapphironAI : public ScriptedAI
                     m_forceTargetUpdateTimer -= uiDiff;
             }
         }
-        else
+        else 
         {
             if (m_creature->GetThreatManager().isThreatListEmpty())
             {
@@ -490,9 +497,9 @@ struct boss_sapphironAI : public ScriptedAI
             }
         }
 
-        if (!m_creature->HasAura(SPELL_FROST_AURA))
+        if(!m_creature->HasAura(SPELL_FROST_AURA))
             m_creature->CastSpell(m_creature, SPELL_FROST_AURA, true);
-
+        
 
         events.Update(uiDiff);
         if (uint32 eventId = events.ExecuteEvent())
@@ -514,114 +521,115 @@ struct boss_sapphironAI : public ScriptedAI
                 }
                 break;
             case EVENT_LIFTOFF: // liftoff is triggered from MovementInform()
+            {
+                phase = PHASE_AIR_BOLTS;
+                Icebolt_Count = 0;
+                events.ScheduleEvent(EVENT_ICEBOLT, Seconds(6));
+
+                if (Creature* pWG = m_creature->SummonCreature(NPC_WING_BUFFET, m_creature->GetPositionX(), m_creature->GetPositionY(), m_creature->GetPositionZ(), 0,
+                    TEMPSUMMON_MANUAL_DESPAWN))
                 {
-                    phase = PHASE_AIR_BOLTS;
-                    Icebolt_Count = 0;
-                    events.ScheduleEvent(EVENT_ICEBOLT, Seconds(6));
-
-                    if (Creature* pWG = m_creature->SummonCreature(NPC_WING_BUFFET, m_creature->GetPositionX(), m_creature->GetPositionY(), m_creature->GetPositionZ(), 0, TEMPSUMMON_MANUAL_DESPAWN))
-                    {
-                        pWG->CastSpell(pWG, SPELL_PERIODIC_BUFFET, true);
-                        wingBuffetCreature = pWG->GetObjectGuid();
-                    }
-
-                    setHover(true);
-
-                    break;
+                    pWG->CastSpell(pWG, SPELL_PERIODIC_BUFFET, true);
+                    wingBuffetCreature = pWG->GetObjectGuid();
                 }
+
+                setHover(true);
+
+                break;
+            }
             case EVENT_LAND:
+            {
+                iceboltTargets.clear();
+                // in case something is delayed, and we're not finished 
+                // casting the frost breath
+                if (m_creature->IsNonMeleeSpellCasted())
                 {
-                    iceboltTargets.clear();
-                    // in case something is delayed, and we're not finished
-                    // casting the frost breath
-                    if (m_creature->IsNonMeleeSpellCasted())
-                    {
-                        events.Repeat(100);
-                        return;
-                    }
-                    setHover(false);
-                    // m_creature->GetMotionMaster()->MovePoint(MOVE_POINT_FLYPOINT, m_creature->GetPositionX(), m_creature->GetPositionY(), 137.7f, MOVE_PATHFINDING | MOVE_FLY_MODE);
-                    phase = PHASE_LANDING;
-                    events.ScheduleEvent(EVENT_LANDED, Seconds(4));
-                    break;
+                    events.Repeat(100);
+                    return;
                 }
+                setHover(false);
+                //m_creature->GetMotionMaster()->MovePoint(MOVE_POINT_FLYPOINT, m_creature->GetPositionX(), m_creature->GetPositionY(), 137.7f, MOVE_PATHFINDING | MOVE_FLY_MODE);
+                phase = PHASE_LANDING;
+                events.ScheduleEvent(EVENT_LANDED, Seconds(4));
+                break;
+            }
             case EVENT_LANDED:
-                {
-                    DeleteAndDispellIceBlocks();
-                    events.Reset();
-                    events.ScheduleEvent(EVENT_LIFEDRAIN, Seconds(3));
-                    events.ScheduleEvent(EVENT_BLIZZARD, Seconds(1));
-                    events.ScheduleEvent(EVENT_MOVE_TO_FLY, Seconds(urand(50, 70))); // Sampling videos show its 50-70sec between engaging after landing, and disengaging to fly again
-                    events.ScheduleEvent(EVENT_TAIL_SWEEP, Seconds(12));
-                    events.ScheduleEvent(EVENT_CLEAVE, Seconds(5));
+            {
+                DeleteAndDispellIceBlocks();
+                events.Reset();
+                events.ScheduleEvent(EVENT_LIFEDRAIN, Seconds(3));
+                events.ScheduleEvent(EVENT_BLIZZARD, Seconds(1));
+                events.ScheduleEvent(EVENT_MOVE_TO_FLY, Seconds(urand(50, 70))); // Sampling videos show its 50-70sec between engaging after landing, and disengaging to fly again
+                events.ScheduleEvent(EVENT_TAIL_SWEEP, Seconds(12));
+                events.ScheduleEvent(EVENT_CLEAVE, Seconds(5));
 
-                    SetCombatMovement(true);
-                    m_creature->GetMotionMaster()->Clear(false);
-                    m_creature->SelectHostileTarget();
-                    phase = PHASE_GROUND;
-                    break;
-                }
+                SetCombatMovement(true);
+                m_creature->GetMotionMaster()->Clear(false);
+                m_creature->SelectHostileTarget();
+                phase = PHASE_GROUND;
+                break;
+            }
             case EVENT_ICEBOLT:
-                {
-                    DoIceBolt();
-                    break;
-                }
+            {
+                DoIceBolt();
+                break;
+            }
             case EVENT_FROST_BREATH_DUMMY:
-                {
-                    // Looks like the wing buffet dissapears as he starts casting frost breath
-                    UnSummonWingBuffet();
-                    if (DoCastSpellIfCan(m_creature, SPELL_FROST_BREATH_DUMMY, CF_TRIGGERED) == CAST_OK)
-                        events.ScheduleEvent(EVENT_FROST_BREATH_CAST, 500);
-                    else
-                        events.Repeat(100);
-                    break;
-                }
+            {
+                // Looks like the wing buffet dissapears as he starts casting frost breath
+                UnSummonWingBuffet();
+                if (DoCastSpellIfCan(m_creature, SPELL_FROST_BREATH_DUMMY, CF_TRIGGERED) == CAST_OK)
+                    events.ScheduleEvent(EVENT_FROST_BREATH_CAST, 500);
+                else
+                    events.Repeat(100);
+                break;
+            }
             case EVENT_FROST_BREATH_CAST:
-                {
-                    if (DoCastSpellIfCan(m_creature, SPELL_FROST_BREATH) != CAST_OK)
-                        events.Repeat(100);
-                    else
-                        events.ScheduleEvent(EVENT_LAND, 7000);
-                    break;
-                }
+            {
+                if (DoCastSpellIfCan(m_creature, SPELL_FROST_BREATH) != CAST_OK)
+                    events.Repeat(100);
+                else
+                    events.ScheduleEvent(EVENT_LAND, 7000);
+                break;
+            }
             case EVENT_BLIZZARD:
+            {
+                if (Unit* pUnit = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 0, nullptr, SELECT_FLAG_PLAYER_NOT_GM))
                 {
-                    if (Unit* pUnit = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 0, nullptr, SELECT_FLAG_PLAYER_NOT_GM))
-                    {
-                        int angle = urand(0, 360);
-                        float x = pUnit->GetPositionX() + cos(angle * 0.01745f) * 5.0f;
-                        float y = pUnit->GetPositionY() + sin(angle * 0.01745f) * 5.0f;
-                        if (!m_creature->SummonCreature(NPC_BLIZZARD, x, y, 138.0f, 0, TEMPSUMMON_TIMED_DESPAWN, 30000))
-                            events.Repeat(100);
-                        else
-                            events.Repeat(Seconds(20));
-                    }
-                    break;
+                    int angle = urand(0, 360);
+                    float x = pUnit->GetPositionX() + cos(angle * 0.01745f) * 5.0f;
+                    float y = pUnit->GetPositionY() + sin(angle * 0.01745f) * 5.0f;
+                    if (!m_creature->SummonCreature(NPC_BLIZZARD, x, y, 138.0f, 0, TEMPSUMMON_TIMED_DESPAWN, 30000))
+                        events.Repeat(100);
+                    else
+                        events.Repeat(Seconds(20));
                 }
+                break;
+            }
             case EVENT_LIFEDRAIN:
-                {
-                    if (DoCastSpellIfCan(m_creature, SPELL_LIFE_DRAIN) == CAST_OK)
-                        events.Repeat(Seconds(24));
-                    else
-                        events.Repeat(100);
-                    break;
-                }
+            {
+                if (DoCastSpellIfCan(m_creature, SPELL_LIFE_DRAIN) == CAST_OK)
+                    events.Repeat(Seconds(24));
+                else
+                    events.Repeat(100);
+                break;
+            }
             case EVENT_TAIL_SWEEP:
-                {
-                    if (DoCastSpellIfCan(m_creature, SPELL_TAIL_SWEEP) == CAST_OK)
-                        events.Repeat(Seconds(urand(7, 10)));
-                    else
-                        events.Repeat(100);
-                    break;
-                }
+            {
+                if (DoCastSpellIfCan(m_creature, SPELL_TAIL_SWEEP) == CAST_OK)
+                    events.Repeat(Seconds(urand(7, 10)));
+                else
+                    events.Repeat(100);
+                break;
+            }
             case EVENT_CLEAVE:
-                {
-                    if (DoCastSpellIfCan(m_creature->GetVictim(), SPELL_CLEAVE) == CAST_OK)
-                        events.Repeat(Seconds(urand(5, 10)));
-                    else
-                        events.Repeat(100);
-                    break;
-                }
+            {
+                if (DoCastSpellIfCan(m_creature->GetVictim(), SPELL_CLEAVE) == CAST_OK)
+                    events.Repeat(Seconds(urand(5, 10)));
+                else
+                    events.Repeat(100);
+                break;
+            }
             }
         }
 
@@ -652,21 +660,31 @@ struct npc_sapphiron_blizzardAI : public ScriptedAI
         checkAuraTimer = 0;
         events.ScheduleEvent(1, 10);
     }
-
+    
     EventMap events;
     instance_naxxramas* m_pInstance;
     uint32 checkAuraTimer;
     std::vector<ObjectGuid> previousTargets;
 
-    void Reset() override {}
+    void Reset() override
+    {
+    }
 
-    void JustRespawned() override {}
+    void JustRespawned() override
+    {
+    }
 
-    void AttackStart(Unit*) override {}
+    void AttackStart(Unit*) override
+    {
+    }
 
-    void MoveInLineOfSight(Unit*) override {}
+    void MoveInLineOfSight(Unit*) override
+    {
+    }
 
-    void Aggro(Unit*) override {}
+    void Aggro(Unit*) override
+    {
+    }
 
     void MovementInform(uint32 uiType, uint32 pointId) override
     {
@@ -688,7 +706,7 @@ struct npc_sapphiron_blizzardAI : public ScriptedAI
 
         // if no sapphiron, move random
         Creature* pSapp = nullptr;
-        if (m_pInstance)
+        if(m_pInstance)
             pSapp = m_pInstance->GetSingleCreatureFromStorage(NPC_SAPPHIRON);
         if (!pSapp)
         {
@@ -727,7 +745,7 @@ struct npc_sapphiron_blizzardAI : public ScriptedAI
             SetRandomMove();
             return;
         }
-
+        
         Unit* target = suitableUnits[urand(0, suitableUnits.size() - 1)];
         previousTargets.push_back(target->GetObjectGuid());
         m_creature->GetMotionMaster()->Clear();
@@ -749,14 +767,54 @@ struct npc_sapphiron_blizzardAI : public ScriptedAI
         if (events.ExecuteEvent())
         {
             PickNewTarget();
-            events.Repeat(Seconds(urand(8, 10)));
+            events.Repeat(Seconds(urand(8,10)));
         }
     }
 };
 
-CreatureAI* GetAI_boss_sapphiron(Creature* pCreature) { return new boss_sapphironAI(pCreature); }
+CreatureAI* GetAI_boss_sapphiron(Creature* pCreature)
+{
+    return new boss_sapphironAI(pCreature);
+}
 
-CreatureAI* GetAI_npc_sapphironBlizzard(Creature* pCreature) { return new npc_sapphiron_blizzardAI(pCreature); }
+CreatureAI* GetAI_npc_sapphironBlizzard(Creature* pCreature)
+{
+    return new npc_sapphiron_blizzardAI(pCreature);
+}
+
+namespace
+{
+template <class T>
+SpellScript* GetSpellScript(SpellEntry const*)
+{
+    return new T();
+}
+
+void RegisterSpellScript(char const* name, SpellScript* (*getter)(SpellEntry const*))
+{
+    Script* script = new Script;
+    script->Name = name;
+    script->GetSpellScript = getter;
+    script->RegisterSelf();
+}
+
+struct spell_sapphiron_life_drain : public SpellScript
+{
+    void OnSetTargetMap(Spell* /*spell*/, SpellEffectIndex /*effIdx*/, uint32& /*targetMode*/, float& /*radius*/, uint32& unMaxTargets, bool& /*selectClosestTargets*/) const override
+    {
+        unMaxTargets = urand(7, 10);
+    }
+};
+
+struct spell_sapphiron_ice_block : public SpellScript
+{
+    void OnSummon(Spell* /*spell*/, GameObject* summon) const override
+    {
+        if (summon)
+            summon->SetRespawnTime(30);
+    }
+};
+}
 
 void AddSC_boss_sapphiron()
 {
@@ -770,4 +828,7 @@ void AddSC_boss_sapphiron()
     NewScript->Name = "npc_sapphiron_blizzard";
     NewScript->GetAI = &GetAI_npc_sapphironBlizzard;
     NewScript->RegisterSelf();
+
+    RegisterSpellScript("spell_sapphiron_life_drain", &GetSpellScript<spell_sapphiron_life_drain>);
+    RegisterSpellScript("spell_sapphiron_ice_block", &GetSpellScript<spell_sapphiron_ice_block>);
 }

@@ -21,8 +21,8 @@ SDComment: Timer need improvement, especially for bomb-spawning
 SDCategory: Gnomeregan
 EndScriptData */
 
-#include "gnomeregan.h"
 #include "scriptPCH.h"
+#include "gnomeregan.h"
 
 enum
 {
@@ -31,8 +31,8 @@ enum
     SAY_BOMB = -1090026,
     SAY_SLAY = -1090027,
 
-    SPELL_ACTIVATE_BOMB_A = 11511, // Target Dest = -530.754 670.571 -313.784
-    SPELL_ACTIVATE_BOMB_B = 11795, // Target Dest = -530.754 670.571 -313.784
+    SPELL_ACTIVATE_BOMB_A = 11511,            // Target Dest = -530.754 670.571 -313.784
+    SPELL_ACTIVATE_BOMB_B = 11795,            // Target Dest = -530.754 670.571 -313.784
     SPELL_KNOCK_AWAY = 10101,
     SPELL_KNOCK_AWAY_AOE = 11130,
     SPELL_WALKING_BOMB_EFFECT = 11504,
@@ -73,7 +73,10 @@ struct boss_thermapluggAI : public ScriptedAI
         m_lLandedBombGUIDs.clear();
     }
 
-    void KilledUnit(Unit* pVictim) override { DoScriptText(SAY_SLAY, m_creature); }
+    void KilledUnit(Unit* pVictim) override
+    {
+        DoScriptText(SAY_SLAY, m_creature);
+    }
 
     void JustDied(Unit* pKiller) override
     {
@@ -133,7 +136,10 @@ struct boss_thermapluggAI : public ScriptedAI
             m_lLandedBombGUIDs.push_back(pSummoned->GetGUID());
     }
 
-    void SummonedCreatureDespawn(Creature* pSummoned) override { m_lSummonedBombGUIDs.remove(pSummoned->GetGUID()); }
+    void SummonedCreatureDespawn(Creature* pSummoned) override
+    {
+        m_lSummonedBombGUIDs.remove(pSummoned->GetGUID());
+    }
 
     void UpdateAI(const uint32 uiDiff) override
     {
@@ -178,7 +184,7 @@ struct boss_thermapluggAI : public ScriptedAI
             if (DoCastSpellIfCan(m_creature, m_bIsPhaseTwo ? SPELL_ACTIVATE_BOMB_B : SPELL_ACTIVATE_BOMB_A) == CAST_OK)
             {
                 m_uiActivateBombTimer = (m_bIsPhaseTwo ? urand(6, 12) : urand(12, 17)) * IN_MILLISECONDS;
-                if (!urand(0, 5)) // TODO, chance/ place for this correct?
+                if (!urand(0, 5))                           // TODO, chance/ place for this correct?
                     DoScriptText(SAY_BOMB, m_creature);
             }
         }
@@ -207,7 +213,7 @@ struct boss_thermapluggAI : public ScriptedAI
                             }
                             m_creature->SummonCreature(NPC_WALKING_BOMB, fX, fY, fBombSpawnZ, 0.0f, TEMPSUMMON_CORPSE_DESPAWN, 0);
                         }
-                        m_asBombFaces[i].m_uiBombTimer = urand(10000, 25000); // TODO
+                        m_asBombFaces[i].m_uiBombTimer = urand(10000, 25000);   // TODO
                     }
                     else
                         m_asBombFaces[i].m_uiBombTimer -= uiDiff;
@@ -219,7 +225,10 @@ struct boss_thermapluggAI : public ScriptedAI
     }
 };
 
-CreatureAI* GetAI_boss_thermaplugg(Creature* pCreature) { return new boss_thermapluggAI(pCreature); }
+CreatureAI* GetAI_boss_thermaplugg(Creature* pCreature)
+{
+    return new boss_thermapluggAI(pCreature);
+}
 
 bool EffectDummyCreature_spell_boss_thermaplugg(WorldObject* /*pCaster*/, uint32 uiSpellId, SpellEffectIndex uiEffIndex, Creature* pCreatureTarget)
 {
@@ -242,24 +251,24 @@ bool GOHello_go_gnomeface_button(Player* pPlayer, GameObject* pGo)
     // If a button is used, the related face should be deactivated (if already activated)
     switch (pGo->GetEntry())
     {
-    case GO_BUTTON_1:
-        pInstance->DoDeactivateBombFace(0);
-        break;
-    case GO_BUTTON_2:
-        pInstance->DoDeactivateBombFace(1);
-        break;
-    case GO_BUTTON_3:
-        pInstance->DoDeactivateBombFace(2);
-        break;
-    case GO_BUTTON_4:
-        pInstance->DoDeactivateBombFace(3);
-        break;
-    case GO_BUTTON_5:
-        pInstance->DoDeactivateBombFace(4);
-        break;
-    case GO_BUTTON_6:
-        pInstance->DoDeactivateBombFace(5);
-        break;
+        case GO_BUTTON_1:
+            pInstance->DoDeactivateBombFace(0);
+            break;
+        case GO_BUTTON_2:
+            pInstance->DoDeactivateBombFace(1);
+            break;
+        case GO_BUTTON_3:
+            pInstance->DoDeactivateBombFace(2);
+            break;
+        case GO_BUTTON_4:
+            pInstance->DoDeactivateBombFace(3);
+            break;
+        case GO_BUTTON_5:
+            pInstance->DoDeactivateBombFace(4);
+            break;
+        case GO_BUTTON_6:
+            pInstance->DoDeactivateBombFace(5);
+            break;
     }
 
     return false;

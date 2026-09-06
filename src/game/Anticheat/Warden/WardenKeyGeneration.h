@@ -15,7 +15,7 @@ class SHA1Randx
 public:
     SHA1Randx(const uint8* buff, size_t size)
     {
-        auto const taken = size / 2;
+        auto const taken = size/2;
 
         sh.Initialize();
         sh.UpdateData(buff, taken);
@@ -62,7 +62,7 @@ private:
 
     Sha1Hash sh;
     size_t taken;
-    uint8 o0[20], o1[20], o2[20];
+    uint8 o0[20],o1[20],o2[20];
 };
 
 #endif

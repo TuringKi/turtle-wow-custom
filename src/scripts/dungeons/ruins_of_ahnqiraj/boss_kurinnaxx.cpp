@@ -21,8 +21,8 @@ SDComment: Set in DB trap Despawn Time
 SDCategory: Ruins of Ahn'Qiraj
 EndScriptData */
 
-#include "ruins_of_ahnqiraj.h"
 #include "scriptPCH.h"
+#include "ruins_of_ahnqiraj.h"
 
 enum
 {
@@ -84,7 +84,7 @@ struct boss_kurinnaxxAI : public ScriptedAI
         if (!m_pInstance)
             return;
 
-        DoOrSimulateScriptTextForMap(SAY_BREACHED, NPC_OSSIRIAN, m_creature->GetMap());
+        DoOrSimulateScriptTextForMap(SAY_BREACHED, NPC_OSSIRIAN, m_creature->GetMap());  
 
         m_pInstance->SetData(TYPE_KURINNAXX, DONE);
     }
@@ -162,11 +162,14 @@ struct boss_kurinnaxxAI : public ScriptedAI
     }
 };
 
-CreatureAI* GetAI_boss_kurinnaxx(Creature* pCreature) { return new boss_kurinnaxxAI(pCreature); }
+CreatureAI* GetAI_boss_kurinnaxx(Creature* pCreature)
+{
+    return new boss_kurinnaxxAI(pCreature);
+}
 
 void AddSC_boss_kurinnaxx()
 {
-    Script* newscript;
+    Script *newscript;
     newscript = new Script;
     newscript->Name = "boss_kurinnaxx";
     newscript->GetAI = &GetAI_boss_kurinnaxx;

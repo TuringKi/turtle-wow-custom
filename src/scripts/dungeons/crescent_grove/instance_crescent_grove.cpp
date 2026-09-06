@@ -16,7 +16,10 @@ enum boss_entries
 
 struct instance_crescent_grove : public ScriptedInstance
 {
-    explicit instance_crescent_grove(Map* p_Map) : ScriptedInstance(p_Map) { Initialize(); };
+    explicit instance_crescent_grove(Map* p_Map) : ScriptedInstance(p_Map)
+    {
+        Initialize();
+    };
 
     void OnCreatureEnterCombat(Creature* pCreature) override
     {

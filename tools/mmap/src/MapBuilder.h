@@ -19,19 +19,19 @@
 #ifndef _MAP_BUILDER_H
 #define _MAP_BUILDER_H
 
-#include <map>
-#include <set>
 #include <vector>
+#include <set>
+#include <map>
 
-#include "IntermediateValues.h"
 #include "TerrainBuilder.h"
+#include "IntermediateValues.h"
 
-#include "IVMapManager.h"
 #include "TileBuilder.h"
+#include "IVMapManager.h"
 #include "WorldModel.h"
 
-#include "DetourNavMesh.h"
 #include "Recast.h"
+#include "DetourNavMesh.h"
 
 using namespace VMAP;
 // G3D namespace typedefs conflicts with ACE typedefs
@@ -61,61 +61,63 @@ namespace MMAP
     {
         friend class TileBuilder;
 
-    public:
-        MapBuilder(bool skipLiquid = false, bool skipContinents = false, bool skipJunkMaps = true, bool skipBattlegrounds = false, bool debugOutput = false, bool bigBaseUnit = false, bool quick = false, const char* offMeshFilePath = nullptr);
-        ~MapBuilder();
+        public:
+            MapBuilder(bool skipLiquid = false, bool skipContinents = false, bool skipJunkMaps = true, bool skipBattlegrounds = false, bool debugOutput = false, bool bigBaseUnit = false, bool quick = false, const char* offMeshFilePath = nullptr);
+            ~MapBuilder();
 
-        // builds all mmap tiles for the specified map id (ignores skip settings)
-        void buildMap(uint32 mapID);
+            // builds all mmap tiles for the specified map id (ignores skip settings)
+            void buildMap(uint32 mapID);
 
-        // builds an mmap tile for the specified map and its mesh
-        void buildSingleTile(uint32 mapID, uint32 tileX, uint32 tileY);
+            // builds an mmap tile for the specified map and its mesh
+            void buildSingleTile(uint32 mapID, uint32 tileX, uint32 tileY);
 
-        // builds list of maps, then builds all of mmap tiles (based on the skip settings)
-        void buildAllMaps();
+            // builds list of maps, then builds all of mmap tiles (based on the skip settings)
+            void buildAllMaps();
 
-        void WaitForAllTilesToBeBuild();
+            void WaitForAllTilesToBeBuild();
 
-        void ShutdownAsyncBuilders();
+            void ShutdownAsyncBuilders();
 
-        void StartupAsyncBuilders();
+            void StartupAsyncBuilders();
 
-        bool IsBusy();
+            bool IsBusy();
 
-        void buildGameObject(std::string modelName, uint32 displayId);
-        void buildTransports();
+            void buildGameObject(std::string modelName, uint32 displayId);
+            void buildTransports();
 
-    private:
-        // detect maps and tiles
-        void discoverTiles();
-        std::set<uint32>* getTileList(uint32 mapID);
+        private:
+            // detect maps and tiles
+            void discoverTiles();
+            std::set<uint32>* getTileList(uint32 mapID);
 
-        void buildNavMesh(uint32 mapID, dtNavMesh*& navMesh);
+            void buildNavMesh(uint32 mapID, dtNavMesh*& navMesh);
 
-        void getTileBounds(uint32 tileX, uint32 tileY, float* verts, int vertCount, float* bmin, float* bmax);
-        void getGridBounds(uint32 mapID, uint32& minX, uint32& minY, uint32& maxX, uint32& maxY);
+            void getTileBounds(uint32 tileX, uint32 tileY,
+                               float* verts, int vertCount,
+                               float* bmin, float* bmax);
+            void getGridBounds(uint32 mapID, uint32& minX, uint32& minY, uint32& maxX, uint32& maxY);
 
-        bool shouldSkipMap(uint32 mapID);
-        bool isTransportMap(uint32 mapID);
+            bool shouldSkipMap(uint32 mapID);
+            bool isTransportMap(uint32 mapID);
+            
 
+            TileList m_tiles;
+            TerrainBuilder* m_terrainBuilder;
+            rcContext* m_rcContext;
 
-        TileList m_tiles;
-        TerrainBuilder* m_terrainBuilder;
-        rcContext* m_rcContext;
+            bool m_debugOutput;
 
-        bool m_debugOutput;
+            const char* m_offMeshFilePath;
+            bool m_skipContinents;
+            bool m_skipJunkMaps;
+            bool m_skipBattlegrounds;
+            bool m_quick;
+            bool m_bigBaseUnit;
 
-        const char* m_offMeshFilePath;
-        bool m_skipContinents;
-        bool m_skipJunkMaps;
-        bool m_skipBattlegrounds;
-        bool m_quick;
-        bool m_bigBaseUnit;
+            std::atomic<bool> m_cancel;
+            std::vector<TileBuilder*> workers;
 
-        std::atomic<bool> m_cancel;
-        std::vector<TileBuilder*> workers;
-
-        ProducerConsumerQueue<TileInfo> m_tileQueue;
+            ProducerConsumerQueue<TileInfo> m_tileQueue;
     };
 
     struct MapSettings
@@ -129,6 +131,7 @@ namespace MMAP
     class MapBuilderConfig
     {
     public:
+
         void LoadConfigIfExist();
 
         const MapSettings* GetSettingsForMap(int MapID) const;
@@ -138,6 +141,6 @@ namespace MMAP
     };
 
     extern MapBuilderConfig gMMapBuilderConfig;
-} // namespace MMAP
+}
 
 #endif

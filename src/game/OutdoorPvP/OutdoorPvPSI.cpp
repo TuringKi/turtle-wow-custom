@@ -16,13 +16,13 @@
  */
 
 #include "OutdoorPvP/OutdoorPvPSI.h"
-#include "GameEventMgr.h"
-#include "Language.h"
-#include "ObjectMgr.h"
-#include "Player.h"
-#include "World.h"
 #include "WorldPacket.h"
+#include "Player.h"
+#include "ObjectMgr.h"
 #include "ZoneScriptMgr.h"
+#include "Language.h"
+#include "World.h"
+#include "GameEventMgr.h"
 
 OutdoorPvPSI::OutdoorPvPSI()
 {
@@ -53,8 +53,8 @@ void OutdoorPvPSI::UpdateWorldState()
     SendUpdateWorldState(SI_GATHERED_A, m_Gathered_A);
     SendUpdateWorldState(SI_GATHERED_H, m_Gathered_H);
     SendUpdateWorldState(SI_SILITHYST_MAX, m_MaxRessources);
-    sObjectMgr.SetSavedVariable(uint32(SI_GATHERED_A), m_Gathered_A);
-    sObjectMgr.SetSavedVariable(uint32(SI_GATHERED_H), m_Gathered_H);
+    sObjectMgr.SetSavedVariable(uint32(SI_GATHERED_A),    m_Gathered_A);
+    sObjectMgr.SetSavedVariable(uint32(SI_GATHERED_H),    m_Gathered_H);
     sObjectMgr.SetSavedVariable(uint32(SI_SILITHYST_MAX), m_MaxRessources);
 }
 
@@ -70,7 +70,9 @@ bool OutdoorPvPSI::SetupZoneScript()
     return true;
 }
 
-void OutdoorPvPSI::Update(uint32 /*diff*/) {}
+void OutdoorPvPSI::Update(uint32 /*diff*/)
+{
+}
 
 void OutdoorPvPSI::OnPlayerEnter(Player* plr)
 {
@@ -79,7 +81,10 @@ void OutdoorPvPSI::OnPlayerEnter(Player* plr)
     OutdoorPvP::OnPlayerEnter(plr);
 }
 
-void OutdoorPvPSI::OnPlayerLeave(Player* plr, bool bJustDestroy) { OutdoorPvP::OnPlayerLeave(plr, bJustDestroy); }
+void OutdoorPvPSI::OnPlayerLeave(Player* plr, bool bJustDestroy)
+{
+    OutdoorPvP::OnPlayerLeave(plr, bJustDestroy);
+}
 
 bool OutdoorPvPSI::HandleAreaTrigger(Player* plr, uint32 trigger)
 {
@@ -93,61 +98,65 @@ bool OutdoorPvPSI::HandleAreaTrigger(Player* plr, uint32 trigger)
 
     switch (trigger)
     {
-    case SI_AREATRIGGER_A:
-        if (plr->GetTeam() == ALLIANCE)
-        {
-            ++m_Gathered_A;
-            if (m_Gathered_A >= m_MaxRessources)
+        case SI_AREATRIGGER_A:
+            if (plr->GetTeam() == ALLIANCE)
             {
-                TeamApplyBuff(TEAM_ALLIANCE, SI_CENARION_FAVOR);
-                sWorld.SendZoneText(OutdoorPvPSIBuffZones[0], sObjectMgr.GetMangosStringForDBCLocale(LANG_OPVP_SI_CAPTURE_A));
-                m_LastController = ALLIANCE;
-                m_Gathered_A = 0;
-                m_Gathered_H = 0;
-                sLog.outDebug("[Silithus] Under Alliance control");
-                // sGameEventMgr.SetSilithusPVPEventCompleted(true);
-                // sGameEventMgr.UpdateSilithusPVP();
+                ++ m_Gathered_A;
+                if (m_Gathered_A >= m_MaxRessources)
+                {
+                    TeamApplyBuff(TEAM_ALLIANCE, SI_CENARION_FAVOR);
+                    sWorld.SendZoneText(OutdoorPvPSIBuffZones[0], sObjectMgr.GetMangosStringForDBCLocale(LANG_OPVP_SI_CAPTURE_A));
+                    m_LastController = ALLIANCE;
+                    m_Gathered_A = 0;
+                    m_Gathered_H = 0;
+                    sLog.outDebug("[Silithus] Under Alliance control");
+                    //sGameEventMgr.SetSilithusPVPEventCompleted(true);
+                    //sGameEventMgr.UpdateSilithusPVP();
+                }
+                // complete quest
+                plr->KilledMonsterCredit(SI_TURNIN_QUEST_CM_A, ObjectGuid());
             }
-            // complete quest
-            plr->KilledMonsterCredit(SI_TURNIN_QUEST_CM_A, ObjectGuid());
-        }
-        else
-            return true;
-        break;
-    case SI_AREATRIGGER_H:
-        if (plr->GetTeam() == HORDE)
-        {
-            ++m_Gathered_H;
-            if (m_Gathered_H >= m_MaxRessources)
+            else
+                return true;
+            break;
+        case SI_AREATRIGGER_H:
+            if (plr->GetTeam() == HORDE)
             {
-                TeamApplyBuff(TEAM_HORDE, SI_CENARION_FAVOR);
-                sWorld.SendZoneText(OutdoorPvPSIBuffZones[0], sObjectMgr.GetMangosStringForDBCLocale(LANG_OPVP_SI_CAPTURE_H));
-                m_LastController = HORDE;
-                m_Gathered_A = 0;
-                m_Gathered_H = 0;
-                sLog.outDebug("[Silithus] Under Horde control");
-                // sGameEventMgr.SetSilithusPVPEventCompleted(true);
-                // sGameEventMgr.UpdateSilithusPVP();
+                ++ m_Gathered_H;
+                if (m_Gathered_H >= m_MaxRessources)
+                {
+                    TeamApplyBuff(TEAM_HORDE, SI_CENARION_FAVOR);
+                    sWorld.SendZoneText(OutdoorPvPSIBuffZones[0], sObjectMgr.GetMangosStringForDBCLocale(LANG_OPVP_SI_CAPTURE_H));
+                    m_LastController = HORDE;
+                    m_Gathered_A = 0;
+                    m_Gathered_H = 0;
+                    sLog.outDebug("[Silithus] Under Horde control");
+                    //sGameEventMgr.SetSilithusPVPEventCompleted(true);
+                    //sGameEventMgr.UpdateSilithusPVP();
+                }
+                // complete quest
+                plr->KilledMonsterCredit(SI_TURNIN_QUEST_CM_H, ObjectGuid());
             }
-            // complete quest
-            plr->KilledMonsterCredit(SI_TURNIN_QUEST_CM_H, ObjectGuid());
-        }
-        else
-            return true;
-        break;
-    default:
-        return false;
+            else
+                return true;
+            break;
+        default:
+            return false;
     }
 
-    plr->RemoveAurasDueToSpell(SI_SILITHYST_FLAG);
-    // plr->CastSpell(plr, SILLITHUS_FLAG_CAPTURE_TEST, true);
+    plr->RemoveAurasDueToSpell(SI_SILITHYST_FLAG); 
+    //plr->CastSpell(plr, SILLITHUS_FLAG_CAPTURE_TEST, true);
     plr->CastSpell(plr, SI_TRACES_OF_SILITHYST, true);
-    plr->CastSpell(plr, HONOR_POINTS_199, true); // Honor reward
-    plr->CastSpell(plr, SILITHYST_CAP_REWARD, true); // Cenarian faction
+    plr->CastSpell(plr, HONOR_POINTS_199, true);                // Honor reward
+    plr->CastSpell(plr, SILITHYST_CAP_REWARD, true);            // Cenarian faction
 
     UpdateWorldState();
 
-    sLog.outDebug("%s [%u:%u:'%s'] added a Silithyst to its faction", plr->GetName(), plr->GetGUIDLow(), plr->GetSession()->GetAccountId(), plr->GetSession()->GetRemoteAddress().c_str());
+    sLog.outDebug("%s [%u:%u:'%s'] added a Silithyst to its faction",
+        plr->GetName(),
+        plr->GetGUIDLow(),
+        plr->GetSession()->GetAccountId(),
+        plr->GetSession()->GetRemoteAddress().c_str());
 
     return true;
 }
@@ -163,7 +172,11 @@ bool OutdoorPvPSI::HandleDropFlag(Player* plr, uint32 spellId)
 
     plr->CastSpell(plr, SILLITHUS_FLAG_DROP, true);
     {
-        sLog.outDebug("%s [%u:%u:'%s'] dropped a silithyst", plr->GetName(), plr->GetGUIDLow(), plr->GetSession()->GetAccountId(), plr->GetSession()->GetRemoteAddress().c_str());
+        sLog.outDebug("%s [%u:%u:'%s'] dropped a silithyst",
+            plr->GetName(),
+            plr->GetGUIDLow(),
+            plr->GetSession()->GetAccountId(),
+            plr->GetSession()->GetRemoteAddress().c_str());
     }
 
     return true;
@@ -172,9 +185,22 @@ bool OutdoorPvPSI::HandleDropFlag(Player* plr, uint32 spellId)
 class OutdoorPvP_silithus : public ZoneScript_Script
 {
 public:
-    OutdoorPvP_silithus() : ZoneScript_Script() {}
-    uint32 GetMapId() const { return 1; }
-    ZoneScript* GetZoneScript() const { return new OutdoorPvPSI(); }
+
+    OutdoorPvP_silithus()
+        : ZoneScript_Script()
+    {
+    }
+    uint32 GetMapId() const
+    {
+        return 1;
+    }
+    ZoneScript* GetZoneScript() const
+    {
+        return new OutdoorPvPSI();
+    }
 };
 
-void AddSC_outdoorpvp_si() { sZoneScriptMgr.AddScript(new OutdoorPvP_silithus()); }
+void AddSC_outdoorpvp_si()
+{
+    sZoneScriptMgr.AddScript(new OutdoorPvP_silithus());
+}

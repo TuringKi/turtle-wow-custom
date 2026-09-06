@@ -20,26 +20,25 @@
 
 #include <stdint.h>
 
-namespace re2
+namespace re2 {
+
+typedef signed int Rune;	/* Code-point values in Unicode 4.0 are 21 bits wide.*/
+
+enum
 {
+  UTFmax	= 4,		/* maximum bytes per rune */
+  Runesync	= 0x80,		/* cannot represent part of a UTF sequence (<) */
+  Runeself	= 0x80,		/* rune and UTF sequences are the same (<) */
+  Runeerror	= 0xFFFD,	/* decoding error in UTF */
+  Runemax	= 0x10FFFF,	/* maximum rune value */
+};
 
-    typedef signed int Rune; /* Code-point values in Unicode 4.0 are 21 bits wide.*/
+int runetochar(char* s, const Rune* r);
+int chartorune(Rune* r, const char* s);
+int fullrune(const char* s, int n);
+int utflen(const char* s);
+char* utfrune(const char*, Rune);
 
-    enum
-    {
-        UTFmax = 4, /* maximum bytes per rune */
-        Runesync = 0x80, /* cannot represent part of a UTF sequence (<) */
-        Runeself = 0x80, /* rune and UTF sequences are the same (<) */
-        Runeerror = 0xFFFD, /* decoding error in UTF */
-        Runemax = 0x10FFFF, /* maximum rune value */
-    };
+}  // namespace re2
 
-    int runetochar(char* s, const Rune* r);
-    int chartorune(Rune* r, const char* s);
-    int fullrune(const char* s, int n);
-    int utflen(const char* s);
-    char* utfrune(const char*, Rune);
-
-} // namespace re2
-
-#endif // UTIL_UTF_H_
+#endif  // UTIL_UTF_H_

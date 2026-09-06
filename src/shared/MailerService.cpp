@@ -17,20 +17,24 @@
  */
 
 #include "MailerService.h"
-#include <cassert>
+#include "SendgridMail.h"
 #include <curl/curl.h>
 #include <utility>
-#include "SendgridMail.h"
+#include <cassert>
 
 MailerService* MailerService::_global_service;
 
-MailerService::MailerService(std::chrono::seconds timer) : _stop(false), _mails_sent(0), _timer(timer)
+MailerService::MailerService(std::chrono::seconds timer)
+    : _stop(false), _mails_sent(0), _timer(timer)
 {
     curl_global_init(CURL_GLOBAL_ALL);
     _worker = std::thread(&MailerService::process, this);
 }
 
-MailerService* MailerService::get_global_mailer() { return _global_service; }
+MailerService* MailerService::get_global_mailer()
+{
+    return _global_service;
+}
 
 void MailerService::set_global_mailer(MailerService* service)
 {
@@ -75,7 +79,7 @@ void MailerService::send(std::unique_ptr<SendgridMail> mail, SendCallback callba
 {
     assert(mail != nullptr);
     std::lock_guard<std::mutex> guard(_queue_lock);
-    _mail_queue.emplace(MailDetail{std::move(mail), callback});
+    _mail_queue.emplace(MailDetail{ std::move(mail), callback });
 }
 
 void MailerService::internal_send(const MailDetail& detail)

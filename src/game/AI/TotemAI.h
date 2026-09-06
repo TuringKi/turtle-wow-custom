@@ -37,18 +37,19 @@ enum
 
 class TotemAI : public CreatureAI
 {
-public:
-    explicit TotemAI(Creature* c);
+    public:
 
-    void MoveInLineOfSight(Unit*) override{};
-    void AttackStart(Unit*) override{};
+        explicit TotemAI(Creature *c);
 
-    void UpdateAI(const uint32) override;
-    static int Permissible(const Creature*);
+        void MoveInLineOfSight(Unit *) override { };
+        void AttackStart(Unit *) override;
 
-private:
-    ObjectGuid m_victimGuid;
-    TotemType m_totemType;
-    uint32 m_spellId;
+        void UpdateAI(const uint32) override;
+        static int Permissible(const Creature *);
+
+    private:
+        ObjectGuid m_victimGuid;
+        TotemType m_totemType;
+        uint32 m_spellId;
 };
 #endif

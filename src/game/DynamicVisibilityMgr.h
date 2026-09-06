@@ -1,11 +1,11 @@
-// This probably could've gone in some existing file but oh well
+//This probably could've gone in some existing file but oh well
 #pragma once
 
 #include "Database/DatabaseEnv.h"
 
+#include <unordered_map>
 #include <memory>
 #include <optional>
-#include <unordered_map>
 
 struct VisibilitySettings
 {
@@ -19,6 +19,7 @@ struct VisibilitySettings
 class DynamicVisibilityMgr
 {
 public:
+
     void LoadFromDB(bool reload);
     void InitVisibilities(bool reload);
 
@@ -29,6 +30,7 @@ public:
 private:
     std::unordered_map<uint32, VisibilitySettings> _areaSettings;
     std::unordered_map<uint32, uint32> _currentVisibilities;
+
 };
 
 extern DynamicVisibilityMgr sDynamicVisMgr;

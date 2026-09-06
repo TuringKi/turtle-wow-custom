@@ -26,8 +26,8 @@
 #include <queue>
 #include <unordered_set>
 
-#include "ByteBuffer.h"
 #include "Common.h"
+#include "ByteBuffer.h"
 
 
 enum TypeID
@@ -92,7 +92,7 @@ enum HighGuid
 
 inline bool IsGuidHaveEnPart(uint64 const& guid)
 {
-    switch (GUID_HIPART(guid))
+    switch(GUID_HIPART(guid))
     {
     case HIGHGUID_ITEM:
     case HIGHGUID_PLAYER:
@@ -123,39 +123,55 @@ struct PackedGuidReader
 
 class ObjectGuid
 {
-public: // constructors
+    public:                                                 // constructors
     ObjectGuid() : m_guid(0) {}
+
+        // AzerothCore spells the null guid ObjectGuid::Empty. Same thing as a
+        // default-constructed one; the name exists so module code written
+        // against that core reads unchanged.
+        static ObjectGuid const Empty;
     ObjectGuid(uint64 const& guid) : m_guid(guid) {} // temporary allowed implicit cast, really bad in connection with operator uint64()
     ObjectGuid(HighGuid hi, uint32 entry, uint32 counter) : m_guid(counter ? uint64(counter) | (uint64(entry) << 24) | (uint64(hi) << 48) : 0) {}
     ObjectGuid(HighGuid hi, uint32 counter) : m_guid(counter ? uint64(counter) | (uint64(hi) << 48) : 0) {}
 
-    // private:
+    //private:
     explicit ObjectGuid(uint32 const& lowGuid) : m_guid(lowGuid) {} // Besoin dans OutdoorPvP par exemple
     operator uint64() const { return m_guid; }
-
-private:
+    private:
     ObjectGuid(HighGuid, uint32, uint64 counter); // no implementation, used for catch wrong type assign
     ObjectGuid(HighGuid, uint64 counter); // no implementation, used for catch wrong type assign
 
-public: // modifiers
+    public:                                                 // modifiers
     PackedGuidReader ReadAsPacked() { return PackedGuidReader(*this); }
 
     void Set(uint64 const& guid);
     void Clear() { m_guid = 0; }
 
     PackedGuid WriteAsPacked() const;
-
-public: // accessors
+    public:                                                 // accessors
     uint64 const& GetRawValue() const { return m_guid; }
     static HighGuid GetHigh(uint64 guid) { return HighGuid((guid >> 48) & 0x0000FFFF); }
     static void ClampPlayerGuid(uint64& value);
     HighGuid GetHigh() const { return GetHigh(m_guid); }
     uint32 GetEntry() const { return HasEntry() ? uint32((m_guid >> 24) & UI64LIT(0x0000000000FFFFFF)) : 0; }
-    uint32 GetCounter() const { return GetCounter(m_guid, HasEntry()); }
+        uint32   GetCounter()  const
+        {
+            return GetCounter(m_guid, HasEntry());
+        }
 
-    static uint32 GetCounter(uint64 guid, bool hasEntry) { return hasEntry ? uint32(guid & UI64LIT(0x0000000000FFFFFF)) : uint32(guid & UI64LIT(0x00000000FFFFFFFF)); }
+        static uint32 GetCounter(uint64 guid, bool hasEntry)
+        {
+            return hasEntry
+                ? uint32(guid & UI64LIT(0x0000000000FFFFFF))
+                : uint32(guid & UI64LIT(0x00000000FFFFFFFF));
+        }
 
-    static uint32 GetMaxCounter(HighGuid high) { return HasEntry(high) ? uint32(0x00FFFFFF) : uint32(0xFFFFFFFF); }
+        static uint32 GetMaxCounter(HighGuid high)
+        {
+            return HasEntry(high)
+                ? uint32(0x00FFFFFF)
+                : uint32(0xFFFFFFFF);
+        }
 
     uint32 GetMaxCounter() const { return GetMaxCounter(GetHigh()); }
 
@@ -175,54 +191,43 @@ public: // accessors
 
     static TypeID GetTypeId(HighGuid high)
     {
-        switch (high)
+            switch(high)
         {
-        case HIGHGUID_ITEM:
-            return TYPEID_ITEM;
-        // case HIGHGUID_CONTAINER:    return TYPEID_CONTAINER; HIGHGUID_CONTAINER==HIGHGUID_ITEM currently
-        case HIGHGUID_UNIT:
-            return TYPEID_UNIT;
-        case HIGHGUID_PET:
-            return TYPEID_UNIT;
-        case HIGHGUID_PLAYER:
-            return TYPEID_PLAYER;
-        case HIGHGUID_GAMEOBJECT:
-            return TYPEID_GAMEOBJECT;
-        case HIGHGUID_DYNAMICOBJECT:
-            return TYPEID_DYNAMICOBJECT;
-        case HIGHGUID_CORPSE:
-            return TYPEID_CORPSE;
-        case HIGHGUID_MO_TRANSPORT:
-            return TYPEID_GAMEOBJECT;
+                case HIGHGUID_ITEM:         return TYPEID_ITEM;
+                //case HIGHGUID_CONTAINER:    return TYPEID_CONTAINER; HIGHGUID_CONTAINER==HIGHGUID_ITEM currently
+                case HIGHGUID_UNIT:         return TYPEID_UNIT;
+                case HIGHGUID_PET:          return TYPEID_UNIT;
+                case HIGHGUID_PLAYER:       return TYPEID_PLAYER;
+                case HIGHGUID_GAMEOBJECT:   return TYPEID_GAMEOBJECT;
+                case HIGHGUID_DYNAMICOBJECT:return TYPEID_DYNAMICOBJECT;
+                case HIGHGUID_CORPSE:       return TYPEID_CORPSE;
+                case HIGHGUID_MO_TRANSPORT: return TYPEID_GAMEOBJECT;
         // unknown
-        default:
-            return TYPEID_OBJECT;
+                default:                    return TYPEID_OBJECT;
         }
     }
 
     TypeID GetTypeId() const { return GetTypeId(GetHigh()); }
 
-    bool operator!() const { return IsEmpty(); }
-    bool operator==(ObjectGuid const& guid) const { return GetRawValue() == guid.GetRawValue(); }
-    bool operator!=(ObjectGuid const& guid) const { return GetRawValue() != guid.GetRawValue(); }
-    bool operator<(ObjectGuid const& guid) const { return GetRawValue() < guid.GetRawValue(); }
+        bool operator! () const { return IsEmpty(); }
+        bool operator== (ObjectGuid const& guid) const { return GetRawValue() == guid.GetRawValue(); }
+        bool operator!= (ObjectGuid const& guid) const { return GetRawValue() != guid.GetRawValue(); }
+        bool operator< (ObjectGuid const& guid) const { return GetRawValue() < guid.GetRawValue(); }
 
-    ObjectGuid& operator=(const ObjectGuid& otherGuid)
-    {
-        m_guid = otherGuid.m_guid;
-        return *this;
-    };
-    // ObjectGuid& operator= (const ObjectGuid otherGuid) { m_guid = otherGuid.m_guid; return *this; };
+        ObjectGuid& operator= (const ObjectGuid& otherGuid) { m_guid = otherGuid.m_guid; return *this; };
+        //ObjectGuid& operator= (const ObjectGuid otherGuid) { m_guid = otherGuid.m_guid; return *this; };
 
-public: // accessors - for debug
+    public:                                                 // accessors - for debug
     static char const* GetTypeName(HighGuid high);
     char const* GetTypeName() const { return !IsEmpty() ? GetTypeName(GetHigh()) : "None"; }
     std::string GetString() const;
+        // AzerothCore spelling.
+        std::string ToString() const { return GetString(); }
 
-private: // internal functions
+    private:                                                // internal functions
     static bool HasEntry(HighGuid high)
     {
-        switch (high)
+            switch(high)
         {
         case HIGHGUID_ITEM:
         case HIGHGUID_PLAYER:
@@ -241,12 +246,11 @@ private: // internal functions
 
     bool HasEntry() const { return HasEntry(GetHigh()); }
 
-private: // fields
+    private:                                                // fields
     uint64 m_guid;
 };
 
-namespace std
-{
+namespace std {
 
     template <>
     struct hash<ObjectGuid>
@@ -258,64 +262,56 @@ namespace std
         }
     };
 
-} // namespace std
+}
 
 typedef std::set<ObjectGuid> GuidSet;
 typedef std::unordered_set<ObjectGuid> ObjectGuidSet;
 typedef std::list<ObjectGuid> GuidList;
 
-// minimum buffer size for packed guid is 9 bytes
+//minimum buffer size for packed guid is 9 bytes
 #define PACKED_GUID_MIN_BUFFER_SIZE 9
 
 class PackedGuid
 {
-    friend ByteBuffer& operator<<(ByteBuffer& buf, PackedGuid const& guid);
+    friend ByteBuffer& operator<< (ByteBuffer& buf, PackedGuid const& guid);
 
-public: // constructors
+    public:                                                 // constructors
     explicit PackedGuid() : m_packedGuid(PACKED_GUID_MIN_BUFFER_SIZE) { m_packedGuid.appendPackGUID(0); }
     explicit PackedGuid(uint64 const& guid) : m_packedGuid(PACKED_GUID_MIN_BUFFER_SIZE) { m_packedGuid.appendPackGUID(guid); }
     explicit PackedGuid(ObjectGuid const& guid) : m_packedGuid(PACKED_GUID_MIN_BUFFER_SIZE) { m_packedGuid.appendPackGUID(guid.GetRawValue()); }
 
-public: // modifiers
-    void Set(uint64 const& guid)
-    {
-        m_packedGuid.wpos(0);
-        m_packedGuid.appendPackGUID(guid);
-    }
-    void Set(ObjectGuid const& guid)
-    {
-        m_packedGuid.wpos(0);
-        m_packedGuid.appendPackGUID(guid.GetRawValue());
-    }
+    public:                                                 // modifiers
+        void Set(uint64 const& guid) { m_packedGuid.wpos(0); m_packedGuid.appendPackGUID(guid); }
+        void Set(ObjectGuid const& guid) { m_packedGuid.wpos(0); m_packedGuid.appendPackGUID(guid.GetRawValue()); }
 
-public: // accessors
+    public:                                                 // accessors
     size_t size() const { return m_packedGuid.size(); }
 
-private: // fields
+    private:                                                // fields
     ByteBuffer m_packedGuid;
 };
 
-template <HighGuid high>
+template<HighGuid high>
 class ObjectGuidGenerator
 {
-public: // constructors
+    public:                                                 // constructors
     explicit ObjectGuidGenerator(uint32 start = 1) : m_nextGuid(start) {}
 
-public: // modifiers
+    public:                                                 // modifiers
     void Set(uint32 val) { m_nextGuid = val; }
     uint32 Generate();
     void GenerateRange(uint32& first, uint32& last);
 
-public: // accessors
+    public:                                                 // accessors
     uint32 GetNextAfterMaxUsed() const { return m_nextGuid; }
     void FreeGuid(uint32 guid) { m_freedGuids.push(guid); }
 
-private: // fields
+    private:                                                // fields
     uint32 m_nextGuid;
     std::queue<uint32> m_freedGuids;
 };
 
-template <HighGuid high>
+template<HighGuid high>
 class ObjectSafeGuidGenerator : public ObjectGuidGenerator<high>
 {
 public:
@@ -334,18 +330,17 @@ public:
         Guard _g(lock);
         ObjectGuidGenerator<high>::GenerateRange(first, last);
     }
-
 protected:
     using LockType = std::mutex;
     using Guard = MaNGOS::GeneralLock<LockType>;
     LockType lock;
 };
 
-ByteBuffer& operator<<(ByteBuffer& buf, ObjectGuid const& guid);
-ByteBuffer& operator>>(ByteBuffer& buf, ObjectGuid& guid);
+ByteBuffer& operator<< (ByteBuffer& buf, ObjectGuid const& guid);
+ByteBuffer& operator>> (ByteBuffer& buf, ObjectGuid&       guid);
 
-ByteBuffer& operator<<(ByteBuffer& buf, PackedGuid const& guid);
-ByteBuffer& operator>>(ByteBuffer& buf, PackedGuidReader const& guid);
+ByteBuffer& operator<< (ByteBuffer& buf, PackedGuid const& guid);
+ByteBuffer& operator>> (ByteBuffer& buf, PackedGuidReader const& guid);
 
 inline PackedGuid ObjectGuid::WriteAsPacked() const { return PackedGuid(*this); }
 

@@ -19,20 +19,20 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#include "CreatureAIRegistry.h"
+#include "NullCreatureAI.h"
+#include "ReactorAI.h"
 #include "AggressorAI.h"
-#include "CreatureAIImpl.h"
-#include "CreatureEventAI.h"
 #include "CritterAI.h"
 #include "GuardAI.h"
 #include "GuardEventAI.h"
-#include "MovementGeneratorImpl.h"
-#include "NullCreatureAI.h"
 #include "PetAI.h"
 #include "PetEventAI.h"
-#include "RandomMovementGenerator.h"
-#include "ReactorAI.h"
 #include "TotemAI.h"
+#include "CreatureEventAI.h"
+#include "RandomMovementGenerator.h"
+#include "CreatureAIImpl.h"
+#include "MovementGeneratorImpl.h"
+#include "CreatureAIRegistry.h"
 #include "WaypointMovementGenerator.h"
 
 // using CreatureAIRegistry = FactoryHolder<CreatureAI>::FactoryHolderRegistry;
@@ -40,22 +40,22 @@
 
 namespace AIRegistry
 {
-    void Initialize()
-    {
-        (new CreatureAIFactory<NullCreatureAI>("NullAI"))->RegisterSelf();
-        (new CreatureAIFactory<AggressorAI>("AggressorAI"))->RegisterSelf();
-        (new CreatureAIFactory<ReactorAI>("ReactorAI"))->RegisterSelf();
-        (new CreatureAIFactory<CritterAI>("CritterAI"))->RegisterSelf();
-        (new CreatureAIFactory<GuardAI>("GuardAI"))->RegisterSelf();
-        (new CreatureAIFactory<PetAI>("PetAI"))->RegisterSelf();
-        (new CreatureAIFactory<TotemAI>("TotemAI"))->RegisterSelf();
-        (new CreatureAIFactory<CreatureEventAI>("EventAI"))->RegisterSelf();
-        (new CreatureAIFactory<PetEventAI>("PetEventAI"))->RegisterSelf();
-        (new CreatureAIFactory<GuardEventAI>("GuardEventAI"))->RegisterSelf();
+void Initialize()
+{
+    (new CreatureAIFactory<NullCreatureAI>("NullAI"))->RegisterSelf();
+    (new CreatureAIFactory<AggressorAI>("AggressorAI"))->RegisterSelf();
+    (new CreatureAIFactory<ReactorAI>("ReactorAI"))->RegisterSelf();
+    (new CreatureAIFactory<CritterAI>("CritterAI"))->RegisterSelf();
+    (new CreatureAIFactory<GuardAI>("GuardAI"))->RegisterSelf();
+    (new CreatureAIFactory<PetAI>("PetAI"))->RegisterSelf();
+    (new CreatureAIFactory<TotemAI>("TotemAI"))->RegisterSelf();
+    (new CreatureAIFactory<CreatureEventAI>("EventAI"))->RegisterSelf();
+    (new CreatureAIFactory<PetEventAI>("PetEventAI"))->RegisterSelf();
+    (new CreatureAIFactory<GuardEventAI>("GuardEventAI"))->RegisterSelf();
 
 
-        (new MovementGeneratorFactory<RandomMovementGenerator>(RANDOM_MOTION_TYPE))->RegisterSelf();
-        (new MovementGeneratorFactory<WaypointMovementGenerator<Creature>>(WAYPOINT_MOTION_TYPE))->RegisterSelf();
-        (new MovementGeneratorFactory<PatrolMovementGenerator>(PATROL_MOTION_TYPE))->RegisterSelf();
-    }
-} // namespace AIRegistry
+    (new MovementGeneratorFactory<RandomMovementGenerator>(RANDOM_MOTION_TYPE))->RegisterSelf();
+    (new MovementGeneratorFactory<WaypointMovementGenerator<Creature> >(WAYPOINT_MOTION_TYPE))->RegisterSelf();
+    (new MovementGeneratorFactory<PatrolMovementGenerator>(PATROL_MOTION_TYPE))->RegisterSelf();
+}
+}

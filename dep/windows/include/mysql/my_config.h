@@ -1,14 +1,14 @@
 /* Copyright (c) 2009, 2016, Oracle and/or its affiliates. All rights reserved.
-
+ 
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation; version 2 of the License.
-
+ 
  This program is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
-
+ 
  You should have received a copy of the GNU General Public License
  along with this program; if not, write to the Free Software
  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA */
@@ -315,23 +315,23 @@
 
 /* Types we may use */
 #ifdef __APPLE__
-/*
-  Special handling required for OSX to support universal binaries that
-  mix 32 and 64 bit architectures.
-*/
-#if (__LP64__)
-#define SIZEOF_LONG 8
-#else
-#define SIZEOF_LONG 4
-#endif
-#define SIZEOF_VOIDP SIZEOF_LONG
-#define SIZEOF_CHARP SIZEOF_LONG
-#define SIZEOF_SIZE_T SIZEOF_LONG
+  /*
+    Special handling required for OSX to support universal binaries that 
+    mix 32 and 64 bit architectures.
+  */
+  #if(__LP64__)
+    #define SIZEOF_LONG 8
+  #else
+    #define SIZEOF_LONG 4
+  #endif
+  #define SIZEOF_VOIDP   SIZEOF_LONG
+  #define SIZEOF_CHARP   SIZEOF_LONG
+  #define SIZEOF_SIZE_T  SIZEOF_LONG
 #else
 /* No indentation, to fetch the lines from verification scripts */
-#define SIZEOF_LONG 4
-#define SIZEOF_VOIDP 8
-#define SIZEOF_CHARP 8
+#define SIZEOF_LONG   4
+#define SIZEOF_VOIDP  8
+#define SIZEOF_CHARP  8
 #define SIZEOF_SIZE_T 8
 #endif
 
@@ -393,9 +393,9 @@
 #define STRUCT_RLIMIT struct rlimit
 
 #ifdef __APPLE__
-#if __BIG_ENDIAN
-#define WORDS_BIGENDIAN 1
-#endif
+  #if __BIG_ENDIAN
+    #define WORDS_BIGENDIAN 1
+  #endif
 #else
 /* #undef WORDS_BIGENDIAN */
 #endif
@@ -405,7 +405,7 @@
 /* #undef C_HAS_inline */
 #if !(C_HAS_inline)
 #ifndef __cplusplus
-#define inline __inline
+# define inline __inline
 #endif
 #endif
 
@@ -501,9 +501,11 @@
 /* #undef tzname */
 /* #undef vsnprintf */
 #if (_MSC_VER > 1310)
-#define HAVE_SETENV
-#define setenv(a, b, c) _putenv_s(a, b)
+# define HAVE_SETENV
+#define setenv(a,b,c) _putenv_s(a,b)
 #endif
+
+
 
 
 /*
@@ -535,7 +537,7 @@
 #define HAVE_CHARSET_cp1256 1
 #define HAVE_CHARSET_cp1257 1
 #define HAVE_CHARSET_cp850 1
-#define HAVE_CHARSET_cp852 1
+#define HAVE_CHARSET_cp852 1 
 #define HAVE_CHARSET_cp866 1
 #define HAVE_CHARSET_cp932 1
 #define HAVE_CHARSET_dec8 1
@@ -579,7 +581,7 @@
 #define BIG_TABLES 1
 
 /*
-  Important storage engines (those that really need define
+  Important storage engines (those that really need define 
   WITH_<ENGINE>_STORAGE_ENGINE for the whole server)
 */
 #define WITH_MYISAM_STORAGE_ENGINE 1
@@ -590,7 +592,7 @@
 #define WITH_PERFSCHEMA_STORAGE_ENGINE 1
 /* #undef WITH_NDBCLUSTER_STORAGE_ENGINE */
 #if (WITH_NDBCLUSTER_STORAGE_ENGINE) && !defined(EMBEDDED_LIBRARY)
-#define HAVE_NDB_BINLOG 1
+# define HAVE_NDB_BINLOG 1
 #endif
 
 #define DEFAULT_MYSQL_HOME "C:/Program Files/MySQL/MySQL Server 5.5"

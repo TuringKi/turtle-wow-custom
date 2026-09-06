@@ -1,36 +1,36 @@
 /*
- * This file is part of the CMaNGOS Project. See AUTHORS file for Copyright information
- *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
- */
+* This file is part of the CMaNGOS Project. See AUTHORS file for Copyright information
+*
+* This program is free software; you can redistribute it and/or modify
+* it under the terms of the GNU General Public License as published by
+* the Free Software Foundation; either version 2 of the License, or
+* (at your option) any later version.
+*
+* This program is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+* GNU General Public License for more details.
+*
+* You should have received a copy of the GNU General Public License
+* along with this program; if not, write to the Free Software
+* Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+*/
 
 /**
- * @addtogroup npc_linking System to link groups of NPCs together
- * This NPC-linking system in MaNGOS consists of 2 files:
- * - CreatureLinkingMgr.h
- * - CreatureLinkingMgr.cpp
- * as well of
- * - hooks in Creature.cpp, to trigger actions
- * - holder of the linked npcs for every map
- *
- * @{
- *
- * @file CreatureLinkingMgr.h
- * This file contains the the headers needed for MaNGOS to link NPCs together
- *
- */
+* @addtogroup npc_linking System to link groups of NPCs together
+* This NPC-linking system in MaNGOS consists of 2 files:
+* - CreatureLinkingMgr.h
+* - CreatureLinkingMgr.cpp
+* as well of
+* - hooks in Creature.cpp, to trigger actions
+* - holder of the linked npcs for every map
+*
+* @{
+*
+* @file CreatureLinkingMgr.h
+* This file contains the the headers needed for MaNGOS to link NPCs together
+*
+*/
 
 #ifndef CREATURE_LINKING_MGR_H
 #define CREATURE_LINKING_MGR_H
@@ -77,7 +77,7 @@ enum CreatureLinkingFlags
     FLAG_CANT_SPAWN_IF_BOSS_DEAD = 0x0400,
     FLAG_CANT_SPAWN_IF_BOSS_ALIVE = 0x0800,
 
-    LINKING_FLAG_INVALID = 0x4000, // TODO adjust when other flags are implemented
+    LINKING_FLAG_INVALID = 0x4000,               // TODO adjust when other flags are implemented
 };
 
 // Structure holding the information for an entry
@@ -91,19 +91,19 @@ struct CreatureLinkingInfo
 };
 
 /**
- * A class to represent the static information of linking NPCs together
- */
+* A class to represent the static information of linking NPCs together
+*/
 
 class CreatureLinkingMgr
 {
-public: // Constructors
+public:                                                 // Constructors
     CreatureLinkingMgr() {}
 
-public: // Initialisation
+public:                                                 // Initialisation
     void LoadFromDB();
 
-public: // Accessors
-        // This functions checks if the NPC triggers actions for other NPCs
+public:                                                 // Accessors
+                                                        // This functions checks if the NPC triggers actions for other NPCs
     bool IsLinkedEventTrigger(Creature* pCreature) const;
 
     // This function checks if the NPC is a master NPC.
@@ -119,7 +119,7 @@ public: // Accessors
     CreatureLinkingInfo const* GetLinkedTriggerInformation(uint32 entry, uint32 lowGuid, uint32 mapId) const;
 
 private:
-    typedef std::multimap<uint32 /*slaveEntry*/, CreatureLinkingInfo> CreatureLinkingMap;
+    typedef std::multimap < uint32 /*slaveEntry*/, CreatureLinkingInfo > CreatureLinkingMap;
     typedef std::pair<CreatureLinkingMap::const_iterator, CreatureLinkingMap::const_iterator> CreatureLinkingMapBounds;
 
     // Storage of Data: npc_entry_slave, (map, npc_entry_master, flag, master_db_guid[If Unique], search_range)
@@ -128,26 +128,26 @@ private:
     CreatureLinkingMap m_creatureLinkingGuidMap;
 
     // Lookup Storage for fast access:
-    std::unordered_set<uint32> m_eventTriggers; // master by entry
-    std::unordered_set<uint32> m_eventGuidTriggers; // master by guid
+    std::unordered_set<uint32> m_eventTriggers;              // master by entry
+    std::unordered_set<uint32> m_eventGuidTriggers;          // master by guid
 
-    // Check-routine
+                                                             // Check-routine
     static bool IsLinkingEntryValid(uint32 slaveEntry, CreatureLinkingInfo* pInfo, bool byEntry);
 };
 
 /**
- * A class to represent the dynamic information of linking NPCs together
- *
- * Every map has an instance of this class as member, in which the dynamic information (GUIDs) are stored
- */
+* A class to represent the dynamic information of linking NPCs together
+*
+* Every map has an instance of this class as member, in which the dynamic information (GUIDs) are stored
+*/
 
 class CreatureLinkingHolder
 {
-public: // Constructors
+public:                                                 // Constructors
     CreatureLinkingHolder() {}
 
-public: // Accessors
-        // Function to add slave-NPCs to the holder
+public:                                                 // Accessors
+                                                        // Function to add slave-NPCs to the holder
     void AddSlaveToHolder(Creature* pCreature);
 
     // Function to add master-NPCs to the holder
@@ -177,9 +177,9 @@ private:
         ObjectGuid linkedGuid;
     };
 
-    typedef std::multimap<uint32 /*masterEntryOrGuid*/, InfoAndGuids> HolderMap;
+    typedef std::multimap < uint32 /*masterEntryOrGuid*/, InfoAndGuids > HolderMap;
     typedef std::pair<HolderMap::iterator, HolderMap::iterator> HolderMapBounds;
-    typedef std::multimap<uint32 /*Entry*/, ObjectGuid> BossGuidMap;
+    typedef std::multimap < uint32 /*Entry*/, ObjectGuid > BossGuidMap;
     typedef std::pair<BossGuidMap::const_iterator, BossGuidMap::const_iterator> BossGuidMapBounds;
 
     // Helper function, to process a slave list
@@ -194,7 +194,7 @@ private:
     // Another helper function
     bool IsRespawnReady(uint32 dbLowGuid, Map* _map) const;
     // Helper function for recursive spawning-checks of an additional linked
-    bool CanSpawn(uint32 lowGuid, Map* _map, CreatureLinkingInfo const* pInfo, float sx, float sy, float sz) const;
+    bool CanSpawn(uint32 lowGuid, Map* _map, CreatureLinkingInfo const*  pInfo, float sx, float sy, float sz) const;
 
     // Storage of Data (boss, flag, searchRange, GuidList) for action triggering
     HolderMap m_holderMap;

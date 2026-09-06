@@ -24,6 +24,8 @@
 
 #include "LockedQueue.h"
 
+#include <string>
+
 class Database;
 class SqlOperation;
 class SqlConnection;
@@ -32,32 +34,32 @@ class SqlDelayThread
 {
     typedef LockedQueue<SqlOperation*, std::mutex> SqlQueue;
 
-private:
-    SqlQueue m_sqlQueue; ///< Queue of SQL statements
-    Database* m_dbEngine; ///< Pointer to used Database engine
-    SqlQueue m_serialDelayQueue;
-    SqlConnection* m_dbConnection; ///< Pointer to DB connection
-    volatile bool m_running;
-    const char* Name;
+    private:
+        SqlQueue m_sqlQueue;                                ///< Queue of SQL statements
+        Database *m_dbEngine;                               ///< Pointer to used Database engine
+        SqlQueue m_serialDelayQueue;
+        SqlConnection *m_dbConnection;                     ///< Pointer to DB connection
+        volatile bool m_running;
+        // BY VALUE, not a pointer. The caller hands this down from a local
+        // std::string in Master::_StartDB (name.c_str()), which dies the
+        // moment that function returns - after which the delay thread was
+        // reading whatever the world thread had since put on that stack.
+        std::string Name;
 
 
-    // process all enqueued requests
-    void ProcessRequests();
+        //process all enqueued requests
+        void ProcessRequests();
 
-public:
-    SqlDelayThread(const char* InName, Database* db, SqlConnection* conn);
-    ~SqlDelayThread();
+    public:
+        SqlDelayThread(const char* InName, Database* db, SqlConnection* conn);
+        ~SqlDelayThread();
 
-    ///< Put sql statement to delay queue
-    bool Delay(SqlOperation* sql)
-    {
-        m_sqlQueue.add(sql);
-        return true;
-    }
-    void addSerialOperation(SqlOperation* op);
-    bool HasAsyncQuery();
+        ///< Put sql statement to delay queue
+        bool Delay(SqlOperation* sql) { m_sqlQueue.add(sql); return true; }
+        void addSerialOperation(SqlOperation *op);
+        bool HasAsyncQuery();
 
-    virtual void Stop(); ///< Stop event
-    void run(); ///< Main Thread loop
+        virtual void Stop();                                ///< Stop event
+        void run();                                 ///< Main Thread loop
 };
-#endif //__SQLDELAYTHREAD_H
+#endif                                                      //__SQLDELAYTHREAD_H

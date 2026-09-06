@@ -21,15 +21,15 @@ SDComment: Thrash missing
 SDCategory: Blackwing Lair
 EndScriptData */
 
-#include "blackwing_lair.h"
 #include "scriptPCH.h"
+#include "blackwing_lair.h"
 
 enum
 {
-    SPELL_SHADOW_FLAME = 22539,
-    SPELL_WING_BUFFET = 23339,
-    SPELL_FLAME_BUFFET = 23341,
-    SPELL_THRASH = 3391,
+    SPELL_SHADOW_FLAME          = 22539,
+    SPELL_WING_BUFFET           = 23339,
+    SPELL_FLAME_BUFFET          = 23341,
+    SPELL_THRASH                = 3391,
 };
 
 struct boss_firemawAI : public ScriptedAI
@@ -126,11 +126,14 @@ struct boss_firemawAI : public ScriptedAI
     }
 };
 
-CreatureAI* GetAI_boss_firemaw(Creature* pCreature) { return new boss_firemawAI(pCreature); }
+CreatureAI* GetAI_boss_firemaw(Creature* pCreature)
+{
+    return new boss_firemawAI(pCreature);
+}
 
 void AddSC_boss_firemaw()
 {
-    Script* newscript;
+    Script *newscript;
     newscript = new Script;
     newscript->Name = "boss_firemaw";
     newscript->GetAI = &GetAI_boss_firemaw;

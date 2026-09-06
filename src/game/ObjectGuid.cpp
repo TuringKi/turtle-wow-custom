@@ -21,8 +21,8 @@
 
 #include "ObjectGuid.h"
 
-#include "ObjectMgr.h"
 #include "World.h"
+#include "ObjectMgr.h"
 
 #include <sstream>
 
@@ -30,26 +30,26 @@ char const* ObjectGuid::GetTypeName(HighGuid high)
 {
     switch (high)
     {
-    case HIGHGUID_ITEM:
-        return "Item";
-    case HIGHGUID_PLAYER:
-        return "Player";
-    case HIGHGUID_GAMEOBJECT:
-        return "Gameobject";
-    case HIGHGUID_TRANSPORT:
-        return "Transport";
-    case HIGHGUID_UNIT:
-        return "Creature";
-    case HIGHGUID_PET:
-        return "Pet";
-    case HIGHGUID_DYNAMICOBJECT:
-        return "DynObject";
-    case HIGHGUID_CORPSE:
-        return "Corpse";
-    case HIGHGUID_MO_TRANSPORT:
-        return "MoTransport";
-    default:
-        return "<unknown>";
+        case HIGHGUID_ITEM:
+            return "Item";
+        case HIGHGUID_PLAYER:
+            return "Player";
+        case HIGHGUID_GAMEOBJECT:
+            return "Gameobject";
+        case HIGHGUID_TRANSPORT:
+            return "Transport";
+        case HIGHGUID_UNIT:
+            return "Creature";
+        case HIGHGUID_PET:
+            return "Pet";
+        case HIGHGUID_DYNAMICOBJECT:
+            return "DynObject";
+        case HIGHGUID_CORPSE:
+            return "Corpse";
+        case HIGHGUID_MO_TRANSPORT:
+            return "MoTransport";
+        default:
+            return "<unknown>";
     }
 }
 
@@ -72,9 +72,12 @@ std::string ObjectGuid::GetString() const
     return str.str();
 }
 
-void ObjectGuid::Set(uint64 const& guid) { m_guid = guid; }
+void ObjectGuid::Set(uint64 const& guid)
+{
+    m_guid = guid;
+}
 
-template <HighGuid high>
+template<HighGuid high>
 uint32 ObjectGuidGenerator<high>::Generate()
 {
     if (!m_freedGuids.empty())
@@ -91,7 +94,7 @@ uint32 ObjectGuidGenerator<high>::Generate()
     return m_nextGuid++;
 }
 
-template <HighGuid high>
+template<HighGuid high>
 void ObjectGuidGenerator<high>::GenerateRange(uint32& first, uint32& last)
 {
     const static int GENERATE_RANGE_SIZE = 100;
@@ -105,13 +108,13 @@ void ObjectGuidGenerator<high>::GenerateRange(uint32& first, uint32& last)
     last = m_nextGuid;
 }
 
-ByteBuffer& operator<<(ByteBuffer& buf, ObjectGuid const& guid)
+ByteBuffer& operator<< (ByteBuffer& buf, ObjectGuid const& guid)
 {
     buf << uint64(guid.GetRawValue());
     return buf;
 }
 
-ByteBuffer& operator>>(ByteBuffer& buf, ObjectGuid& guid)
+ByteBuffer &operator>>(ByteBuffer& buf, ObjectGuid& guid)
 {
     uint64 value = buf.read<uint64>();
     ObjectGuid::ClampPlayerGuid(value);
@@ -119,13 +122,13 @@ ByteBuffer& operator>>(ByteBuffer& buf, ObjectGuid& guid)
     return buf;
 }
 
-ByteBuffer& operator<<(ByteBuffer& buf, PackedGuid const& guid)
+ByteBuffer& operator<< (ByteBuffer& buf, PackedGuid const& guid)
 {
     buf.append(guid.m_packedGuid);
     return buf;
 }
 
-ByteBuffer& operator>>(ByteBuffer& buf, PackedGuidReader const& guid)
+ByteBuffer &operator>>(ByteBuffer& buf, PackedGuidReader const& guid)
 {
     uint64 value = buf.readPackGUID();
     ObjectGuid::ClampPlayerGuid(value);
@@ -153,3 +156,6 @@ template class ObjectGuidGenerator<HIGHGUID_UNIT>;
 template class ObjectGuidGenerator<HIGHGUID_PET>;
 template class ObjectGuidGenerator<HIGHGUID_DYNAMICOBJECT>;
 template class ObjectGuidGenerator<HIGHGUID_CORPSE>;
+
+// See the declaration: the AzerothCore name for a null guid.
+ObjectGuid const ObjectGuid::Empty = ObjectGuid();

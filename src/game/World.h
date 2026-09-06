@@ -27,28 +27,36 @@
 #define __WORLD_H
 
 #include "Common.h"
-#include "MapNodes/AbstractPlayer.h"
+#include "Timer.h"
+#include "Policies/Singleton.h"
+#include "SharedDefines.h"
 #include "Nostalrius.h"
 #include "ObjectGuid.h"
+#include "MapNodes/AbstractPlayer.h"
+#include "WorldPacket.h"
 #include "Opcodes.h"
 #include "Player.h"
 #include "Policies/Singleton.h"
 #include "SharedDefines.h"
 #include "Timer.h"
 #include "Utilities/robin_hood.h"
-#include "WorldPacket.h"
 
 //#include "Creature.h"
 
-#include <any>
-#include <atomic>
-#include <chrono>
-#include <list>
 #include <map>
-#include <memory>
 #include <set>
-#include <thread>
+#include <list>
+#include <chrono>
+#include <memory>
 #include <unordered_map>
+#include <atomic>
+#include <thread>
+#include <functional>
+#include <any>
+
+#ifdef ENABLE_ELUNA
+#include "ElunaMgr.h"
+#endif
 
 class Object;
 class WorldSession;
@@ -57,6 +65,14 @@ class SqlResultQueue;
 class QueryResult;
 class World;
 class ChannelBroadcaster;
+// forward-decl so World::GetLFGQueue() return type compiles.
+class LFGQueue;
+#ifdef ENABLE_ELUNA
+class Eluna;
+#endif
+// forward-decl GraveYardData (defined in ObjectMgr.h)
+// so World::WorldGraveyardManagerStub method signature parses without needing the full type.
+struct GraveYardData;
 namespace DiscordBot
 {
     class Bot;
@@ -229,6 +245,7 @@ enum eConfigUInt32Values
     CONFIG_UINT32_MAX_HONOR_POINTS,
     CONFIG_UINT32_START_HONOR_POINTS,
     CONFIG_UINT32_MIN_HONOR_KILLS,
+    CONFIG_UINT32_WEEKLY_HONOR_CAP,
     CONFIG_UINT32_INSTANCE_RESET_TIME_HOUR,
     CONFIG_UINT32_INSTANCE_UNLOAD_DELAY,
     CONFIG_UINT32_MAX_SPELL_CASTS_IN_CHAIN,
@@ -431,6 +448,10 @@ enum eConfigUInt32Values
     CONFIG_UINT32_PLAYERBOT_MAXBOTS,
     CONFIG_UINT32_PLAYERBOT_RESTRICTLEVEL,
     CONFIG_UINT32_PLAYERBOT_MINBOTLEVEL,
+    CONFIG_UINT32_LFT_BOTFILL_DELAY,
+    CONFIG_UINT32_LFT_BOTFILL_LEVEL_BELOW,
+    CONFIG_UINT32_LFT_BOTFILL_LEVEL_BELOW_HEALER,
+    CONFIG_UINT32_LFT_BOTFILL_LEVEL_ABOVE,
     CONFIG_UINT32_VALUE_COUNT
 };
 
@@ -442,7 +463,7 @@ enum
     ANTICRASH_OPTION_CRASH_CONTINENTS = 0x08,
     ANTICRASH_GENERATE_COREDUMP = 0x10,
 
-    ANTICRASH_OPTION_FLAGS_THROW_SIGSEGV = (ANTICRASH_OPTION_CRASH_INSTANCES | ANTICRASH_OPTION_CRASH_CONTINENTS),
+    ANTICRASH_OPTION_FLAGS_THROW_SIGSEGV= (ANTICRASH_OPTION_CRASH_INSTANCES|ANTICRASH_OPTION_CRASH_CONTINENTS),
 };
 
 /// Configuration elements
@@ -549,6 +570,15 @@ enum eConfigFloatValues
     CONFIG_FLOAT_PARTY_BOT_DAMAGE_MUL,
     CONFIG_FLOAT_PLAYERBOT_MINDISTANCE,
     CONFIG_FLOAT_PLAYERBOT_MAXDISTANCE,
+    CONFIG_FLOAT_LEECH_AMOUNT,
+    CONFIG_FLOAT_SCALAR_MIN_5MAN_HP,
+    CONFIG_FLOAT_SCALAR_MIN_5MAN_DMG,
+    CONFIG_FLOAT_SCALAR_MIN_10MAN_HP,
+    CONFIG_FLOAT_SCALAR_MIN_10MAN_DMG,
+    CONFIG_FLOAT_SCALAR_MIN_20MAN_HP,
+    CONFIG_FLOAT_SCALAR_MIN_20MAN_DMG,
+    CONFIG_FLOAT_SCALAR_MIN_40MAN_HP,
+    CONFIG_FLOAT_SCALAR_MIN_40MAN_DMG,
     CONFIG_FLOAT_VALUE_COUNT
 };
 
@@ -716,6 +746,7 @@ enum eConfigBoolValues
     CONFIG_BOOL_ENABLE_DYNAMIC_VISIBILITIES,
     CONFIG_BOOL_PRIORITY_QUEUE_ENABLE_IP_PENALTY,
     CONFIG_BOOL_LOAD_LOCALES,
+    CONFIG_BOOL_LOAD_SPELLS_FROM_SQL,
     CONFIG_BOOL_ENABLE_FACTION_BALANCE,
     CONFIG_BOOL_BLOCK_ALL_HANZI,
     CONFIG_BOOL_HOLIDAY_EVENT,
@@ -731,6 +762,23 @@ enum eConfigBoolValues
     CONFIG_BOOL_PLAYERBOT_COLLECT_SKIN,
     CONFIG_BOOL_PLAYERBOT_COLLECT_OBJECTS,
     CONFIG_BOOL_PLAYERBOT_SELL_TRASH,
+    CONFIG_BOOL_LEECH_ENABLE,
+    // Leech restrictions: without them the leech applies to EVERY player,
+    // including the ~1000 random bots, and in PvP too, which skews fights
+    // server wide. See Unit::DealDamage.
+    CONFIG_BOOL_LEECH_PVE_ONLY,
+    CONFIG_BOOL_LEECH_REAL_PLAYERS_ONLY,
+    CONFIG_BOOL_LEECH_SOLO_ONLY,
+    CONFIG_BOOL_LEECH_DUNGEON_ONLY,
+    // Solo dungeon resurrection, see Player::RepopAtGraveyard
+    CONFIG_BOOL_SOLO_DUNGEON_REPOP_ALIVE,
+    // Dungeon finder: fill a waiting player's group with random bots.
+    // See LFT/LFTBotFill.cpp
+    CONFIG_BOOL_LFT_BOTFILL_ENABLE,
+    CONFIG_BOOL_AUTOSCALER_ENABLE,
+    // Remove navmesh tiles again at runtime. Off by default, see
+    // MMapManager::unloadMap.
+    CONFIG_BOOL_MMAP_TILE_UNLOAD,
     CONFIG_BOOL_VALUE_COUNT
 };
 
@@ -784,11 +832,9 @@ enum RealmZone
 class SessionPacketSendTask
 {
     SessionPacketSendTask(const SessionPacketSendTask&) = delete;
-
 public:
     SessionPacketSendTask(uint32 accountId, WorldPacket& data) : m_accountId(accountId), m_data(data) {}
-    void operator()();
-
+    void operator ()();
 private:
     uint32 m_accountId;
     WorldPacket m_data;
@@ -797,7 +843,10 @@ private:
 struct TransactionPart
 {
     static const int MAX_TRANSACTION_ITEMS = 6;
-    TransactionPart() { memset(this, 0, sizeof(TransactionPart)); }
+    TransactionPart()
+    {
+        memset(this, 0, sizeof(TransactionPart));
+    }
     uint32 lowGuid;
     uint32 money;
     uint32 spell;
@@ -821,13 +870,14 @@ struct CliCommandHolder
     uint32 m_cliAccountId; // 0 for console and real account id for RA/soap
     AccountTypes m_cliAccessLevel;
     std::any m_callbackArg;
-    char* m_command;
+    char *m_command;
     Print* m_print;
     CommandFinished* m_commandFinished;
 
-    CliCommandHolder(uint32 accountId, AccountTypes cliAccessLevel, std::any callbackArg, const char* command, Print* zprint, CommandFinished* commandFinished) : m_cliAccountId(accountId), m_cliAccessLevel(cliAccessLevel), m_callbackArg(callbackArg), m_print(zprint), m_commandFinished(commandFinished)
+    CliCommandHolder(uint32 accountId, AccountTypes cliAccessLevel, std::any callbackArg, const char *command, Print* zprint, CommandFinished* commandFinished)
+        : m_cliAccountId(accountId), m_cliAccessLevel(cliAccessLevel), m_callbackArg(callbackArg), m_print(zprint), m_commandFinished(commandFinished)
     {
-        size_t len = strlen(command) + 1;
+        size_t len = strlen(command)+1;
         m_command = new char[len];
         memcpy(m_command, command, len);
     }
@@ -845,7 +895,6 @@ namespace MaNGOS
         typedef std::vector<WorldPacket*> WorldPacketList;
         explicit WorldWorldTextBuilder(int32 textId, va_list* args = nullptr) : i_textId(textId), i_args(args) {}
         void operator()(WorldPacketList& data_list, int32 loc_idx);
-
     private:
         char* lineFromMessage(char*& pos)
         {
@@ -858,12 +907,11 @@ namespace MaNGOS
         int32 i_textId;
         va_list* i_args;
     };
-} // namespace MaNGOS
+}
 
 struct MigrationFile
 {
-    bool hasChanges = false;
-    ;
+    bool hasChanges = false;;
     std::string lastAuthor;
 
     void SetAuthor(std::string const& author);
@@ -892,8 +940,10 @@ public:
     ~AccountDataWrapper();
 
 
-    AccountCacheData* operator->() { return m_data; }
-
+    AccountCacheData* operator->()
+    {
+        return m_data;
+    }
 private:
     AccountCacheData* m_data;
 };
@@ -901,7 +951,7 @@ private:
 /// The World
 class World
 {
-public:
+    public:
     static volatile uint32 m_worldLoopCounter;
 
     friend class AccountDataWrapper;
@@ -910,6 +960,30 @@ public:
     ~World();
 
     static TimePoint GetCurrentClockTime() { return m_currentTime; }
+        // bot calls sWorld.GetLFGQueue() and sWorld.GetCurrentMSTime().
+        // Penqle's LFGQueue lives in LFG/LFGMgr.h. Forward to sLFGMgr.
+        // Forward-declare LFGQueue at this scope to avoid requiring full LFGMgr.h include.
+        class LFGQueue& GetLFGQueue();
+        // The one call the core still makes into the bot module: it registers the
+        // module hook objects. The per-tick driver is WorldScript::OnUpdate and the
+        // post-load work is WorldScript::OnStartup, both fired from World.cpp.
+        void InitPlayerbotsAtStartup();
+        uint32 GetCurrentMSTime() const;
+        // GetMaxDiff: cmangos exposes max diff for performance dashboard. Stub returns 0.
+        uint32 GetMaxDiff() const { return 0; }
+        // GetCurrentDiff: cmangos exposes current frame diff. Stub returns 100ms.
+        uint32 GetCurrentDiff() const { return 100; }
+        // GetGraveyardManager: cmangos has it on World too. Stub returns a manager-stub.
+        // Templated GetGraveyardMap() defers instantiation of std::map<uint32, GraveYardData> to call site,
+        // so World.h consumers don't need the full GraveYardData definition.
+        struct WorldGraveyardManagerStub {
+            template<typename T = ::GraveYardData>
+            std::map<uint32, T> const& GetGraveyardMap() const {
+                static std::map<uint32, T> s;
+                return s;
+            }
+        };
+        WorldGraveyardManagerStub& GetGraveyardManager();
 
     // basically a destructor
     void InternalShutdown();
@@ -921,7 +995,7 @@ public:
     typedef std::set<WorldSession*> SessionSet;
     const SessionMap& GetAllSessions() const { return m_sessions; }
     WorldSession* FindSession(uint32 id) const;
-    void AddSession(WorldSession* s);
+        void AddSession(WorldSession *s);
     bool RemoveSession(uint32 id);
     /// Get the number of current active sessions
     void UpdateMaxSessionCounters();
@@ -958,7 +1032,7 @@ public:
     /// Set the active session server limit (or security level limitation)
     void SetPlayerLimit(int32 limit, bool needUpdate = false);
 
-    // player Queue
+        //player Queue
     typedef std::list<WorldSession*> Queue;
     uint32 GetConnectionCountByIp(uint32 ip) const;
     void AddQueuedSession(WorldSession*);
@@ -991,12 +1065,12 @@ public:
     /// Uptime (in secs)
     uint32 GetUptime() const { return uint32(m_gameTime - m_startTime); }
 
-    tm* GetLocalTimeByTime(time_t now) const { return localtime(&now); }
+        tm *GetLocalTimeByTime(time_t now) const { return localtime(&now); }
 
     uint32 GetLastMaintenanceDay() const
     {
         uint32 mDay = getConfig(CONFIG_UINT32_MAINTENANCE_DAY);
-        tm* date = GetLocalTimeByTime(m_gameTime);
+            tm *date     = GetLocalTimeByTime(m_gameTime);
         // formula to find last mDay of gregorian calendary
         return m_gameDay - ((date->tm_wday - mDay + 7) % 7);
     }
@@ -1005,7 +1079,7 @@ public:
     uint16 GetConfigMaxSkillValue() const
     {
         uint32 lvl = getConfig(CONFIG_UINT32_MAX_PLAYER_LEVEL);
-        return lvl > 60 ? 300 + ((lvl - 60) * 75) / 10 : lvl * 5;
+            return lvl > 60 ? 300 + ((lvl - 60) * 75) / 10 : lvl*5;
     }
 
     void StopHttpApiServer();
@@ -1018,7 +1092,7 @@ public:
     void LoadConfigSettingsCommonPart(bool reload = false);
     void ExportConfigSettingsToDB();
 
-    template <class Builder>
+        template<class Builder>
     class LocalizedPacketListDo
     {
     public:
@@ -1090,11 +1164,11 @@ public:
     void SendGMTextFlags(uint32 accountFlags, int32 string_id, ...);
     void SendGMText(int32 string_id, ...);
     void SendGMText(const std::string& message, uint32 minGmLevel = SEC_MODERATOR);
-    void SendGlobalText(const char* text, WorldSession* self);
-    void SendGlobalMessage(WorldPacket* packet, WorldSession* self = 0, uint32 team = 0);
-    void SendZoneMessage(uint32 zone, WorldPacket* packet, WorldSession* self = 0, uint32 team = 0);
-    void SendZoneText(uint32 zone, const char* text, WorldSession* self = 0, uint32 team = 0);
-    void SendServerMessage(ServerMessageType type, const char* text = "", Player* player = nullptr);
+        void SendGlobalText(const char* text, WorldSession *self);
+        void SendGlobalMessage(WorldPacket *packet, WorldSession *self = 0, uint32 team = 0);
+        void SendZoneMessage(uint32 zone, WorldPacket *packet, WorldSession *self = 0, uint32 team = 0);
+        void SendZoneText(uint32 zone, const char *text, WorldSession *self = 0, uint32 team = 0);
+        void SendServerMessage(ServerMessageType type, const char *text = "", Player* player = nullptr);
     void SendHardcoreMessage(WorldPacket* packet, WorldSession* self);
 
     /// Are we in the middle of a shutdown?
@@ -1103,34 +1177,30 @@ public:
     void ShutdownCancel();
     void ShutdownMsg(bool show = false, Player* player = nullptr);
     static uint8 GetExitCode() { return m_ExitCode; }
-    static void StopNow(uint8 exitcode)
-    {
-        m_stopEvent = true;
-        m_ExitCode = exitcode;
-    }
+        static void StopNow(uint8 exitcode) { m_stopEvent = true; m_ExitCode = exitcode; }
     static bool IsStopped() { return m_stopEvent; }
 
     void Update(uint32 diff);
 
-    void UpdateSessions(uint32 diff);
+        void UpdateSessions( uint32 diff );
 
     /// Get a server configuration element (see #eConfigFloatValues)
-    void setConfig(eConfigFloatValues index, float value) { m_configFloatValues[index] = value; }
+        void setConfig(eConfigFloatValues index,float value) { m_configFloatValues[index]=value; }
     /// Get a server configuration element (see #eConfigFloatValues)
     float getConfig(eConfigFloatValues rate) const { return m_configFloatValues[rate]; }
 
     /// Set a server configuration element (see #eConfigUInt32Values)
-    void setConfig(eConfigUInt32Values index, uint32 value) { m_configUint32Values[index] = value; }
+        void setConfig(eConfigUInt32Values index, uint32 value) { m_configUint32Values[index]=value; }
     /// Get a server configuration element (see #eConfigUInt32Values)
     uint32 getConfig(eConfigUInt32Values index) const { return m_configUint32Values[index]; }
 
     /// Set a server configuration element (see #eConfigInt32Values)
-    void setConfig(eConfigInt32Values index, int32 value) { m_configInt32Values[index] = value; }
+        void setConfig(eConfigInt32Values index, int32 value) { m_configInt32Values[index]=value; }
     /// Get a server configuration element (see #eConfigInt32Values)
     int32 getConfig(eConfigInt32Values index) const { return m_configInt32Values[index]; }
 
     /// Set a server configuration element (see #eConfigBoolValues)
-    void setConfig(eConfigBoolValues index, bool value) { m_configBoolValues[index] = value; }
+        void setConfig(eConfigBoolValues index, bool value) { m_configBoolValues[index]=value; }
     /// Get a server configuration element (see #eConfigBoolValues)
     bool getConfig(eConfigBoolValues index) const { return m_configBoolValues[index]; }
 
@@ -1174,18 +1244,12 @@ public:
 
     void UpdateRealmCharCount(uint32 accid);
 
-    LocaleConstant GetAvailableDbcLocale(LocaleConstant locale) const
-    {
-        if (m_availableDbcLocaleMask & (1 << locale))
-            return locale;
-        else
-            return m_defaultDbcLocale;
-    }
+        LocaleConstant GetAvailableDbcLocale(LocaleConstant locale) const { if(m_availableDbcLocaleMask & (1 << locale)) return locale; else return m_defaultDbcLocale; }
 
     // Nostalrius
     MovementBroadcaster* GetBroadcaster() { return m_broadcaster.get(); }
-    ChannelBroadcaster* GetChannelBroadcaster() { return m_ChannelBroadcaster.get(); }
-    const float GetTimeRate() const { return m_timeRate; }
+        ChannelBroadcaster* GetChannelBroadcaster() { return m_ChannelBroadcaster.get(); } const
+        float GetTimeRate() const { return m_timeRate; }
     void SetTimeRate(float rate) { m_timeRate = rate; }
     float m_timeRate;
     void SetSessionDisconnected(WorldSession* sess);
@@ -1206,7 +1270,7 @@ public:
      * The tasks will be executed *while* maps are updated. So don't touch the mobs, pets, etc ...
      * includes reading, unless the read itself is serialized
      */
-    void AddAsyncTask(std::function<void()> task);
+        void AddAsyncTask(std::function<void ()> task);
     std::mutex m_asyncTaskQueueMutex;
     std::vector<std::function<void()>> _asyncTasks;
     std::vector<std::function<void()>> _asyncTasksBusy;
@@ -1237,18 +1301,10 @@ public:
     void AddPDumpedCharacterToList(uint32 guidLow, time_t timestamp);
 
     // Shell Coin
-    void AddShellCoinOwner(ObjectGuid guid)
-    {
-        std::unique_lock<std::mutex> l{m_shellcoinLock};
-        m_shellCoinOwners.insert(guid);
-    }
-    void RemoveShellCoinOwner(ObjectGuid guid)
-    {
-        std::unique_lock<std::mutex> l{m_shellcoinLock};
-        m_shellCoinOwners.erase(guid);
-    }
+        void AddShellCoinOwner(ObjectGuid guid) { std::unique_lock<std::mutex> l{ m_shellcoinLock }; m_shellCoinOwners.insert(guid); }
+        void RemoveShellCoinOwner(ObjectGuid guid) { std::unique_lock<std::mutex> l{ m_shellcoinLock }; m_shellCoinOwners.erase(guid); }
 
-    // non-modifiable
+        //non-modifiable
     const AccountCacheData* FindAccountData(uint32 accountId) const
     {
         auto itr = m_accountData.find(accountId);
@@ -1258,10 +1314,16 @@ public:
         return nullptr;
     }
 
-    // modifiable and wrapped for proper lookup names
-    AccountDataWrapper GetAccountData(uint32 accountId) { return &m_accountData[accountId]; }
+        //modifiable and wrapped for proper lookup names
+        AccountDataWrapper GetAccountData(uint32 accountId)
+        {
+            return &m_accountData[accountId];
+        }
 
-    const auto& GetAllAccountData() const { return m_accountData; }
+        const auto& GetAllAccountData() const
+        {
+            return m_accountData;
+        }
 
     // DBCache operations (Deny, Invalidate) - use for clear cache data only(!!!) at loading character before loading UI
     void SendSingleItemInvalidate(uint32 entry, WorldSession* self = nullptr);
@@ -1291,12 +1353,16 @@ public:
     std::atomic_uint64_t m_packetsCount[NUM_MSG_TYPES] = {};
     std::atomic_uint64_t m_packetsSize[NUM_MSG_TYPES] = {};
 
-protected:
+#ifdef ENABLE_ELUNA
+        Eluna* GetEluna() const { return sElunaMgr->Get(m_elunaInfo); }
+#endif
+
+    protected:
     void _UpdateGameTime();
     // callback for UpdateRealmCharacters
-    void _UpdateRealmCharCount(QueryResult* resultCharCount, uint32 accountId);
+        void _UpdateRealmCharCount(QueryResult *resultCharCount, uint32 accountId);
 
-private:
+    private:
     void setConfig(eConfigUInt32Values index, char const* fieldname, uint32 defvalue);
     void setConfig(eConfigInt32Values index, char const* fieldname, int32 defvalue);
     void setConfig(eConfigFloatValues index, char const* fieldname, float defvalue);
@@ -1320,6 +1386,36 @@ private:
     uint32 m_ShutdownMask = 0;
 
     uint32 m_MaintenanceTimeChecker = 0;
+
+        // custom: AutoWorldBuff (2026-07-28, see World.cpp) - one independent
+        // timer per buff so Zandalar/Warchief's Blessing/Dragonslayer don't
+        // all become available at the same instant. firstSinceRestart picks
+        // a short interval for the very first roll after a (re)start so
+        // frequent restarts don't each cost a full re-roll of the long
+        // interval; later rolls use the normal, longer interval.
+        struct WorldBuffTimerState
+        {
+            uint32 timer = 0;
+            uint32 warningMs = 0;
+            bool warned = false;
+            bool firstSinceRestart = true;
+        };
+        WorldBuffTimerState m_zandalarBuffTimer;
+        WorldBuffTimerState m_warchiefBuffTimer;
+        WorldBuffTimerState m_dragonslayerBuffTimer;
+        void UpdateWorldBuffTimer(uint32 diff, WorldBuffTimerState& state, uint32 spellId,
+            std::string const& announceLabel, std::function<bool(Player*)> const& eligible);
+
+        // custom: AutoDonationPoints - time online in ms per account since the
+        // last award, so that different login times need not be synchronised
+        // onto one common tick: every account gets its own full hour.
+        //
+        std::unordered_map<uint32 /*accountId*/, uint32 /*accumulatedMs*/> m_donationPointAccumulatorMs;
+        // Time until the next periodic persist of the accumulators above into
+        // `donation_point_progress` in the login database - see World.cpp.
+        // Without persistence the progress restarted from zero after every
+        // server restart.
+        uint32 m_donationPointFlushTimer = 0;
 
     uint32 m_minChatLevel = 0;
     time_t m_startTime;
@@ -1380,25 +1476,25 @@ private:
     static uint32 m_relocation_ai_notify_delay;
 
     // CLI command holder to be thread safe
-    LockedQueue<CliCommandHolder*, std::mutex> cliCmdQueue;
+        LockedQueue<CliCommandHolder*,std::mutex> cliCmdQueue;
 
     std::unordered_map<uint32, AccountCacheData> m_accountData;
     std::unordered_map<std::string, std::reference_wrapper<const AccountCacheData>> m_accountDataLookup; // lookup of above contained through username.
 
-    // Player Queue
+        //Player Queue
     Queue m_QueuedSessions;
 
-    // higher is first in the map, higher points -> higher priority.
-    // Priority is built from multiple factors, acc reg date, char levels etc etc.
+        //higher is first in the map, higher points -> higher priority.
+        //Priority is built from multiple factors, acc reg date, char levels etc etc.
     std::deque<std::pair<uint32, WorldSession*>> m_priorityQueue[2];
 
     std::unordered_map<uint32, uint32> m_Ipconnections; // binary IP, count
 
-    // sessions that are added async
+        //sessions that are added async
     void AddSession_(WorldSession* s);
     LockedQueue<WorldSession*, std::mutex> addSessQueue;
 
-    // used versions
+        //used versions
     uint32 m_anticrashRearmTimer = 0;
     std::unique_ptr<std::thread> m_charDbWorkerThread;
     std::thread m_autoCommitThread;
@@ -1428,6 +1524,10 @@ private:
     std::unique_ptr<ChannelBroadcaster> m_ChannelBroadcaster;
 
     std::unique_ptr<ThreadPool> m_updateThreads;
+
+#ifdef ENABLE_ELUNA
+        ElunaInfo m_elunaInfo;
+#endif
 };
 
 extern uint32 realmID;

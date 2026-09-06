@@ -26,7 +26,7 @@ typedef short int16;
 typedef unsigned int uint32;
 typedef int int32; */
 
-#pragma pack(push, 1)
+#pragma pack(push,1)
 
 struct ModelHeader
 {
@@ -98,6 +98,7 @@ struct ModelHeader
     uint32 ofsRibbonEmitters;
     uint32 nParticleEmitters;
     uint32 ofsParticleEmitters;
+
 };
 
 struct ModelBoundingVertex

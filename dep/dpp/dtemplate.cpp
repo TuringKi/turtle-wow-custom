@@ -2,7 +2,7 @@
  *
  * D++, A Lightweight C++ library for Discord
  *
- * Copyright 2021 Craig Edwards and D++ contributors
+ * Copyright 2021 Craig Edwards and D++ contributors 
  * (https://github.com/brainboxdotcc/DPP/graphs/contributors)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,36 +18,44 @@
  * limitations under the License.
  *
  ************************************************************************************/
-#include <dpp/discordevents.h>
 #include <dpp/dtemplate.h>
+#include <dpp/discordevents.h>
 #include <dpp/nlohmann/json.hpp>
 
 using json = nlohmann::json;
 
-namespace dpp
+namespace dpp {
+
+dtemplate::dtemplate() : code(""), name(""), description(""), usage_count(0), creator_id(0), source_guild_id(0)
 {
+}
 
-    dtemplate::dtemplate() : code(""), name(""), description(""), usage_count(0), creator_id(0), source_guild_id(0) {}
 
+dtemplate& dtemplate::fill_from_json(nlohmann::json* j) {
+	code = string_not_null(j, "code");
+	name = string_not_null(j, "name");
+	description = string_not_null(j, "description");
+	usage_count = int32_not_null(j, "usage_count");
+	creator_id = snowflake_not_null(j, "creator_id");
+	created_at = ts_not_null(j, "created_at");
+	updated_at = ts_not_null(j, "updated_at");
+	source_guild_id = snowflake_not_null(j, "source_guild_id");
+	is_dirty = bool_not_null(j, "is_dirty");
+	return *this;
+}
 
-    dtemplate& dtemplate::fill_from_json(nlohmann::json* j)
-    {
-        code = string_not_null(j, "code");
-        name = string_not_null(j, "name");
-        description = string_not_null(j, "description");
-        usage_count = int32_not_null(j, "usage_count");
-        creator_id = snowflake_not_null(j, "creator_id");
-        created_at = ts_not_null(j, "created_at");
-        updated_at = ts_not_null(j, "updated_at");
-        source_guild_id = snowflake_not_null(j, "source_guild_id");
-        is_dirty = bool_not_null(j, "is_dirty");
-        return *this;
-    }
+std::string dtemplate::build_json(bool with_id) const {
+	json j({
+		{"code", code},
+		{"name", name},
+		{"description", description},
+		{"usage_count", usage_count},
+		{"creator_id", creator_id},
+		{"updated_at", updated_at},
+		{"source_guild_id", source_guild_id,
+		"is_dirty", is_dirty}
+	});
+	return j.dump();
+}
 
-    std::string dtemplate::build_json(bool with_id) const
-    {
-        json j({{"code", code}, {"name", name}, {"description", description}, {"usage_count", usage_count}, {"creator_id", creator_id}, {"updated_at", updated_at}, {"source_guild_id", source_guild_id, "is_dirty", is_dirty}});
-        return j.dump();
-    }
-
-}; // namespace dpp
+};

@@ -62,9 +62,13 @@ struct plainVisionAI : public npc_escortAI
 
     bool isEngaged;
 
-    void Reset() override {}
+    void Reset() override
+    {
+    }
 
-    void WaypointReached(uint32 i) override {}
+    void WaypointReached(uint32 i) override
+    {
+    }
 
     void UpdateEscortAI(const uint32 uiDiff) override
     {
@@ -81,12 +85,15 @@ struct plainVisionAI : public npc_escortAI
     }
 };
 
-CreatureAI* GetAI_plainVision(Creature* pCreature) { return new plainVisionAI(pCreature); }
+CreatureAI* GetAI_plainVision(Creature* pCreature)
+{
+    return new plainVisionAI(pCreature);
+}
 
 
 void AddSC_mulgore()
 {
-    Script* newscript;
+    Script *newscript;
 
     newscript = new Script;
     newscript->Name = "npc_plains_vision";

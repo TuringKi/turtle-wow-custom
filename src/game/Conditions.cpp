@@ -18,87 +18,103 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
+#include "Unit.h"
+#include "Player.h"
+#include "GameEventMgr.h"
+#include "SpellAuras.h"
+#include "InstanceData.h"
+#include "HardcodedEvents.h"
+#include "World.h"
 #include "BattleGround.h"
 #include "CreatureGroups.h"
-#include "GameEventMgr.h"
-#include "HardcodedEvents.h"
-#include "InstanceData.h"
-#include "Player.h"
-#include "SpellAuras.h"
-#include "Unit.h"
-#include "World.h"
+#include "Group.h"
+#include "ScriptObjects.h"
 
-char const* conditionSourceToStr[] = {
-    "loot system", "referencing loot", "gossip menu", "gossip menu option", "EventAI", "hardcoded", "vendor", "spell_area", "scripted map event", "script action", "areatrigger", "quest template",
-};
+char const* conditionSourceToStr[] =
+        {
+                "loot system",
+                "referencing loot",
+                "gossip menu",
+                "gossip menu option",
+                "EventAI",
+                "hardcoded",
+                "vendor",
+                "spell_area",
+                "scripted map event",
+                "script action",
+                "areatrigger",
+                "quest template",
+        };
 
 // Stores what params need to be provided to each condition type.
 // (source, target, map)
-uint8 const ConditionTargetsInternal[] = {
-    CONDITION_REQ_NONE, // -3
-    CONDITION_REQ_NONE, // -2
-    CONDITION_REQ_NONE, // -1
-    CONDITION_REQ_NONE, //  0
-    CONDITION_REQ_TARGET_UNIT, //  1
-    CONDITION_REQ_TARGET_PLAYER, //  2
-    CONDITION_REQ_TARGET_PLAYER, //  3
-    CONDITION_REQ_ANY_WORLDOBJECT, //  4
-    CONDITION_REQ_TARGET_PLAYER, //  5
-    CONDITION_REQ_TARGET_UNIT, //  6
-    CONDITION_REQ_TARGET_PLAYER, //  7
-    CONDITION_REQ_TARGET_PLAYER, //  8
-    CONDITION_REQ_TARGET_PLAYER, //  9
-    CONDITION_REQ_TARGET_PLAYER, //  10
-    CONDITION_REQ_NONE, //  11
-    CONDITION_REQ_NONE, //  12
-    CONDITION_REQ_SOURCE_UNIT, //  13
-    CONDITION_REQ_TARGET_PLAYER, //  14
-    CONDITION_REQ_TARGET_UNIT, //  15
-    CONDITION_REQ_SOURCE_WORLDOBJECT, //  16
-    CONDITION_REQ_TARGET_PLAYER, //  17
-    CONDITION_REQ_MAP_OR_WORLDOBJECT, //  18
-    CONDITION_REQ_TARGET_PLAYER, //  19
-    CONDITION_REQ_TARGET_WORLDOBJECT, //  20
-    CONDITION_REQ_TARGET_WORLDOBJECT, //  21
-    CONDITION_REQ_TARGET_PLAYER, //  22
-    CONDITION_REQ_TARGET_PLAYER, //  23
-    CONDITION_REQ_NONE, //  24
-    CONDITION_REQ_NONE, //  25
-    CONDITION_REQ_NONE, //  26
-    CONDITION_REQ_TARGET_WORLDOBJECT, //  27
-    CONDITION_REQ_TARGET_WORLDOBJECT, //  28
-    CONDITION_REQ_TARGET_PLAYER, //  29
-    CONDITION_REQ_TARGET_PLAYER, //  30
-    CONDITION_REQ_SOURCE_WORLDOBJECT, //  31
-    CONDITION_REQ_SOURCE_UNIT, //  32
-    CONDITION_REQ_MAP_OR_WORLDOBJECT, //  33
-    CONDITION_REQ_MAP_OR_WORLDOBJECT, //  34
-    CONDITION_REQ_MAP_OR_WORLDOBJECT, //  35
-    CONDITION_REQ_MAP_OR_WORLDOBJECT, //  36
-    CONDITION_REQ_BOTH_WORLDOBJECTS, //  37
-    CONDITION_REQ_BOTH_WORLDOBJECTS, //  38
-    CONDITION_REQ_TARGET_WORLDOBJECT, //  39
-    CONDITION_REQ_TARGET_UNIT, //  40
-    CONDITION_REQ_TARGET_UNIT, //  41
-    CONDITION_REQ_TARGET_UNIT, //  42
-    CONDITION_REQ_TARGET_UNIT, //  43
-    CONDITION_REQ_BOTH_WORLDOBJECTS, //  44
-    CONDITION_REQ_TARGET_PLAYER, //  45
-    CONDITION_REQ_TARGET_UNIT, //  46
-    CONDITION_REQ_MAP_OR_WORLDOBJECT, //  47
-    CONDITION_REQ_TARGET_GAMEOBJECT, //  48
-    CONDITION_REQ_TARGET_GAMEOBJECT, //  49
-    CONDITION_REQ_MAP_OR_WORLDOBJECT, //  50
-    CONDITION_REQ_TARGET_PLAYER, //  51
-    CONDITION_REQ_SOURCE_WORLDOBJECT, //  52
-    CONDITION_REQ_NONE, //  53
-    CONDITION_REQ_TARGET_WORLDOBJECT, //  54
-    CONDITION_REQ_TARGET_GAMEOBJECT, //  55
-    CONDITION_REQ_TARGET_WORLDOBJECT, //  56
-    CONDITION_REQ_SOURCE_CREATURE, //  57
-    CONDITION_REQ_SOURCE_CREATURE, //  58
-    CONDITION_REQ_MAP_OR_WORLDOBJECT, //  59
-    CONDITION_REQ_TARGET_UNIT, //  60
+uint8 const ConditionTargetsInternal[] =
+{
+        CONDITION_REQ_NONE,               // -3
+        CONDITION_REQ_NONE,               // -2
+        CONDITION_REQ_NONE,               // -1
+        CONDITION_REQ_NONE,               //  0
+        CONDITION_REQ_TARGET_UNIT,        //  1
+        CONDITION_REQ_TARGET_PLAYER,      //  2
+        CONDITION_REQ_TARGET_PLAYER,      //  3
+        CONDITION_REQ_ANY_WORLDOBJECT,    //  4
+        CONDITION_REQ_TARGET_PLAYER,      //  5
+        CONDITION_REQ_TARGET_UNIT,        //  6
+        CONDITION_REQ_TARGET_PLAYER,      //  7
+        CONDITION_REQ_TARGET_PLAYER,      //  8
+        CONDITION_REQ_TARGET_PLAYER,      //  9
+        CONDITION_REQ_TARGET_PLAYER,      //  10
+        CONDITION_REQ_NONE,               //  11
+        CONDITION_REQ_NONE,               //  12
+        CONDITION_REQ_SOURCE_UNIT,        //  13
+        CONDITION_REQ_TARGET_PLAYER,      //  14
+        CONDITION_REQ_TARGET_UNIT,        //  15
+        CONDITION_REQ_SOURCE_WORLDOBJECT, //  16
+        CONDITION_REQ_TARGET_PLAYER,      //  17
+        CONDITION_REQ_MAP_OR_WORLDOBJECT, //  18
+        CONDITION_REQ_TARGET_PLAYER,      //  19
+        CONDITION_REQ_TARGET_WORLDOBJECT, //  20
+        CONDITION_REQ_TARGET_WORLDOBJECT, //  21
+        CONDITION_REQ_TARGET_PLAYER,      //  22
+        CONDITION_REQ_TARGET_PLAYER,      //  23
+        CONDITION_REQ_NONE,               //  24
+        CONDITION_REQ_NONE,               //  25
+        CONDITION_REQ_NONE,               //  26
+        CONDITION_REQ_TARGET_WORLDOBJECT, //  27
+        CONDITION_REQ_TARGET_WORLDOBJECT, //  28
+        CONDITION_REQ_TARGET_PLAYER,      //  29
+        CONDITION_REQ_TARGET_PLAYER,      //  30
+        CONDITION_REQ_SOURCE_WORLDOBJECT, //  31
+        CONDITION_REQ_SOURCE_UNIT,        //  32
+        CONDITION_REQ_MAP_OR_WORLDOBJECT, //  33
+        CONDITION_REQ_MAP_OR_WORLDOBJECT, //  34
+        CONDITION_REQ_MAP_OR_WORLDOBJECT, //  35
+        CONDITION_REQ_MAP_OR_WORLDOBJECT, //  36
+        CONDITION_REQ_BOTH_WORLDOBJECTS,  //  37
+        CONDITION_REQ_BOTH_WORLDOBJECTS,  //  38
+        CONDITION_REQ_TARGET_WORLDOBJECT, //  39
+        CONDITION_REQ_TARGET_UNIT,        //  40
+        CONDITION_REQ_TARGET_UNIT,        //  41
+        CONDITION_REQ_TARGET_UNIT,        //  42
+        CONDITION_REQ_TARGET_UNIT,        //  43
+        CONDITION_REQ_BOTH_WORLDOBJECTS,  //  44
+        CONDITION_REQ_TARGET_PLAYER,      //  45
+        CONDITION_REQ_TARGET_UNIT,        //  46
+        CONDITION_REQ_MAP_OR_WORLDOBJECT, //  47
+        CONDITION_REQ_TARGET_GAMEOBJECT,  //  48
+        CONDITION_REQ_TARGET_GAMEOBJECT,  //  49
+        CONDITION_REQ_MAP_OR_WORLDOBJECT, //  50
+        CONDITION_REQ_TARGET_PLAYER,      //  51
+        CONDITION_REQ_SOURCE_WORLDOBJECT, //  52
+        CONDITION_REQ_NONE,               //  53
+        CONDITION_REQ_TARGET_WORLDOBJECT, //  54
+        CONDITION_REQ_TARGET_GAMEOBJECT,  //  55
+        CONDITION_REQ_TARGET_WORLDOBJECT, //  56
+        CONDITION_REQ_SOURCE_CREATURE,    //  57
+        CONDITION_REQ_SOURCE_CREATURE,    //  58
+        CONDITION_REQ_MAP_OR_WORLDOBJECT, //  59
+        CONDITION_REQ_TARGET_UNIT,        //  60
+        CONDITION_REQ_TARGET_PLAYER,      //  61
 };
 
 // Starts from 4th element so that -3 will return first element.
@@ -107,14 +123,16 @@ uint8 const* ConditionTargets = &ConditionTargetsInternal[3];
 // Checks if player meets the condition
 bool ConditionEntry::Meets(WorldObject const* target, Map const* map, WorldObject const* source, ConditionSource conditionSourceType) const
 {
-    DEBUG_LOG("Condition-System: Check condition %u, type %i - called from %s with params target: %s, map %i, source %s", m_entry, m_condition, conditionSourceToStr[conditionSourceType], target ? target->GetGuidStr().c_str() : "<nullptr>", map ? map->GetId() : -1, source ? source->GetGuidStr().c_str() : "<nullptr>");
+    DEBUG_LOG("Condition-System: Check condition %u, type %i - called from %s with params target: %s, map %i, source %s",
+              m_entry, m_condition, conditionSourceToStr[conditionSourceType], target ? target->GetGuidStr().c_str() : "<nullptr>", map ? map->GetId() : -1, source ? source->GetGuidStr().c_str() : "<nullptr>");
 
     if (m_flags & CONDITION_FLAG_SWAP_TARGETS)
         std::swap(source, target);
 
     if (!CheckParamRequirements(target, map, source))
     {
-        sLog.outErrorDb("CONDITION %u type %u used with bad parameters, called from %s, used with target: %s, map %i, source %s", m_entry, m_condition, conditionSourceToStr[conditionSourceType], target ? target->GetGuidStr().c_str() : "<nullptr>", map ? map->GetId() : -1, source ? source->GetGuidStr().c_str() : "<nullptr>");
+        sLog.outErrorDb("CONDITION %u type %u used with bad parameters, called from %s, used with target: %s, map %i, source %s",
+                        m_entry, m_condition, conditionSourceToStr[conditionSourceType], target ? target->GetGuidStr().c_str() : "<nullptr>", map ? map->GetId() : -1, source ? source->GetGuidStr().c_str() : "<nullptr>");
         return false;
     }
 
@@ -131,7 +149,7 @@ bool inline ConditionEntry::Evaluate(WorldObject const* target, Map const* map, 
 {
     switch (m_condition)
     {
-    case CONDITION_NOT:
+        case CONDITION_NOT:
         {
             // Third and fourth condition are optional
             if (m_value3 && sConditionStorage.LookupEntry<ConditionEntry>(m_value3)->Meets(target, map, source, conditionSourceType))
@@ -142,7 +160,7 @@ bool inline ConditionEntry::Evaluate(WorldObject const* target, Map const* map, 
 
             return !sConditionStorage.LookupEntry<ConditionEntry>(m_value1)->Meets(target, map, source, conditionSourceType);
         }
-    case CONDITION_OR:
+        case CONDITION_OR:
         {
             // Third and fourth condition are optional
             if (m_value3 && sConditionStorage.LookupEntry<ConditionEntry>(m_value3)->Meets(target, map, source, conditionSourceType))
@@ -152,7 +170,7 @@ bool inline ConditionEntry::Evaluate(WorldObject const* target, Map const* map, 
 
             return sConditionStorage.LookupEntry<ConditionEntry>(m_value1)->Meets(target, map, source, conditionSourceType) || sConditionStorage.LookupEntry<ConditionEntry>(m_value2)->Meets(target, map, source, conditionSourceType);
         }
-    case CONDITION_AND:
+        case CONDITION_AND:
         {
             // Third and fourth condition are optional
             bool extraConditionsSatisfied = true;
@@ -164,57 +182,57 @@ bool inline ConditionEntry::Evaluate(WorldObject const* target, Map const* map, 
 
             return extraConditionsSatisfied && sConditionStorage.LookupEntry<ConditionEntry>(m_value1)->Meets(target, map, source, conditionSourceType) && sConditionStorage.LookupEntry<ConditionEntry>(m_value2)->Meets(target, map, source, conditionSourceType);
         }
-    case CONDITION_NONE:
+        case CONDITION_NONE:
         {
-            return true; // empty condition, always met
+            return true;                                    // empty condition, always met
         }
-    case CONDITION_AURA:
+        case CONDITION_AURA:
         {
             if (m_value2 < EFFECT_INDEX_0)
                 return target->ToUnit()->HasAura(m_value1);
             else
                 return target->ToUnit()->HasAura(m_value1, SpellEffectIndex(m_value2));
         }
-    case CONDITION_ITEM:
+        case CONDITION_ITEM:
         {
             return target->ToPlayer()->HasItemCount(m_value1, m_value2);
         }
-    case CONDITION_ITEM_EQUIPPED:
+        case CONDITION_ITEM_EQUIPPED:
         {
             return target->ToPlayer()->HasItemWithIdEquipped(m_value1, 1);
         }
-    case CONDITION_AREAID:
+        case CONDITION_AREAID:
         {
             uint32 zone, area;
             WorldObject const* searcher = source ? source : target;
             searcher->GetZoneAndAreaId(zone, area);
             return (zone == m_value1 || area == m_value1);
         }
-    case CONDITION_REPUTATION_RANK_MIN:
+        case CONDITION_REPUTATION_RANK_MIN:
         {
             FactionEntry const* faction = sObjectMgr.GetFactionEntry(m_value1);
             return (target->ToPlayer()->GetReputationMgr().GetRank(faction) >= ReputationRank(m_value2));
         }
-    case CONDITION_TEAM:
+        case CONDITION_TEAM:
         {
             if (Player const* pPlayer = target->ToUnit()->GetOwnerPlayerOrPlayerItself())
                 return (pPlayer->GetTeam() == m_value1);
             return false;
         }
-    case CONDITION_SKILL:
+        case CONDITION_SKILL:
         {
             Player const* pPlayer = target->ToPlayer();
             return (pPlayer->HasSkill(m_value1) && pPlayer->GetSkillValueBase(m_value1) >= m_value2);
         }
-    case CONDITION_QUESTREWARDED:
+        case CONDITION_QUESTREWARDED:
         {
             return target->ToPlayer()->GetQuestRewardStatus(m_value1);
         }
-    case CONDITION_QUESTTAKEN:
+        case CONDITION_QUESTTAKEN:
         {
             return target->ToPlayer()->IsCurrentQuest(m_value1, m_value2);
         }
-    case CONDITION_AD_COMMISSION_AURA:
+        case CONDITION_AD_COMMISSION_AURA:
         {
             Unit::SpellAuraHolderMap const& auras = target->ToPlayer()->GetSpellAuraHolderMap();
             for (const auto& aura : auras)
@@ -222,62 +240,62 @@ bool inline ConditionEntry::Evaluate(WorldObject const* target, Map const* map, 
                     return true;
             return false;
         }
-    case CONDITION_WAR_EFFORT_STAGE:
+        case CONDITION_WAR_EFFORT_STAGE:
         {
             uint32 stage = sObjectMgr.GetSavedVariable(VAR_WE_STAGE, 0);
             switch (m_value2)
             {
-            case 0:
-                return stage == m_value1;
-            case 1:
-                return stage >= m_value1;
-            case 2:
-                return stage <= m_value1;
+                case 0:
+                    return stage == m_value1;
+                case 1:
+                    return stage >= m_value1;
+                case 2:
+                    return stage <= m_value1;
             }
             return false;
         }
-    case CONDITION_ACTIVE_GAME_EVENT:
+        case CONDITION_ACTIVE_GAME_EVENT:
         {
             return sGameEventMgr.IsActiveEvent(m_value1);
         }
-    case CONDITION_RACE_CLASS:
+        case CONDITION_RACE_CLASS:
         {
             Player const* pPlayer = target->ToPlayer();
             return (!m_value1 || (pPlayer->GetRaceMask() & m_value1)) && (!m_value2 || (pPlayer->GetClassMask() & m_value2));
         }
-    case CONDITION_LEVEL:
+        case CONDITION_LEVEL:
         {
             Unit const* pTarget = target->ToUnit();
             switch (m_value2)
             {
-            case 0:
-                return pTarget->GetLevel() == m_value1;
-            case 1:
-                return pTarget->GetLevel() >= m_value1;
-            case 2:
-                return pTarget->GetLevel() <= m_value1;
+                case 0:
+                    return pTarget->GetLevel() == m_value1;
+                case 1:
+                    return pTarget->GetLevel() >= m_value1;
+                case 2:
+                    return pTarget->GetLevel() <= m_value1;
             }
             return false;
         }
-    case CONDITION_SOURCE_ENTRY:
+        case CONDITION_SOURCE_ENTRY:
         {
             return source->GetEntry() == m_value1;
         }
-    case CONDITION_SPELL:
+        case CONDITION_SPELL:
         {
             Player const* pPlayer = target->ToPlayer();
             switch (m_value2)
             {
-            case 0:
-                return pPlayer->HasSpell(m_value1);
-            case 1:
-                return !pPlayer->HasSpell(m_value1);
+                case 0:
+                    return pPlayer->HasSpell(m_value1);
+                case 1:
+                    return !pPlayer->HasSpell(m_value1);
             }
             return false;
         }
-    case CONDITION_INSTANCE_SCRIPT:
+        case CONDITION_INSTANCE_SCRIPT:
         {
-            Player const* pPlayer = target ? target->ToPlayer() : nullptr;
+            Player const* pPlayer = target  ? target->ToPlayer() : nullptr;
             if (!map)
                 map = target ? target->GetMap() : source->GetMap();
 
@@ -285,28 +303,28 @@ bool inline ConditionEntry::Evaluate(WorldObject const* target, Map const* map, 
                 return data->CheckConditionCriteriaMeet(pPlayer, m_value1, source, m_value2);
             return false;
         }
-    case CONDITION_QUESTAVAILABLE:
+        case CONDITION_QUESTAVAILABLE:
         {
             return target->ToPlayer()->CanTakeQuest(sObjectMgr.GetQuestTemplate(m_value1), false);
         }
-    case CONDITION_NEARBY_CREATURE:
+        case CONDITION_NEARBY_CREATURE:
         {
             return (bool)(target->FindNearestCreature(m_value1, m_value2, !m_value3, m_value4 ? target->ToCreature() : nullptr));
         }
-    case CONDITION_NEARBY_GAMEOBJECT:
+        case CONDITION_NEARBY_GAMEOBJECT:
         {
             return (bool)(target->FindNearestGameObject(m_value1, m_value2));
         }
-    case CONDITION_QUEST_NONE:
+        case CONDITION_QUEST_NONE:
         {
             Player const* pPlayer = target->ToPlayer();
             return !pPlayer->IsCurrentQuest(m_value1) && !pPlayer->GetQuestRewardStatus(m_value1);
         }
-    case CONDITION_ITEM_WITH_BANK:
+        case CONDITION_ITEM_WITH_BANK:
         {
             return target->ToPlayer()->HasItemCount(m_value1, m_value2, true);
         }
-    case CONDITION_ESCORT:
+        case CONDITION_ESCORT:
         {
             Creature const* pSource = ToCreature(source);
             Player const* pTarget = ToPlayer(target);
@@ -325,28 +343,28 @@ bool inline ConditionEntry::Evaluate(WorldObject const* target, Map const* map, 
 
             return false;
         }
-    case CONDITION_CONTENT_PHASE:
+        case CONDITION_CONTENT_PHASE:
         {
             switch (m_value2)
             {
-            case 0:
-                return sWorld.GetContentPhase() == m_value1;
-            case 1:
-                return sWorld.GetContentPhase() >= m_value1;
-            case 2:
-                return sWorld.GetContentPhase() <= m_value1;
+                case 0:
+                    return sWorld.GetContentPhase() == m_value1;
+                case 1:
+                    return sWorld.GetContentPhase() >= m_value1;
+                case 2:
+                    return sWorld.GetContentPhase() <= m_value1;
             }
             return false;
         }
-    case CONDITION_ACTIVE_HOLIDAY:
+        case CONDITION_ACTIVE_HOLIDAY:
         {
             return sGameEventMgr.IsActiveHoliday(HolidayIds(m_value1));
         }
-    case CONDITION_GENDER:
+        case CONDITION_GENDER:
         {
             return target->GetGender() == m_value1;
         }
-    case CONDITION_SKILL_BELOW:
+        case CONDITION_SKILL_BELOW:
         {
             Player const* pPlayer = target->ToPlayer();
             if (m_value2 == 1)
@@ -354,41 +372,42 @@ bool inline ConditionEntry::Evaluate(WorldObject const* target, Map const* map, 
             else
                 return pPlayer->HasSkill(m_value1) && pPlayer->GetSkillValueBase(m_value1) < m_value2;
         }
-    case CONDITION_REPUTATION_RANK_MAX:
+        case CONDITION_REPUTATION_RANK_MAX:
         {
             FactionEntry const* faction = sObjectMgr.GetFactionEntry(m_value1);
             return (target->ToPlayer()->GetReputationMgr().GetRank(faction) <= ReputationRank(m_value2));
         }
-    case CONDITION_HAS_FLAG:
+        case CONDITION_HAS_FLAG:
         {
             if (m_value1 <= OBJECT_FIELD_ENTRY || m_value1 >= source->GetValuesCount())
             {
-                sLog.outError("CONDITION_HAS_FLAG call for wrong field %u (max count: %u) in object (TypeId: %u).", m_value1, source->GetValuesCount(), source->GetTypeId());
+                sLog.outError("CONDITION_HAS_FLAG call for wrong field %u (max count: %u) in object (TypeId: %u).",
+                              m_value1, source->GetValuesCount(), source->GetTypeId());
                 return false;
             }
             return source->HasFlag(m_value1, m_value2);
         }
-    case CONDITION_LAST_WAYPOINT:
+        case CONDITION_LAST_WAYPOINT:
         {
             uint32 const lastReachedWp = ((Creature*)source)->GetMotionMaster()->getLastReachedWaypoint();
             switch (m_value2)
             {
-            case 0:
-                return m_value1 == lastReachedWp;
-            case 1:
-                return m_value1 >= lastReachedWp;
-            case 2:
-                return m_value1 <= lastReachedWp;
+                case 0:
+                    return m_value1 == lastReachedWp;
+                case 1:
+                    return m_value1 >= lastReachedWp;
+                case 2:
+                    return m_value1 <= lastReachedWp;
             }
             return false;
         }
-    case CONDITION_MAP_ID:
+        case CONDITION_MAP_ID:
         {
             uint32 mapId = map ? map->GetId() : (source ? source->GetMapId() : target->GetMapId());
 
             return mapId == m_value1;
         }
-    case CONDITION_INSTANCE_DATA:
+        case CONDITION_INSTANCE_DATA:
         {
             Map const* pMap = map ? map : (source ? source->GetMap() : target->GetMap());
 
@@ -396,18 +415,18 @@ bool inline ConditionEntry::Evaluate(WorldObject const* target, Map const* map, 
             {
                 switch (m_value3)
                 {
-                case 0:
-                    return const_cast<InstanceData*>(data)->GetData(m_value1) == m_value2;
-                case 1:
-                    return const_cast<InstanceData*>(data)->GetData(m_value1) >= m_value2;
-                case 2:
-                    return const_cast<InstanceData*>(data)->GetData(m_value1) <= m_value2;
+                    case 0:
+                        return const_cast<InstanceData*>(data)->GetData(m_value1) == m_value2;
+                    case 1:
+                        return const_cast<InstanceData*>(data)->GetData(m_value1) >= m_value2;
+                    case 2:
+                        return const_cast<InstanceData*>(data)->GetData(m_value1) <= m_value2;
                 }
             }
 
             return false;
         }
-    case CONDITION_MAP_EVENT_DATA:
+        case CONDITION_MAP_EVENT_DATA:
         {
             Map const* pMap = map ? map : (source ? source->GetMap() : target->GetMap());
 
@@ -415,95 +434,95 @@ bool inline ConditionEntry::Evaluate(WorldObject const* target, Map const* map, 
             {
                 switch (m_value4)
                 {
-                case 0:
-                    return pEvent->GetData(m_value2) == m_value3;
-                case 1:
-                    return pEvent->GetData(m_value2) >= m_value3;
-                case 2:
-                    return pEvent->GetData(m_value2) <= m_value3;
+                    case 0:
+                        return pEvent->GetData(m_value2) == m_value3;
+                    case 1:
+                        return pEvent->GetData(m_value2) >= m_value3;
+                    case 2:
+                        return pEvent->GetData(m_value2) <= m_value3;
                 }
             }
             return false;
         }
-    case CONDITION_MAP_EVENT_ACTIVE:
+        case CONDITION_MAP_EVENT_ACTIVE:
         {
             Map const* pMap = map ? map : (source ? source->GetMap() : target->GetMap());
             return pMap->GetScriptedMapEvent(m_value1);
         }
-    case CONDITION_LINE_OF_SIGHT:
+        case CONDITION_LINE_OF_SIGHT:
         {
             return source->IsWithinLOSInMap(target);
         }
-    case CONDITION_DISTANCE:
+        case CONDITION_DISTANCE:
         {
             uint32 distance = source->GetDistance(target);
 
             switch (m_value2)
             {
-            case 0:
-                return distance == m_value1;
-            case 1:
-                return distance >= m_value1;
-            case 2:
-                return distance <= m_value1;
+                case 0:
+                    return distance == m_value1;
+                case 1:
+                    return distance >= m_value1;
+                case 2:
+                    return distance <= m_value1;
             }
             return false;
         }
-    case CONDITION_IS_MOVING:
+        case CONDITION_IS_MOVING:
         {
             return target->IsMoving();
         }
-    case CONDITION_HAS_PET:
+        case CONDITION_HAS_PET:
         {
             return target->ToUnit()->GetPet();
         }
-    case CONDITION_HEALTH_PERCENT:
+        case CONDITION_HEALTH_PERCENT:
         {
             uint32 hp_percent = target->ToUnit()->GetHealthPercent();
 
             switch (m_value2)
             {
-            case 0:
-                return hp_percent == m_value1;
-            case 1:
-                return hp_percent >= m_value1;
-            case 2:
-                return hp_percent <= m_value1;
+                case 0:
+                    return hp_percent == m_value1;
+                case 1:
+                    return hp_percent >= m_value1;
+                case 2:
+                    return hp_percent <= m_value1;
             }
             return false;
         }
-    case CONDITION_MANA_PERCENT:
+        case CONDITION_MANA_PERCENT:
         {
             uint32 mana_percent = target->ToUnit()->GetPowerPercent(POWER_MANA);
 
             switch (m_value2)
             {
-            case 0:
-                return mana_percent == m_value1;
-            case 1:
-                return mana_percent >= m_value1;
-            case 2:
-                return mana_percent <= m_value1;
+                case 0:
+                    return mana_percent == m_value1;
+                case 1:
+                    return mana_percent >= m_value1;
+                case 2:
+                    return mana_percent <= m_value1;
             }
             return false;
         }
-    case CONDITION_IS_IN_COMBAT:
+        case CONDITION_IS_IN_COMBAT:
         {
             return target->ToUnit()->IsInCombat();
         }
-    case CONDITION_IS_HOSTILE_TO:
+        case CONDITION_IS_HOSTILE_TO:
         {
             return target->IsHostileTo(source->ToUnit());
         }
-    case CONDITION_IS_IN_GROUP:
+        case CONDITION_IS_IN_GROUP:
         {
             return target->ToPlayer()->GetGroup();
         }
-    case CONDITION_IS_ALIVE:
+        case CONDITION_IS_ALIVE:
         {
             return target->ToUnit()->IsAlive();
         }
-    case CONDITION_MAP_EVENT_TARGETS:
+        case CONDITION_MAP_EVENT_TARGETS:
         {
             bool bSatisfied = true;
             Map* pMap = const_cast<Map*>(map ? map : (source ? source->GetMap() : target->GetMap()));
@@ -522,23 +541,23 @@ bool inline ConditionEntry::Evaluate(WorldObject const* target, Map const* map, 
             }
             return bSatisfied;
         }
-    case CONDITION_CANT_PATH_TO_VICTIM:
+        case CONDITION_CANT_PATH_TO_VICTIM:
         {
             return source->ToUnit()->CantPathToVictim();
         }
-    case CONDITION_IS_PLAYER:
+        case CONDITION_IS_PLAYER:
         {
             return m_value1 ? (target->IsUnit() ? static_cast<Unit const*>(target)->IsCharmerOrOwnerPlayerOrPlayerItself() : false) : target->IsPlayer();
         }
-    case CONDITION_OBJECT_IS_SPAWNED:
+        case CONDITION_OBJECT_IS_SPAWNED:
         {
             return target->ToGameObject()->isSpawned();
         }
-    case CONDITION_OBJECT_LOOT_STATE:
+        case CONDITION_OBJECT_LOOT_STATE:
         {
             return target->ToGameObject()->getLootState() == m_value1;
         }
-    case CONDITION_OBJECT_FIT_CONDITION:
+        case CONDITION_OBJECT_FIT_CONDITION:
         {
             Map* pMap = const_cast<Map*>(map ? map : (source ? source->GetMap() : target->GetMap()));
             if (GameObjectData const* pGameObjectData = sObjectMgr.GetGOData(m_value1))
@@ -546,21 +565,21 @@ bool inline ConditionEntry::Evaluate(WorldObject const* target, Map const* map, 
                     return sConditionStorage.LookupEntry<ConditionEntry>(m_value2)->Meets(pGameObject, map, source, conditionSourceType);
             return false;
         }
-    case CONDITION_PVP_RANK:
+        case CONDITION_PVP_RANK:
         {
             int8 visualRank = target->ToPlayer()->GetHonorMgr().GetRank().visualRank;
             switch (m_value2)
             {
-            case 0:
-                return visualRank == int8(m_value1);
-            case 1:
-                return visualRank >= int8(m_value1);
-            case 2:
-                return visualRank <= int8(m_value1);
+                case 0:
+                    return visualRank == int8(m_value1);
+                case 1:
+                    return visualRank >= int8(m_value1);
+                case 2:
+                    return visualRank <= int8(m_value1);
             }
             return false;
         }
-    case CONDITION_DB_GUID:
+        case CONDITION_DB_GUID:
         {
             if (GameObject const* pGo = source->ToGameObject())
             {
@@ -574,7 +593,7 @@ bool inline ConditionEntry::Evaluate(WorldObject const* target, Map const* map, 
             }
             return false;
         }
-    case CONDITION_LOCAL_TIME:
+        case CONDITION_LOCAL_TIME:
         {
             time_t rawtime;
 
@@ -586,37 +605,40 @@ bool inline ConditionEntry::Evaluate(WorldObject const* target, Map const* map, 
             struct tm* timeinfo;
             timeinfo = localtime(&rawtime);
 
-            return (timeinfo->tm_hour >= m_value1) && ((timeinfo->tm_hour > m_value1) || (timeinfo->tm_min >= m_value2)) && (timeinfo->tm_hour <= m_value3) && ((timeinfo->tm_hour < m_value3) || (timeinfo->tm_min <= m_value4));
+            return (timeinfo->tm_hour >= m_value1) &&
+                   ((timeinfo->tm_hour > m_value1) || (timeinfo->tm_min >= m_value2)) &&
+                   (timeinfo->tm_hour <= m_value3) &&
+                   ((timeinfo->tm_hour < m_value3) || (timeinfo->tm_min <= m_value4));
         }
-    case CONDITION_DISTANCE_TO_POSITION:
+        case CONDITION_DISTANCE_TO_POSITION:
         {
             return target->GetDistance3dToCenter(m_value1, m_value2, m_value3) <= m_value4;
         }
-    case CONDITION_OBJECT_GO_STATE:
+        case CONDITION_OBJECT_GO_STATE:
         {
             return target->ToGameObject()->GetGoState() == m_value1;
         }
-    case CONDITION_NEARBY_PLAYER:
+        case CONDITION_NEARBY_PLAYER:
         {
             switch (m_value1)
             {
-            case 0:
-                return (bool)target->FindNearestPlayer(m_value2);
-            case 1:
-                return (bool)target->ToUnit()->FindNearestHostilePlayer(m_value2);
-            case 2:
-                return (bool)target->ToUnit()->FindNearestFriendlyPlayer(m_value2);
+                case 0:
+                    return (bool)target->FindNearestPlayer(m_value2);
+                case 1:
+                    return (bool)target->ToUnit()->FindNearestHostilePlayer(m_value2);
+                case 2:
+                    return (bool)target->ToUnit()->FindNearestFriendlyPlayer(m_value2);
             }
             return false;
         }
-    case CONDITION_CREATURE_GROUP_MEMBER:
+        case CONDITION_CREATURE_GROUP_MEMBER:
         {
             CreatureGroup const* pGroup = source->ToCreature()->GetCreatureGroup();
             if (!pGroup)
                 return false;
             return !m_value1 || pGroup->GetOriginalLeaderGuid().GetCounter() == m_value1;
         }
-    case CONDITION_CREATURE_GROUP_DEAD:
+        case CONDITION_CREATURE_GROUP_DEAD:
         {
             CreatureGroup const* pGroup = static_cast<Creature const*>(source)->GetCreatureGroup();
             if (!pGroup)
@@ -635,7 +657,7 @@ bool inline ConditionEntry::Evaluate(WorldObject const* target, Map const* map, 
 
             return true;
         }
-    case CONDITION_BG_EVENT_ACTIVE:
+        case CONDITION_BG_EVENT_ACTIVE:
         {
             if (!map)
                 map = target ? target->GetMap() : source->GetMap();
@@ -645,9 +667,38 @@ bool inline ConditionEntry::Evaluate(WorldObject const* target, Map const* map, 
 
             return ((BattleGroundMap*)map)->GetBG()->IsActiveEvent(m_value1, m_value2);
         }
-    case CONDITION_STAND_STATE:
+        case CONDITION_STAND_STATE:
         {
             return target->ToUnit()->GetStandState() == m_value1;
+        }
+        case CONDITION_LUNATIC:
+        {
+            Player const* pPlayer = target->ToPlayer();
+            if (!pPlayer->HasChallenge(CHALLENGE_LUNATIC))
+                return false;
+
+            if (m_value1 != 1)
+                return true;
+
+            Group const* pGroup = pPlayer->GetGroup();
+            if (!pGroup)
+                return true;
+
+            WorldObject const* pRewardSource = source ? source : target;
+            for (GroupReference* itr = const_cast<Group*>(pGroup)->GetFirstMember(); itr != nullptr; itr = itr->next())
+            {
+                Player const* pGroupMember = itr->getSource();
+                if (!pGroupMember)
+                    continue;
+
+                if (pRewardSource && (!pGroupMember->IsInWorld() || !pGroupMember->IsAtGroupRewardDistance(pRewardSource)))
+                    continue;
+
+                if (!pGroupMember->HasChallenge(CHALLENGE_LUNATIC))
+                    return false;
+            }
+
+            return true;
         }
     }
     return false;
@@ -658,72 +709,72 @@ bool ConditionEntry::CheckParamRequirements(WorldObject const* target, Map const
 {
     switch (ConditionTargets[m_condition])
     {
-    case CONDITION_REQ_NONE:
-        return true;
-    case CONDITION_REQ_TARGET_WORLDOBJECT:
-        if (target)
+        case CONDITION_REQ_NONE:
             return true;
-        return false;
-    case CONDITION_REQ_TARGET_GAMEOBJECT:
-        if (target && target->IsGameObject())
-            return true;
-        return false;
-    case CONDITION_REQ_TARGET_UNIT:
-        if (target && target->IsUnit())
-            return true;
-        return false;
-    case CONDITION_REQ_TARGET_CREATURE:
-        if (target && target->IsCreature())
-            return true;
-        return false;
-    case CONDITION_REQ_TARGET_PLAYER:
-        if (target && target->IsPlayer())
-            return true;
-        return false;
-    case CONDITION_REQ_SOURCE_WORLDOBJECT:
-        if (source)
-            return true;
-        return false;
-    case CONDITION_REQ_SOURCE_GAMEOBJECT:
-        if (source && source->IsGameObject())
-            return true;
-        return false;
-    case CONDITION_REQ_SOURCE_UNIT:
-        if (source && source->IsUnit())
-            return true;
-        return false;
-    case CONDITION_REQ_SOURCE_CREATURE:
-        if (source && source->IsCreature())
-            return true;
-        return false;
-    case CONDITION_REQ_SOURCE_PLAYER:
-        if (source && source->IsPlayer())
-            return true;
-        return false;
-    case CONDITION_REQ_ANY_WORLDOBJECT:
-        if (source || target)
-            return true;
-        return false;
-    case CONDITION_REQ_MAP_OR_WORLDOBJECT:
-        if (map || source || target)
-            return true;
-        return false;
-    case CONDITION_REQ_BOTH_WORLDOBJECTS:
-        if (source && target)
-            return true;
-        return false;
-    case CONDITION_REQ_BOTH_GAMEOBJECTS:
-        if (source && source->IsGameObject() && target && target->IsGameObject())
-            return true;
-        return false;
-    case CONDITION_REQ_BOTH_UNITS:
-        if (source && source->IsUnit() && target && target->IsUnit())
-            return true;
-        return false;
-    case CONDITION_REQ_BOTH_PLAYERS:
-        if (source && source->IsPlayer() && target && target->IsPlayer())
-            return true;
-        return false;
+        case CONDITION_REQ_TARGET_WORLDOBJECT:
+            if (target)
+                return true;
+            return false;
+        case CONDITION_REQ_TARGET_GAMEOBJECT:
+            if (target && target->IsGameObject())
+                return true;
+            return false;
+        case CONDITION_REQ_TARGET_UNIT:
+            if (target && target->IsUnit())
+                return true;
+            return false;
+        case CONDITION_REQ_TARGET_CREATURE:
+            if (target && target->IsCreature())
+                return true;
+            return false;
+        case CONDITION_REQ_TARGET_PLAYER:
+            if (target && target->IsPlayer())
+                return true;
+            return false;
+        case CONDITION_REQ_SOURCE_WORLDOBJECT:
+            if (source)
+                return true;
+            return false;
+        case CONDITION_REQ_SOURCE_GAMEOBJECT:
+            if (source && source->IsGameObject())
+                return true;
+            return false;
+        case CONDITION_REQ_SOURCE_UNIT:
+            if (source && source->IsUnit())
+                return true;
+            return false;
+        case CONDITION_REQ_SOURCE_CREATURE:
+            if (source && source->IsCreature())
+                return true;
+            return false;
+        case CONDITION_REQ_SOURCE_PLAYER:
+            if (source && source->IsPlayer())
+                return true;
+            return false;
+        case CONDITION_REQ_ANY_WORLDOBJECT:
+            if (source || target)
+                return true;
+            return false;
+        case CONDITION_REQ_MAP_OR_WORLDOBJECT:
+            if (map || source || target)
+                return true;
+            return false;
+        case CONDITION_REQ_BOTH_WORLDOBJECTS:
+            if (source && target)
+                return true;
+            return false;
+        case CONDITION_REQ_BOTH_GAMEOBJECTS:
+            if (source && source->IsGameObject() && target && target->IsGameObject())
+                return true;
+            return false;
+        case CONDITION_REQ_BOTH_UNITS:
+            if (source && source->IsUnit() && target && target->IsUnit())
+                return true;
+            return false;
+        case CONDITION_REQ_BOTH_PLAYERS:
+            if (source && source->IsPlayer() && target && target->IsPlayer())
+                return true;
+            return false;
     }
 
     return true;
@@ -734,7 +785,7 @@ bool ConditionEntry::IsValid()
 {
     switch (m_condition)
     {
-    case CONDITION_NOT:
+        case CONDITION_NOT:
         {
             if (m_value1 >= m_entry)
             {
@@ -749,8 +800,8 @@ bool ConditionEntry::IsValid()
             }
             break;
         }
-    case CONDITION_OR:
-    case CONDITION_AND:
+        case CONDITION_OR:
+        case CONDITION_AND:
         {
             if (m_value1 >= m_entry)
             {
@@ -804,7 +855,7 @@ bool ConditionEntry::IsValid()
             }
             break;
         }
-    case CONDITION_AURA:
+        case CONDITION_AURA:
         {
             if (!sSpellMgr.GetSpellEntry(m_value1))
             {
@@ -826,8 +877,8 @@ bool ConditionEntry::IsValid()
             }
             break;
         }
-    case CONDITION_ITEM:
-    case CONDITION_ITEM_WITH_BANK:
+        case CONDITION_ITEM:
+        case CONDITION_ITEM_WITH_BANK:
         {
             ItemPrototype const* proto = sObjectMgr.GetItemPrototype(m_value1);
             if (!proto)
@@ -851,7 +902,7 @@ bool ConditionEntry::IsValid()
             }
             break;
         }
-    case CONDITION_ITEM_EQUIPPED:
+        case CONDITION_ITEM_EQUIPPED:
         {
             ItemPrototype const* proto = sObjectMgr.GetItemPrototype(m_value1);
             if (!proto)
@@ -869,9 +920,9 @@ bool ConditionEntry::IsValid()
             }
             break;
         }
-    case CONDITION_AREAID:
+        case CONDITION_AREAID:
         {
-            const auto* areaEntry = AreaEntry::GetById(m_value1);
+            const auto *areaEntry = AreaEntry::GetById(m_value1);
             if (!areaEntry)
             {
                 sLog.outErrorDb("Zone condition (entry %u, type %u) requires to be in non-existent area (%u), skipped", m_entry, m_condition, m_value1);
@@ -879,8 +930,8 @@ bool ConditionEntry::IsValid()
             }
             break;
         }
-    case CONDITION_REPUTATION_RANK_MIN:
-    case CONDITION_REPUTATION_RANK_MAX:
+        case CONDITION_REPUTATION_RANK_MIN:
+        case CONDITION_REPUTATION_RANK_MAX:
         {
             FactionEntry const* factionEntry = sObjectMgr.GetFactionEntry(m_value1);
             if (!factionEntry)
@@ -896,7 +947,7 @@ bool ConditionEntry::IsValid()
             }
             break;
         }
-    case CONDITION_TEAM:
+        case CONDITION_TEAM:
         {
             if (m_value1 != ALLIANCE && m_value1 != HORDE)
             {
@@ -905,8 +956,8 @@ bool ConditionEntry::IsValid()
             }
             break;
         }
-    case CONDITION_SKILL:
-    case CONDITION_SKILL_BELOW:
+        case CONDITION_SKILL:
+        case CONDITION_SKILL_BELOW:
         {
             SkillLineEntry const* pSkill = sSkillLineStore.LookupEntry(m_value1);
             if (!pSkill)
@@ -921,10 +972,10 @@ bool ConditionEntry::IsValid()
             }
             break;
         }
-    case CONDITION_QUESTREWARDED:
-    case CONDITION_QUESTTAKEN:
-    case CONDITION_QUESTAVAILABLE:
-    case CONDITION_QUEST_NONE:
+        case CONDITION_QUESTREWARDED:
+        case CONDITION_QUESTTAKEN:
+        case CONDITION_QUESTAVAILABLE:
+        case CONDITION_QUEST_NONE:
         {
             Quest const* Quest = sObjectMgr.GetQuestTemplate(m_value1);
             if (!Quest)
@@ -945,7 +996,7 @@ bool ConditionEntry::IsValid()
                 sLog.outErrorDb("Quest condition (entry %u, type %u) has useless data in value2 (%u)!", m_entry, m_condition, m_value2);
             break;
         }
-    case CONDITION_AD_COMMISSION_AURA:
+        case CONDITION_AD_COMMISSION_AURA:
         {
             if (m_value1)
                 sLog.outErrorDb("Quest condition (entry %u, type %u) has useless data in value1 (%u)!", m_entry, m_condition, m_value1);
@@ -953,7 +1004,7 @@ bool ConditionEntry::IsValid()
                 sLog.outErrorDb("Quest condition (entry %u, type %u) has useless data in value2 (%u)!", m_entry, m_condition, m_value2);
             break;
         }
-    case CONDITION_ACTIVE_GAME_EVENT:
+        case CONDITION_ACTIVE_GAME_EVENT:
         {
             if (!sGameEventMgr.IsValidEvent(m_value1))
             {
@@ -962,7 +1013,7 @@ bool ConditionEntry::IsValid()
             }
             break;
         }
-    case CONDITION_RACE_CLASS:
+        case CONDITION_RACE_CLASS:
         {
             if (!m_value1 && !m_value2)
             {
@@ -983,7 +1034,7 @@ bool ConditionEntry::IsValid()
             }
             break;
         }
-    case CONDITION_LEVEL:
+        case CONDITION_LEVEL:
         {
             if (!m_value1 || m_value1 > sWorld.getConfig(CONFIG_UINT32_MAX_PLAYER_LEVEL))
             {
@@ -999,7 +1050,7 @@ bool ConditionEntry::IsValid()
 
             break;
         }
-    case CONDITION_SPELL:
+        case CONDITION_SPELL:
         {
             if (!sSpellMgr.GetSpellEntry(m_value1))
             {
@@ -1023,7 +1074,7 @@ bool ConditionEntry::IsValid()
 
             break;
         }
-    case CONDITION_NEARBY_CREATURE:
+        case CONDITION_NEARBY_CREATURE:
         {
             if (!sObjectMgr.GetCreatureTemplate(m_value1))
             {
@@ -1043,7 +1094,7 @@ bool ConditionEntry::IsValid()
                 sLog.outErrorDb("Nearby creature condition (entry %u, type %u) used without search radius (%u)!", m_entry, m_condition, m_value2);
             break;
         }
-    case CONDITION_NEARBY_GAMEOBJECT:
+        case CONDITION_NEARBY_GAMEOBJECT:
         {
             if (!sObjectMgr.GetGameObjectInfo(m_value1))
             {
@@ -1063,7 +1114,7 @@ bool ConditionEntry::IsValid()
                 sLog.outErrorDb("Nearby gameobject condition (entry %u, type %u) used without search radius (%u)!", m_entry, m_condition, m_value2);
             break;
         }
-    case CONDITION_LAST_WAYPOINT:
+        case CONDITION_LAST_WAYPOINT:
         {
             if (m_value2 > 2)
             {
@@ -1072,7 +1123,7 @@ bool ConditionEntry::IsValid()
             }
             break;
         }
-    case CONDITION_GENDER:
+        case CONDITION_GENDER:
         {
             if (m_value1 >= GENDER_NONE)
             {
@@ -1081,7 +1132,7 @@ bool ConditionEntry::IsValid()
             }
             break;
         }
-    case CONDITION_SOURCE_ENTRY:
+        case CONDITION_SOURCE_ENTRY:
         {
             if (!sObjectMgr.GetCreatureTemplate(m_value1) && !sObjectMgr.GetGameObjectInfo(m_value1))
             {
@@ -1098,7 +1149,7 @@ bool ConditionEntry::IsValid()
             }
             break;
         }
-    case CONDITION_WAR_EFFORT_STAGE:
+        case CONDITION_WAR_EFFORT_STAGE:
         {
             if (m_value1 < 0 || m_value1 > WAR_EFFORT_STAGE_COMPLETE)
             {
@@ -1112,7 +1163,7 @@ bool ConditionEntry::IsValid()
             }
             break;
         }
-    case CONDITION_MAP_ID:
+        case CONDITION_MAP_ID:
         {
             if (!sMapStorage.LookupEntry<MapEntry>(m_value1))
             {
@@ -1121,7 +1172,7 @@ bool ConditionEntry::IsValid()
             }
             break;
         }
-    case CONDITION_DISTANCE:
+        case CONDITION_DISTANCE:
         {
             if (m_value2 > 2)
             {
@@ -1130,8 +1181,8 @@ bool ConditionEntry::IsValid()
             }
             break;
         }
-    case CONDITION_HEALTH_PERCENT:
-    case CONDITION_MANA_PERCENT:
+        case CONDITION_HEALTH_PERCENT:
+        case CONDITION_MANA_PERCENT:
         {
             if ((m_value1 < 1) || (m_value1 > 100))
             {
@@ -1145,7 +1196,7 @@ bool ConditionEntry::IsValid()
             }
             break;
         }
-    case CONDITION_MAP_EVENT_TARGETS:
+        case CONDITION_MAP_EVENT_TARGETS:
         {
             ConditionEntry const* condition1 = sConditionStorage.LookupEntry<ConditionEntry>(m_value2);
             if (!condition1)
@@ -1155,7 +1206,7 @@ bool ConditionEntry::IsValid()
             }
             break;
         }
-    case CONDITION_OBJECT_LOOT_STATE:
+        case CONDITION_OBJECT_LOOT_STATE:
         {
             if (m_value1 > GO_JUST_DEACTIVATED)
             {
@@ -1164,7 +1215,7 @@ bool ConditionEntry::IsValid()
             }
             break;
         }
-    case CONDITION_OBJECT_FIT_CONDITION:
+        case CONDITION_OBJECT_FIT_CONDITION:
         {
             if (!sObjectMgr.IsExistingGameObjectGuid(m_value1))
             {
@@ -1179,7 +1230,7 @@ bool ConditionEntry::IsValid()
             }
             break;
         }
-    case CONDITION_PVP_RANK:
+        case CONDITION_PVP_RANK:
         {
             if (m_value1 > 14)
             {
@@ -1193,7 +1244,7 @@ bool ConditionEntry::IsValid()
             }
             break;
         }
-    case CONDITION_DB_GUID:
+        case CONDITION_DB_GUID:
         {
             if (!sObjectMgr.IsExistingCreatureGuid(m_value1) && !sObjectMgr.IsExistingGameObjectGuid(m_value1))
             {
@@ -1202,7 +1253,7 @@ bool ConditionEntry::IsValid()
             }
             break;
         }
-    case CONDITION_LOCAL_TIME:
+        case CONDITION_LOCAL_TIME:
         {
             if (m_value1 > 23)
             {
@@ -1226,7 +1277,7 @@ bool ConditionEntry::IsValid()
             }
             break;
         }
-    case CONDITION_DISTANCE_TO_POSITION:
+        case CONDITION_DISTANCE_TO_POSITION:
         {
             if (!MaNGOS::IsValidMapCoord(m_value1, m_value2, m_value3))
             {
@@ -1240,7 +1291,7 @@ bool ConditionEntry::IsValid()
             }
             break;
         }
-    case CONDITION_OBJECT_GO_STATE:
+        case CONDITION_OBJECT_GO_STATE:
         {
             if (m_value1 > GO_STATE_ACTIVE_ALTERNATIVE)
             {
@@ -1249,7 +1300,7 @@ bool ConditionEntry::IsValid()
             }
             break;
         }
-    case CONDITION_NEARBY_PLAYER:
+        case CONDITION_NEARBY_PLAYER:
         {
             if (m_value1 < 0 || m_value1 > 2)
             {
@@ -1263,7 +1314,7 @@ bool ConditionEntry::IsValid()
             }
             break;
         }
-    case CONDITION_BG_EVENT_ACTIVE:
+        case CONDITION_BG_EVENT_ACTIVE:
         {
             if (m_value1 >= 255)
             {
@@ -1277,7 +1328,7 @@ bool ConditionEntry::IsValid()
             }
             break;
         }
-    case CONDITION_STAND_STATE:
+        case CONDITION_STAND_STATE:
         {
             if (m_value1 >= MAX_UNIT_STAND_STATE)
             {
@@ -1286,13 +1337,28 @@ bool ConditionEntry::IsValid()
             }
             break;
         }
-    case CONDITION_HAS_FLAG:
+        case CONDITION_LUNATIC:
+        {
+            if (m_value1 < 0 || m_value1 > 1)
+            {
+                sLog.outErrorDb("CONDITION_LUNATIC (entry %u, type %u) has invalid argument %u (must be 0..1), skipped", m_entry, m_condition, m_value1);
+                return false;
+            }
+
+            if (m_value2 || m_value3 || m_value4)
+            {
+                sLog.outErrorDb("CONDITION_LUNATIC (entry %u, type %u) has unused data in value2, value3, or value4, skipped", m_entry, m_condition);
+                return false;
+            }
+            break;
+        }
+        case CONDITION_HAS_FLAG:
         {
             // Fix field id for older client builds.
             m_value1 = GetIndexOfUpdateFieldForCurrentBuild(m_value1);
             break;
         }
-    case CONDITION_CREATURE_GROUP_MEMBER:
+        case CONDITION_CREATURE_GROUP_MEMBER:
         {
             if (m_value1)
             {
@@ -1304,29 +1370,29 @@ bool ConditionEntry::IsValid()
             }
             break;
         }
-    case CONDITION_NONE:
-    case CONDITION_INSTANCE_SCRIPT:
-    case CONDITION_ACTIVE_HOLIDAY:
-    case CONDITION_INSTANCE_DATA:
-    case CONDITION_MAP_EVENT_DATA:
-    case CONDITION_MAP_EVENT_ACTIVE:
-    case CONDITION_LINE_OF_SIGHT:
-    case CONDITION_IS_MOVING:
-    case CONDITION_HAS_PET:
-    case CONDITION_IS_IN_COMBAT:
-    case CONDITION_IS_HOSTILE_TO:
-    case CONDITION_IS_IN_GROUP:
-    case CONDITION_IS_ALIVE:
-    case CONDITION_CANT_PATH_TO_VICTIM:
-    case CONDITION_IS_PLAYER:
-    case CONDITION_OBJECT_IS_SPAWNED:
-    case CONDITION_ESCORT:
-    case CONDITION_CONTENT_PHASE:
-    case CONDITION_CREATURE_GROUP_DEAD:
-        break;
-    default:
-        sLog.outErrorDb("Condition entry %u has bad type of %d, skipped ", m_entry, m_condition);
-        return false;
+        case CONDITION_NONE:
+        case CONDITION_INSTANCE_SCRIPT:
+        case CONDITION_ACTIVE_HOLIDAY:
+        case CONDITION_INSTANCE_DATA:
+        case CONDITION_MAP_EVENT_DATA:
+        case CONDITION_MAP_EVENT_ACTIVE:
+        case CONDITION_LINE_OF_SIGHT:
+        case CONDITION_IS_MOVING:
+        case CONDITION_HAS_PET:
+        case CONDITION_IS_IN_COMBAT:
+        case CONDITION_IS_HOSTILE_TO:
+        case CONDITION_IS_IN_GROUP:
+        case CONDITION_IS_ALIVE:
+        case CONDITION_CANT_PATH_TO_VICTIM:
+        case CONDITION_IS_PLAYER:
+        case CONDITION_OBJECT_IS_SPAWNED:
+        case CONDITION_ESCORT:
+        case CONDITION_CONTENT_PHASE:
+        case CONDITION_CREATURE_GROUP_DEAD:
+            break;
+        default:
+            sLog.outErrorDb("Condition entry %u has bad type of %d, skipped ", m_entry, m_condition);
+            return false;
     }
     return true;
 }
@@ -1340,24 +1406,24 @@ bool ConditionEntry::CanBeUsedWithoutPlayer(uint32 entry)
 
     switch (condition->m_condition)
     {
-    case CONDITION_NOT:
-        return CanBeUsedWithoutPlayer(condition->m_value1);
-    case CONDITION_AND:
-    case CONDITION_OR:
-        return CanBeUsedWithoutPlayer(condition->m_value1) && CanBeUsedWithoutPlayer(condition->m_value2);
-    default:
-        switch (ConditionTargets[condition->m_condition])
-        {
-        // cant be used if requires target of any kind
-        case CONDITION_REQ_NONE:
-        case CONDITION_REQ_SOURCE_WORLDOBJECT:
-        case CONDITION_REQ_SOURCE_GAMEOBJECT:
-        case CONDITION_REQ_SOURCE_UNIT:
-        case CONDITION_REQ_SOURCE_CREATURE:
-        case CONDITION_REQ_ANY_WORLDOBJECT:
-        case CONDITION_REQ_MAP_OR_WORLDOBJECT:
-            return true;
-        }
+        case CONDITION_NOT:
+            return CanBeUsedWithoutPlayer(condition->m_value1);
+        case CONDITION_AND:
+        case CONDITION_OR:
+            return CanBeUsedWithoutPlayer(condition->m_value1) && CanBeUsedWithoutPlayer(condition->m_value2);
+        default:
+            switch (ConditionTargets[condition->m_condition])
+            {
+                // cant be used if requires target of any kind
+                case CONDITION_REQ_NONE:
+                case CONDITION_REQ_SOURCE_WORLDOBJECT:
+                case CONDITION_REQ_SOURCE_GAMEOBJECT:
+                case CONDITION_REQ_SOURCE_UNIT:
+                case CONDITION_REQ_SOURCE_CREATURE:
+                case CONDITION_REQ_ANY_WORLDOBJECT:
+                case CONDITION_REQ_MAP_OR_WORLDOBJECT:
+                    return true;
+            }
     }
     return false;
 }
@@ -1365,7 +1431,18 @@ bool ConditionEntry::CanBeUsedWithoutPlayer(uint32 entry)
 bool IsConditionSatisfied(uint32 conditionId, WorldObject const* target, Map const* map, WorldObject const* source, ConditionSource conditionSourceType)
 {
     if (ConditionEntry const* condition = sConditionStorage.LookupEntry<ConditionEntry>(conditionId))
-        return condition->Meets(target, map, source, conditionSourceType);
+    {
+        bool result = condition->Meets(target, map, source, conditionSourceType);
+        if (result)
+        {
+            result = !ScriptRegistry<ConditionScript>::ForEachWithReturn([&](ConditionScript* script)
+            {
+                return !script->OnConditionCheck(conditionId, const_cast<WorldObject*>(source), const_cast<WorldObject*>(target));
+            });
+        }
+
+        return result;
+    }
 
     return false;
 }

@@ -22,63 +22,65 @@
 
 enum OutdoorPvPSISpells
 {
-    SI_SILITHYST_FLAG_GO_SPELL = 29518,
-    SI_SILITHYST_FLAG = 29519,
-    SI_TRACES_OF_SILITHYST = 29534,
-    SI_CENARION_FAVOR = 30754,
-    SILLITHUS_FLAG_HORDE_SPEED_LIMIT = 29895,
+    SI_SILITHYST_FLAG_GO_SPELL          = 29518,
+    SI_SILITHYST_FLAG                   = 29519,
+    SI_TRACES_OF_SILITHYST              = 29534,
+    SI_CENARION_FAVOR                   = 30754,
+    SILLITHUS_FLAG_HORDE_SPEED_LIMIT    = 29895,
     SILLITHUS_FLAG_ALLIANCE_SPEED_LIMIT = 29894,
-    SILLITHUS_FLAG_CAPTURE_TEST = 29530,
-    SILLITHUS_FLAG_DROP = 29533,
-    HONOR_POINTS_199 = 31420,
-    SILITHYST_CAP_REWARD = 31247
+    SILLITHUS_FLAG_CAPTURE_TEST         = 29530,
+    SILLITHUS_FLAG_DROP                 = 29533,
+    HONOR_POINTS_199                    = 31420,
+    SILITHYST_CAP_REWARD                = 31247
 };
 
 uint32 const SI_MAX_RESOURCES_DEFAULT = 200;
 uint8 const OutdoorPvPSIBuffZonesNum = 3;
-uint32 const OutdoorPvPSIBuffZones[OutdoorPvPSIBuffZonesNum] = {1377, 3428, 3429};
-uint32 const SI_AREATRIGGER_H = 4168;
-uint32 const SI_AREATRIGGER_A = 4162;
-uint32 const SI_TURNIN_QUEST_CM_A = 17090;
-uint32 const SI_TURNIN_QUEST_CM_H = 18199;
-uint32 const SI_SILITHYST_MOUND = 181597;
-uint32 const SI_SILITHYST_GEYSER = 181598;
+uint32 const OutdoorPvPSIBuffZones[OutdoorPvPSIBuffZonesNum] = { 1377, 3428, 3429 };
+uint32 const SI_AREATRIGGER_H       = 4168;
+uint32 const SI_AREATRIGGER_A       = 4162;
+uint32 const SI_TURNIN_QUEST_CM_A   = 17090;
+uint32 const SI_TURNIN_QUEST_CM_H   = 18199;
+uint32 const SI_SILITHYST_MOUND     = 181597;
+uint32 const SI_SILITHYST_GEYSER    = 181598;
 
 enum SI_WorldStates
 {
-    SI_GATHERED_A = 2313,
-    SI_GATHERED_H = 2314,
-    SI_SILITHYST_MAX = 2317
+    SI_GATHERED_A      = 2313,
+    SI_GATHERED_H      = 2314,
+    SI_SILITHYST_MAX   = 2317
 };
 
 class OutdoorPvPSI : public OutdoorPvP
 {
-public:
-    OutdoorPvPSI();
+    public:
 
-    bool SetupZoneScript();
+        OutdoorPvPSI();
 
-    void OnPlayerEnter(Player* plr);
-    void OnPlayerLeave(Player* plr, bool bJustDestroy);
+        bool SetupZoneScript();
 
-    void Update(uint32 diff);
+        void OnPlayerEnter(Player* plr);
+        void OnPlayerLeave(Player* plr, bool bJustDestroy);
 
-    uint32 FillInitialWorldStates(WorldPacket& data);
+        void Update(uint32 diff);
 
-    void SendRemoveWorldStates(Player* plr);
+        uint32 FillInitialWorldStates(WorldPacket& data);
 
-    bool HandleAreaTrigger(Player* plr, uint32 trigger);
+        void SendRemoveWorldStates(Player* plr);
 
-    bool HandleDropFlag(Player* plr, uint32 spellId);
+        bool HandleAreaTrigger(Player* plr, uint32 trigger);
 
-    void UpdateWorldState();
+        bool HandleDropFlag(Player* plr, uint32 spellId);
 
-private:
-    uint32 m_Gathered_A;
-    uint32 m_Gathered_H;
-    uint32 m_MaxRessources;
+        void UpdateWorldState();
 
-    uint32 m_LastController;
+    private:
+
+        uint32 m_Gathered_A;
+        uint32 m_Gathered_H;
+        uint32 m_MaxRessources;
+
+        uint32 m_LastController;
 };
 
 #endif

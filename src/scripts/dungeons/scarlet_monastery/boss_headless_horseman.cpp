@@ -1,5 +1,5 @@
 /* Copyright (C) 2006 - 2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
- * This program is free software; you can redistribute it and/or modify
+* This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
@@ -44,15 +44,29 @@ enum
 
 struct boss_headless_horsemanAI : public ScriptedAI
 {
-    boss_headless_horsemanAI(Creature* pCreature) : ScriptedAI(pCreature) { Reset(); }
+    boss_headless_horsemanAI(Creature* pCreature) : ScriptedAI(pCreature)
+    {
+        Reset();
+    }
 
-    void Reset() override {}
+    void Reset() override
+    {
+    }
 
-    void Aggro(Unit* pWho) override { m_creature->SetInCombatWithZone(); }
+    void Aggro(Unit* pWho) override
+    {
+        m_creature->SetInCombatWithZone();
+    }
 
-    void KilledUnit(Unit* pVictim) override { DoScriptText(SAY_SLAY, m_creature); }
+    void KilledUnit(Unit* pVictim) override
+    {
+        DoScriptText(SAY_SLAY, m_creature);
+    }
 
-    void JustDied(Unit* pKiller) override { DoScriptText(SAY_DEATH, m_creature); }
+    void JustDied(Unit* pKiller) override
+    {
+        DoScriptText(SAY_DEATH, m_creature);
+    }
 
     void UpdateAI(const uint32 uiDiff) override
     {
@@ -63,7 +77,10 @@ struct boss_headless_horsemanAI : public ScriptedAI
     }
 };
 
-CreatureAI* GetAI_boss_headless_horseman(Creature* pCreature) { return new boss_headless_horsemanAI(pCreature); }
+CreatureAI* GetAI_boss_headless_horseman(Creature* pCreature)
+{
+    return new boss_headless_horsemanAI(pCreature);
+}
 
 void AddSC_boss_headless_horseman()
 {

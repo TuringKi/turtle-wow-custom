@@ -2,8 +2,8 @@
  *
  */
 
-#include "event_dragons_of_nightmare.h"
 #include "scriptPCH.h"
+#include "event_dragons_of_nightmare.h"
 
 enum
 {
@@ -26,8 +26,11 @@ enum
  *
  */
 
-boss_ysondreAI::boss_ysondreAI(Creature* pCreature) : boss_dragon_of_nightmareAI(pCreature) { boss_ysondreAI::Reset(); }
-
+boss_ysondreAI::boss_ysondreAI(Creature* pCreature) : boss_dragon_of_nightmareAI(pCreature)
+{
+    boss_ysondreAI::Reset();
+}
+    
 void boss_ysondreAI::Reset()
 {
     boss_dragon_of_nightmareAI::Reset();
@@ -38,7 +41,7 @@ void boss_ysondreAI::Reset()
 void boss_ysondreAI::Aggro(Unit* pWho)
 {
     boss_dragon_of_nightmareAI::Aggro(pWho);
-
+        
     DoScriptText(SAY_YSONDRE_AGGRO, m_creature);
 }
 
@@ -68,20 +71,20 @@ bool boss_ysondreAI::DoSpecialAbility()
 
     for (uint8 i = 0; i < amount; ++i)
     {
-        DoSpawnCreature(NPC_DRUID_SPIRIT, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 30);
+        DoSpawnCreature(NPC_DRUID_SPIRIT, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 30);            
     }
 
     DoScriptText(SAY_SUMMON_DRUIDS, m_creature);
 
     return true;
 }
-
+    
 bool boss_ysondreAI::UpdateDragonAI(const uint32 uiDiff)
 {
     // Lightning Wave
     if (m_uiLightningWaveTimer < uiDiff)
     {
-        Unit* pTarget = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 0, nullptr, SELECT_FLAG_PLAYER_NOT_GM);
+        Unit *pTarget = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 0, nullptr, SELECT_FLAG_PLAYER_NOT_GM);
 
         if (pTarget && DoCastSpellIfCan(pTarget, SPELL_LIGHTNINGWAVE) == CAST_OK)
             m_uiLightningWaveTimer = urand(8000, 12000);
@@ -96,27 +99,30 @@ bool boss_ysondreAI::UpdateDragonAI(const uint32 uiDiff)
  *
  */
 
-npc_demented_druidAI::npc_demented_druidAI(Creature* pCreature) : ScriptedAI(pCreature) { npc_demented_druidAI::Reset(); }
+npc_demented_druidAI::npc_demented_druidAI(Creature* pCreature) : ScriptedAI(pCreature)
+{
+    npc_demented_druidAI::Reset();
+}
 
 void npc_demented_druidAI::Reset()
 {
-    m_uiCurseOfThornsTimer = urand(4000, 10000);
-    m_uiMoonFireTimer = urand(1000, 5000);
-    m_uiSilenceTimer = urand(5000, 12000);
+    m_uiCurseOfThornsTimer  = urand(4000, 10000);
+    m_uiMoonFireTimer       = urand(1000, 5000);
+    m_uiSilenceTimer        = urand(5000, 12000);
 }
 
 void npc_demented_druidAI::UpdateAI(const uint32 uiDiff)
 {
     if (!m_creature->SelectHostileTarget() || !m_creature->GetVictim())
         return;
-
+        
     // Curse of Thorns
     if (m_uiCurseOfThornsTimer < uiDiff)
-    {
+    {                    
         Unit* target = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 0, nullptr, SELECT_FLAG_PLAYER_NOT_GM);
 
         if (target && !target->HasAura(SPELL_CURSE_OF_THORNS))
-        {
+        {    
             if (DoCastSpellIfCan(target, SPELL_CURSE_OF_THORNS, CF_AURA_NOT_PRESENT) == CAST_OK)
                 m_uiCurseOfThornsTimer = urand(13000, 16000);
         }
@@ -141,7 +147,7 @@ void npc_demented_druidAI::UpdateAI(const uint32 uiDiff)
         if (target && DoCastSpellIfCan(target, SPELL_SILENCE, CF_AURA_NOT_PRESENT) == CAST_OK)
             m_uiSilenceTimer = urand(10000, 14000);
     }
-    else
+    else 
         m_uiSilenceTimer -= uiDiff;
 
     DoMeleeAttackIfReady();

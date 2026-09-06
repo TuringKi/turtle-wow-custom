@@ -14,22 +14,22 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#include "Warden.h"
-#include <openssl/sha.h>
-#include "AccountMgr.h"
-#include "Anticheat.h"
-#include "ByteBuffer.h"
 #include "Common.h"
-#include "Language.h"
-#include "Log.h"
-#include "Opcodes.h"
-#include "Player.h"
-#include "Util.h"
-#include "World.h"
 #include "WorldPacket.h"
 #include "WorldSession.h"
+#include "Player.h"
+#include "Log.h"
+#include "Opcodes.h"
+#include "ByteBuffer.h"
+#include <openssl/sha.h>
+#include "World.h"
+#include "Util.h"
+#include "Warden.h"
+#include "AccountMgr.h"
+#include "Language.h"
+#include "Anticheat.h"
 
-Warden::Warden() : m_session(nullptr), m_inputCrypto(16), m_outputCrypto(16), m_checkTimer(10000 /*10 sec*/), m_clientResponseTimer(0), m_state(WardenState::STATE_INITIAL), m_module(nullptr)
+Warden::Warden() : m_session(nullptr), m_inputCrypto(16), m_outputCrypto(16), m_checkTimer(10000/*10 sec*/), m_clientResponseTimer(0), m_state(WardenState::STATE_INITIAL), m_module(nullptr)
 {
     memset(m_inputKey, 0, sizeof(m_inputKey));
     memset(m_outputKey, 0, sizeof(m_outputKey));
@@ -44,7 +44,10 @@ Warden::~Warden()
     m_module = nullptr;
 }
 
-void Warden::InitializeModule() { SetNewState(WardenState::STATE_INITIALIZE_MODULE); }
+void Warden::InitializeModule()
+{
+    SetNewState(WardenState::STATE_INITIALIZE_MODULE);
+}
 
 void Warden::RequestHash()
 {
@@ -123,12 +126,12 @@ void Warden::Update()
 
     switch (m_state)
     {
-    case WardenState::STATE_INITIAL:
-        break;
-    case WardenState::STATE_REQUESTED_MODULE:
-    case WardenState::STATE_SENT_MODULE:
-    case WardenState::STATE_REQUESTED_HASH:
-    case WardenState::STATE_REQUESTED_DATA:
+        case WardenState::STATE_INITIAL:
+            break;
+        case WardenState::STATE_REQUESTED_MODULE:
+        case WardenState::STATE_SENT_MODULE:
+        case WardenState::STATE_REQUESTED_HASH:
+        case WardenState::STATE_REQUESTED_DATA:
         {
             uint32 maxClientResponseDelay = sWorld.getConfig(CONFIG_UINT32_AC_WARDEN_CLIENT_RESPONSE_DELAY);
 
@@ -137,18 +140,20 @@ void Warden::Update()
                 // Kick player if client response delays more than set in config
                 if (m_clientResponseTimer > maxClientResponseDelay * IN_MILLISECONDS)
                 {
-                    sLog.outWarden("Account %u (latency: %u, IP: %s) exceeded Warden module response delay on state %s for more than %s - disconnecting client", m_session->GetAccountId(), m_session->GetLatency(), m_session->GetRemoteAddress().c_str(), WardenState::to_string(m_state), secsToTimeString(maxClientResponseDelay, true).c_str());
+                    sLog.outWarden("Account %u (latency: %u, IP: %s) exceeded Warden module response delay on state %s for more than %s - disconnecting client",
+                                   m_session->GetAccountId(), m_session->GetLatency(), m_session->GetRemoteAddress().c_str(), WardenState::to_string(m_state), secsToTimeString(maxClientResponseDelay, true).c_str());
                     m_session->KickPlayer();
                 }
                 else
                 {
                     m_clientResponseTimer += diff;
                 }
+
             }
         }
         break;
-    case WardenState::STATE_INITIALIZE_MODULE:
-    case WardenState::STATE_RESTING:
+        case WardenState::STATE_INITIALIZE_MODULE:
+        case WardenState::STATE_RESTING:
         {
             if (diff >= m_checkTimer)
             {
@@ -160,15 +165,21 @@ void Warden::Update()
             }
         }
         break;
-    default:
-        sLog.outWarden("Unimplemented warden state!");
-        break;
+        default:
+            sLog.outWarden("Unimplemented warden state!");
+            break;
     }
 }
 
-void Warden::DecryptData(uint8* buffer, uint32 length) { m_inputCrypto.UpdateData(length, buffer); }
+void Warden::DecryptData(uint8* buffer, uint32 length)
+{
+    m_inputCrypto.UpdateData(length, buffer);
+}
 
-void Warden::EncryptData(uint8* buffer, uint32 length) { m_outputCrypto.UpdateData(length, buffer); }
+void Warden::EncryptData(uint8* buffer, uint32 length)
+{
+    m_outputCrypto.UpdateData(length, buffer);
+}
 
 void Warden::SetNewState(WardenState::Value state)
 {
@@ -229,7 +240,7 @@ uint32 Warden::BuildChecksum(const uint8* data, uint32 length)
     keyData hash;
     SHA1(data, length, hash.bytes.bytes);
     uint32 checkSum = 0;
-
+    
     for (uint8 i = 0; i < 5; ++i)
         checkSum = checkSum ^ hash.ints.ints[i];
 
@@ -251,12 +262,12 @@ void Warden::ApplyPenalty(std::string message, WardenCheck* check)
 
     switch (action)
     {
-    case WARDEN_ACTION_KICK:
+        case WARDEN_ACTION_KICK:
         {
             m_session->KickPlayer();
             break;
         }
-    case WARDEN_ACTION_BAN:
+        case WARDEN_ACTION_BAN:
         {
             std::stringstream duration;
             std::stringstream banReason;
@@ -267,8 +278,8 @@ void Warden::ApplyPenalty(std::string message, WardenCheck* check)
 
             sWorld.BanAccount(BAN_ACCOUNT, accountName, sWorld.getConfig(CONFIG_UINT32_AC_WARDEN_CLIENT_BAN_DURATION), banReason.str(), "Warden");
         }
-    default:
-        break;
+        default:
+            break;
     }
 
     // Append names to message.
@@ -291,34 +302,40 @@ void Warden::HandleWardenDataOpcode(WorldPacket& recvData)
 
     switch (opcode)
     {
-    case WARDEN_CMSG_MODULE_MISSING:
-        SendModuleToClient();
-        break;
-    case WARDEN_CMSG_MODULE_OK:
-        RequestHash();
-        break;
-    case WARDEN_CMSG_CHEAT_CHECKS_RESULT:
-        HandleData(recvData);
-        break;
-    case WARDEN_CMSG_MEM_CHECKS_RESULT:
-        sLog.outWarden("NYI WARDEN_CMSG_MEM_CHECKS_RESULT received!");
-        break;
-    case WARDEN_CMSG_HASH_RESULT:
-        HandleHashResult(recvData);
-        InitializeModule();
-        break;
-    case WARDEN_CMSG_MODULE_FAILED:
-        ApplyPenalty("sent module failed opcode", nullptr);
-        break;
-    default:
-        sLog.outWarden("Got unknown warden opcode %02X of size %u.", opcode, uint32(recvData.size() - 1));
-        break;
+        case WARDEN_CMSG_MODULE_MISSING:
+            SendModuleToClient();
+            break;
+        case WARDEN_CMSG_MODULE_OK:
+            RequestHash();
+            break;
+        case WARDEN_CMSG_CHEAT_CHECKS_RESULT:
+            HandleData(recvData);
+            break;
+        case WARDEN_CMSG_MEM_CHECKS_RESULT:
+            sLog.outWarden("NYI WARDEN_CMSG_MEM_CHECKS_RESULT received!");
+            break;
+        case WARDEN_CMSG_HASH_RESULT:
+            HandleHashResult(recvData);
+            InitializeModule();
+            break;
+        case WARDEN_CMSG_MODULE_FAILED:
+            ApplyPenalty("sent module failed opcode", nullptr);
+            break;
+        default:
+            sLog.outWarden("Got unknown warden opcode %02X of size %u.", opcode, uint32(recvData.size() - 1));
+            break;
     }
 }
 
-void Warden::RequestData() { SetNewState(WardenState::STATE_REQUESTED_DATA); }
+void Warden::RequestData()
+{
+    SetNewState(WardenState::STATE_REQUESTED_DATA);
+}
 
-void Warden::HandleData(ByteBuffer& /*buff*/) { SetNewState(WardenState::STATE_RESTING); }
+void Warden::HandleData(ByteBuffer& /*buff*/)
+{
+    SetNewState(WardenState::STATE_RESTING);
+}
 
 void Warden::LogPositiveToDB(WardenCheck* check)
 {

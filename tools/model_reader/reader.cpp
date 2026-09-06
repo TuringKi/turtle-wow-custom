@@ -1,14 +1,7 @@
 #include <iostream>
 
-#define FAIL()                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        \
-    {                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 \
-        printf("[FAIL]\n");                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           \
-        return 1;                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     \
-    }
-#define OK()                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          \
-    {                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 \
-        printf("[OK]\n");                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             \
-    }
+#define FAIL() { printf("[FAIL]\n"); return 1; }
+#define OK() { printf("[OK]\n");}
 
 typedef unsigned int uint32;
 typedef unsigned short uint16;
@@ -47,7 +40,7 @@ enum FileType
     FILE_VMO,
 };
 
-int main(int argc, char** argv)
+int main(int argc, char **argv)
 {
     // Reading arguments
     printf("* Model File Reader\n");
@@ -73,8 +66,7 @@ int main(int argc, char** argv)
         Header header;
 
         printf("* Reading header (%u bytes) ... ", size);
-        if (!fread(&header, size, 1, file))
-        {
+        if (!fread(&header, size, 1, file)) {
             fclose(file);
             FAIL();
         }
@@ -82,14 +74,15 @@ int main(int argc, char** argv)
 
         printf("- MAGIC : `%s`\n", std::string(header.magic).substr(0, 8).c_str());
         printf("- %i vertices\n", header.nVertices);
-        printf("- Box : [%f:%f:%f][%f:%f:%f]\n", header.bbox1[0], header.bbox1[1], header.bbox1[2], header.bbox2[0], header.bbox2[1], header.bbox2[2]);
+        printf("- Box : [%f:%f:%f][%f:%f:%f]\n",
+            header.bbox1[0], header.bbox1[1], header.bbox1[2],
+            header.bbox2[0], header.bbox2[1], header.bbox2[2]);
     }
     else
     {
         printf("* Reading header (magic) ... ");
         char magic[8] = {0};
-        if (fread(&magic, 1, 8, file) != 8)
-        {
+        if (fread(&magic, 1, 8, file) != 8) {
             fclose(file);
             FAIL();
         }
@@ -97,9 +90,9 @@ int main(int argc, char** argv)
         printf("- MAGIC : `%s`\n", std::string(magic).substr(0, 8).c_str());
     }
     uint32 branches = 0, indexes = 0, nVertices = 0, rootWmoId = 0;
-    uint16* pIndexes = NULL;
-    Vertex* pVertices = NULL;
-    uint32* pBranches = NULL;
+    uint16 *pIndexes = NULL;
+    Vertex *pVertices = NULL;
+    uint32 *pBranches = NULL;
 
     while (true)
     {
@@ -122,8 +115,8 @@ int main(int argc, char** argv)
 
             if (branches > 1)
             {
-                pBranches = new uint32[branches - 1];
-                if (fread(pBranches, 4, branches - 1, file) != (branches - 1))
+                pBranches = new uint32[branches-1];
+                if (fread(pBranches, 4, branches-1, file) != (branches-1))
                 {
                     delete[] pBranches;
                     FAIL();
@@ -171,8 +164,8 @@ int main(int argc, char** argv)
         }
         else
         {
-            printf("\n* Unknow Chuck. Skipped.\n");
-            fseek(file, chk.size, SEEK_CUR);
+           printf("\n* Unknow Chuck. Skipped.\n");
+           fseek(file, chk.size, SEEK_CUR);
         }
     }
     fclose(file);
@@ -192,8 +185,8 @@ int main(int argc, char** argv)
     OK();
 
     printf("* Writing triangles definition ... ");
-    for (uint32 i = 0; i < (indexes - 2); i += 3)
-        fprintf(output, "f %u %u %u\n", pIndexes[i] + 1, pIndexes[i + 1] + 1, pIndexes[i + 2] + 1);
+    for (uint32 i = 0; i < (indexes-2); i += 3)
+        fprintf(output, "f %u %u %u\n", pIndexes[i]+1, pIndexes[i+1]+1, pIndexes[i+2]+1);
     OK();
     fclose(output);
 

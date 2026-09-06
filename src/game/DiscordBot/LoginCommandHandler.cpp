@@ -13,7 +13,8 @@ namespace DiscordBot
 
     void LoginCommandHandler::RegisterCommands(commandhandler& registrar)
     {
-        Register("login", {}, MakeCommandHandler(&LoginCommandHandler::HandleLoginComand), "Allows users to login to link their Discord account and WoW account");
+        Register("login", {}, MakeCommandHandler(&LoginCommandHandler::HandleLoginComand),
+            "Allows users to login to link their Discord account and WoW account");
 
         _commHandler = &registrar;
     }
@@ -41,15 +42,42 @@ namespace DiscordBot
         src.interaction_event.value().command.usr.format_username();
 
         interaction_modal_response modal("Turtle-Login", "Please login with your Turtle WoW account");
-        modal.add_component(component().set_label("Username").set_id("username").set_type(dpp::cot_text).set_placeholder("Username").set_min_length(1).set_max_length(12).set_text_style(dpp::text_short));
+        modal.add_component(
+            component().
+            set_label("Username").
+            set_id("username").
+            set_type(dpp::cot_text).
+            set_placeholder("Username").
+            set_min_length(1).
+            set_max_length(12).
+            set_text_style(dpp::text_short)
+        );
 
         modal.add_row();
-        modal.add_component(component().set_label("Password").set_id("password").set_type(dpp::cot_text).set_placeholder("Password").set_min_length(1).set_max_length(16).set_text_style(dpp::text_short));
+        modal.add_component(
+            component().
+            set_label("Password").
+            set_id("password").
+            set_type(dpp::cot_text).
+            set_placeholder("Password").
+            set_min_length(1).
+            set_max_length(16).
+            set_text_style(dpp::text_short)
+        );
 
         modal.add_row();
-        modal.add_component(component().set_label("Two-Factor token (if set on account)").set_id("Twofactor").set_type(dpp::cot_text).set_placeholder("2FA-Token").set_min_length(0).set_default_value("").set_text_style(dpp::text_short));
+        modal.add_component(
+            component().
+            set_label("Two-Factor token (if set on account)").
+            set_id("Twofactor").
+            set_type(dpp::cot_text).
+            set_placeholder("2FA-Token").
+            set_min_length(0).
+            set_default_value("").
+            set_text_style(dpp::text_short)
+        );
 
 
         src.interaction_event.value().dialog(modal);
     }
-} // namespace DiscordBot
+}

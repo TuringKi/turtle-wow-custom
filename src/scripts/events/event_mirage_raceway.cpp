@@ -1,6 +1,6 @@
-#include <array>
-#include "HardcodedEvents.h"
 #include "scriptPCH.h"
+#include "HardcodedEvents.h"
+#include <array>
 
 enum
 {
@@ -42,10 +42,10 @@ inline std::pair<uint32, uint32> GetQuestsForRace(uint32 raceId)
 {
     switch (raceId)
     {
-    case RACE_REAL:
-        return {QUEST_GOBLIN_REAL_RACE, QUEST_GNOME_REAL_RACE};
-    case RACE_TEST:
-        return {QUEST_GOBLIN_TEST_RACE, QUEST_GNOME_TEST_RACE};
+        case RACE_REAL:
+            return { QUEST_GOBLIN_REAL_RACE, QUEST_GNOME_REAL_RACE };
+        case RACE_TEST:
+            return { QUEST_GOBLIN_TEST_RACE, QUEST_GNOME_TEST_RACE };
     }
     return {};
 }
@@ -82,8 +82,8 @@ struct RaceGameobject
 };
 
 static std::map<uint32 /*raceId*/, std::vector<RaceCheckpoint>> racesCheckpoints;
-static std::map<uint32 /*raceId*/, std::vector<RaceCreature>> racesCreatures;
-static std::map<uint32 /*raceId*/, std::vector<RaceGameobject>> racesGameobjects;
+static std::map<uint32 /*raceId*/, std::vector< RaceCreature>> racesCreatures;
+static std::map<uint32 /*raceId*/, std::vector< RaceGameobject>> racesGameobjects;
 
 static std::map<uint32 /*raceId*/, ObjectGuidSet /*players*/> g_raceGuids;
 
@@ -113,7 +113,9 @@ static bool IsPlayerQueuedForRace(Player* pPlayer)
 
 struct go_race_checkpoint : public GameObjectAI
 {
-    explicit go_race_checkpoint(GameObject* pGo) : GameObjectAI(pGo) {}
+    explicit go_race_checkpoint(GameObject* pGo) : GameObjectAI(pGo)
+    {
+    }
 
     uint32 m_point = 0;
 
@@ -134,7 +136,8 @@ struct go_race_checkpoint : public GameObjectAI
             {
                 if (Player* pRacer = me->GetMap()->GetPlayer(itr2.first))
                 {
-                    if (pRacer->IsWithinDist(me, 15.0f) && itr2.second[m_point] == false)
+                    if (pRacer->IsWithinDist(me, 15.0f) &&
+                        itr2.second[m_point] == false)
                     {
                         printf("%s reaches point %u\n", pRacer->GetName(), m_point);
                         me->DestroyForPlayer(pRacer);
@@ -143,13 +146,16 @@ struct go_race_checkpoint : public GameObjectAI
                 }
             }
         }
-
+        
 
         GameObjectAI::UpdateAI(uiDiff);
     }
 };
 
-GameObjectAI* GetAI_go_race_checkpoint(GameObject* gameobject) { return new go_race_checkpoint(gameobject); }
+GameObjectAI* GetAI_go_race_checkpoint(GameObject* gameobject)
+{
+    return new go_race_checkpoint(gameobject);
+}
 
 struct npc_race_manager : public ScriptedAI
 {
@@ -171,8 +177,7 @@ struct npc_race_manager : public ScriptedAI
 
         // load waypoints
         QueryResult* raceData = WorldDatabase.PQuery("SELECT `raceid`, `id`, `positionx`, `positiony`, `positionz`, `cameraposx`, `cameraposy`, `cameraposz`"
-                                                     "FROM `miraclerace_checkpoint` WHERE `raceid` = %u ORDER BY `id` ASC",
-                                                     m_raceId);
+            "FROM `miraclerace_checkpoint` WHERE `raceid` = %u ORDER BY `id` ASC", m_raceId);
 
         if (raceData == nullptr)
         {
@@ -195,17 +200,14 @@ struct npc_race_manager : public ScriptedAI
             Position Pos(PosX, PosY, PosZ, 0.0f);
             Position CameraPos(CameraPosX, CameraPosY, CameraPosZ, 0.0f);
 
-            racesCheckpoints[raceId].emplace_back(RaceCheckpoint{id, Pos, CameraPos});
-        }
-        while (raceData->NextRow());
+            racesCheckpoints[raceId].emplace_back(RaceCheckpoint{ id , Pos, CameraPos });
+        } while (raceData->NextRow());
 
-        delete raceData;
-        raceData = nullptr;
+        delete raceData; raceData = nullptr;
 
         // load creatures
         raceData = WorldDatabase.PQuery("SELECT `raceid`, `entry`, `chance`, `positionx`, `positiony`, `positionz`"
-                                        "FROM `miraclerace_creaturespool` WHERE `raceid` = %u",
-                                        m_raceId);
+            "FROM `miraclerace_creaturespool` WHERE `raceid` = %u", m_raceId);
 
         if (raceData != nullptr)
         {
@@ -222,18 +224,15 @@ struct npc_race_manager : public ScriptedAI
                 float PosZ = fields[5].GetFloat();
                 Position pos(PosX, PosY, PosZ, 0.0f);
 
-                racesCreatures[raceId].emplace_back(RaceCreature{entry, pos, uint8(chance)});
-            }
-            while (raceData->NextRow());
+                racesCreatures[raceId].emplace_back(RaceCreature{ entry, pos, uint8(chance) });
+            } while (raceData->NextRow());
         }
 
-        delete raceData;
-        raceData = nullptr;
+        delete raceData; raceData = nullptr;
 
         // load gameobjects
         raceData = WorldDatabase.PQuery("SELECT `raceid`, `entry`, `chance`, `positionx`, `positiony`, `positionz`"
-                                        "FROM `miraclerace_gameobject` WHERE `raceid` = %u",
-                                        m_raceId);
+            "FROM `miraclerace_gameobject` WHERE `raceid` = %u", m_raceId);
 
         if (raceData != nullptr)
         {
@@ -250,19 +249,19 @@ struct npc_race_manager : public ScriptedAI
                 float PosZ = fields[5].GetFloat();
                 Position pos(PosX, PosY, PosZ, 0.0f);
 
-                racesGameobjects[raceId].emplace_back(RaceGameobject{entry, pos, uint8(chance)});
-            }
-            while (raceData->NextRow());
+                racesGameobjects[raceId].emplace_back(RaceGameobject{ entry, pos, uint8(chance) });
+            } while (raceData->NextRow());
         }
 
-        delete raceData;
-        raceData = nullptr;
+        delete raceData; raceData = nullptr;
     }
 
     uint32 m_countdownTimer = 0;
     uint32 m_countdownCount = 0;
 
-    void Reset() override {}
+    void Reset() override
+    {
+    }
 
     void SpawnRaceObjects(uint32 raceId)
     {
@@ -398,7 +397,7 @@ struct npc_race_manager : public ScriptedAI
 
                 switch (m_countdownCount)
                 {
-                case 0:
+                    case 0:
                     {
                         if (m_countdownTimer <= 2000)
                         {
@@ -411,7 +410,7 @@ struct npc_race_manager : public ScriptedAI
                         }
                         break;
                     }
-                case 1:
+                    case 1:
                     {
                         if (m_countdownTimer <= 1000)
                         {
@@ -424,7 +423,7 @@ struct npc_race_manager : public ScriptedAI
                         }
                         break;
                     }
-                case 2:
+                    case 2:
                     {
                         if (m_countdownTimer <= 0)
                         {
@@ -470,6 +469,7 @@ struct npc_race_manager : public ScriptedAI
 
         ScriptedAI::UpdateAI(uiDiff);
     }
+
 };
 
 #define GOSSIP_ACTION_JOIN_GOBLIN (GOSSIP_ACTION_INFO_DEF + 1)
@@ -478,11 +478,11 @@ struct npc_race_manager : public ScriptedAI
 
 enum
 {
-    NPC_TEXT_DAISY_DEFAULT = 90250,
+    NPC_TEXT_DAISY_DEFAULT   = 90250,
     NPC_TEXT_DOLORES_DEFAULT = 90251,
-    NPC_TEXT_WAITING_GOBLIN = 90255,
-    NPC_TEXT_WAITING_GNOME = 90256,
-    NPC_TEXT_RACE_STARTED = 90257,
+    NPC_TEXT_WAITING_GOBLIN  = 90255,
+    NPC_TEXT_WAITING_GNOME   = 90256,
+    NPC_TEXT_RACE_STARTED    = 90257,
 };
 
 bool GossipHello_npc_daisy(Player* pPlayer, Creature* pCreature)
@@ -495,13 +495,15 @@ bool GossipHello_npc_daisy(Player* pPlayer, Creature* pCreature)
         {
             if (g_raceGuids[RACE_REAL].size() < 2)
             {
-                if (pPlayer->GetQuestRewardStatus(QUEST_GOBLIN_TEST_RACE) && pPlayer->GetQuestStatus(QUEST_GOBLIN_REAL_RACE) == QUEST_STATUS_INCOMPLETE)
+                if (pPlayer->GetQuestRewardStatus(QUEST_GOBLIN_TEST_RACE) &&
+                    pPlayer->GetQuestStatus(QUEST_GOBLIN_REAL_RACE) == QUEST_STATUS_INCOMPLETE)
                 {
                     textId = NPC_TEXT_WAITING_GOBLIN;
                     pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "I'll join the Goblin's Team.", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_JOIN_GOBLIN);
                 }
 
-                if (pPlayer->GetQuestRewardStatus(QUEST_GNOME_TEST_RACE) && pPlayer->GetQuestStatus(QUEST_GNOME_REAL_RACE) == QUEST_STATUS_INCOMPLETE)
+                if (pPlayer->GetQuestRewardStatus(QUEST_GNOME_TEST_RACE) &&
+                    pPlayer->GetQuestStatus(QUEST_GNOME_REAL_RACE) == QUEST_STATUS_INCOMPLETE)
                 {
                     textId = NPC_TEXT_WAITING_GNOME;
                     pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "I'll join the Gnome's Team.", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_JOIN_GNOME);
@@ -513,7 +515,8 @@ bool GossipHello_npc_daisy(Player* pPlayer, Creature* pCreature)
             }
         }
 
-        if ((pPlayer->GetQuestRewardStatus(QUEST_GOBLIN_TEST_RACE) || pPlayer->GetQuestRewardStatus(QUEST_GNOME_TEST_RACE)) && g_raceGuids[RACE_REAL].find(pPlayer->GetObjectGuid()) != g_raceGuids[RACE_REAL].end())
+        if ((pPlayer->GetQuestRewardStatus(QUEST_GOBLIN_TEST_RACE) || pPlayer->GetQuestRewardStatus(QUEST_GNOME_TEST_RACE)) &&
+            g_raceGuids[RACE_REAL].find(pPlayer->GetObjectGuid()) != g_raceGuids[RACE_REAL].end())
         {
             pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "I want to leave the race queue.", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_LEAVE_QUEUE);
         }
@@ -526,7 +529,7 @@ bool GossipHello_npc_daisy(Player* pPlayer, Creature* pCreature)
         pPlayer->PrepareQuestMenu(pCreature->GetGUID());
 
     pPlayer->SEND_GOSSIP_MENU(textId, pCreature->GetGUID());
-
+  
     return true;
 }
 
@@ -561,10 +564,14 @@ bool GossipHello_npc_dolores(Player* pPlayer, Creature* pCreature)
     {
         if (!GetStartedRaceForManager(pCreature->GetGUIDLow()))
         {
-            if (!pPlayer->GetQuestRewardStatus(QUEST_GOBLIN_TEST_RACE) && pPlayer->GetQuestStatus(QUEST_GOBLIN_TEST_RACE) == QUEST_STATUS_INCOMPLETE && !IsPlayerQueuedForRace(pPlayer))
+            if (!pPlayer->GetQuestRewardStatus(QUEST_GOBLIN_TEST_RACE) &&
+                pPlayer->GetQuestStatus(QUEST_GOBLIN_TEST_RACE) == QUEST_STATUS_INCOMPLETE &&
+                !IsPlayerQueuedForRace(pPlayer))
                 pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "I want to test drive the Goblin team's racecar.", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_JOIN_GOBLIN);
 
-            if (!pPlayer->GetQuestRewardStatus(QUEST_GNOME_TEST_RACE) & pPlayer->GetQuestStatus(QUEST_GNOME_TEST_RACE) == QUEST_STATUS_INCOMPLETE && !IsPlayerQueuedForRace(pPlayer))
+            if (!pPlayer->GetQuestRewardStatus(QUEST_GNOME_TEST_RACE) &
+                pPlayer->GetQuestStatus(QUEST_GNOME_TEST_RACE) == QUEST_STATUS_INCOMPLETE &&
+                !IsPlayerQueuedForRace(pPlayer))
                 pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "I want to test drive the Gnomish team's racecar..", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_JOIN_GNOME);
         }
         else
@@ -574,7 +581,7 @@ bool GossipHello_npc_dolores(Player* pPlayer, Creature* pCreature)
     }
 
     pPlayer->SEND_GOSSIP_MENU(textId, pCreature->GetGUID());
-
+    
     return true;
 }
 
@@ -598,7 +605,9 @@ bool GossipSelect_npc_dolores(Player* pPlayer, Creature* pCreature, uint32 /*uiS
 
 struct go_speed_up : public GameObjectAI
 {
-    explicit go_speed_up(GameObject* pGo) : GameObjectAI(pGo) {}
+    explicit go_speed_up(GameObject* pGo) : GameObjectAI(pGo)
+    {
+    }
 
     void UpdateAI(uint32 const uiDiff) override
     {
@@ -631,11 +640,14 @@ struct go_speed_up : public GameObjectAI
 
 #define INVISIBLE_TRIGGER_ID 14495
 
-struct npc_race_sheep : public ScriptedAI
+struct npc_race_sheep : public ScriptedAI 
 {
     npc_race_sheep(Creature* InCreature) : ScriptedAI(InCreature) {}
 
-    void Reset() override { m_creature->EnableMoveInLosEvent(); }
+    void Reset() override
+    {
+        m_creature->EnableMoveInLosEvent();
+    }
 
     void UpdateAI(const uint32 deltaTime) override
     {
@@ -674,7 +686,10 @@ struct npc_race_sheep : public ScriptedAI
 
 struct npc_car_controller : public ScriptedAI
 {
-    npc_car_controller(Creature* InCreature) : ScriptedAI(InCreature) { Reset(); }
+    npc_car_controller(Creature* InCreature) : ScriptedAI(InCreature)
+    {
+        Reset();
+    }
 
     ObjectGuid targetGuid;
 
@@ -701,21 +716,34 @@ struct npc_car_controller : public ScriptedAI
         }
     }
 
-    void Reset() override { BackTimer = TickInterval; }
+    void Reset() override
+    {
+        BackTimer = TickInterval;
+    }
 
 
-    void InformGuid(const ObjectGuid playerGuid, uint32 = 0) override { targetGuid = playerGuid; }
+    void InformGuid(const ObjectGuid playerGuid, uint32 = 0) override
+    {
+        targetGuid = playerGuid;
+    }
+
 };
 
 struct npc_landing_siteAI : public ScriptedAI
 {
-    npc_landing_siteAI(Creature* c) : ScriptedAI(c) { Reset(); }
+    npc_landing_siteAI(Creature *c) : ScriptedAI(c)
+    {
+        Reset();
+    }
 
-    void Reset() override { m_creature->EnableMoveInLosEvent(); }
+    void Reset() override
+    {
+        m_creature->EnableMoveInLosEvent();
+    }
 
     void MoveInLineOfSight(Unit* pWho) override
     {
-        if (pWho && pWho->IsPlayer())
+        if (pWho && pWho->IsPlayer()) 
         {
             if (Player* player = pWho->ToPlayer())
             {
@@ -730,29 +758,47 @@ struct npc_landing_siteAI : public ScriptedAI
     }
 };
 
-CreatureAI* GetAI_npc_landing_site(Creature* pCreature) { return new npc_landing_siteAI(pCreature); }
+CreatureAI* GetAI_npc_landing_site(Creature* pCreature)
+{
+    return new npc_landing_siteAI(pCreature);
+}
 
-GameObjectAI* GetAI_go_speed_up(GameObject* gameobject) { return new go_speed_up(gameobject); }
+GameObjectAI* GetAI_go_speed_up(GameObject* gameobject)
+{
+    return new go_speed_up(gameobject);
+}
 
-CreatureAI* GetAI_npc_race_sheep(Creature* creature) { return new npc_race_sheep(creature); }
+CreatureAI* GetAI_npc_race_sheep(Creature* creature)
+{
+    return new npc_race_sheep(creature);
+}
 
-CreatureAI* GetAI_npc_daisy(Creature* creature) { return new npc_race_manager(creature, RACE_REAL, 2); }
+CreatureAI* GetAI_npc_daisy(Creature* creature)
+{
+    return new npc_race_manager(creature, RACE_REAL, 2);
+}
 
-CreatureAI* GetAI_npc_dolores_say(Creature* creature) { return new npc_race_manager(creature, RACE_TEST, 1); }
+CreatureAI* GetAI_npc_dolores_say(Creature* creature)
+{
+    return new npc_race_manager(creature, RACE_TEST, 1);
+}
 
-CreatureAI* GetAI_npc_car_controller(Creature* creature) { return new npc_car_controller(creature); }
+CreatureAI* GetAI_npc_car_controller(Creature* creature)
+{
+    return new npc_car_controller(creature);
+}
 
 bool QuestAccepted_npc_daisy(Player* player, Creature* creature, const Quest* quest)
 {
     if (quest->GetQuestId() == QUEST_RACE_AGAINST_TIME)
         creature->MonsterSay(66113);
-
+       
     return true;
 }
 
 void AddSC_mirage_raceway()
 {
-    Script* newscript;
+    Script *newscript;
 
     newscript = new Script;
     newscript->Name = "npc_daisy";

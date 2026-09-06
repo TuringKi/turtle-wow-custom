@@ -1,15 +1,15 @@
-#include "BattleGroundSV.h"
+#include "Object.h"
+#include "Player.h"
 #include "BattleGround.h"
-#include "BattleGroundMgr.h"
+#include "BattleGroundSV.h"
 #include "Creature.h"
 #include "GameObject.h"
+#include "ObjectMgr.h"
+#include "BattleGroundMgr.h"
+#include "WorldPacket.h"
 #include "Language.h"
 #include "MapManager.h"
-#include "Object.h"
-#include "ObjectMgr.h"
-#include "Player.h"
 #include "World.h"
-#include "WorldPacket.h"
 
 BattleGroundSV::BattleGroundSV()
 {
@@ -27,7 +27,9 @@ BattleGroundSV::BattleGroundSV()
     m_BgCreatures.resize(BG_SV_CREATURE_MAX);
 }
 
-BattleGroundSV::~BattleGroundSV() {}
+BattleGroundSV::~BattleGroundSV()
+{
+}
 
 Team BattleGroundSV::GetWinningTeam() const
 {
@@ -36,7 +38,7 @@ Team BattleGroundSV::GetWinningTeam() const
 
     if (hordeSparks == allianceSparks)
         return TEAM_NONE;
-
+    
     return hordeSparks > allianceSparks ? HORDE : ALLIANCE;
 }
 
@@ -44,7 +46,7 @@ void BattleGroundSV::Update(uint32 diff)
 {
     if (GetStatus() == STATUS_IN_PROGRESS)
     {
-        uint8 controlledNodesCount[BG_TEAMS_COUNT] = {0, 0};
+        uint8 controlledNodesCount[BG_TEAMS_COUNT] = { 0, 0 };
 
         for (uint8 node = 0; node < BG_SV_DYNAMIC_NODES_COUNT; ++node)
         {
@@ -59,7 +61,7 @@ void BattleGroundSV::Update(uint32 diff)
                     CreateBanner(node, m_BannerTimers[node].type, m_BannerTimers[node].teamIndex, false);
                 }
             }
-
+            
             // 1-minute to occupy a tower from contested state
             if (m_NodeTimers[node])
             {
@@ -79,7 +81,7 @@ void BattleGroundSV::Update(uint32 diff)
                     NodeOccupied(node, (teamIndex == 0) ? ALLIANCE : HORDE);
 
                     bool isBGWeekend = BattleGroundMgr::IsBGWeekend(GetTypeID());
-                    RewardHonorToTeam(isBGWeekend ? 70 : 35, (teamIndex == BG_TEAM_ALLIANCE) ? ALLIANCE : HORDE);
+                    RewardHonorToTeam(isBGWeekend ? 7 : 4, (teamIndex == BG_TEAM_ALLIANCE) ? ALLIANCE : HORDE);
 
                     UpdateNodeWorldState(node);
 
@@ -104,12 +106,12 @@ void BattleGroundSV::Update(uint32 diff)
             {
                 switch (m_Nodes[node])
                 {
-                case BG_SV_NODE_STATUS_ALLY_OCCUPIED:
-                    ApplyTowerBuffOnTeam(buffSpell, ALLIANCE);
-                    break;
-                case BG_SV_NODE_STATUS_HORDE_OCCUPIED:
-                    ApplyTowerBuffOnTeam(buffSpell, HORDE);
-                    break;
+                    case BG_SV_NODE_STATUS_ALLY_OCCUPIED:
+                        ApplyTowerBuffOnTeam(buffSpell, ALLIANCE);
+                        break;
+                    case BG_SV_NODE_STATUS_HORDE_OCCUPIED:
+                        ApplyTowerBuffOnTeam(buffSpell, HORDE);
+                        break;
                 }
             }
 
@@ -128,7 +130,7 @@ void BattleGroundSV::Update(uint32 diff)
 
             m_lastTick[team] += diff;
 
-            if (m_lastTick[team] > 1 * MINUTE * IN_MILLISECONDS)
+            if (m_lastTick[team] > 1*MINUTE*IN_MILLISECONDS)
             {
                 m_lastTick[team] -= 1 * MINUTE * IN_MILLISECONDS;
                 AddTeamSparks((TeamId)team, BG_SV_CaptureNodesSparkTicks[nodesCount]);
@@ -149,8 +151,8 @@ void BattleGroundSV::StartingEventCloseDoors()
             SpawnObject(m_BgObjects[BG_SV_OBJECT_BANNER_NEUTRAL + j + (i * 5)], RESPAWN_NEVER);
     }
     // despawn all flagstands
-    // for (uint8 i = 0; i < BG_SV_DYNAMIC_NODES_COUNT; ++i)
-    // SpawnObject(m_BgObjects[BG_SV_OBJECT_BANNER_FLAGSTAND + i], RESPAWN_NEVER);
+    //for (uint8 i = 0; i < BG_SV_DYNAMIC_NODES_COUNT; ++i)
+        //SpawnObject(m_BgObjects[BG_SV_OBJECT_BANNER_FLAGSTAND + i], RESPAWN_NEVER);
     // despawn all buffs
     for (uint8 i = 0; i < 6; ++i)
     {
@@ -177,8 +179,8 @@ void BattleGroundSV::StartingEventOpenDoors()
         SpawnObject(m_BgObjects[banner], RESPAWN_IMMEDIATELY);
 
     // spawn all flagstands
-    // for (uint8 i = 0; i < BG_SV_DYNAMIC_NODES_COUNT; ++i)
-    // SpawnObject(m_BgObjects[BG_SV_OBJECT_BANNER_FLAGSTAND + i], RESPAWN_IMMEDIATELY);
+    //for (uint8 i = 0; i < BG_SV_DYNAMIC_NODES_COUNT; ++i)
+        //SpawnObject(m_BgObjects[BG_SV_OBJECT_BANNER_FLAGSTAND + i], RESPAWN_IMMEDIATELY);
 
     // spawn random buffs
     /*for (uint8 i = 0; i < 6; ++i)
@@ -192,11 +194,11 @@ void BattleGroundSV::StartingEventOpenDoors()
         SpawnObject(m_BgObjects[BG_SV_OBJECT_CHEST + i], RESPAWN_IMMEDIATELY);
 }
 
-void BattleGroundSV::AddPlayer(Player* plr)
+void BattleGroundSV::AddPlayer(Player *plr)
 {
     BattleGround::AddPlayer(plr);
 
-    // create score and add it to map, default values are set in constructor
+    //create score and add it to map, default values are set in constructor
     BattleGroundSVScore* sc = new BattleGroundSVScore;
     m_PlayerScores[plr->GetObjectGuid()] = sc;
 
@@ -230,9 +232,11 @@ void BattleGroundSV::RemovePlayer(Player* plr, ObjectGuid /*guid*/)
     }
 }
 
-void BattleGroundSV::UpdateTeamScore(Team team) {}
+void BattleGroundSV::UpdateTeamScore(Team team)
+{
+}
 
-void BattleGroundSV::HandleAreaTrigger(Player* Source, uint32 Trigger)
+void BattleGroundSV::HandleAreaTrigger(Player *Source, uint32 Trigger)
 {
     // this is wrong way to implement these things. On official it done by gameobject spell cast.
     if (GetStatus() != STATUS_IN_PROGRESS)
@@ -257,8 +261,11 @@ bool BattleGroundSV::SetupBattleGround()
     /*banners*/
     for (uint8 i = 0; i < BG_SV_DYNAMIC_NODES_COUNT; ++i)
     {
-        if (!AddObject(BG_SV_OBJECT_BANNER_NEUTRAL + i * 5, BG_SV_OBJECTID_BANNER_0, BG_SV_NodePositions[i].x, BG_SV_NodePositions[i].y, BG_SV_NodePositions[i].z, BG_SV_NodePositions[i].o, 0, 0, sin(BG_SV_NodePositions[i].o / 2), cos(BG_SV_NodePositions[i].o / 2)) || !AddObject(BG_SV_OBJECT_BANNER_CONT_A + i * 5, BG_SV_OBJECTID_BANNER_CONT_A, BG_SV_NodePositions[i].x, BG_SV_NodePositions[i].y, BG_SV_NodePositions[i].z, BG_SV_NodePositions[i].o, 0, 0, sin(BG_SV_NodePositions[i].o / 2), cos(BG_SV_NodePositions[i].o / 2)) || !AddObject(BG_SV_OBJECT_BANNER_CONT_H + i * 5, BG_SV_OBJECTID_BANNER_CONT_H, BG_SV_NodePositions[i].x, BG_SV_NodePositions[i].y, BG_SV_NodePositions[i].z, BG_SV_NodePositions[i].o, 0, 0, sin(BG_SV_NodePositions[i].o / 2), cos(BG_SV_NodePositions[i].o / 2)) ||
-            !AddObject(BG_SV_OBJECT_BANNER_ALLY + i * 5, BG_SV_OBJECTID_BANNER_A, BG_SV_NodePositions[i].x, BG_SV_NodePositions[i].y, BG_SV_NodePositions[i].z, BG_SV_NodePositions[i].o, 0, 0, sin(BG_SV_NodePositions[i].o / 2), cos(BG_SV_NodePositions[i].o / 2)) || !AddObject(BG_SV_OBJECT_BANNER_HORDE + i * 5, BG_SV_OBJECTID_BANNER_H, BG_SV_NodePositions[i].x, BG_SV_NodePositions[i].y, BG_SV_NodePositions[i].z, BG_SV_NodePositions[i].o, 0, 0, sin(BG_SV_NodePositions[i].o / 2), cos(BG_SV_NodePositions[i].o / 2)))
+        if (!AddObject(BG_SV_OBJECT_BANNER_NEUTRAL + i * 5, BG_SV_OBJECTID_BANNER_0, BG_SV_NodePositions[i].x, BG_SV_NodePositions[i].y, BG_SV_NodePositions[i].z, BG_SV_NodePositions[i].o, 0, 0, sin(BG_SV_NodePositions[i].o / 2), cos(BG_SV_NodePositions[i].o / 2))
+            || !AddObject(BG_SV_OBJECT_BANNER_CONT_A + i * 5, BG_SV_OBJECTID_BANNER_CONT_A, BG_SV_NodePositions[i].x, BG_SV_NodePositions[i].y, BG_SV_NodePositions[i].z, BG_SV_NodePositions[i].o, 0, 0, sin(BG_SV_NodePositions[i].o / 2), cos(BG_SV_NodePositions[i].o / 2))
+            || !AddObject(BG_SV_OBJECT_BANNER_CONT_H + i * 5, BG_SV_OBJECTID_BANNER_CONT_H, BG_SV_NodePositions[i].x, BG_SV_NodePositions[i].y, BG_SV_NodePositions[i].z, BG_SV_NodePositions[i].o, 0, 0, sin(BG_SV_NodePositions[i].o / 2), cos(BG_SV_NodePositions[i].o / 2))
+            || !AddObject(BG_SV_OBJECT_BANNER_ALLY + i * 5, BG_SV_OBJECTID_BANNER_A, BG_SV_NodePositions[i].x, BG_SV_NodePositions[i].y, BG_SV_NodePositions[i].z, BG_SV_NodePositions[i].o, 0, 0, sin(BG_SV_NodePositions[i].o / 2), cos(BG_SV_NodePositions[i].o / 2))
+            || !AddObject(BG_SV_OBJECT_BANNER_HORDE + i * 5, BG_SV_OBJECTID_BANNER_H, BG_SV_NodePositions[i].x, BG_SV_NodePositions[i].y, BG_SV_NodePositions[i].z, BG_SV_NodePositions[i].o, 0, 0, sin(BG_SV_NodePositions[i].o / 2), cos(BG_SV_NodePositions[i].o / 2)))
         {
             sLog.outError("BatteGroundSV: Failed to spawn banners. Battleground not created!");
             return false;
@@ -274,16 +281,16 @@ bool BattleGroundSV::SetupBattleGround()
         }
     }
     /*buffs*/
-    // for (uint8 i = 0; i < 6; ++i)
+    //for (uint8 i = 0; i < 6; ++i)
     //{
-    //     if (!AddObject(BG_SV_OBJECT_SPEEDBUFF + i * 3, BG_SV_OBJECTID_SPEEDBUFF, BG_SV_BuffPositions[i].x, BG_SV_BuffPositions[i].y, BG_SV_BuffPositions[i].z, BG_SV_BuffPositions[i].o, 0, 0, sin(BG_SV_BuffPositions[i].o / 2), cos(BG_SV_BuffPositions[i].o / 2))
-    //         || !AddObject(BG_SV_OBJECT_REGENBUFF + i * 3, BG_SV_OBJECTID_REGENBUFF, BG_SV_BuffPositions[i].x, BG_SV_BuffPositions[i].y, BG_SV_BuffPositions[i].z, BG_SV_BuffPositions[i].o, 0, 0, sin(BG_SV_BuffPositions[i].o / 2), cos(BG_SV_BuffPositions[i].o / 2))
-    //         || !AddObject(BG_SV_OBJECT_BERSERKBUFF + i * 3, BG_SV_OBJECTID_BERSERKERBUFF, BG_SV_BuffPositions[i].x, BG_SV_BuffPositions[i].y, BG_SV_BuffPositions[i].z, BG_SV_BuffPositions[i].o, 0, 0, sin(BG_SV_BuffPositions[i].o / 2), cos(BG_SV_BuffPositions[i].o / 2)))
-    //     {
-    //         sLog.outError("BatteGroundSV: Failed to spawn buffs. Battleground not created!");
-    //         return false;
-    //     }
-    // }
+    //    if (!AddObject(BG_SV_OBJECT_SPEEDBUFF + i * 3, BG_SV_OBJECTID_SPEEDBUFF, BG_SV_BuffPositions[i].x, BG_SV_BuffPositions[i].y, BG_SV_BuffPositions[i].z, BG_SV_BuffPositions[i].o, 0, 0, sin(BG_SV_BuffPositions[i].o / 2), cos(BG_SV_BuffPositions[i].o / 2))
+    //        || !AddObject(BG_SV_OBJECT_REGENBUFF + i * 3, BG_SV_OBJECTID_REGENBUFF, BG_SV_BuffPositions[i].x, BG_SV_BuffPositions[i].y, BG_SV_BuffPositions[i].z, BG_SV_BuffPositions[i].o, 0, 0, sin(BG_SV_BuffPositions[i].o / 2), cos(BG_SV_BuffPositions[i].o / 2))
+    //        || !AddObject(BG_SV_OBJECT_BERSERKBUFF + i * 3, BG_SV_OBJECTID_BERSERKERBUFF, BG_SV_BuffPositions[i].x, BG_SV_BuffPositions[i].y, BG_SV_BuffPositions[i].z, BG_SV_BuffPositions[i].o, 0, 0, sin(BG_SV_BuffPositions[i].o / 2), cos(BG_SV_BuffPositions[i].o / 2)))
+    //    {
+    //        sLog.outError("BatteGroundSV: Failed to spawn buffs. Battleground not created!");
+    //        return false;
+    //    }
+    //}
     /*chests*/
     for (uint8 i = 0; i < 6; ++i)
     {
@@ -294,7 +301,8 @@ bool BattleGroundSV::SetupBattleGround()
         }
     }
     /*spiritguides*/
-    if (!AddCreature(13116, BG_SV_CREATURE_SPIRITGUIDE_A, BG_SV_SpiritGuidePos[0].x, BG_SV_SpiritGuidePos[0].y, BG_SV_SpiritGuidePos[0].z, BG_SV_SpiritGuidePos[0].o) || !AddCreature(13117, BG_SV_CREATURE_SPIRITGUIDE_H, BG_SV_SpiritGuidePos[1].x, BG_SV_SpiritGuidePos[1].y, BG_SV_SpiritGuidePos[1].z, BG_SV_SpiritGuidePos[1].o))
+    if (!AddCreature(13116, BG_SV_CREATURE_SPIRITGUIDE_A, BG_SV_SpiritGuidePos[0].x, BG_SV_SpiritGuidePos[0].y, BG_SV_SpiritGuidePos[0].z, BG_SV_SpiritGuidePos[0].o)
+        || !AddCreature(13117, BG_SV_CREATURE_SPIRITGUIDE_H, BG_SV_SpiritGuidePos[1].x, BG_SV_SpiritGuidePos[1].y, BG_SV_SpiritGuidePos[1].z, BG_SV_SpiritGuidePos[1].o))
     {
         sLog.outError("BatteGroundSV: Failed to spawn spiritguides. Battleground not created!");
         return false;
@@ -325,7 +333,7 @@ bool BattleGroundSV::SetupSkirmishes()
             return false;
         }
 
-        float randf[2] = {-5.0f, 5.0f};
+        float randf[2] = { -5.0f, 5.0f };
         Creature* skOrc = AddCreature(NPC_ORC_GRUNT, BG_SV_CREATURE_ORC_ARMY + i, BG_SV_FightPos[1][i].x + randf[urand(0, 1)], BG_SV_FightPos[1][i].y + randf[urand(0, 1)], BG_SV_FightPos[1][i].z + 0.8f, BG_SV_FightPos[1][i].o, TEAM_HORDE, 5 * MINUTE * IN_MILLISECONDS);
         if (!skOrc)
         {
@@ -351,7 +359,7 @@ bool BattleGroundSV::SetupSkirmishes()
 
 void BattleGroundSV::Reset()
 {
-    // call parent's class reset
+    //call parent's class reset
     BattleGround::Reset();
 
     for (uint32 i = 0; i < BG_TEAMS_COUNT; ++i)
@@ -383,13 +391,13 @@ void BattleGroundSV::EndBattleGround(Team winner)
     // rewards
     bool isBGWeekend = BattleGroundMgr::IsBGWeekend(GetTypeID());
     RewardReputationToTeam(1007, isBGWeekend ? 150 : 75, winner);
-    RewardHonorToTeam(isBGWeekend ? 1500 : 750, winner);
-    RewardHonorToTeam(isBGWeekend ? 800 : 400, loser);
+    RewardHonorToTeam(isBGWeekend ? 150 : 75, winner);
+    RewardHonorToTeam(isBGWeekend ? 80 : 40, loser);
 
     BattleGround::EndBattleGround(winner);
 }
 
-void BattleGroundSV::HandleKillPlayer(Player* player, Player* killer)
+void BattleGroundSV::HandleKillPlayer(Player *player, Player *killer)
 {
     if (GetStatus() != STATUS_IN_PROGRESS)
         return;
@@ -618,7 +626,7 @@ void BattleGroundSV::CreateBanner(uint8 node, uint8 type, uint8 teamIndex, bool 
         return;
     }
 
-    uint8 obj = type + teamIndex + (node * 5); // will automaticly despawn other events
+    uint8 obj = type + teamIndex + (node * 5);                         // will automaticly despawn other events
     SpawnObject(m_BgObjects[obj], RESPAWN_IMMEDIATELY);
 }
 
@@ -640,8 +648,8 @@ void BattleGroundSV::NodeOccupied(uint8 node, Team team)
 
     for (uint8 i = 0; i < 5; ++i)
     {
-        DelCreature(guardType + i);
-        AddCreature(guardEntry, guardType + i, BG_SV_TowerGuardsPos[node][i].x, BG_SV_TowerGuardsPos[node][i].y, BG_SV_TowerGuardsPos[node][i].z, BG_SV_TowerGuardsPos[node][i].o, TEAM_NEUTRAL, 5 * MINUTE * IN_MILLISECONDS);
+        DelCreature(guardType+i);
+        AddCreature(guardEntry, guardType+i, BG_SV_TowerGuardsPos[node][i].x, BG_SV_TowerGuardsPos[node][i].y, BG_SV_TowerGuardsPos[node][i].z, BG_SV_TowerGuardsPos[node][i].o, TEAM_NEUTRAL, 5*MINUTE*IN_MILLISECONDS);
     }
 }
 
@@ -654,7 +662,7 @@ void BattleGroundSV::NodeDeOccupied(uint8 node)
     // handle team guards
     uint8 guardType = (node == 0) ? BG_SV_CREATURE_TOWER_GUARDS_A : BG_SV_CREATURE_TOWER_GUARDS_H;
     for (uint8 i = 0; i < 5; ++i)
-        DelCreature(guardType + i);
+        DelCreature(guardType+i);
 }
 
 void BattleGroundSV::ApplyTowerBuffOnTeam(uint32 spellId, Team teamId)
@@ -670,8 +678,7 @@ void BattleGroundSV::ApplyTowerBuffOnTeam(uint32 spellId, Team teamId)
         }
 
         Team team = itr.second.PlayerTeam;
-        if (!team)
-            team = pPlayer->GetTeam();
+        if (!team) team = pPlayer->GetTeam();
 
         if (team == teamId)
         {
@@ -687,10 +694,10 @@ uint32 BattleGroundSV::GetAuraForTower(uint8 node)
 {
     switch (node)
     {
-    case BG_SV_HUMAN_TOWER:
-        return SV_SPELL_NORTH_TOWER;
-    case BG_SV_ORC_TOWER:
-        return SV_SPELL_SOUTH_TOWER;
+        case BG_SV_HUMAN_TOWER:
+            return SV_SPELL_NORTH_TOWER;
+        case BG_SV_ORC_TOWER:
+            return SV_SPELL_SOUTH_TOWER;
     }
     return 0;
 }
@@ -699,14 +706,14 @@ uint32 BattleGroundSV::GetTowerNameId(uint8 node)
 {
     switch (node)
     {
-    case BG_SV_HUMAN_TOWER:
-        return LANG_BG_SV_HUMAN_TOWER;
-    case BG_SV_ORC_TOWER:
-        return LANG_BG_SV_ORC_TOWER;
-    case BG_SV_HERALD_POINT:
-        return LANG_BG_SV_HERALD_POINT;
-    default:
-        MANGOS_ASSERT(0);
+        case BG_SV_HUMAN_TOWER:
+            return LANG_BG_SV_HUMAN_TOWER;
+        case BG_SV_ORC_TOWER:
+            return LANG_BG_SV_ORC_TOWER;
+        case BG_SV_HERALD_POINT:
+            return LANG_BG_SV_HERALD_POINT;
+        default:
+            MANGOS_ASSERT(0);
     }
     return 0;
 }
@@ -723,10 +730,10 @@ Team BattleGroundSV::GetHeraldControlledTeam()
     return TEAM_NONE;
 }
 
-void BattleGroundSV::UpdatePlayerScore(Player* Source, uint32 type, uint32 value)
+void BattleGroundSV::UpdatePlayerScore(Player *Source, uint32 type, uint32 value)
 {
     BattleGroundScoreMap::iterator itr = m_PlayerScores.find(Source->GetObjectGuid());
-    if (itr == m_PlayerScores.end()) // player not found
+    if (itr == m_PlayerScores.end())                        // player not found
         return;
 
     BattleGround::UpdatePlayerScore(Source, type, value);

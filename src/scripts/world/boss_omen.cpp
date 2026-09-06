@@ -2,14 +2,17 @@
  * Copyright (C) 2010-2014 Anathema Script Engine project <http://valkyrie-wow.com/>
  */
 
-#include "boss_omen.h"
 #include "scriptPCH.h"
+#include "boss_omen.h"
 
 /*
  *
  */
 
-boss_omenAI::boss_omenAI(Creature* pCreature) : ScriptedAI(pCreature) { boss_omenAI::Reset(); }
+boss_omenAI::boss_omenAI(Creature* pCreature) : ScriptedAI(pCreature)
+{
+    boss_omenAI::Reset();
+}
 
 void boss_omenAI::Reset()
 {
@@ -48,11 +51,11 @@ void boss_omenAI::SpellHit(WorldObject* /*pCaster*/, const SpellEntry* pSpellEnt
     if (pSpellEntry->Id == SPELL_ELUNES_CANDLE)
     {
         // proofs required
-        // if (m_uiStarfallTimer < 2000)
+        //if (m_uiStarfallTimer < 2000)
         //    m_uiStarfallTimer = 2000;
 
         DoCastSpellIfCan(m_creature, SPELL_SELF_DAMAGE, true);
-    }
+    }      
 }
 
 void boss_omenAI::JustDied(Unit* /*pKiller*/)
@@ -74,7 +77,11 @@ void boss_omenAI::OnFireworkLaunch(Unit* pSummoner)
 
         if (OmenData.m_uiNextRespawn < time(nullptr))
         {
-            auto pOmen = pSummoner->SummonCreature(NPC_OMEN, OmenSummon.x, OmenSummon.y, OmenSummon.z, OmenSummon.o, TEMPSUMMON_DEAD_DESPAWN, 5 * MINUTE * IN_MILLISECONDS, true);
+            auto pOmen = pSummoner->SummonCreature(NPC_OMEN,
+                OmenSummon.x,
+                OmenSummon.y,
+                OmenSummon.z,
+                OmenSummon.o, TEMPSUMMON_DEAD_DESPAWN, 5 * MINUTE * IN_MILLISECONDS, true);
 
             if (pOmen)
             {
@@ -91,7 +98,10 @@ void boss_omenAI::OnFireworkLaunch(Unit* pSummoner)
     }
 }
 
-CreatureAI* GetAI_boss_omen(Creature* creature) { return new boss_omenAI(creature); }
+CreatureAI* GetAI_boss_omen(Creature* creature)
+{
+    return new boss_omenAI(creature);
+}
 
 /*
  *
@@ -99,9 +109,15 @@ CreatureAI* GetAI_boss_omen(Creature* creature) { return new boss_omenAI(creatur
 
 struct npc_minion_of_omenAI : ScriptedAI
 {
-    explicit npc_minion_of_omenAI(Creature* creature) : ScriptedAI(creature) {}
+    explicit npc_minion_of_omenAI(Creature* creature) : ScriptedAI(creature)
+    {
 
-    void Reset() override {}
+    }
+
+    void Reset() override
+    {
+
+    }
 
     void SpellHit(WorldObject* /*pCaster*/, const SpellEntry* pSpellEntry) override
     {
@@ -112,7 +128,10 @@ struct npc_minion_of_omenAI : ScriptedAI
     }
 };
 
-CreatureAI* GetAI_npc_minion_of_omen(Creature* pCreature) { return new npc_minion_of_omenAI(pCreature); }
+CreatureAI* GetAI_npc_minion_of_omen(Creature* pCreature)
+{
+    return new npc_minion_of_omenAI(pCreature);
+}
 
 void AddSC_boss_omen()
 {

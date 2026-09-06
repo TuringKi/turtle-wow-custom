@@ -37,123 +37,112 @@ typedef pthread_rwlock_t MutexType;
 typedef std::shared_mutex MutexType;
 #endif
 
-namespace re2
-{
+namespace re2 {
 
-    class Mutex
-    {
-    public:
-        inline Mutex();
-        inline ~Mutex();
-        inline void Lock(); // Block if needed until free then acquire exclusively
-        inline void Unlock(); // Release a lock acquired via Lock()
-        // Note that on systems that don't support read-write locks, these may
-        // be implemented as synonyms to Lock() and Unlock().  So you can use
-        // these for efficiency, but don't use them anyplace where being able
-        // to do shared reads is necessary to avoid deadlock.
-        inline void ReaderLock(); // Block until free or shared then acquire a share
-        inline void ReaderUnlock(); // Release a read share of this Mutex
-        inline void WriterLock() { Lock(); } // Acquire an exclusive lock
-        inline void WriterUnlock() { Unlock(); } // Release a lock from WriterLock()
+class Mutex {
+ public:
+  inline Mutex();
+  inline ~Mutex();
+  inline void Lock();    // Block if needed until free then acquire exclusively
+  inline void Unlock();  // Release a lock acquired via Lock()
+  // Note that on systems that don't support read-write locks, these may
+  // be implemented as synonyms to Lock() and Unlock().  So you can use
+  // these for efficiency, but don't use them anyplace where being able
+  // to do shared reads is necessary to avoid deadlock.
+  inline void ReaderLock();   // Block until free or shared then acquire a share
+  inline void ReaderUnlock(); // Release a read share of this Mutex
+  inline void WriterLock() { Lock(); }     // Acquire an exclusive lock
+  inline void WriterUnlock() { Unlock(); } // Release a lock from WriterLock()
 
-    private:
-        MutexType mutex_;
+ private:
+  MutexType mutex_;
 
-        // Catch the error of writing Mutex when intending MutexLock.
-        Mutex(Mutex* ignored);
+  // Catch the error of writing Mutex when intending MutexLock.
+  Mutex(Mutex *ignored);
 
-        Mutex(const Mutex&) = delete;
-        Mutex& operator=(const Mutex&) = delete;
-    };
+  Mutex(const Mutex&) = delete;
+  Mutex& operator=(const Mutex&) = delete;
+};
 
 #if defined(MUTEX_IS_WIN32_SRWLOCK)
 
-    Mutex::Mutex() : mutex_(SRWLOCK_INIT) {}
-    Mutex::~Mutex() {}
-    void Mutex::Lock() { AcquireSRWLockExclusive(&mutex_); }
-    void Mutex::Unlock() { ReleaseSRWLockExclusive(&mutex_); }
-    void Mutex::ReaderLock() { AcquireSRWLockShared(&mutex_); }
-    void Mutex::ReaderUnlock() { ReleaseSRWLockShared(&mutex_); }
+Mutex::Mutex()             : mutex_(SRWLOCK_INIT) { }
+Mutex::~Mutex()            { }
+void Mutex::Lock()         { AcquireSRWLockExclusive(&mutex_); }
+void Mutex::Unlock()       { ReleaseSRWLockExclusive(&mutex_); }
+void Mutex::ReaderLock()   { AcquireSRWLockShared(&mutex_); }
+void Mutex::ReaderUnlock() { ReleaseSRWLockShared(&mutex_); }
 
 #elif defined(MUTEX_IS_PTHREAD_RWLOCK)
 
-#define SAFE_PTHREAD(fncall)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          \
-    do                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                \
-    {                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 \
-        if ((fncall) != 0)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            \
-            abort();                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  \
-    }                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 \
-    while (0)
+#define SAFE_PTHREAD(fncall)    \
+  do {                          \
+    if ((fncall) != 0) abort(); \
+  } while (0)
 
-    Mutex::Mutex() { SAFE_PTHREAD(pthread_rwlock_init(&mutex_, NULL)); }
-    Mutex::~Mutex() { SAFE_PTHREAD(pthread_rwlock_destroy(&mutex_)); }
-    void Mutex::Lock() { SAFE_PTHREAD(pthread_rwlock_wrlock(&mutex_)); }
-    void Mutex::Unlock() { SAFE_PTHREAD(pthread_rwlock_unlock(&mutex_)); }
-    void Mutex::ReaderLock() { SAFE_PTHREAD(pthread_rwlock_rdlock(&mutex_)); }
-    void Mutex::ReaderUnlock() { SAFE_PTHREAD(pthread_rwlock_unlock(&mutex_)); }
+Mutex::Mutex()             { SAFE_PTHREAD(pthread_rwlock_init(&mutex_, NULL)); }
+Mutex::~Mutex()            { SAFE_PTHREAD(pthread_rwlock_destroy(&mutex_)); }
+void Mutex::Lock()         { SAFE_PTHREAD(pthread_rwlock_wrlock(&mutex_)); }
+void Mutex::Unlock()       { SAFE_PTHREAD(pthread_rwlock_unlock(&mutex_)); }
+void Mutex::ReaderLock()   { SAFE_PTHREAD(pthread_rwlock_rdlock(&mutex_)); }
+void Mutex::ReaderUnlock() { SAFE_PTHREAD(pthread_rwlock_unlock(&mutex_)); }
 
 #undef SAFE_PTHREAD
 
 #else
 
-    Mutex::Mutex() {}
-    Mutex::~Mutex() {}
-    void Mutex::Lock() { mutex_.lock(); }
-    void Mutex::Unlock() { mutex_.unlock(); }
-    void Mutex::ReaderLock() { mutex_.lock_shared(); }
-    void Mutex::ReaderUnlock() { mutex_.unlock_shared(); }
+Mutex::Mutex()             { }
+Mutex::~Mutex()            { }
+void Mutex::Lock()         { mutex_.lock(); }
+void Mutex::Unlock()       { mutex_.unlock(); }
+void Mutex::ReaderLock()   { mutex_.lock_shared(); }
+void Mutex::ReaderUnlock() { mutex_.unlock_shared(); }
 
 #endif
 
-    // --------------------------------------------------------------------------
-    // Some helper classes
+// --------------------------------------------------------------------------
+// Some helper classes
 
-    // MutexLock(mu) acquires mu when constructed and releases it when destroyed.
-    class MutexLock
-    {
-    public:
-        explicit MutexLock(Mutex* mu) : mu_(mu) { mu_->Lock(); }
-        ~MutexLock() { mu_->Unlock(); }
+// MutexLock(mu) acquires mu when constructed and releases it when destroyed.
+class MutexLock {
+ public:
+  explicit MutexLock(Mutex *mu) : mu_(mu) { mu_->Lock(); }
+  ~MutexLock() { mu_->Unlock(); }
+ private:
+  Mutex * const mu_;
 
-    private:
-        Mutex* const mu_;
+  MutexLock(const MutexLock&) = delete;
+  MutexLock& operator=(const MutexLock&) = delete;
+};
 
-        MutexLock(const MutexLock&) = delete;
-        MutexLock& operator=(const MutexLock&) = delete;
-    };
+// ReaderMutexLock and WriterMutexLock do the same, for rwlocks
+class ReaderMutexLock {
+ public:
+  explicit ReaderMutexLock(Mutex *mu) : mu_(mu) { mu_->ReaderLock(); }
+  ~ReaderMutexLock() { mu_->ReaderUnlock(); }
+ private:
+  Mutex * const mu_;
 
-    // ReaderMutexLock and WriterMutexLock do the same, for rwlocks
-    class ReaderMutexLock
-    {
-    public:
-        explicit ReaderMutexLock(Mutex* mu) : mu_(mu) { mu_->ReaderLock(); }
-        ~ReaderMutexLock() { mu_->ReaderUnlock(); }
+  ReaderMutexLock(const ReaderMutexLock&) = delete;
+  ReaderMutexLock& operator=(const ReaderMutexLock&) = delete;
+};
 
-    private:
-        Mutex* const mu_;
+class WriterMutexLock {
+ public:
+  explicit WriterMutexLock(Mutex *mu) : mu_(mu) { mu_->WriterLock(); }
+  ~WriterMutexLock() { mu_->WriterUnlock(); }
+ private:
+  Mutex * const mu_;
 
-        ReaderMutexLock(const ReaderMutexLock&) = delete;
-        ReaderMutexLock& operator=(const ReaderMutexLock&) = delete;
-    };
-
-    class WriterMutexLock
-    {
-    public:
-        explicit WriterMutexLock(Mutex* mu) : mu_(mu) { mu_->WriterLock(); }
-        ~WriterMutexLock() { mu_->WriterUnlock(); }
-
-    private:
-        Mutex* const mu_;
-
-        WriterMutexLock(const WriterMutexLock&) = delete;
-        WriterMutexLock& operator=(const WriterMutexLock&) = delete;
-    };
+  WriterMutexLock(const WriterMutexLock&) = delete;
+  WriterMutexLock& operator=(const WriterMutexLock&) = delete;
+};
 
 // Catch bug where variable name is omitted, e.g. MutexLock (&mu);
 #define MutexLock(x) static_assert(false, "MutexLock declaration missing variable name")
 #define ReaderMutexLock(x) static_assert(false, "ReaderMutexLock declaration missing variable name")
 #define WriterMutexLock(x) static_assert(false, "WriterMutexLock declaration missing variable name")
 
-} // namespace re2
+}  // namespace re2
 
-#endif // UTIL_MUTEX_H_
+#endif  // UTIL_MUTEX_H_

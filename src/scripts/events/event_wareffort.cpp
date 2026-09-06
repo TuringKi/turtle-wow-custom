@@ -1,29 +1,29 @@
 /*
- * Copyright (C) 2005-2011 MaNGOS <http://getmangos.com/>
- * Copyright (C) 2009-2011 MaNGOSZero <https://github.com/mangos/zero>
- * Copyright (C) 2011-2016 Nostalrius <https://nostalrius.org>
- * Copyright (C) 2017- Light's Hope Project <https://github.com/LightsHope>
- *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
- */
+* Copyright (C) 2005-2011 MaNGOS <http://getmangos.com/>
+* Copyright (C) 2009-2011 MaNGOSZero <https://github.com/mangos/zero>
+* Copyright (C) 2011-2016 Nostalrius <https://nostalrius.org>
+* Copyright (C) 2017- Light's Hope Project <https://github.com/LightsHope>
+*
+* This program is free software; you can redistribute it and/or modify
+* it under the terms of the GNU General Public License as published by
+* the Free Software Foundation; either version 2 of the License, or
+* (at your option) any later version.
+*
+* This program is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+* GNU General Public License for more details.
+*
+* You should have received a copy of the GNU General Public License
+* along with this program; if not, write to the Free Software
+* Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+*/
 
+#include "scriptPCH.h"
 #include "event_wareffort.h"
 #include <array>
-#include "scriptPCH.h"
 
-uint32 BuildWarEffortWorldStates(WorldPacket& data)
+uint32 BuildWarEffortWorldStates(WorldPacket &data)
 {
     uint32 count = 0;
     for (int i = 0; i < NUM_FACTION_OBJECTIVES; ++i)
@@ -57,20 +57,20 @@ uint32 BuildWarEffortWorldStates(WorldPacket& data)
         uint32 daysRemaining = 5;
         switch (activeEvent)
         {
-        case EVENT_WAR_EFFORT_TRANSITION_DAY1:
-            daysRemaining = 5;
-            break;
-        case EVENT_WAR_EFFORT_TRANSITION_DAY2:
-            daysRemaining = 4;
-            break;
-        case EVENT_WAR_EFFORT_TRANSITION_DAY3:
-            daysRemaining = 3;
-            break;
-        case EVENT_WAR_EFFORT_TRANSITION_DAY4:
-            daysRemaining = 2;
-            break;
-        case EVENT_WAR_EFFORT_TRANSITION_DAY5:
-            daysRemaining = 1;
+            case EVENT_WAR_EFFORT_TRANSITION_DAY1:
+                daysRemaining = 5;
+                break;
+            case EVENT_WAR_EFFORT_TRANSITION_DAY2:
+                daysRemaining = 4;
+                break;
+            case EVENT_WAR_EFFORT_TRANSITION_DAY3:
+                daysRemaining = 3;
+                break;
+            case EVENT_WAR_EFFORT_TRANSITION_DAY4:
+                daysRemaining = 2;
+                break;
+            case EVENT_WAR_EFFORT_TRANSITION_DAY5:
+                daysRemaining = 1;
         }
 
         data << WORLDSTATE_TRANSITION_DAYS_REMAINING << daysRemaining;
@@ -93,9 +93,11 @@ void AutoCompleteWarEffortProgress()
 
     for (int i = 0; i < NUM_FACTION_OBJECTIVES; ++i)
     {
-        AutoCompleteWarEffortResource(AllianceObjectives[i].itemId, AllianceObjectives[i].required, AllianceObjectives[i].currentVar, rate, TEAM_ALLIANCE);
+        AutoCompleteWarEffortResource(AllianceObjectives[i].itemId, AllianceObjectives[i].required,
+            AllianceObjectives[i].currentVar, rate, TEAM_ALLIANCE);
 
-        AutoCompleteWarEffortResource(HordeObjectives[i].itemId, HordeObjectives[i].required, HordeObjectives[i].currentVar, rate, TEAM_HORDE);
+        AutoCompleteWarEffortResource(HordeObjectives[i].itemId, HordeObjectives[i].required,
+            HordeObjectives[i].currentVar, rate, TEAM_HORDE);
     }
 
     for (int i = 0; i < NUM_SHARED_OBJECTIVES; ++i)
@@ -115,12 +117,12 @@ void AutoCompleteWarEffortResource(uint32 resourceId, uint32 required, uint32 sa
     std::string teamStr;
     switch (team)
     {
-    case TEAM_HORDE:
-        teamStr = "Horde";
-        break;
-    case TEAM_ALLIANCE:
-        teamStr = "Alliance";
-        break;
+        case TEAM_HORDE:
+            teamStr = "Horde";
+            break;
+        case TEAM_ALLIANCE:
+            teamStr = "Alliance";
+            break;
     }
 
     uint32 amount = sObjectMgr.GetSavedVariable(savedVar, 0);
@@ -134,7 +136,8 @@ void AutoCompleteWarEffortResource(uint32 resourceId, uint32 required, uint32 sa
     amount += increase;
 
     sObjectMgr.SetSavedVariable(savedVar, amount, true);
-    sLog.outInfo("[WarEffortEvent] %s resource %u (saved var: %u) incremented by %u to %u (goal: %u)", teamStr.c_str(), resourceId, savedVar, increase, amount, required);
+    sLog.outInfo("[WarEffortEvent] %s resource %u (saved var: %u) incremented by %u to %u (goal: %u)",
+        teamStr.c_str(), resourceId, savedVar, increase, amount, required);
 }
 
 uint32 GetSharedSavedVar(uint32 item, TeamId team)
@@ -148,7 +151,7 @@ uint32 GetSharedSavedVar(uint32 item, TeamId team)
 
     switch (team)
     {
-    case TEAM_ALLIANCE:
+        case TEAM_ALLIANCE:
         {
             switch (item)
             {
@@ -173,7 +176,7 @@ uint32 GetSharedSavedVar(uint32 item, TeamId team)
             }
             break;
         }
-    case TEAM_HORDE:
+        case TEAM_HORDE:
         {
             switch (item)
             {
@@ -198,14 +201,17 @@ uint32 GetSharedSavedVar(uint32 item, TeamId team)
             }
             break;
         }
-    default:
-        break;
+        default:
+            break;
     }
 
     return var;
 }
 
-uint32 GetTeamStock(uint32 item, TeamId team) { return sObjectMgr.GetSavedVariable(GetSharedSavedVar(item, team), 0); }
+uint32 GetTeamStock(uint32 item, TeamId team)
+{
+    return sObjectMgr.GetSavedVariable(GetSharedSavedVar(item, team), 0);
+}
 
 uint32 GetWarEffortGossipTextId(uint32 item, TeamId team, bool objectiveReached)
 {
@@ -214,7 +220,7 @@ uint32 GetWarEffortGossipTextId(uint32 item, TeamId team, bool objectiveReached)
     uint32 gossipTextId = 0;
     switch (team)
     {
-    case TEAM_ALLIANCE:
+        case TEAM_ALLIANCE:
         {
             if (objectiveReached)
                 gossipTextId = gossip.completeTextAlliance;
@@ -222,7 +228,7 @@ uint32 GetWarEffortGossipTextId(uint32 item, TeamId team, bool objectiveReached)
                 gossipTextId = gossip.progressTextAlliance;
             break;
         }
-    case TEAM_HORDE:
+        case TEAM_HORDE:
         {
             if (objectiveReached)
                 gossipTextId = gossip.completeTextHorde;
@@ -230,8 +236,8 @@ uint32 GetWarEffortGossipTextId(uint32 item, TeamId team, bool objectiveReached)
                 gossipTextId = gossip.progressTextHorde;
             break;
         }
-    default:
-        break;
+        default:
+            break;
     }
 
     // Gossip def is missing (0)
@@ -256,7 +262,13 @@ const WarEffortGossip& GetWarEffortGossip(uint32 item)
 
 WarEffortGameEvents GetActiveTransportEvent()
 {
-    static WarEffortGameEvents transportEvents[5] = {EVENT_WAR_EFFORT_TRANSITION_DAY1, EVENT_WAR_EFFORT_TRANSITION_DAY2, EVENT_WAR_EFFORT_TRANSITION_DAY3, EVENT_WAR_EFFORT_TRANSITION_DAY4, EVENT_WAR_EFFORT_TRANSITION_DAY5};
+    static WarEffortGameEvents transportEvents[5] = {
+        EVENT_WAR_EFFORT_TRANSITION_DAY1,
+        EVENT_WAR_EFFORT_TRANSITION_DAY2,
+        EVENT_WAR_EFFORT_TRANSITION_DAY3,
+        EVENT_WAR_EFFORT_TRANSITION_DAY4,
+        EVENT_WAR_EFFORT_TRANSITION_DAY5
+    };
 
     // Return highest most active event
     for (int i = 4; i >= 0; --i)
@@ -281,21 +293,21 @@ struct npc_AQwar_collectorAI : CreatureAI
     TeamId team;
     uint32 m_updateTimer;
 
-    npc_AQwar_collectorAI(Creature* creature) : CreatureAI(creature)
+    npc_AQwar_collectorAI(Creature *creature) : CreatureAI(creature)
     {
         resourceType = WAREFFORT_BAR;
 
         switch (creature->GetFactionTemplateId())
         {
-        case 12:
-        case 55:
-        case 80:
-        case 875:
-            team = TEAM_ALLIANCE;
-            break;
-        default:
-            team = TEAM_HORDE;
-            break;
+            case 12:
+            case 55:
+            case 80:
+            case 875:
+                team = TEAM_ALLIANCE;
+                break;
+            default:
+                team = TEAM_HORDE;
+                break;
         }
 
         // Initializes resource ID/type too, must have team set first
@@ -318,21 +330,21 @@ struct npc_AQwar_collectorAI : CreatureAI
 
         switch (resourceType)
         {
-        case WAREFFORT_BAR:
-            HandleWarEffortGameObject(GOBars, WAREFFORT_BAR);
-            break;
-        case WAREFFORT_HERBS:
-            HandleWarEffortGameObject(GOHerbs, WAREFFORT_HERBS);
-            break;
-        case WAREFFORT_SKINS:
-            HandleWarEffortGameObject(GOSkins, WAREFFORT_SKINS);
-            break;
-        case WAREFFORT_COOKING:
-            HandleWarEffortGameObject(GOCooking, WAREFFORT_COOKING);
-            break;
-        case WAREFFORT_BANDAGES:
-            HandleWarEffortGameObject(GOBandages, WAREFFORT_BANDAGES);
-            break;
+            case WAREFFORT_BAR:
+                HandleWarEffortGameObject(GOBars, WAREFFORT_BAR);
+                break;
+            case WAREFFORT_HERBS:
+                HandleWarEffortGameObject(GOHerbs, WAREFFORT_HERBS);
+                break;
+            case WAREFFORT_SKINS:
+                HandleWarEffortGameObject(GOSkins, WAREFFORT_SKINS);
+                break;
+            case WAREFFORT_COOKING:
+                HandleWarEffortGameObject(GOCooking, WAREFFORT_COOKING);
+                break;
+            case WAREFFORT_BANDAGES:
+                HandleWarEffortGameObject(GOBandages, WAREFFORT_BANDAGES);
+                break;
         }
 
         if (ObjectiveReached())
@@ -390,24 +402,24 @@ struct npc_AQwar_collectorAI : CreatureAI
             int tier = 5;
             switch (GetActiveTransportEvent())
             {
-            // no break, they can all be active at once but we want
-            // the most recent to take precedence
-            case EVENT_WAR_EFFORT_TRANSITION_DAY1:
-                tier = 5;
-                break;
-            case EVENT_WAR_EFFORT_TRANSITION_DAY2:
-                tier = 4;
-                break;
-            case EVENT_WAR_EFFORT_TRANSITION_DAY3:
-                tier = 3;
-                break;
-            case EVENT_WAR_EFFORT_TRANSITION_DAY4:
-                tier = 2;
-                break;
-            case EVENT_WAR_EFFORT_TRANSITION_DAY5:
-            default:
-                tier = 1;
-                break;
+                // no break, they can all be active at once but we want
+                // the most recent to take precedence
+                case EVENT_WAR_EFFORT_TRANSITION_DAY1:
+                    tier = 5;
+                    break;
+                case EVENT_WAR_EFFORT_TRANSITION_DAY2:
+                    tier = 4;
+                    break;
+                case EVENT_WAR_EFFORT_TRANSITION_DAY3:
+                    tier = 3;
+                    break;
+                case EVENT_WAR_EFFORT_TRANSITION_DAY4:
+                    tier = 2;
+                    break;
+                case EVENT_WAR_EFFORT_TRANSITION_DAY5:
+                default:
+                    tier = 1;
+                    break;
             }
 
             for (int j = 9; j >= 0; j--)
@@ -440,7 +452,7 @@ struct npc_AQwar_collectorAI : CreatureAI
         }
     }
 
-    bool ObjectiveReached(Quest const* pQuest)
+    bool ObjectiveReached(Quest const *pQuest)
     {
         bool found = false;
         resourceItemId = pQuest->ReqItemId[0];
@@ -506,7 +518,7 @@ struct npc_AQwar_collectorAI : CreatureAI
             uint32 quest_id = itr->second;
             if (!quest_id)
                 continue;
-            Quest const* pQuest = sObjectMgr.GetQuestTemplate(quest_id);
+            Quest const *pQuest = sObjectMgr.GetQuestTemplate(quest_id);
             if (!pQuest)
                 continue;
 
@@ -523,7 +535,10 @@ struct npc_AQwar_collectorAI : CreatureAI
             m_creature->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
     }
 
-    bool GatheringSupplies() { return GetActiveTransportEvent() == EVENT_WAR_EFFORT_TERMINATOR; }
+    bool GatheringSupplies()
+    {
+        return GetActiveTransportEvent() == EVENT_WAR_EFFORT_TERMINATOR;
+    }
 
     void SendWorldStateUpdateToPlayer(Player* pPlayer)
     {
@@ -627,7 +642,7 @@ bool QuestComplete_npc_AQwar_collector(Player* pPlayer, Creature* pQuestGiver, Q
     return true;
 }
 
-bool GetWarEffortStockInfo(uint32 resourceId, WarEffortStockInfo& info, TeamId team)
+bool GetWarEffortStockInfo(uint32 resourceId, WarEffortStockInfo &info, TeamId team)
 {
     bool found = false;
     for (int i = 0; i < NUM_SHARED_OBJECTIVES && !found; ++i)
@@ -679,7 +694,7 @@ bool ChatHandler::HandleGetWarEffortResource(char* args)
     if (team > 1)
         return false;
 
-    auto PrintResources = [this](WarEffortStockInfo& info)
+    auto PrintResources = [this](WarEffortStockInfo &info)
     {
         double Progress = (double)info.count / (double)info.required;
         PSendSysMessage("\"%s\" [%u] Current [%u] Required [%u] Completed: %.03f", info.proto->Name1.c_str(), info.proto->ItemId, info.count, info.required, Progress);
@@ -735,7 +750,10 @@ bool ChatHandler::HandleSetWarEffortResource(char* args)
     return true;
 }
 
-CreatureAI* GetAI_npc_AQwar_collector(Creature* pCreature) { return new npc_AQwar_collectorAI(pCreature); }
+CreatureAI *GetAI_npc_AQwar_collector(Creature *pCreature)
+{
+    return new npc_AQwar_collectorAI(pCreature);
+}
 
 /*#####
 ## npc_resonating_Crystal
@@ -885,15 +903,17 @@ struct npc_resonating_CrystalAI : public ScriptedAI
     }
 };
 
-CreatureAI* GetAI_npc_resonating_Crystal(Creature* pCreature) { return new npc_resonating_CrystalAI(pCreature); }
-
-const static G3D::Vector3 ironforgeInfantryOrigin = {-6969.21f, 962.33f, 11.88f};
-// const static G3D::Vector3 orgrimmarInfantryOrigin = { -6978.96f, 940.72f, 12.65f }; // Units kinda mashed together. Looks cool, but a bit messy
-const static G3D::Vector3 orgrimmarInfantryOrigin = {-6975.30f, 940.14f, 13.14f};
-const static G3D::Vector3 saurfangWaveIncomingPosition = {-6985.67f, 956.06f, 10.21f};
-
-enum
+CreatureAI* GetAI_npc_resonating_Crystal(Creature* pCreature)
 {
+    return new npc_resonating_CrystalAI(pCreature);
+}
+
+const static G3D::Vector3 ironforgeInfantryOrigin = { -6969.21f, 962.33f, 11.88f };
+//const static G3D::Vector3 orgrimmarInfantryOrigin = { -6978.96f, 940.72f, 12.65f }; // Units kinda mashed together. Looks cool, but a bit messy
+const static G3D::Vector3 orgrimmarInfantryOrigin = { -6975.30f, 940.14f, 13.14f };
+const static G3D::Vector3 saurfangWaveIncomingPosition = { -6985.67f, 956.06f, 10.21f };
+
+enum {
     NPC_SAURFANG = 987000
 };
 
@@ -910,7 +930,7 @@ struct npc_infantrymanAI : ScriptedAI
     ObjectGuid saurfangGuid;
 
 
-    npc_infantrymanAI(Creature* pCreature) : ScriptedAI(pCreature)
+    npc_infantrymanAI(Creature *pCreature) : ScriptedAI(pCreature)
     {
         m_movedIntoPosition = false;
         m_clockwiseRotation = true;
@@ -921,7 +941,7 @@ struct npc_infantrymanAI : ScriptedAI
         m_saurfangFollowDist = 0.0f;
     }
 
-    void MoveInLineOfSight(Unit* pWho) override
+    void MoveInLineOfSight(Unit *pWho) override
     {
         if (m_creature->CanInitiateAttack() && pWho->IsTargetable(true, false) && m_creature->IsHostileTo(pWho))
         {
@@ -933,9 +953,12 @@ struct npc_infantrymanAI : ScriptedAI
         }
     }
 
-    void Reset() override {}
+    void Reset() override
+    {
 
-    void JustDied(Unit* pKiller) override
+    }
+
+    void JustDied(Unit *pKiller) override
     {
         if (m_followingSaurfang)
         {
@@ -993,7 +1016,7 @@ struct npc_infantrymanAI : ScriptedAI
         ScriptedAI::UpdateAI(diff);
     }
 
-    void CalculateRotatedPositionAboutLeader(G3D::Vector3& vec, bool clockwise = true)
+    void CalculateRotatedPositionAboutLeader(G3D::Vector3 &vec, bool clockwise = true)
     {
         Vector3 currPos;
         float orientation = 0;
@@ -1032,7 +1055,7 @@ struct npc_infantrymanAI : ScriptedAI
 
     virtual void FollowSaurfang()
     {
-        Creature* saurfang = nullptr;
+        Creature *saurfang = nullptr;
         if (saurfangGuid)
             saurfang = m_creature->GetMap()->GetCreature(saurfangGuid);
         else
@@ -1052,7 +1075,7 @@ struct npc_infantrymanAI : ScriptedAI
                 m_creature->GetHomePosition(thisHome.x, thisHome.y, thisHome.z, homeOrientation);
 
                 G3D::Vector3 diff = thisHome - saurfangHome;
-                G3D::Vector2 diffXY{diff.x, diff.y};
+                G3D::Vector2 diffXY{ diff.x, diff.y };
                 float dist = diffXY.length();
                 float angle = asin(diffXY.x / dist) + M_PI_F; // Add PI because we want to be behind Saurfang
 
@@ -1065,7 +1088,7 @@ struct npc_infantrymanAI : ScriptedAI
 
     virtual void SetRespawnNearSaurfang()
     {
-        Creature* saurfang = nullptr;
+        Creature *saurfang = nullptr;
         if (saurfangGuid)
             saurfang = m_creature->GetMap()->GetCreature(saurfangGuid);
         else
@@ -1090,7 +1113,7 @@ struct npc_infantrymanAI : ScriptedAI
             else
             {
                 // Pick a random point near Saurfang
-                saurfang->GetNearPoint2D(thisHome.x, thisHome.y, 30, 2 * M_PI_F);
+                saurfang->GetNearPoint2D(thisHome.x, thisHome.y, 30, 2*M_PI_F);
             }
 
             thisHome.z = m_creature->GetMap()->GetHeight(thisHome.x, thisHome.y, saurfangHome.z);
@@ -1110,23 +1133,27 @@ struct npc_infantrymanAI : ScriptedAI
     {
         m_followingSaurfang = false; // reset follow state
     }
+
 };
 
 
 struct npc_ironforge_infantryAI : npc_infantrymanAI
 {
-    npc_ironforge_infantryAI(Creature* pCreature) : npc_infantrymanAI(pCreature)
+    npc_ironforge_infantryAI(Creature *pCreature) : npc_infantrymanAI(pCreature)
     {
         m_origin = ironforgeInfantryOrigin;
         m_ReadyEmoteState = EMOTE_STATE_READY1H;
     }
 };
 
-CreatureAI* GetAI_npc_ironforge_infantry(Creature* pCreature) { return new npc_ironforge_infantryAI(pCreature); }
+CreatureAI *GetAI_npc_ironforge_infantry(Creature *pCreature)
+{
+    return new npc_ironforge_infantryAI(pCreature);
+}
 
 struct npc_orgrimmar_infantryAI : npc_infantrymanAI
 {
-    npc_orgrimmar_infantryAI(Creature* pCreature) : npc_infantrymanAI(pCreature)
+    npc_orgrimmar_infantryAI(Creature *pCreature) : npc_infantrymanAI(pCreature)
     {
         m_origin = orgrimmarInfantryOrigin;
         m_clockwiseRotation = false;
@@ -1134,11 +1161,14 @@ struct npc_orgrimmar_infantryAI : npc_infantrymanAI
     }
 };
 
-CreatureAI* GetAI_npc_orgrimmar_infantry(Creature* pCreature) { return new npc_orgrimmar_infantryAI(pCreature); }
+CreatureAI *GetAI_npc_orgrimmar_infantry(Creature *pCreature)
+{
+    return new npc_orgrimmar_infantryAI(pCreature);
+}
 
 struct npc_orgrimmar_riflemanAI : npc_orgrimmar_infantryAI
 {
-    npc_orgrimmar_riflemanAI(Creature* pCreature) : npc_orgrimmar_infantryAI(pCreature)
+    npc_orgrimmar_riflemanAI(Creature *pCreature) : npc_orgrimmar_infantryAI(pCreature)
     {
         m_origin = orgrimmarInfantryOrigin;
         m_clockwiseRotation = false;
@@ -1146,10 +1176,13 @@ struct npc_orgrimmar_riflemanAI : npc_orgrimmar_infantryAI
     }
 };
 
-CreatureAI* GetAI_npc_orgrimmar_rifleman(Creature* pCreature) { return new npc_orgrimmar_riflemanAI(pCreature); }
+CreatureAI *GetAI_npc_orgrimmar_rifleman(Creature *pCreature)
+{
+    return new npc_orgrimmar_riflemanAI(pCreature);
+}
 
-const static G3D::Vector3 priestessOrigin = {-6952.21f, 955.01f, 15.83f};
-const static G3D::Vector3 priestessEnd = {-6968.14f, 926.90f, 11.83f};
+const static G3D::Vector3 priestessOrigin = { -6952.21f, 955.01f, 15.83f };
+const static G3D::Vector3 priestessEnd = { -6968.14f, 926.90f, 11.83f };
 
 // Nasty way to increment the index for each successive priestess spawn
 static uint8 priestessIndex = 0;
@@ -1159,7 +1192,7 @@ struct npc_priestessAI : npc_infantrymanAI
     bool m_movedIntoPosition;
     G3D::Vector3 alignVector;
     uint8 index;
-    npc_priestessAI(Creature* pCreature) : npc_infantrymanAI(pCreature)
+    npc_priestessAI(Creature *pCreature) : npc_infantrymanAI(pCreature)
     {
         alignVector = priestessEnd - priestessOrigin;
         index = ++priestessIndex;
@@ -1185,7 +1218,7 @@ struct npc_priestessAI : npc_infantrymanAI
     void MoveToWaveBattlePosition() override
     {
         // 10 priestess, spread over 10 different positions
-        // uint32 index = m_creature->GetGUIDLow() % 10;
+        //uint32 index = m_creature->GetGUIDLow() % 10;
 
         G3D::Vector3 position = priestessOrigin + alignVector / 10 * index;
 
@@ -1202,12 +1235,15 @@ struct npc_priestessAI : npc_infantrymanAI
         m_creature->Mount(9695);
         npc_infantrymanAI::FollowSaurfang();
     }
+
 };
 
-CreatureAI* GetAI_npc_priestess(Creature* pCreature) { return new npc_priestessAI(pCreature); }
-
-enum
+CreatureAI *GetAI_npc_priestess(Creature *pCreature)
 {
+    return new npc_priestessAI(pCreature);
+}
+
+enum {
     NPC_COLOSSAL_ANUBISATH = 15743,
     NPC_QIRAJI_DESTROYER = 15744
 };
@@ -1217,8 +1253,8 @@ struct npc_aqwar_cenarionhold_attackAI : ScriptedAI
     uint32 m_timeUntilWave;
     uint32 m_waveCount;
     uint32 m_maxWaveCount;
-    G3D::Vector3 targetPos = {-6959.35f, 940.41f, 14.55f};
-    npc_aqwar_cenarionhold_attackAI(Creature* pCreature) : ScriptedAI(pCreature)
+    G3D::Vector3 targetPos = { -6959.35f, 940.41f, 14.55f };
+    npc_aqwar_cenarionhold_attackAI(Creature *pCreature) : ScriptedAI(pCreature)
     {
         m_timeUntilWave = 60000;
 
@@ -1231,7 +1267,10 @@ struct npc_aqwar_cenarionhold_attackAI : ScriptedAI
         m_waveCount = 1;
     }
 
-    void Reset() override {}
+    void Reset() override
+    {
+
+    }
 
     void UpdateAI(const uint32 diff) override
     {
@@ -1253,7 +1292,7 @@ struct npc_aqwar_cenarionhold_attackAI : ScriptedAI
                 summPos.y += irand(-15, 15);
                 summPos.z = m_creature->GetMap()->GetHeight(summPos.x, summPos.y, summPos.z);
 
-                if (Creature* summon = m_creature->SummonCreature(entry, summPos.x, summPos.y, summPos.z, 6, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 4 * MINUTE * IN_MILLISECONDS, 1))
+                if (Creature *summon = m_creature->SummonCreature(entry, summPos.x, summPos.y, summPos.z, 6, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 4 * MINUTE * IN_MILLISECONDS, 1))
                 {
                     summon->SetHomePosition(targetPos.x, targetPos.y, targetPos.z, 3.0f);
                     summon->GetMotionMaster()->MovePoint(1, targetPos.x, targetPos.y, targetPos.z);
@@ -1268,44 +1307,58 @@ struct npc_aqwar_cenarionhold_attackAI : ScriptedAI
     }
 };
 
-CreatureAI* GetAI_npc_aqwar_cenarionhold_attack(Creature* pCreature) { return new npc_aqwar_cenarionhold_attackAI(pCreature); }
-
-enum
+CreatureAI* GetAI_npc_aqwar_cenarionhold_attack(Creature *pCreature)
 {
-    SCRIPT_SAURFANG_CH_ATTACK_WARN = -1780300,
-    SCRIPT_SAURFANG_SPEECH1 = -1780301,
-    SCRIPT_SAURFANG_SPEECH2 = -1780302,
-    SCRIPT_SAURFANG_SPEECH3 = -1780303,
-    SCRIPT_SAURFANG_SPEECH4 = -1780304,
-    SCRIPT_SAURFANG_SPEECH5 = -1780305,
-    SCRIPT_SAURFANG_SPEECH6 = -1780306,
-    SCRIPT_SAURFANG_SPEECH7 = -1780307,
-    SCRIPT_SAURFANG_SPEECH8 = -1780308,
-    SCRIPT_SAURFANG_SPEECH9 = -1780309,
-    SCRIPT_SAURFANG_SPEECH10 = -1780310,
-    SCRIPT_SAURFANG_FINAL_BATTLE = -1780311,
+    return new npc_aqwar_cenarionhold_attackAI(pCreature);
+}
 
-    WORLD_TEXT_FINAL_BATTLE = -1780311, // The final battle for Kalimdor is upon us...
+enum {
+    SCRIPT_SAURFANG_CH_ATTACK_WARN  = -1780300,
+    SCRIPT_SAURFANG_SPEECH1         = -1780301,
+    SCRIPT_SAURFANG_SPEECH2         = -1780302,
+    SCRIPT_SAURFANG_SPEECH3         = -1780303,
+    SCRIPT_SAURFANG_SPEECH4         = -1780304,
+    SCRIPT_SAURFANG_SPEECH5         = -1780305,
+    SCRIPT_SAURFANG_SPEECH6         = -1780306,
+    SCRIPT_SAURFANG_SPEECH7         = -1780307,
+    SCRIPT_SAURFANG_SPEECH8         = -1780308,
+    SCRIPT_SAURFANG_SPEECH9         = -1780309,
+    SCRIPT_SAURFANG_SPEECH10        = -1780310,
+    SCRIPT_SAURFANG_FINAL_BATTLE    = -1780311,
+
+    WORLD_TEXT_FINAL_BATTLE         = -1780311,     // The final battle for Kalimdor is upon us...
 
     // Taken from Orgrimmar script
-    SPELL_SF_EXECUTE = 7160, // OK
-    SPELL_SF_CLEAVE = 15284, // OK
-    SPELL_SF_CHARGE = 22886, // OK
-    SPELL_SF_THUNDERCLAP = 23931, //?
-    SPELL_SF_MORTALSTRIKE = 12294, //?
-    SPELL_SF_SAURFANGRAGE = 26339,
-    SPELL_SF_BATTLESHOUT = 26043 // shout to put him in combat with other units so he doesn't run off
+    SPELL_SF_EXECUTE                = 7160,  //OK
+    SPELL_SF_CLEAVE                 = 15284, //OK
+    SPELL_SF_CHARGE                 = 22886, //OK
+    SPELL_SF_THUNDERCLAP            = 23931, //?
+    SPELL_SF_MORTALSTRIKE           = 12294, //?
+    SPELL_SF_SAURFANGRAGE           = 26339,
+    SPELL_SF_BATTLESHOUT            = 26043  // shout to put him in combat with other units so he doesn't run off
 };
 
-struct MovementPath
-{
+struct MovementPath {
     float x;
     float y;
     float z;
     float o;
 };
 
-const std::array<MovementPath, 12> saurfangGatePath{{{-7002.48f, 967.38f, 6.70f, 3.15f}, {-7205.49f, 967.08f, 0.95f, 2.9f}, {-7265.48f, 995.34f, 2.55f, 3.16f}, {-7418.73f, 1000.99f, 0.91f, 2.91f}, {-7661.01f, 1052.23f, 4.82f, 2.32f}, {-7759.05f, 1164.64f, 0.02f, 2.22f}, {-7810.24f, 1275.49f, -11.08f, 2.72f}, {-7909.35f, 1319.05f, -7.79f, 2.32f}, {-7952.77f, 1377.95f, 2.94f, 1.38f}, {-7933.09f, 1490.65f, -6.62f, 2.68f}, {-8014.01f, 1532.97f, 2.81f, 3.10f}, {-8079.99f, 1523.19f, 2.61f, 3.15f}}};
+const std::array<MovementPath, 12> saurfangGatePath {{
+    { -7002.48f, 967.38f, 6.70f, 3.15f },
+    { -7205.49f, 967.08f, 0.95f, 2.9f },
+    { -7265.48f, 995.34f, 2.55f, 3.16f },
+    { -7418.73f, 1000.99f, 0.91f, 2.91f },
+    { -7661.01f, 1052.23f, 4.82f, 2.32f },
+    { -7759.05f, 1164.64f, 0.02f, 2.22f },
+    { -7810.24f, 1275.49f, -11.08f, 2.72f },
+    { -7909.35f, 1319.05f, -7.79f, 2.32f },
+    { -7952.77f, 1377.95f, 2.94f, 1.38f },
+    { -7933.09f, 1490.65f, -6.62f, 2.68f },
+    { -8014.01f, 1532.97f, 2.81f, 3.10f },
+    { -8079.99f, 1523.19f, 2.61f, 3.15f }
+}};
 
 struct npc_aqwar_saurfangAI : ScriptedAI
 {
@@ -1327,7 +1380,7 @@ struct npc_aqwar_saurfangAI : ScriptedAI
     uint32 m_uiSaurfangRage_Timer;
     uint32 m_uiBattleShout_Timer;
 
-    npc_aqwar_saurfangAI(Creature* pCreature) : ScriptedAI(pCreature)
+    npc_aqwar_saurfangAI(Creature *pCreature) : ScriptedAI(pCreature)
     {
         m_CenarionHoldAttackWarn = false;
         m_finalBattle = false;
@@ -1364,7 +1417,7 @@ struct npc_aqwar_saurfangAI : ScriptedAI
         m_movementPaused = true;
     }
 
-    void MoveInLineOfSight(Unit* pWho)
+    void MoveInLineOfSight(Unit *pWho)
     {
         if (m_creature->CanInitiateAttack() && pWho->IsTargetable(true, false) && m_creature->IsHostileTo(pWho))
         {
@@ -1391,7 +1444,7 @@ struct npc_aqwar_saurfangAI : ScriptedAI
         {
             m_movingToGate = false;
             m_creature->Unmount();
-            m_creature->SetHomePosition(saurfangGatePath[m_movePoint - 1].x, saurfangGatePath[m_movePoint - 1].y, saurfangGatePath[m_movePoint - 1].z, 2.6f);
+            m_creature->SetHomePosition(saurfangGatePath[m_movePoint-1].x, saurfangGatePath[m_movePoint-1].y, saurfangGatePath[m_movePoint-1].z, 2.6f);
         }
     }
 
@@ -1487,7 +1540,9 @@ struct npc_aqwar_saurfangAI : ScriptedAI
         else
             m_uiCleave_Timer -= diff;
 
-        if (m_uiCharge_Timer < diff && m_creature->GetDistance(m_creature->GetVictim()->GetPositionX(), m_creature->GetVictim()->GetPositionY(), m_creature->GetVictim()->GetPositionZ()) >= 8.0f)
+        if (m_uiCharge_Timer < diff && m_creature->GetDistance(m_creature->GetVictim()->GetPositionX(),
+            m_creature->GetVictim()->GetPositionY(),
+            m_creature->GetVictim()->GetPositionZ()) >= 8.0f)
         {
             DoCastSpellIfCan(m_creature->GetVictim(), SPELL_SF_CHARGE);
             m_uiCharge_Timer = 9000;
@@ -1542,14 +1597,20 @@ struct npc_aqwar_saurfangAI : ScriptedAI
         m_creature->GetMotionMaster()->MoveTargetedHome();
     }
 
-    void JustReachedHome() override { m_movementPaused = false; }
+    void JustReachedHome() override
+    {
+        m_movementPaused = false;
+    }
 };
 
-CreatureAI* GetAI_npc_aqwar_saurfang(Creature* pCreature) { return new npc_aqwar_saurfangAI(pCreature); }
+CreatureAI* GetAI_npc_aqwar_saurfang(Creature *pCreature)
+{
+    return new npc_aqwar_saurfangAI(pCreature);
+}
 
 void AddSC_war_effort()
 {
-    Script* pNewScript;
+    Script *pNewScript;
 
     pNewScript = new Script;
     pNewScript->Name = "npc_AQwar_collector";

@@ -29,12 +29,12 @@
 typedef unsigned int Oid;
 
 #ifdef __cplusplus
-#define InvalidOid (Oid(0))
+#define InvalidOid		(Oid(0))
 #else
-#define InvalidOid ((Oid)0)
+#define InvalidOid		((Oid) 0)
 #endif
 
-#define OID_MAX UINT_MAX
+#define OID_MAX  UINT_MAX
 /* you will need to include <limits.h> to use the above #define */
 
 
@@ -43,17 +43,17 @@ typedef unsigned int Oid;
  * between frontend and backend, and also to export them to libpq
  * applications.
  */
-#define PG_DIAG_SEVERITY 'S'
-#define PG_DIAG_SQLSTATE 'C'
+#define PG_DIAG_SEVERITY		'S'
+#define PG_DIAG_SQLSTATE		'C'
 #define PG_DIAG_MESSAGE_PRIMARY 'M'
-#define PG_DIAG_MESSAGE_DETAIL 'D'
-#define PG_DIAG_MESSAGE_HINT 'H'
+#define PG_DIAG_MESSAGE_DETAIL	'D'
+#define PG_DIAG_MESSAGE_HINT	'H'
 #define PG_DIAG_STATEMENT_POSITION 'P'
 #define PG_DIAG_INTERNAL_POSITION 'p'
-#define PG_DIAG_INTERNAL_QUERY 'q'
-#define PG_DIAG_CONTEXT 'W'
-#define PG_DIAG_SOURCE_FILE 'F'
-#define PG_DIAG_SOURCE_LINE 'L'
+#define PG_DIAG_INTERNAL_QUERY	'q'
+#define PG_DIAG_CONTEXT			'W'
+#define PG_DIAG_SOURCE_FILE		'F'
+#define PG_DIAG_SOURCE_LINE		'L'
 #define PG_DIAG_SOURCE_FUNCTION 'R'
 
 #endif

@@ -21,13 +21,65 @@
 
 #include "Config.h"
 
+#include "Log.h"
 #include "Policies/SingletonImp.h"
+#include <vector>
 
 INSTANTIATE_SINGLETON_2(Config, Config::Lock);
 INSTANTIATE_CLASS_MUTEX(Config, std::shared_mutex);
 
+#ifndef TW_MODULE_CONFIG_LIST
+#define TW_MODULE_CONFIG_LIST ""
+#endif
+
+static char const* GetConfigImportErrorText(int importResult)
+{
+    switch (importResult)
+    {
+        case -1:
+            return "file could not be opened";
+        case -3:
+            return "config has invalid INI syntax";
+        case -4:
+            return "config is missing a section header";
+        default:
+            return "unknown import error";
+    }
+}
+
+std::vector<std::string> Config::GetModuleConfigFiles() const
+{
+    std::vector<std::string> files;
+    std::string const configuredFiles = TW_MODULE_CONFIG_LIST;
+    std::string::size_type start = 0;
+
+    while (start < configuredFiles.size())
+    {
+        std::string::size_type end = configuredFiles.find(',', start);
+        if (end == std::string::npos)
+            end = configuredFiles.size();
+
+        std::string file = configuredFiles.substr(start, end - start);
+        if (!file.empty())
+            files.push_back(file);
+
+        start = end + 1;
+    }
+
+    return files;
+}
+
+std::string Config::GetConfigDirectory() const
+{
+    std::string::size_type separator = mFilename.find_last_of("/\\");
+    if (separator == std::string::npos)
+        return "";
+
+    return mFilename.substr(0, separator + 1);
+}
+
 // Defined here as it must not be exposed to end-users.
-bool Config::GetValueHelper(const char* name, ACE_TString& result)
+bool Config::GetValueHelper(const char* name, ACE_TString &result)
 {
     GuardType guard(m_configLock);
 
@@ -36,7 +88,7 @@ bool Config::GetValueHelper(const char* name, ACE_TString& result)
 
     ACE_TString section_name;
     ACE_Configuration_Section_Key section_key;
-    const ACE_Configuration_Section_Key& root_key = mConf->root_section();
+    const ACE_Configuration_Section_Key &root_key = mConf->root_section();
 
     int i = 0;
     while (mConf->enumerate_sections(root_key, i, section_name) == 0)
@@ -57,7 +109,7 @@ std::string Config::GetStringDefaultInSection(const char* name, const char* sect
     if (!mConf)
         return def;
 
-    const ACE_Configuration_Section_Key& root_key = mConf->root_section();
+    const ACE_Configuration_Section_Key &root_key = mConf->root_section();
     ACE_Configuration_Section_Key primary_section_key;
     int openErrCode = mConf->open_section(root_key, section, 0, primary_section_key);
     if (openErrCode != 0)
@@ -67,15 +119,14 @@ std::string Config::GetStringDefaultInSection(const char* name, const char* sect
 
     ACE_TString section_value;
     openErrCode = mConf->get_string_value(primary_section_key, name, section_value);
-    if (openErrCode != 0)
-        return def;
+    if (openErrCode != 0) return def;
 
     return section_value.c_str();
 }
 
 void Config::GetRootSections(std::vector<std::string>& OutSectionList)
 {
-    const ACE_Configuration_Section_Key& RootKey = mConf->root_section();
+    const ACE_Configuration_Section_Key &RootKey = mConf->root_section();
 
     ACE_TString section_name;
     int i = 0;
@@ -88,7 +139,7 @@ void Config::GetRootSections(std::vector<std::string>& OutSectionList)
 
 void Config::GetSections(const char* SectionName, std::vector<std::string>& OutSectionList)
 {
-    const ACE_Configuration_Section_Key& RootKey = mConf->root_section();
+    const ACE_Configuration_Section_Key &RootKey = mConf->root_section();
     ACE_Configuration_Section_Key BaseSectionKey;
     if (mConf->open_section(RootKey, SectionName, 0, BaseSectionKey) == 0)
     {
@@ -104,7 +155,7 @@ void Config::GetSections(const char* SectionName, std::vector<std::string>& OutS
 
 void Config::GetKeys(const char* SectionName, std::vector<std::string>& OutKeysList)
 {
-    const ACE_Configuration_Section_Key& RootKey = mConf->root_section();
+    const ACE_Configuration_Section_Key &RootKey = mConf->root_section();
     ACE_Configuration_Section_Key BaseSectionKey;
     if (mConf->open_section(RootKey, SectionName, 0, BaseSectionKey) == 0)
     {
@@ -119,11 +170,17 @@ void Config::GetKeys(const char* SectionName, std::vector<std::string>& OutKeysL
     }
 }
 
-Config::Config() : mConf(nullptr) {}
+Config::Config()
+    : mConf(nullptr)
+{
+}
 
-Config::~Config() { delete mConf; }
+Config::~Config()
+{
+    delete mConf;
+}
 
-bool Config::SetSource(const char* file)
+bool Config::SetSource(const char *file)
 {
     mFilename = file;
 
@@ -147,6 +204,34 @@ bool Config::Reload()
     return false;
 }
 
+bool Config::LoadModulesConfigs()
+{
+    if (!mConf)
+        return false;
+
+    std::vector<std::string> const moduleConfigFiles = GetModuleConfigFiles();
+    if (moduleConfigFiles.empty())
+        return true;
+
+    std::string const moduleConfigDirectory = GetConfigDirectory() + "modules/";
+
+    for (std::string const& moduleConfigFile : moduleConfigFiles)
+    {
+        std::string const moduleConfigPath = moduleConfigDirectory + moduleConfigFile;
+        ACE_Ini_ImpExp moduleConfigImporter(*mConf);
+
+        int const importResult = moduleConfigImporter.import_config(moduleConfigPath.c_str());
+        if (importResult != 0)
+        {
+            sLog.outError("Could not load module configuration file %s: %s.",
+                moduleConfigPath.c_str(), GetConfigImportErrorText(importResult));
+            return false;
+        }
+    }
+
+    return true;
+}
+
 std::string Config::GetStringDefault(const char* name, const char* def)
 {
     ACE_TString val;
@@ -160,7 +245,9 @@ bool Config::GetBoolDefault(const char* name, bool def)
         return def;
 
     const char* str = val.c_str();
-    return strcmp(str, "true") == 0 || strcmp(str, "TRUE") == 0 || strcmp(str, "yes") == 0 || strcmp(str, "YES") == 0 || strcmp(str, "1") == 0;
+    return strcmp(str, "true") == 0 || strcmp(str, "TRUE") == 0 ||
+           strcmp(str, "yes") == 0 || strcmp(str, "YES") == 0 ||
+           strcmp(str, "1") == 0;
 }
 
 
@@ -180,7 +267,6 @@ float Config::GetFloatDefault(const char* name, float def)
 float Config::GetFloatDefault(const char* name, const char* section, const float def)
 {
     std::string rawValue = GetStringDefaultInSection(name, section, "invalid");
-    if (rawValue == "invalid")
-        return def;
+    if (rawValue == "invalid") return def;
     return atof(rawValue.c_str());
 }

@@ -16,6 +16,6 @@ namespace PerfStats
 
     extern int g_slowestMapId;
     extern int g_slowestMapUpdateTime;
-}; // namespace PerfStats
+};
 
 #endif

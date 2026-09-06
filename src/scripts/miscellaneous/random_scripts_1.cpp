@@ -1,6 +1,6 @@
-#include <algorithm>
-#include "Utilities/EventProcessor.h"
 #include "scriptPCH.h"
+#include "Utilities/EventProcessor.h"
+#include <algorithm>
 
 template <typename EntityT, typename Functor>
 void DoAfterTime(EntityT* entity, uint32 p_time, Functor&& function)
@@ -9,15 +9,15 @@ void DoAfterTime(EntityT* entity, uint32 p_time, Functor&& function)
 }
 
 
-class DemorphAfterTime : public BasicEvent
+class DemorphAfterTime : public BasicEvent 
 {
 public:
     explicit DemorphAfterTime(uint64 player_guid) : BasicEvent(), player_guid(player_guid) {}
 
-    bool Execute(uint64 e_time, uint32 p_time) override
+    bool Execute(uint64 e_time, uint32 p_time) override 
     {
         Player* player = ObjectAccessor::FindPlayer(player_guid);
-        if (player)
+        if (player) 
             player->DeMorph();
 
         return false;
@@ -47,8 +47,7 @@ private:
 
 bool ItemUseSpell_character_rename(Player* pPlayer, Item* pItem, const SpellCastTargets&)
 {
-    if (!pPlayer)
-        return false;
+    if (!pPlayer) return false;
 
     pPlayer->SetAtLoginFlag(AT_LOGIN_RENAME);
     pPlayer->GetSession()->SendNotification("Please choose a new name.\nYou will be disconnected in 5 seconds.");
@@ -61,7 +60,7 @@ bool ItemUseSpell_character_rename(Player* pPlayer, Item* pItem, const SpellCast
 #define ALICE_GROW_RBOUNDARY 1.15f
 #define ALICE_BELITTLE_LBOUNDARY 0.85f
 #define ALICE_BELITTLE_RBOUNDARY 0.95f
-bool ItemUseSpell_alice_wonderland_scale(Player* pPlayer, Item* pItem, const SpellCastTargets&)
+bool ItemUseSpell_alice_wonderland_scale(Player* pPlayer, Item* pItem, const SpellCastTargets&) 
 {
     float scale;
     float taurenVariance = pPlayer->GetRace() == RACE_TAUREN ? (pPlayer->GetGender() == GENDER_MALE ? 0.35f : 0.25f) : 0;
@@ -110,7 +109,7 @@ private:
     uint64 player_guid;
 };
 
-bool ItemUseSpell_summer_vestment(Player* pPlayer, Item* pItem, const SpellCastTargets&)
+bool ItemUseSpell_summer_vestment(Player* pPlayer, Item* pItem, const SpellCastTargets&) 
 {
     pPlayer->m_Events.AddEvent(new DanceAfterTime(pPlayer->GetGUID()), pPlayer->m_Events.CalculateTime(1500));
     return false;
@@ -125,261 +124,99 @@ bool ItemUseSpell_sword_of_truth(Player* pPlayer, Item* pItem, const SpellCastTa
 bool ItemUseSpell_hairdye(Player* pPlayer, Item* pItem, const SpellCastTargets&)
 {
     uint8 color = 0;
-
+    
     switch (pItem->GetEntry())
     {
     // Night Elves
-    case 50107:
-        color = 0;
-        break; // Grass Green
-    case 50108:
-        color = 1;
-        break; // Green
-    case 50109:
-        color = 2;
-        break; // Dark Green
-    case 50110:
-        color = 3;
-        break; // Aquamarine
-    case 50111:
-        color = 4;
-        break; // White
-    case 50112:
-        color = 5;
-        break; // Blue
-    case 50113:
-        color = 6;
-        break; // Dark Blue
-    case 50114:
-        color = 7;
-        break; // Purple
-    case 81101:
-        color = 8;
-        break; // Black
+    case 50107: color = 0; break; // Grass Green
+    case 50108: color = 1; break; // Green
+    case 50109: color = 2; break; // Dark Green
+    case 50110: color = 3; break; // Aquamarine
+    case 50111: color = 4; break; // White
+    case 50112: color = 5; break; // Blue
+    case 50113: color = 6; break; // Dark Blue
+    case 50114: color = 7; break; // Purple
+    case 81101: color = 8; break; // Black
     // Humans
-    case 50115:
-        color = 0;
-        break; // Black
-    case 50116:
-        color = 1;
-        break; // Crushed Garnet
-    case 50117:
-        color = 2;
-        break; // Havana Brown
-    case 50118:
-        color = 3;
-        break; // Copper Shimmer
-    case 50119:
-        color = 4;
-        break; // Reddish Blonde
-    case 50120:
-        color = 5;
-        break; // Sunflower Blonde
-    case 50121:
-        color = 6;
-        break; // Beeline Honey
-    case 50122:
-        color = 7;
-        break; // Pure Diamond
-    case 50123:
-        color = 8;
-        break; // Dark Ash Grey
-    case 50124:
-        color = 9;
-        break; // Light Ash Grey
+    case 50115: color = 0; break; // Black
+    case 50116: color = 1; break; // Crushed Garnet
+    case 50117: color = 2; break; // Havana Brown
+    case 50118: color = 3; break; // Copper Shimmer
+    case 50119: color = 4; break; // Reddish Blonde
+    case 50120: color = 5; break; // Sunflower Blonde
+    case 50121: color = 6; break; // Beeline Honey
+    case 50122: color = 7; break; // Pure Diamond
+    case 50123: color = 8; break; // Dark Ash Grey
+    case 50124: color = 9; break; // Light Ash Grey
     // Gnomes
-    case 50125:
-        color = 0;
-        break; // Black
-    case 50126:
-        color = 1;
-        break; // Chocolate Brown
-    case 50127:
-        color = 2;
-        break; // Ash Blonde
-    case 50128:
-        color = 3;
-        break; // Diamond Blonde
-    case 50129:
-        color = 4;
-        break; // Dream Purple
-    case 50130:
-        color = 5;
-        break; // Ruby Fusion
-    case 50131:
-        color = 6;
-        break; // Steel Blue
-    case 50132:
-        color = 7;
-        break; // Pure Green
-    case 50133:
-        color = 8;
-        break; // Shining Pink
+    case 50125: color = 0; break; // Black
+    case 50126: color = 1; break; // Chocolate Brown
+    case 50127: color = 2; break; // Ash Blonde
+    case 50128: color = 3; break; // Diamond Blonde
+    case 50129: color = 4; break; // Dream Purple
+    case 50130: color = 5; break; // Ruby Fusion
+    case 50131: color = 6; break; // Steel Blue
+    case 50132: color = 7; break; // Pure Green
+    case 50133: color = 8; break; // Shining Pink
     // Dwarves
-    case 50134:
-        color = 0;
-        break; // Copper Shimmer
-    case 50135:
-        color = 1;
-        break; // Reddish Blonde
-    case 50136:
-        color = 2;
-        break; // Dark Orange
-    case 50137:
-        color = 3;
-        break; // Ash Blonde
-    case 50138:
-        color = 4;
-        break; // Light Auburn
-    case 50139:
-        color = 5;
-        break; // Black
-    case 50140:
-        color = 6;
-        break; // Caramel
-    case 50141:
-        color = 7;
-        break; // Light Ash Grey
-    case 50142:
-        color = 8;
-        break; // Dark Ash Grey
+    case 50134: color = 0; break; // Copper Shimmer
+    case 50135: color = 1; break; // Reddish Blonde
+    case 50136: color = 2; break; // Dark Orange
+    case 50137: color = 3; break; // Ash Blonde
+    case 50138: color = 4; break; // Light Auburn
+    case 50139: color = 5; break; // Black
+    case 50140: color = 6; break; // Caramel
+    case 50141: color = 7; break; // Light Ash Grey
+    case 50142: color = 8; break; // Dark Ash Grey
     // Trolls
-    case 50143:
-        color = 0;
-        break; // Purple
-    case 50144:
-        color = 1;
-        break; // Red
-    case 50145:
-        color = 2;
-        break; // Orange
-    case 50146:
-        color = 3;
-        break; // Yellow
-    case 50147:
-        color = 4;
-        break; // Grass Green
-    case 50148:
-        color = 5;
-        break; // Mint Blue
-    case 50149:
-        color = 6;
-        break; // Light Blue
-    case 50150:
-        color = 7;
-        break; // Dark Blue
-    case 50151:
-        color = 8;
-        break; // Ash Grey
-    case 50152:
-        color = 9;
-        break; // Snow White
+    case 50143: color = 0; break; // Purple
+    case 50144: color = 1; break; // Red
+    case 50145: color = 2; break; // Orange
+    case 50146: color = 3; break; // Yellow
+    case 50147: color = 4; break; // Grass Green
+    case 50148: color = 5; break; // Mint Blue
+    case 50149: color = 6; break; // Light Blue
+    case 50150: color = 7; break; // Dark Blue
+    case 50151: color = 8; break; // Ash Grey
+    case 50152: color = 9; break; // Snow White
     // Orcs
-    case 50153:
-        color = 0;
-        break; // Blue Black
-    case 50154:
-        color = 1;
-        break; // Oak Brown
-    case 50155:
-        color = 2;
-        break; // Dark Purple
-    case 50156:
-        color = 3;
-        break; // Lilac Violet
-    case 50157:
-        color = 4;
-        break; // Rich Purple
-    case 50158:
-        color = 5;
-        break; // Black
-    case 50159:
-        color = 6;
-        break; // Dark Ash Grey
-    case 50160:
-        color = 7;
-        break; // Light Ash Grey
+    case 50153: color = 0; break; // Blue Black
+    case 50154: color = 1; break; // Oak Brown
+    case 50155: color = 2; break; // Dark Purple
+    case 50156: color = 3; break; // Lilac Violet
+    case 50157: color = 4; break; // Rich Purple
+    case 50158: color = 5; break; // Black
+    case 50159: color = 6; break; // Dark Ash Grey
+    case 50160: color = 7; break; // Light Ash Grey
     // Undeads
-    case 50161:
-        color = 0;
-        break; // Lime Green
-    case 50162:
-        color = 1;
-        break; // Ash Rose
-    case 50163:
-        color = 2;
-        break; // Mud Brown
-    case 50164:
-        color = 3;
-        break; // Green Blonde
-    case 50165:
-        color = 4;
-        break; // Ash Blonde
-    case 50167:
-        color = 5;
-        break; // Mint Blue
-    case 50168:
-        color = 6;
-        break; // Mud Green
-    case 50169:
-        color = 7;
-        break; // Light Teal
-    case 50170:
-        color = 8;
-        break; // Dirty Purple
-    case 50171:
-        color = 9;
-        break; // Ash Black
+    case 50161: color = 0; break; // Lime Green
+    case 50162: color = 1; break; // Ash Rose
+    case 50163: color = 2; break; // Mud Brown
+    case 50164: color = 3; break; // Green Blonde
+    case 50165: color = 4; break; // Ash Blonde
+    case 50167: color = 5; break; // Mint Blue
+    case 50168: color = 6; break; // Mud Green
+    case 50169: color = 7; break; // Light Teal 
+    case 50170: color = 8; break; // Dirty Purple
+    case 50171: color = 9; break; // Ash Black
     // High Elves
-    case 80650:
-        color = 0;
-        break; // Sunflower Blond
-    case 80651:
-        color = 1;
-        break; // Ash Blond
-    case 80652:
-        color = 2;
-        break; // Ruby Rush
-    case 80653:
-        color = 3;
-        break; // Cinnamon
-    case 80654:
-        color = 4;
-        break; // Wheat Brown
-    case 80655:
-        color = 5;
-        break; // Sand Blond
-    case 80656:
-        color = 6;
-        break; // Coral Red
-    case 80657:
-        color = 7;
-        break; // Honey Blond
-    case 80658:
-        color = 8;
-        break; // Starry Night
-    case 80659:
-        color = 9;
-        break; // Crab Legs
-    case 80665:
-        color = 10;
-        break; // Azure Sky
+    case 80650: color = 0; break; // Sunflower Blond
+    case 80651: color = 1; break; // Ash Blond
+    case 80652: color = 2; break; // Ruby Rush
+    case 80653: color = 3; break; // Cinnamon
+    case 80654: color = 4; break; // Wheat Brown
+    case 80655: color = 5; break; // Sand Blond
+    case 80656: color = 6; break; // Coral Red
+    case 80657: color = 7; break; // Honey Blond
+    case 80658: color = 8; break; // Starry Night
+    case 80659: color = 9; break; // Crab Legs
+    case 80665: color = 10; break; // Azure Sky
     // Goblins
-    case 80660:
-        color = 0;
-        break; // Copper
-    case 80661:
-        color = 1;
-        break; // Ruby
-    case 80662:
-        color = 2;
-        break; // Red
-    case 80663:
-        color = 3;
-        break; // Purple
-    case 80664:
-        color = pPlayer->GetGender() == GENDER_MALE ? 0 : 4;
-        break; // Black
+    case 80660: color = 0; break; // Copper 
+    case 80661: color = 1; break; // Ruby
+    case 80662: color = 2; break; // Red
+    case 80663: color = 3; break; // Purple
+    case 80664: color = pPlayer->GetGender() == GENDER_MALE ? 0 : 4; break; // Black 
     }
     pPlayer->SetByteValue(PLAYER_BYTES, 3, color);
     pPlayer->UpdateAppearance();
@@ -394,21 +231,21 @@ bool ItemUseSpell_turtle_party(Player* pPlayer, Item* pItem, const SpellCastTarg
 
 bool ItemUseSpell_item_winter_tree(Player* pPlayer, Item* pItem, const SpellCastTargets&)
 {
-    if (!pPlayer)
-        return false;
-    if (pPlayer->InBattleGround())
-        return false;
+	if (!pPlayer)
+		return false;
+	if (pPlayer->InBattleGround())
+		return false;
 
     GameObject* other_tree = pPlayer->FindNearestGameObject(1000070, 15.0F);
 
     if (other_tree)
         other_tree->SetRespawnTime(1);
 
-    float dis{2.0F};
+    float dis{ 2.0F };
     float x, y, z;
     pPlayer->GetSafePosition(x, y, z);
     x += dis * cos(pPlayer->GetOrientation());
-    y += dis * sin(pPlayer->GetOrientation());
+    y += dis * sin(pPlayer->GetOrientation());    
 
     pPlayer->SummonGameObject(1000070, x, y, z, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 300, true);
     return false;
@@ -422,11 +259,11 @@ bool ItemUseSpell_item_roleplay_effect(Player* pPlayer, Item* pItem, const Spell
     // summon runes to mark the ground, helpful for raid enocunters
     if (pPlayer->GetMap() && pPlayer->GetMap()->IsDungeon())
     {
-        float dis{20.0F};
+        float dis{ 20.0F };
         float x, y, z;
         pPlayer->GetSafePosition(x, y, z);
-        // x += dis * cos(pPlayer->GetOrientation());
-        // y += dis * sin(pPlayer->GetOrientation());
+        //x += dis * cos(pPlayer->GetOrientation());
+        //y += dis * sin(pPlayer->GetOrientation());
 
         switch (pItem->GetEntry())
         {
@@ -485,14 +322,13 @@ bool ItemUseSpell_item_holy_strike_book(Player* pPlayer, Item* pItem, const Spel
     case 51276:
         pPlayer->LearnSpell(10333, false);
         break;
-    default:
-        break;
+    default: break;
     }
     return true;
 }
 
 bool ItemUseSpell_item_holy_wings(Player* pPlayer, Item* pItem, const SpellCastTargets&)
-{
+{    
     float x, y, z;
     pPlayer->GetSafePosition(x, y, z);
     pPlayer->SummonCreature(51525, x, y, z, pPlayer->GetOrientation(), TEMPSUMMON_TIMED_DESPAWN, 15000, true);
@@ -641,19 +477,19 @@ bool ItemUseSpell_shop_racechange(Player* pPlayer, Item* pItem, const SpellCastT
     }
 
     bytes2 |= (pPlayer->GetUInt32Value(PLAYER_BYTES_2) & 0xFFFFFF00);
-    if (pPlayer->ChangeRace(race, player_gender, bytes, bytes2))
-    {
-        uint32 Count = 1;
-        pPlayer->DestroyItemCount(pItem, Count, false);
+	if (pPlayer->ChangeRace(race, player_gender, bytes, bytes2))
+	{
+		uint32 Count = 1;
+		pPlayer->DestroyItemCount(pItem, Count, false);
         pPlayer->AddItem(80699, 1); // add appearance token. This should always work because we just removed a race change token from inventory.
-        pPlayer->SaveInventoryAndGoldToDB();
-        // pPlayer->GetSession()->LogoutPlayer(false);
-        return true;
-    }
+		pPlayer->SaveInventoryAndGoldToDB();
+		//pPlayer->GetSession()->LogoutPlayer(false);
+		return true;
+	}
     else
     {
         pPlayer->GetSession()->SendNotification("Race change failed. You will be disconnected.");
-        // have to disconnect to restore proper state back.
+        //have to disconnect to restore proper state back.
         pPlayer->GetSession()->LogoutPlayer(false);
     }
     return false;
@@ -661,83 +497,93 @@ bool ItemUseSpell_shop_racechange(Player* pPlayer, Item* pItem, const SpellCastT
 
 bool ItemUseSpell_item_supercharged_chronoboon_displacer(Player* pPlayer, Item* pItem, const SpellCastTargets&)
 {
-    if (!pPlayer)
-        return false;
+	if (!pPlayer) 
+        return false;	
 
-    if (!pPlayer->RestoreSuspendedWorldBuffs())
-    {
-        if (SpellEntry const* spellInfo = sSpellMgr.GetSpellEntry(pItem->GetProto()->Spells[0].SpellId))
-        {
-            DoAfterTime(pPlayer, 1500, [player = pPlayer, spellId = spellInfo->Id]() { player->RemoveSpellCooldown(spellId, true); });
-        }
-    }
-
-    return true;
+	if (!pPlayer->RestoreSuspendedWorldBuffs())
+	{ 
+		if (SpellEntry const* spellInfo = sSpellMgr.GetSpellEntry(pItem->GetProto()->Spells[0].SpellId))
+		{
+			DoAfterTime(pPlayer, 1500, [player = pPlayer, spellId = spellInfo->Id]()
+			{
+				player->RemoveSpellCooldown(spellId, true);
+			});
+		}
+	}
+	
+	return true;
 }
 
 bool ItemUseSpell_item_chronoboon_displacer(Player* pPlayer, Item* pItem, const SpellCastTargets&)
 {
-    if (!pPlayer)
+	if (!pPlayer) 
         return false;
 
-    if (!pPlayer->SuspendWorldBuffs())
-    {
-        if (SpellEntry const* spellInfo = sSpellMgr.GetSpellEntry(pItem->GetProto()->Spells[0].SpellId))
-        {
-            DoAfterTime(pPlayer, 1500, [player = pPlayer, spellId = spellInfo->Id]() { player->RemoveSpellCooldown(spellId, true); });
-        }
-    }
+	if (!pPlayer->SuspendWorldBuffs())
+	{
+		if (SpellEntry const* spellInfo = sSpellMgr.GetSpellEntry(pItem->GetProto()->Spells[0].SpellId))
+		{
+			DoAfterTime(pPlayer, 1500, [player = pPlayer, spellId = spellInfo->Id]()
+			{
+				player->RemoveSpellCooldown(spellId, true);
+			}
+			);
+		}
+	}
 
-    return true;
+	return true;
 }
 
 bool ItemUseSpell_item_warlock_soulwell_ritual(Player* pPlayer, Item* pItem, const SpellCastTargets&)
 {
-    SpellCastResult castResult = SPELL_CAST_OK;
+	SpellCastResult castResult = SPELL_CAST_OK;
 
-    if (pPlayer->IsMoving() || pPlayer->IsBeingTeleported())
-        castResult = SPELL_FAILED_MOVING;
-    else if (pPlayer->IsInCombat())
-        castResult = SPELL_FAILED_AFFECTING_COMBAT;
-    else if (pPlayer->GetDeathState() == CORPSE)
-        castResult = SPELL_FAILED_CASTER_DEAD;
+	if (pPlayer->IsMoving() || pPlayer->IsBeingTeleported())
+		castResult = SPELL_FAILED_MOVING;
+	else if (pPlayer->IsInCombat())
+		castResult = SPELL_FAILED_AFFECTING_COMBAT;
+	else if (pPlayer->GetDeathState() == CORPSE)
+		castResult = SPELL_FAILED_CASTER_DEAD;
 
-    if (castResult == SPELL_CAST_OK)
-    {
-        // reagent soul shard 5
-        uint32 ritualReagent = 6265;
-        uint32 reagentCount = 5;
-        if (!pPlayer->HasItemCount(ritualReagent, reagentCount, false))
-        {
-            pPlayer->GetSession()->SendNotification("Missing reagent: Soul Shard(%u)", reagentCount);
-            castResult = SPELL_CAST_OK; // to remove accidental cooldown
-        }
-        else
-        {
-            float dis{2.0F};
-            float x, y, z;
-            pPlayer->GetSafePosition(x, y, z);
-            x += dis * cos(pPlayer->GetOrientation());
-            y += dis * sin(pPlayer->GetOrientation());
-            pPlayer->PMonsterEmote("%s begins a Soulwell ritual.", nullptr, false, pPlayer->GetName());
-            pPlayer->SummonGameObject(1000087, x, y, z + 0.5F, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0, true);
-            pPlayer->DestroyItemCount(ritualReagent, reagentCount, true);
-            pPlayer->SaveInventoryAndGoldToDB();
+	if (castResult == SPELL_CAST_OK)
+	{
+		// reagent soul shard 5
+		uint32 ritualReagent = 6265;
+		uint32 reagentCount  = 5;
+		if (!pPlayer->HasItemCount(ritualReagent, reagentCount, false))
+		{
+			pPlayer->GetSession()->SendNotification("Missing reagent: Soul Shard(%u)", reagentCount);
+			castResult = SPELL_CAST_OK;  // to remove accidental cooldown
+		}
+		else
+		{
+			float dis{ 2.0F };
+			float x, y, z;
+			pPlayer->GetSafePosition(x, y, z);
+			x += dis * cos(pPlayer->GetOrientation());
+			y += dis * sin(pPlayer->GetOrientation());
+			pPlayer->PMonsterEmote("%s begins a Soulwell ritual.", nullptr, false, pPlayer->GetName());
+			pPlayer->SummonGameObject(1000087, x, y, z + 0.5F, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0, true);
+			pPlayer->DestroyItemCount(ritualReagent, reagentCount, true);
+			pPlayer->SaveInventoryAndGoldToDB();
 
-            return true;
-        }
-    }
+			return true;
+		}
+	}
 
-    ItemPrototype const* proto = pItem->GetProto();
+	ItemPrototype const* proto = pItem->GetProto();
 
-    if (SpellEntry const* spellInfo = sSpellMgr.GetSpellEntry(proto->Spells[0].SpellId))
-    {
-        if (castResult != SPELL_CAST_OK)
-            Spell::SendCastResult(pPlayer, spellInfo, castResult);
+	if (SpellEntry const* spellInfo = sSpellMgr.GetSpellEntry(proto->Spells[0].SpellId))
+	{
+		if (castResult != SPELL_CAST_OK)
+			Spell::SendCastResult(pPlayer, spellInfo, castResult);
 
-        DoAfterTime(pPlayer, 1500, [player = pPlayer, spellId = spellInfo->Id]() { player->RemoveSpellCooldown(spellId, true); });
-    }
-    return true;
+		DoAfterTime(pPlayer, 1500, [player = pPlayer, spellId = spellInfo->Id]()
+		{
+			player->RemoveSpellCooldown(spellId, true);
+		});
+	}
+	return true;
 }
 
 bool GOHello_go_portable_wormhole(Player* pPlayer, GameObject* pGo)
@@ -787,7 +633,7 @@ struct go_survival_tent : public GameObjectAI
                 for (Player* pPlayer : players)
                 {
                     pPlayer->SetFlag(PLAYER_FLAGS, PLAYER_FLAGS_RESTING);
-                    pPlayer->SetRestBonus(static_cast<float>(pPlayer->GetRestBonus() + (sObjectMgr.GetXPForLevel(pPlayer->GetLevel()) * 0.000575)));
+                    pPlayer->AddRestBonus(sObjectMgr.GetXPForLevel(pPlayer->GetLevel()) * Player::RESTED_XP_TENT_RATE, pPlayer->GetRestBonusCap(Player::RESTED_XP_TENT_CAP));
                 }
                 m_uiUpdateTimer = 1000;
             }
@@ -804,7 +650,10 @@ struct go_survival_tent : public GameObjectAI
     }
 };
 
-GameObjectAI* GetAI_go_survival_tent(GameObject* gameobject) { return new go_survival_tent(gameobject); }
+GameObjectAI* GetAI_go_survival_tent(GameObject* gameobject)
+{
+    return new go_survival_tent(gameobject);
+}
 
 struct go_campfire_rested : public GameObjectAI
 {
@@ -851,7 +700,10 @@ struct go_campfire_rested : public GameObjectAI
     }
 };
 
-GameObjectAI* GetAI_go_campfire_rested(GameObject* gameobject) { return new go_campfire_rested(gameobject); }
+GameObjectAI* GetAI_go_campfire_rested(GameObject* gameobject)
+{
+    return new go_campfire_rested(gameobject);
+}
 
 bool GOHello_go_radio(Player* pPlayer, GameObject* pGo)
 {
@@ -901,90 +753,44 @@ bool GOSelect_go_radio(Player* pPlayer, GameObject* pGo, uint32 sender, uint32 a
     case 1000055: // Speedy's Jukebox
         switch (action)
         {
-        case GOSSIP_ACTION_INFO_DEF + 1:
-            sound = 4536;
-            break;
-        case GOSSIP_ACTION_INFO_DEF + 2:
-            sound = 5355;
-            break;
-        case GOSSIP_ACTION_INFO_DEF + 3:
-            sound = 5532;
-            break;
-        case GOSSIP_ACTION_INFO_DEF + 4:
-            sound = 8440;
-            break;
-        case GOSSIP_ACTION_INFO_DEF + 5:
-            sound = 7077;
-            break;
-        case GOSSIP_ACTION_INFO_DEF + 6:
-            sound = 4516;
-            break;
-        case GOSSIP_ACTION_INFO_DEF + 7:
-            sound = 6669;
-            break;
-        case GOSSIP_ACTION_INFO_DEF + 8:
-            sound = 8485;
-            break;
-        case GOSSIP_ACTION_INFO_DEF + 9:
-            sound = 2536;
-            break;
-        case GOSSIP_ACTION_INFO_DEF + 10:
-            sound = 7196;
-            break;
-        case GOSSIP_ACTION_INFO_DEF + 11:
-            sound = 5376;
-            break;
-        case GOSSIP_ACTION_INFO_DEF + 12:
-            sound = 8887;
-            break;
-        case GOSSIP_ACTION_INFO_DEF + 13:
-            sound = 5055;
-            break;
-        case GOSSIP_ACTION_INFO_DEF + 14:
-            sound = 6836;
-            break;
+        case GOSSIP_ACTION_INFO_DEF + 1: sound = 4536; break;
+        case GOSSIP_ACTION_INFO_DEF + 2: sound = 5355; break;
+        case GOSSIP_ACTION_INFO_DEF + 3: sound = 5532; break;
+        case GOSSIP_ACTION_INFO_DEF + 4: sound = 8440; break;
+        case GOSSIP_ACTION_INFO_DEF + 5: sound = 7077; break;
+        case GOSSIP_ACTION_INFO_DEF + 6: sound = 4516; break;
+        case GOSSIP_ACTION_INFO_DEF + 7: sound = 6669; break;
+        case GOSSIP_ACTION_INFO_DEF + 8: sound = 8485; break;
+        case GOSSIP_ACTION_INFO_DEF + 9: sound = 2536; break;
+        case GOSSIP_ACTION_INFO_DEF + 10: sound = 7196; break;
+        case GOSSIP_ACTION_INFO_DEF + 11: sound = 5376; break;
+        case GOSSIP_ACTION_INFO_DEF + 12: sound = 8887; break;
+        case GOSSIP_ACTION_INFO_DEF + 13: sound = 5055; break;
+        case GOSSIP_ACTION_INFO_DEF + 14: sound = 6836; break;
         }
         break;
     case 1000078: // Frosty's Jukebox
         switch (action)
         {
-        case GOSSIP_ACTION_INFO_DEF + 1:
-            sound = 4516;
-            break;
-        case GOSSIP_ACTION_INFO_DEF + 2:
-            sound = 8440;
-            break;
+        case GOSSIP_ACTION_INFO_DEF + 1: sound = 4516; break;
+        case GOSSIP_ACTION_INFO_DEF + 2: sound = 8440; break;
         }
         break;
     case 3000105: // Zeppelin's Shortwave Radio
         switch (action)
         {
-        case GOSSIP_ACTION_INFO_DEF + 1:
-            sound = 30221;
-            break;
-        case GOSSIP_ACTION_INFO_DEF + 2:
-            sound = 30220;
-            break;
-        case GOSSIP_ACTION_INFO_DEF + 3:
-            sound = 30218;
-            break;
-        case GOSSIP_ACTION_INFO_DEF + 4:
-            sound = 30217;
-            break;
-        case GOSSIP_ACTION_INFO_DEF + 5:
-            sound = 30216;
-            break;
+        case GOSSIP_ACTION_INFO_DEF + 1: sound = 30221; break;
+        case GOSSIP_ACTION_INFO_DEF + 2: sound = 30220; break;
+        case GOSSIP_ACTION_INFO_DEF + 3: sound = 30218; break;
+        case GOSSIP_ACTION_INFO_DEF + 4: sound = 30217; break;
+        case GOSSIP_ACTION_INFO_DEF + 5: sound = 30216; break;
         }
         break;
     case 1000077: // Goblin Radio KABOOM-Box X23B76
         switch (action)
         {
-        case GOSSIP_ACTION_INFO_DEF + 1:
-            sound = 30221;
-            break;
-        case GOSSIP_ACTION_INFO_DEF + 2:
-            sound = 30215;
-            break;
+        case GOSSIP_ACTION_INFO_DEF + 1: sound = 30221; break;
+        case GOSSIP_ACTION_INFO_DEF + 2: sound = 30215; break;
         }
         break;
     }
@@ -1040,21 +846,18 @@ uint32 GetTabAmount(Player* player)
         player->SetPlayerVariable(PlayerVariables::UnlockedSpecTabs, std::to_string(tabs));
     else
     {
-        try
-        {
+        try {
             tabs = std::stoi(unlockedTabs.value());
         }
-        catch (...)
-        {
-        }
+        catch (...) {}
     }
     return tabs;
 }
 
 bool GOHello_go_brainwashing_device(Player* pPlayer, GameObject* pGo)
 {
-    if (pPlayer->GetLevel() >= 10 && pPlayer->HasSpell(46002))
-    {
+	if (pPlayer->GetLevel() >= 10 && pPlayer->HasSpell(46002))
+	{
 
         if (pPlayer->IsInCombat())
         {
@@ -1066,25 +869,25 @@ bool GOHello_go_brainwashing_device(Player* pPlayer, GameObject* pGo)
 
         std::string activateText{};
 
-        pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_TRAINER, BCT_RESET_TALENTS, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+		pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_TRAINER, BCT_RESET_TALENTS, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
 
-        // Primary
-        if (pPlayer->HasSavedTalentSpec(1))
-        {
-            activateText = ("Activate 1st Specialization " + pPlayer->SpecTalentPoints(1));
-            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_INTERACT_1, activateText.c_str(), GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
-        }
+		// Primary
+		if (pPlayer->HasSavedTalentSpec(1))
+		{
+			activateText = ("Activate 1st Specialization " + pPlayer->SpecTalentPoints(1));
+			pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_INTERACT_1, activateText.c_str(), GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
+		}
 
-        pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_TRAINER, BCT_SAVE_PRIMARY_SPEC, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 3);
+		pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_TRAINER, BCT_SAVE_PRIMARY_SPEC, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 3);
 
-        // Secondary
-        if (pPlayer->HasSavedTalentSpec(2))
-        {
-            activateText = ("Activate 2nd Specialization " + pPlayer->SpecTalentPoints(2));
-            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_INTERACT_1, activateText.c_str(), GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 4);
-        }
+		// Secondary
+		if (pPlayer->HasSavedTalentSpec(2))
+		{
+			activateText = ("Activate 2nd Specialization " + pPlayer->SpecTalentPoints(2));
+			pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_INTERACT_1, activateText.c_str(), GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 4);
+		}
 
-        pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_TRAINER, BCT_SAVE_SECONDARY_SPEC, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 5);
+		pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_TRAINER, BCT_SAVE_SECONDARY_SPEC, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 5);
 
         bool offeredTab = false;
 
@@ -1119,12 +922,13 @@ bool GOHello_go_brainwashing_device(Player* pPlayer, GameObject* pGo)
             if (!offeredTab)
                 pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_MONEY_BAG, "Buy 4th Specialization tab for 200 gold.", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 11);
         }
-    }
+	}
 
     pPlayer->SEND_GOSSIP_MENU(90350, pGo->GetGUID());
 
     return true;
 }
+
 
 
 bool GOSelect_go_brainwashing_device(Player* pPlayer, GameObject* pGo, const uint32 uiSender, const uint32 uiAction)
@@ -1185,13 +989,13 @@ bool GOSelect_go_brainwashing_device(Player* pPlayer, GameObject* pGo, const uin
         else
             pPlayer->SaveTalentSpec(4);
     }
-    // I know ill fix it later
+    //I know ill fix it later
 
 
     if (uiAction == GOSSIP_ACTION_INFO_DEF + 10 || uiAction == GOSSIP_ACTION_INFO_DEF + 11)
     {
         uint32 cost = uiAction == GOSSIP_ACTION_INFO_DEF + 10 ? 100 : 200;
-
+        
 
         if (pPlayer->GetMoney() < (cost * GOLD))
         {
@@ -1202,17 +1006,17 @@ bool GOSelect_go_brainwashing_device(Player* pPlayer, GameObject* pGo, const uin
         uint32 unlockedTab = uiAction == GOSSIP_ACTION_INFO_DEF + 10 ? 3 : 4;
         uint32 tabs = GetTabAmount(pPlayer);
 
-        // prevent unlocking already unlocked tabs or skipping a number
+        //prevent unlocking already unlocked tabs or skipping a number
         if (unlockedTab == tabs || (unlockedTab == 4 && tabs == 2))
             return true;
 
-        // ok all good.
+        //ok all good.
         pPlayer->LogModifyMoney(-(int32)cost * GOLD, "Spec Machine");
         pPlayer->SetPlayerVariable(PlayerVariables::UnlockedSpecTabs, std::to_string(unlockedTab));
         ChatHandler(pPlayer).SendSysMessage("Specialization tab bought.");
     }
 
-    pPlayer->CLOSE_GOSSIP_MENU();
+	pPlayer->CLOSE_GOSSIP_MENU();
 
     return true;
 }
@@ -1312,7 +1116,8 @@ struct refreshment_portal_clicks : public GameObjectAI
         if (!Unit->ToPlayer())
             return false;
 
-        if (!Unit->ToPlayer()->IsInCombat() && !Unit->ToPlayer()->IsBeingTeleported() && Unit->ToPlayer()->GetDeathState() != CORPSE && !Unit->ToPlayer()->IsMoving())
+        if (!Unit->ToPlayer()->IsInCombat() && !Unit->ToPlayer()->IsBeingTeleported()
+            && Unit->ToPlayer()->GetDeathState() != CORPSE && !Unit->ToPlayer()->IsMoving())
         {
             Unit->ToPlayer()->CastSpell(Unit->ToPlayer(), 29423, false);
         }
@@ -1321,7 +1126,10 @@ struct refreshment_portal_clicks : public GameObjectAI
     }
 };
 
-GameObjectAI* GetAI_refreshment_portal_clicks(GameObject* gameobject) { return new refreshment_portal_clicks(gameobject); }
+GameObjectAI* GetAI_refreshment_portal_clicks(GameObject* gameobject)
+{
+    return new refreshment_portal_clicks(gameobject);
+}
 
 // Refreshment table GO
 
@@ -1330,7 +1138,7 @@ struct refreshment_table_clicks : public GameObjectAI
 
     explicit refreshment_table_clicks(GameObject* pGo) : GameObjectAI(pGo)
     {
-        max_stacks = 40 * 4; // 40 players, 4 stacks per player
+        max_stacks = 40 * 4;                       // 40 players, 4 stacks per player
         stacks_handed_out = 0;
         table_life = 3 * MINUTE * IN_MILLISECONDS;
         stand = nullptr;
@@ -1375,9 +1183,13 @@ struct refreshment_table_clicks : public GameObjectAI
 
         return true;
     }
+
 };
 
-GameObjectAI* GetAI_refreshment_table_clicks(GameObject* gameobject) { return new refreshment_table_clicks(gameobject); }
+GameObjectAI* GetAI_refreshment_table_clicks(GameObject* gameobject)
+{
+    return new refreshment_table_clicks(gameobject);
+}
 
 
 // Soulwell Portal GO
@@ -1475,7 +1287,8 @@ struct soulwell_portal_clicks : public GameObjectAI
         if (!Unit->ToPlayer())
             return false;
 
-        if (!Unit->ToPlayer()->IsInCombat() && !Unit->ToPlayer()->IsBeingTeleported() && Unit->ToPlayer()->GetDeathState() != CORPSE && !Unit->ToPlayer()->IsMoving())
+        if (!Unit->ToPlayer()->IsInCombat() && !Unit->ToPlayer()->IsBeingTeleported()
+            && Unit->ToPlayer()->GetDeathState() != CORPSE && !Unit->ToPlayer()->IsMoving())
         {
             Unit->ToPlayer()->CastSpell(Unit->ToPlayer(), 45924, false);
         }
@@ -1484,7 +1297,10 @@ struct soulwell_portal_clicks : public GameObjectAI
     }
 };
 
-GameObjectAI* GetAI_soulwell_portal_clicks(GameObject* gameobject) { return new soulwell_portal_clicks(gameobject); }
+GameObjectAI* GetAI_soulwell_portal_clicks(GameObject* gameobject)
+{
+    return new soulwell_portal_clicks(gameobject);
+}
 
 // soulwell GO
 
@@ -1521,9 +1337,9 @@ struct soulwell_clicks : public GameObjectAI
 
         if (me->GetOwner() && me->GetOwner()->ToPlayer())
         {
-            if (me->GetOwner()->ToPlayer()->HasSpell(18692)) // 1/2 improved healthstone talent
+            if (me->GetOwner()->ToPlayer()->HasSpell(18692))        // 1/2 improved healthstone talent
                 itemSoulStone = 19012;
-            if (me->GetOwner()->ToPlayer()->HasSpell(18693)) // 2/2 improved healthstone talent
+            if (me->GetOwner()->ToPlayer()->HasSpell(18693))        // 2/2 improved healthstone talent
                 itemSoulStone = 19013;
         }
 
@@ -1535,9 +1351,13 @@ struct soulwell_clicks : public GameObjectAI
 
         return true;
     }
+
 };
 
-GameObjectAI* GetAI_soulwell_clicks(GameObject* gameobject) { return new soulwell_clicks(gameobject); }
+GameObjectAI* GetAI_soulwell_clicks(GameObject* gameobject)
+{
+    return new soulwell_clicks(gameobject);
+}
 
 bool GossipHello_npc_aspirant_shadewalker(Player* p_Player, Creature* p_Creature)
 {
@@ -1557,9 +1377,9 @@ bool GossipSelect_npc_aspirant_shadewalker(Player* p_Player, Creature* p_Creatur
     return true;
 }
 
-#define ELUNE_WINTER_QUEST 50318
-#define EGGNOG_ITEM 17198
-#define MOONKIN_FED 19705
+#define ELUNE_WINTER_QUEST 50318     
+#define EGGNOG_ITEM        17198      
+#define MOONKIN_FED        19705      
 
 bool GossipHello_npc_shivering_moonkin(Player* pPlayer, Creature* pCreature)
 {
@@ -1644,7 +1464,9 @@ bool GossipSelect_npc_frosty(Player* pPlayer, Creature* pCreature, uint32 /*uiSe
 
 struct npc_save_sharkAI : public ScriptedPetAI
 {
-    npc_save_sharkAI(Creature* pCreature) : ScriptedPetAI(pCreature) {}
+    npc_save_sharkAI(Creature* pCreature) : ScriptedPetAI(pCreature)
+    {
+    }
 
     void ReceiveEmote(Player* pPlayer, uint32 uiEmote)
     {
@@ -1731,7 +1553,9 @@ bool GossipSelect_npc_vip_invite(Player* pPlayer, Creature* pCreature, uint32 /*
 
 struct npc_chihkoaAI : public ScriptedPetAI
 {
-    npc_chihkoaAI(Creature* pCreature) : ScriptedPetAI(pCreature) {}
+    npc_chihkoaAI(Creature* pCreature) : ScriptedPetAI(pCreature)
+    {
+    }
 
     void ReceiveEmote(Player* pPlayer, uint32 uiEmote)
     {
@@ -1744,31 +1568,40 @@ struct npc_chihkoaAI : public ScriptedPetAI
             {
                 if (pPlayer->ToPlayer()->GetDrunkValue() > 0)
                 {
-                    int32 dummy_player{70011};
+                    int32 dummy_player{ 70011 };
                     CreatureInfo const* cInfo = sObjectMgr.GetCreatureTemplate(dummy_player);
 
                     if (cInfo != nullptr)
                         pPlayer->ToPlayer()->KilledMonster(cInfo, ObjectGuid());
                 }
+
             }
         }
     }
 };
 
-CreatureAI* GetAI_npc_chihkoa(Creature* pCreature) { return new npc_chihkoaAI(pCreature); }
+CreatureAI* GetAI_npc_chihkoa(Creature* pCreature)
+{
+    return new npc_chihkoaAI(pCreature);
+}
 
 struct npc_scripted_companionAI : public ScriptedPetAI
 {
     bool init = false;
 
-    npc_scripted_companionAI(Creature* pCreature) : ScriptedPetAI(pCreature) { init = false; }
+    npc_scripted_companionAI(Creature* pCreature) : ScriptedPetAI(pCreature)
+    {
+        init = false;
+    }
 
     void UpdatePetOOCAI(const uint32 uiDiff)
     {
         if (!init && m_creature && m_creature->IsAlive() && m_creature->IsPet())
         {
             init = true;
-            m_creature->GetMotionMaster()->MoveFollow(m_creature->GetCharmerOrOwnerPlayerOrPlayerItself(), PET_FOLLOW_DIST, 270.0f * (M_PI_F / 180.0f));
+            m_creature->GetMotionMaster()->MoveFollow(m_creature->GetCharmerOrOwnerPlayerOrPlayerItself(),
+                PET_FOLLOW_DIST,
+                270.0f * (M_PI_F / 180.0f));
         }
     }
 
@@ -1782,13 +1615,19 @@ struct npc_scripted_companionAI : public ScriptedPetAI
     }
 };
 
-CreatureAI* GetAI_npc_scripted_companion(Creature* pCreature) { return new npc_scripted_companionAI(pCreature); }
+CreatureAI* GetAI_npc_scripted_companion(Creature* pCreature)
+{
+    return new npc_scripted_companionAI(pCreature);
+}
 
 struct lil_foot_petAI : public ScriptedPetAI
 {
     bool init = false;
 
-    lil_foot_petAI(Creature* pCreature) : ScriptedPetAI(pCreature) { init = false; }
+    lil_foot_petAI(Creature* pCreature) : ScriptedPetAI(pCreature)
+    {
+        init = false;
+    }
 
     void UpdatePetOOCAI(const uint32 uiDiff)
     {
@@ -1796,18 +1635,24 @@ struct lil_foot_petAI : public ScriptedPetAI
         {
             init = true;
             m_creature->PMonsterSay(66100);
-            m_creature->GetMotionMaster()->MoveFollow(m_creature->GetCharmerOrOwnerPlayerOrPlayerItself(), PET_FOLLOW_DIST, 270.0f * (M_PI_F / 180.0f));
+            m_creature->GetMotionMaster()->MoveFollow(m_creature->GetCharmerOrOwnerPlayerOrPlayerItself(),
+                PET_FOLLOW_DIST,
+                270.0f * (M_PI_F / 180.0f));
         }
     }
+
 };
 
-CreatureAI* GetAI_lil_foot_pet(Creature* pCreature) { return new lil_foot_petAI(pCreature); }
+CreatureAI* GetAI_lil_foot_pet(Creature* pCreature)
+{
+    return new lil_foot_petAI(pCreature);
+}
 
-#define ONCE_UPON_A_SHEEP 60005
-#define LOST_FARM_SHEEP_ITEM 51220
+#define ONCE_UPON_A_SHEEP        60005
+#define LOST_FARM_SHEEP_ITEM     51220
 #define DELICIOUS_ELWYNN_TRUFFLE 51218
-#define WOOL_WILL_WORL 60008
-#define FLOCK_OF_WOOL 51223
+#define WOOL_WILL_WORL           60008
+#define FLOCK_OF_WOOL            51223
 
 bool GossipHello_npc_lost_farm_sheep(Player* pPlayer, Creature* pCreature)
 {
@@ -1892,14 +1737,11 @@ bool GossipHello_title_masker(Player* pPlayer, Creature* pCreature)
     return true;
 }
 
-bool GossipSelect_title_masker(Player* player, Creature* creature, uint32 sender, uint32 action)
-{
-    if (action > GOSSIP_ACTION_INFO_DEF)
-    {
+bool GossipSelect_title_masker(Player* player, Creature* creature, uint32 sender, uint32 action) {
+    if (action > GOSSIP_ACTION_INFO_DEF) {
         bool hideRank = action == GOSSIP_ACTION_INFO_DEF + 2;
         player->SetIgnoringTitles(hideRank);
-        if (hideRank)
-        {
+        if (hideRank) {
             player->ModifyMoney(-50000);
             ChatHandler(player).PSendSysMessage("|cffff8040You carefully place 5 gold coins in the dealer's hand.|r");
         }
@@ -1933,9 +1775,9 @@ bool GossipSelect_npc_flying_machine(Player* player, Creature* creature, uint32 
         return true;
 
     if (uiAction == GOSSIP_ACTION_INFO_DEF + 1)
-        player->ActivateTaxiPathTo(1619, 0, true); // Weeeee!
+        player->ActivateTaxiPathTo(311, 0, true); // Weeeee!
     if (uiAction == GOSSIP_ACTION_INFO_DEF + 2)
-        player->ActivateTaxiPathTo(1633, 0, true); // Weeeee!
+        player->ActivateTaxiPathTo(322, 0, true); // Weeeee!
     player->CLOSE_GOSSIP_MENU();
     return true;
 }
@@ -1966,53 +1808,53 @@ enum DressingBoxes
 };
 
 bool GossipHello_rented_mount(Player* player, Creature* mount)
-{
+{    
     if (player->GetMountID())
         return false;
 
     switch (mount->GetEntry())
     {
-    case 51560:
-    case 51561:
-        player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, 66850, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-        player->SEND_GOSSIP_MENU(90365, mount->GetGUID());
-        return true;
-    case 51580:
-    case 51581:
-        player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, 66851, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-        player->SEND_GOSSIP_MENU(90368, mount->GetGUID());
-        return true;
-    case 51588:
-    case 51589:
-    case 51587:
-        player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, 66852, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-        player->SEND_GOSSIP_MENU(90369, mount->GetGUID());
-        return true;
-    case 4779:
-        player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, 66853, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-        player->SEND_GOSSIP_MENU(90381, mount->GetGUID());
-        return true;
-    case 4710:
-        player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, 66854, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-        player->SEND_GOSSIP_MENU(90381, mount->GetGUID());
-        return true;
-    case 12354:
-        player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, 66855, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-        player->SEND_GOSSIP_MENU(90382, mount->GetGUID());
-        return true;
-    case 12355:
-        player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, 66856, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-        player->SEND_GOSSIP_MENU(90382, mount->GetGUID());
-        return true;
-    default:
-        break;
+        case 51560:
+        case 51561:
+            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, 66850, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+            player->SEND_GOSSIP_MENU(90365, mount->GetGUID());
+            return true;
+        case 51580:
+        case 51581:
+            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, 66851, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+            player->SEND_GOSSIP_MENU(90368, mount->GetGUID());
+            return true;
+        case 51588:
+        case 51589:
+        case 51587:
+            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, 66852, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+            player->SEND_GOSSIP_MENU(90369, mount->GetGUID());
+            return true;
+        case 4779:
+            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, 66853, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+            player->SEND_GOSSIP_MENU(90381, mount->GetGUID());
+            return true;
+        case 4710:
+            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, 66854, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+            player->SEND_GOSSIP_MENU(90381, mount->GetGUID());
+            return true;
+        case 12354:
+            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, 66855, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+            player->SEND_GOSSIP_MENU(90382, mount->GetGUID());
+            return true;
+        case 12355:
+            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, 66856, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+            player->SEND_GOSSIP_MENU(90382, mount->GetGUID());
+            return true;
+        default:
+            break;
     }
     return true;
 }
 
 bool GossipSelect_rented_mount(Player* pPlayer, Creature* pCreature, uint32 /*uiSender*/, uint32 uiAction)
 {
-    uint32 spell{0};
+    uint32 spell{ 0 };
 
     if (uiAction == GOSSIP_ACTION_INFO_DEF + 1 && !pPlayer->GetMountID())
     {
@@ -2020,41 +1862,20 @@ bool GossipSelect_rented_mount(Player* pPlayer, Creature* pCreature, uint32 /*ui
         {
             switch (pCreature->GetEntry())
             {
-            case 51560:
-                spell = 468;
-                break; // White Stallion
-            case 51561:
-                spell = 471;
-                break; // Palomino
-            case 51580:
-                spell = 6653;
-                break; // Dire Riding Wolf
-            case 51581:
-                spell = 580;
-                break; // Timber Riding Wolf
-            case 51588:
-                spell = 17462;
-                break; // Red Skeletal Horse
-            case 51589:
-                spell = 17463;
-                break; // Blue Skeletal Horse
-            case 51587:
-                spell = 17464;
-                break; // Brown Skeletal Horse
-            case 4779:
-                spell = 6899;
-                break; // Brown Riding Ram
-            case 4710:
-                spell = 6777;
-                break; // Gray Riding Ram
-            case 12354:
-                spell = 18990;
-                break; // Brown Riding Kodo
-            case 12355:
-                spell = 18989;
-                break; // Gray Riding Kodo
-            default:
-                break;
+                case 51560: spell = 40701;    break; // White Stallion
+                case 51561: spell = 40700;    break; // Palomino
+                case 51580: spell = 40702;   break; // Dire Riding Wolf
+                case 51581: spell = 40703;    break; // Timber Riding Wolf
+                case 51588: spell = 40704;  break; // Red Skeletal Horse
+                case 51589: spell = 40705;  break; // Blue Skeletal Horse
+                case 51587: spell = 40706;  break; // Brown Skeletal Horse
+                case 4779:  spell = 40707;   break; // Brown Riding Ram
+                case 4710:  spell = 40708;   break; // Gray Riding Ram
+                case 12354: spell = 40709;  break; // Brown Riding Kodo
+                case 12355: spell = 40710;  break; // Gray Riding Kodo
+                case 40045: spell = 40711; break; // Thalassian Unicorn
+                default:
+                    break;
             }
             pPlayer->CastSpell(pPlayer, spell, true);
             pPlayer->ModifyMoney(-50);
@@ -2137,24 +1958,17 @@ bool GossipSelect_npc_flying_mount(Player* p_Player, Creature* p_Creature, uint3
         }
         else
             p_Player->GetSession()->SendNotification("Requires Dwarven Mild.");
+
     }
     if (uiAction == GOSSIP_ACTION_INFO_DEF + 2 || uiAction == GOSSIP_ACTION_INFO_DEF + 3 || uiAction == GOSSIP_ACTION_INFO_DEF + 4 || uiAction == GOSSIP_ACTION_INFO_DEF + 6)
     {
         uint32 mountId = 0;
         switch (uiAction)
         {
-        case GOSSIP_ACTION_INFO_DEF + 2:
-            mountId = 295;
-            break; // Gryphon
-        case GOSSIP_ACTION_INFO_DEF + 3:
-            mountId = 18274;
-            break; // Wywern
-        case GOSSIP_ACTION_INFO_DEF + 4:
-            mountId = 18279;
-            break; // Bronze Drake
-        case GOSSIP_ACTION_INFO_DEF + 6:
-            mountId = 1936;
-            break; // Zephyra
+        case GOSSIP_ACTION_INFO_DEF + 2: mountId = 295;   break; // Gryphon
+        case GOSSIP_ACTION_INFO_DEF + 3: mountId = 18274; break; // Wywern
+        case GOSSIP_ACTION_INFO_DEF + 4: mountId = 18279; break; // Bronze Drake
+        case GOSSIP_ACTION_INFO_DEF + 6: mountId = 1936; break; // Zephyra
         }
 
         SetFlying(p_Player, 45, mountId);
@@ -2187,7 +2001,10 @@ enum palkeoteSpells
 
 struct palkeoteAI : public ScriptedAI
 {
-    palkeoteAI(Creature* c) : ScriptedAI(c) { Reset(); }
+    palkeoteAI(Creature* c) : ScriptedAI(c)
+    {
+        Reset();
+    }
 
     EventMap m_events;
     bool calfActive = false;
@@ -2206,7 +2023,10 @@ struct palkeoteAI : public ScriptedAI
         m_events.ScheduleEvent(SPELL_FEAR, Seconds(urand(8, 12)));
     }
 
-    void JustRespawned() { Reset(); }
+    void JustRespawned()
+    {
+        Reset();
+    }
 
     void UpdateAI(const uint32 diff)
     {
@@ -2244,7 +2064,7 @@ struct palkeoteAI : public ScriptedAI
             return;
         }
 
-        // Return since we have no target
+        //Return since we have no target
         if (!m_creature->SelectHostileTarget() || !m_creature->GetVictim())
             return;
 
@@ -2266,9 +2086,13 @@ struct palkeoteAI : public ScriptedAI
 
         DoMeleeAttackIfReady();
     }
+
 };
 
-CreatureAI* GetAI_palkeote(Creature* _Creature) { return new palkeoteAI(_Creature); }
+CreatureAI* GetAI_palkeote(Creature* _Creature)
+{
+    return new palkeoteAI(_Creature);
+}
 
 bool GossipHello_npc_ropaw(Player* p_Player, Creature* p_Creature)
 {
@@ -2331,12 +2155,14 @@ bool GossipHello_MiningEnchanter(Player* player, Creature* creature)
         Item* item = player->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_MAINHAND);
         if (item && item->GetEnchantmentId(PERM_ENCHANTMENT_SLOT) == MINING_ENCHANT_5)
         {
-            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, 66864, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, 66864, GOSSIP_SENDER_MAIN,
+                GOSSIP_ACTION_INFO_DEF + 1);
             player->SEND_GOSSIP_MENU(ALREADY_INSTALLED_TEXT, creature->GetGUID());
         }
         else
         {
-            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, 66865, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
+            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, 66865, GOSSIP_SENDER_MAIN,
+                GOSSIP_ACTION_INFO_DEF + 2);
             player->SEND_GOSSIP_MENU(DEFAULT_MINER_TEXT, creature->GetGUID());
         }
 
@@ -2408,10 +2234,11 @@ bool QuestAccept_npc_mysterious_stranger(Player* pPlayer, Creature* pQuestGiver,
 
 bool QuestRewarded_npc_mysterious_stranger(Player* pPlayer, Creature* pQuestGiver, Quest const* pQuest)
 {
-    if (!pQuestGiver)
+    if (!pQuestGiver || !pPlayer)
         return false;
 
-    if (!pPlayer)
+    // Bots must never activate challenge modes — skip all rewards from this NPC.
+    if (Script_IsAIControlled(pPlayer))
         return false;
 
     if (pQuest->GetQuestId() == 80388) // Stay awhile and listen...
@@ -2433,7 +2260,8 @@ bool GossipHello_DinkaDinker(Player* player, Creature* creature)
 {
     if (player->GetGuildId() == TRAVELER_GUILD_ID)
     {
-        player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, 66866, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+        player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, 66866, GOSSIP_SENDER_MAIN,
+            GOSSIP_ACTION_INFO_DEF + 1);
         player->SEND_GOSSIP_MENU(OK_TEXT, creature->GetGUID());
         return true;
     }
@@ -2482,8 +2310,7 @@ bool GossipHello_npc_caledra(Player* pPlayer, Creature* pCreature)
     {
         pPlayer->SEND_GOSSIP_MENU(60313, pCreature->GetGUID());
     }
-    else
-        pPlayer->SEND_GOSSIP_MENU(90372, pCreature->GetGUID());
+    else pPlayer->SEND_GOSSIP_MENU(90372, pCreature->GetGUID());
     return true;
 }
 
@@ -2537,415 +2364,325 @@ bool GossipSelect_npc_caledra(Player* pPlayer, Creature* pCreature, uint32 /*uiS
         pCreature->SummonCreature(7937, -8524.31F, 394.68F, 108.38F, 3.82F, TEMPSUMMON_TIMED_DESPAWN, 160 * IN_MILLISECONDS);
         pCreature->SummonCreature(80877, -8524.59F, 390.27F, 108.38F, 3.82F, TEMPSUMMON_TIMED_DESPAWN, 170 * IN_MILLISECONDS);
 
-        DoAfterTime(pPlayer, 1 * IN_MILLISECONDS,
-                    [player = pPlayer, npc = pCreature]()
-                    {
-                        if (Creature* bolvar = player->FindNearestCreature(1748, 30.0F))
-                        {
-                            bolvar->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                            bolvar->SetWalk(true);
-                            bolvar->GetMotionMaster()->MovePoint(0, -8547.55F, 376.93F, 108.38F);
-                        }
-                    });
-        DoAfterTime(pPlayer, 12 * IN_MILLISECONDS,
-                    [player = pPlayer, npc = pCreature]()
-                    {
-                        if (Creature* bolvar = player->FindNearestCreature(1748, 30.0F))
-                        {
-                            bolvar->SetWalk(true);
-                            bolvar->GetMotionMaster()->MovePoint(0, -8546.75F, 376.99F, 108.38F);
-                        }
-                    });
-        DoAfterTime(pPlayer, 1 * IN_MILLISECONDS,
-                    [player = pPlayer, npc = pCreature]()
-                    {
-                        if (Creature* jaina = player->FindNearestCreature(4968, 30.0F))
-                        {
-                            jaina->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                            jaina->SetWalk(true);
-                            jaina->GetMotionMaster()->MovePoint(0, -8544.79F, 373.77F, 108.38F);
-                        }
-                    });
-        DoAfterTime(pPlayer, 12 * IN_MILLISECONDS,
-                    [player = pPlayer, npc = pCreature]()
-                    {
-                        if (Creature* jaina = player->FindNearestCreature(4968, 30.0F))
-                        {
-                            jaina->SetWalk(true);
-                            jaina->GetMotionMaster()->MovePoint(0, -8544.50F, 373.97F, 108.38F);
-                        }
-                    });
-        DoAfterTime(pPlayer, 1 * IN_MILLISECONDS,
-                    [player = pPlayer, npc = pCreature]()
-                    {
-                        if (Creature* tirande = player->FindNearestCreature(7999, 30.0F))
-                        {
-                            tirande->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                            tirande->SetWalk(true);
-                            tirande->GetMotionMaster()->MovePoint(0, -8545.80F, 381.02F, 108.38F);
-                        }
-                    });
-        DoAfterTime(pPlayer, 12 * IN_MILLISECONDS,
-                    [player = pPlayer, npc = pCreature]()
-                    {
-                        if (Creature* tirande = player->FindNearestCreature(7999, 30.0F))
-                        {
-                            tirande->SetWalk(true);
-                            tirande->GetMotionMaster()->MovePoint(0, -8545.41F, 380.89F, 108.38F);
-                        }
-                    });
-        DoAfterTime(pPlayer, 1 * IN_MILLISECONDS,
-                    [player = pPlayer, npc = pCreature]()
-                    {
-                        if (Creature* magni = player->FindNearestCreature(2784, 30.0F))
-                        {
-                            magni->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                            magni->SetWalk(true);
-                            magni->GetMotionMaster()->MovePoint(0, -8540.34F, 374.64F, 108.38F);
-                        }
-                    });
-        DoAfterTime(pPlayer, 12 * IN_MILLISECONDS,
-                    [player = pPlayer, npc = pCreature]()
-                    {
-                        if (Creature* magni = player->FindNearestCreature(2784, 30.0F))
-                        {
-                            magni->SetWalk(true);
-                            magni->GetMotionMaster()->MovePoint(0, -8540.89F, 375.41F, 108.38F);
-                        }
-                    });
-        DoAfterTime(pPlayer, 1 * IN_MILLISECONDS,
-                    [player = pPlayer, npc = pCreature]()
-                    {
-                        if (Creature* mekkatorque = player->FindNearestCreature(7937, 30.0F))
-                        {
-                            mekkatorque->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                            mekkatorque->SetWalk(true);
-                            mekkatorque->GetMotionMaster()->MovePoint(0, -8540.60F, 381.78F, 108.38F);
-                        }
-                    });
-        DoAfterTime(pPlayer, 1 * IN_MILLISECONDS,
-                    [player = pPlayer, npc = pCreature]()
-                    {
-                        if (Creature* vereesa = player->FindNearestCreature(80877, 30.0F))
-                        {
-                            vereesa->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                            vereesa->SetWalk(true);
-                            vereesa->GetMotionMaster()->MovePoint(0, -8538.79F, 379.00F, 108.38F);
-                        }
-                    });
-        DoAfterTime(pPlayer, 12 * IN_MILLISECONDS,
-                    [player = pPlayer, npc = pCreature]()
-                    {
-                        if (Creature* vereesa = player->FindNearestCreature(80877, 30.0F))
-                        {
-                            vereesa->SetWalk(true);
-                            vereesa->GetMotionMaster()->MovePoint(0, -8539.31F, 379.04F, 108.38F);
-                        }
-                    });
-        DoAfterTime(pPlayer, 20 * IN_MILLISECONDS,
-                    [player = pPlayer, npc = pCreature]()
-                    {
-                        if (Creature* tirande = player->FindNearestCreature(7999, 30.0F))
-                        {
-                            tirande->HandleEmote(EMOTE_ONESHOT_TALK);
-                            tirande->MonsterSay(66121);
-                        }
-                    });
-        DoAfterTime(pPlayer, 25 * IN_MILLISECONDS,
-                    [player = pPlayer, npc = pCreature]()
-                    {
-                        if (Creature* vereesa = player->FindNearestCreature(80877, 30.0F))
-                        {
-                            vereesa->HandleEmote(EMOTE_ONESHOT_TALK);
-                            vereesa->MonsterSay(66122);
-                        }
-                    });
-        DoAfterTime(pPlayer, 30 * IN_MILLISECONDS,
-                    [player = pPlayer, npc = pCreature]()
-                    {
-                        if (Creature* vereesa = player->FindNearestCreature(80877, 30.0F))
-                        {
-                            vereesa->HandleEmote(EMOTE_ONESHOT_TALK);
-                            vereesa->MonsterSay(66123);
-                        }
-                    });
-        DoAfterTime(pPlayer, 35 * IN_MILLISECONDS,
-                    [player = pPlayer, npc = pCreature]()
-                    {
-                        if (Creature* vereesa = player->FindNearestCreature(80877, 30.0F))
-                        {
-                            vereesa->HandleEmote(EMOTE_ONESHOT_TALK);
-                            vereesa->MonsterSay(66124);
-                        }
-                    });
-        DoAfterTime(pPlayer, 40 * IN_MILLISECONDS,
-                    [player = pPlayer, npc = pCreature]()
-                    {
-                        if (Creature* vereesa = player->FindNearestCreature(80877, 30.0F))
-                        {
-                            vereesa->HandleEmote(EMOTE_ONESHOT_TALK);
-                            vereesa->MonsterSay(66125);
-                        }
-                    });
-        DoAfterTime(pPlayer, 45 * IN_MILLISECONDS,
-                    [player = pPlayer, npc = pCreature]()
-                    {
-                        if (Creature* vereesa = player->FindNearestCreature(80877, 30.0F))
-                        {
-                            vereesa->HandleEmote(EMOTE_ONESHOT_TALK);
-                            vereesa->MonsterSay(66126);
-                        }
-                    });
-        DoAfterTime(pPlayer, 50 * IN_MILLISECONDS,
-                    [player = pPlayer, npc = pCreature]()
-                    {
-                        if (Creature* tirande = player->FindNearestCreature(7999, 30.0F))
-                        {
-                            tirande->HandleEmote(EMOTE_ONESHOT_TALK);
-                            tirande->MonsterYell(66127);
-                        }
-                    });
-        DoAfterTime(pPlayer, 55 * IN_MILLISECONDS,
-                    [player = pPlayer, npc = pCreature]()
-                    {
-                        if (Creature* magni = player->FindNearestCreature(2784, 30.0F))
-                        {
-                            magni->HandleEmote(EMOTE_ONESHOT_TALK);
-                            magni->MonsterSay(66128);
-                        }
-                    });
-        DoAfterTime(pPlayer, 60 * IN_MILLISECONDS,
-                    [player = pPlayer, npc = pCreature]()
-                    {
-                        if (Creature* mekkatorque = player->FindNearestCreature(7937, 30.0F))
-                        {
-                            mekkatorque->HandleEmote(EMOTE_ONESHOT_YES);
-                            mekkatorque->MonsterSay(66128);
-                        }
-                    });
-        DoAfterTime(pPlayer, 65 * IN_MILLISECONDS,
-                    [player = pPlayer, npc = pCreature]()
-                    {
-                        if (Creature* tirande = player->FindNearestCreature(7999, 30.0F))
-                        {
-                            tirande->HandleEmote(EMOTE_ONESHOT_TALK);
-                            tirande->MonsterSay(66130);
-                        }
-                    });
-        DoAfterTime(pPlayer, 70 * IN_MILLISECONDS,
-                    [player = pPlayer, npc = pCreature]()
-                    {
-                        if (Creature* vereesa = player->FindNearestCreature(80877, 30.0F))
-                        {
-                            vereesa->HandleEmote(EMOTE_ONESHOT_YES);
-                            vereesa->MonsterSay(66131);
-                        }
-                    });
-        DoAfterTime(pPlayer, 75 * IN_MILLISECONDS,
-                    [player = pPlayer, npc = pCreature]()
-                    {
-                        if (Creature* vereesa = player->FindNearestCreature(80877, 30.0F))
-                        {
-                            vereesa->HandleEmote(EMOTE_ONESHOT_TALK);
-                            vereesa->MonsterSay(66132);
-                        }
-                    });
-        DoAfterTime(pPlayer, 80 * IN_MILLISECONDS,
-                    [player = pPlayer, npc = pCreature]()
-                    {
-                        if (Creature* tirande = player->FindNearestCreature(7999, 30.0F))
-                        {
-                            tirande->HandleEmote(EMOTE_ONESHOT_TALK);
-                            tirande->MonsterSay(66133);
-                        }
-                    });
-        DoAfterTime(pPlayer, 85 * IN_MILLISECONDS,
-                    [player = pPlayer, npc = pCreature]()
-                    {
-                        if (Creature* bolvar = player->FindNearestCreature(1748, 30.0F))
-                        {
-                            bolvar->HandleEmote(EMOTE_ONESHOT_TALK);
-                            bolvar->MonsterSay(66134);
-                        }
-                    });
-        DoAfterTime(pPlayer, 90 * IN_MILLISECONDS,
-                    [player = pPlayer, npc = pCreature]()
-                    {
-                        if (Creature* bolvar = player->FindNearestCreature(1748, 30.0F))
-                        {
-                            bolvar->HandleEmote(EMOTE_ONESHOT_TALK);
-                            bolvar->MonsterSay(66135);
-                        }
-                    });
-        DoAfterTime(pPlayer, 95 * IN_MILLISECONDS,
-                    [player = pPlayer, npc = pCreature]()
-                    {
-                        if (Creature* tirande = player->FindNearestCreature(7999, 30.0F))
-                        {
-                            tirande->HandleEmote(EMOTE_ONESHOT_NO);
-                            tirande->MonsterSay(66136);
-                        }
-                    });
-        DoAfterTime(pPlayer, 100 * IN_MILLISECONDS,
-                    [player = pPlayer, npc = pCreature]()
-                    {
-                        if (Creature* magni = player->FindNearestCreature(2784, 30.0F))
-                        {
-                            magni->HandleEmote(EMOTE_ONESHOT_NO);
-                            magni->MonsterSay(66137);
-                        }
-                    });
-        DoAfterTime(pPlayer, 105 * IN_MILLISECONDS,
-                    [player = pPlayer, npc = pCreature]()
-                    {
-                        if (Creature* mekkatorque = player->FindNearestCreature(2784, 30.0F))
-                        {
-                            mekkatorque->HandleEmote(EMOTE_ONESHOT_YES);
-                            mekkatorque->MonsterSay(66138);
-                        }
-                    });
-        DoAfterTime(pPlayer, 110 * IN_MILLISECONDS,
-                    [player = pPlayer, npc = pCreature]()
-                    {
-                        if (Creature* mekkatorque = player->FindNearestCreature(2784, 30.0F))
-                        {
-                            mekkatorque->HandleEmote(EMOTE_ONESHOT_YES);
-                            mekkatorque->MonsterSay(66139);
-                        }
-                    });
-        DoAfterTime(pPlayer, 115 * IN_MILLISECONDS,
-                    [player = pPlayer, npc = pCreature]()
-                    {
-                        if (Creature* jaina = player->FindNearestCreature(4968, 30.0F))
-                        {
-                            jaina->HandleEmote(EMOTE_ONESHOT_TALK);
-                            jaina->MonsterSay(66140);
-                        }
-                    });
-        DoAfterTime(pPlayer, 120 * IN_MILLISECONDS,
-                    [player = pPlayer, npc = pCreature]()
-                    {
-                        if (Creature* tirande = player->FindNearestCreature(7999, 30.0F))
-                        {
-                            tirande->HandleEmote(EMOTE_ONESHOT_TALK);
-                            tirande->MonsterSay(66141);
-                        }
-                    });
-        DoAfterTime(pPlayer, 125 * IN_MILLISECONDS,
-                    [player = pPlayer, npc = pCreature]()
-                    {
-                        if (Creature* tirande = player->FindNearestCreature(7999, 30.0F))
-                        {
-                            tirande->HandleEmote(EMOTE_ONESHOT_TALK);
-                            tirande->MonsterSay(66142);
-                        }
-                    });
-        DoAfterTime(pPlayer, 130 * IN_MILLISECONDS,
-                    [player = pPlayer, npc = pCreature]()
-                    {
-                        if (Creature* jaina = player->FindNearestCreature(4968, 30.0F))
-                        {
-                            jaina->HandleEmote(EMOTE_ONESHOT_TALK);
-                            jaina->MonsterSay(66143);
-                        }
-                    });
-        DoAfterTime(pPlayer, 135 * IN_MILLISECONDS,
-                    [player = pPlayer, npc = pCreature]()
-                    {
-                        if (Creature* vereesa = player->FindNearestCreature(80877, 30.0F))
-                        {
-                            vereesa->HandleEmote(EMOTE_ONESHOT_YES);
-                            vereesa->MonsterSay(66144);
-                        }
-                    });
-        DoAfterTime(pPlayer, 140 * IN_MILLISECONDS,
-                    [player = pPlayer, npc = pCreature]()
-                    {
-                        if (Creature* tirande = player->FindNearestCreature(7999, 30.0F))
-                        {
-                            tirande->HandleEmote(EMOTE_ONESHOT_TALK);
-                            tirande->MonsterSay(66145);
-                        }
-                    });
-        DoAfterTime(pPlayer, 145 * IN_MILLISECONDS,
-                    [player = pPlayer, npc = pCreature]()
-                    {
-                        if (Creature* bolvar = player->FindNearestCreature(1748, 30.0F))
-                        {
-                            bolvar->HandleEmote(EMOTE_ONESHOT_YES);
-                            bolvar->MonsterSay(66146);
-                        }
-                    });
-        DoAfterTime(pPlayer, 155 * IN_MILLISECONDS,
-                    [player = pPlayer, npc = pCreature]()
-                    {
-                        if (Creature* vereesa = player->FindNearestCreature(80877, 30.0F))
-                        {
-                            vereesa->HandleEmote(EMOTE_ONESHOT_YES);
-                            vereesa->MonsterSay(66147);
-                        }
-                    });
-        DoAfterTime(pPlayer, 150 * IN_MILLISECONDS,
-                    [player = pPlayer, npc = pCreature]()
-                    {
-                        if (Creature* bolvar = player->FindNearestCreature(1748, 30.0F))
-                        {
-                            bolvar->SetWalk(true);
-                            bolvar->GetMotionMaster()->MovePoint(0, -8502.77F, 409.88F, 108.38F);
-                        }
-                    });
-        DoAfterTime(pPlayer, 150 * IN_MILLISECONDS,
-                    [player = pPlayer, npc = pCreature]()
-                    {
-                        if (Creature* jaina = player->FindNearestCreature(4968, 30.0F))
-                        {
-                            jaina->SetWalk(true);
-                            jaina->GetMotionMaster()->MovePoint(0, -8502.77F, 409.88F, 108.38F);
-                        }
-                    });
-        DoAfterTime(pPlayer, 150 * IN_MILLISECONDS,
-                    [player = pPlayer, npc = pCreature]()
-                    {
-                        if (Creature* tirande = player->FindNearestCreature(7999, 30.0F))
-                        {
-                            tirande->SetWalk(true);
-                            tirande->GetMotionMaster()->MovePoint(0, -8502.77F, 409.88F, 108.38F);
-                        }
-                    });
-        DoAfterTime(pPlayer, 150 * IN_MILLISECONDS,
-                    [player = pPlayer, npc = pCreature]()
-                    {
-                        if (Creature* magni = player->FindNearestCreature(2784, 30.0F))
-                        {
-                            magni->SetWalk(true);
-                            magni->GetMotionMaster()->MovePoint(0, -8502.77F, 409.88F, 108.38F);
-                        }
-                    });
-        DoAfterTime(pPlayer, 150 * IN_MILLISECONDS,
-                    [player = pPlayer, npc = pCreature]()
-                    {
-                        if (Creature* mekkatorque = player->FindNearestCreature(7937, 30.0F))
-                        {
-                            mekkatorque->SetWalk(true);
-                            mekkatorque->GetMotionMaster()->MovePoint(0, -8502.77F, 409.88F, 108.38F);
-                        }
-                    });
-        DoAfterTime(pPlayer, 160 * IN_MILLISECONDS,
-                    [player = pPlayer, npc = pCreature]()
-                    {
-                        if (Creature* vereesa = player->FindNearestCreature(80877, 30.0F))
-                        {
-                            vereesa->SetWalk(true);
-                            vereesa->GetMotionMaster()->MovePoint(0, -8502.77F, 409.88F, 108.38F);
-                        }
-                    });
-        DoAfterTime(pPlayer, 161 * IN_MILLISECONDS,
-                    [player = pPlayer, npc = pCreature]()
-                    {
-                        if (CreatureInfo const* cInfo = sObjectMgr.GetCreatureTemplate(60322))
-                            player->KilledMonster(cInfo, ObjectGuid());
-                        npc->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                    });
+        DoAfterTime(pPlayer, 1 * IN_MILLISECONDS, [player = pPlayer, npc = pCreature]() {
+            if (Creature* bolvar = player->FindNearestCreature(1748, 30.0F))
+            {
+                bolvar->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                bolvar->SetWalk(true);
+                bolvar->GetMotionMaster()->MovePoint(0, -8547.55F, 376.93F, 108.38F);
+            }
+            });
+        DoAfterTime(pPlayer, 12 * IN_MILLISECONDS, [player = pPlayer, npc = pCreature]() {
+            if (Creature* bolvar = player->FindNearestCreature(1748, 30.0F))
+            {
+                bolvar->SetWalk(true);
+                bolvar->GetMotionMaster()->MovePoint(0, -8546.75F, 376.99F, 108.38F);
+            }
+            });
+        DoAfterTime(pPlayer, 1 * IN_MILLISECONDS, [player = pPlayer, npc = pCreature]() {
+            if (Creature* jaina = player->FindNearestCreature(4968, 30.0F))
+            {
+                jaina->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                jaina->SetWalk(true);
+                jaina->GetMotionMaster()->MovePoint(0, -8544.79F, 373.77F, 108.38F);
+            }
+            });
+        DoAfterTime(pPlayer, 12 * IN_MILLISECONDS, [player = pPlayer, npc = pCreature]() {
+            if (Creature* jaina = player->FindNearestCreature(4968, 30.0F))
+            {
+                jaina->SetWalk(true);
+                jaina->GetMotionMaster()->MovePoint(0, -8544.50F, 373.97F, 108.38F);
+            }
+            });
+        DoAfterTime(pPlayer, 1 * IN_MILLISECONDS, [player = pPlayer, npc = pCreature]() {
+            if (Creature* tirande = player->FindNearestCreature(7999, 30.0F))
+            {
+                tirande->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                tirande->SetWalk(true);
+                tirande->GetMotionMaster()->MovePoint(0, -8545.80F, 381.02F, 108.38F);
+            }
+            });
+        DoAfterTime(pPlayer, 12 * IN_MILLISECONDS, [player = pPlayer, npc = pCreature]() {
+            if (Creature* tirande = player->FindNearestCreature(7999, 30.0F))
+            {
+                tirande->SetWalk(true);
+                tirande->GetMotionMaster()->MovePoint(0, -8545.41F, 380.89F, 108.38F);
+            }
+            });
+        DoAfterTime(pPlayer, 1 * IN_MILLISECONDS, [player = pPlayer, npc = pCreature]() {
+            if (Creature* magni = player->FindNearestCreature(2784, 30.0F))
+            {
+                magni->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                magni->SetWalk(true);
+                magni->GetMotionMaster()->MovePoint(0, -8540.34F, 374.64F, 108.38F);
+            }
+            });
+        DoAfterTime(pPlayer, 12 * IN_MILLISECONDS, [player = pPlayer, npc = pCreature]() {
+            if (Creature* magni = player->FindNearestCreature(2784, 30.0F))
+            {
+                magni->SetWalk(true);
+                magni->GetMotionMaster()->MovePoint(0, -8540.89F, 375.41F, 108.38F);
+            }
+            });
+        DoAfterTime(pPlayer, 1 * IN_MILLISECONDS, [player = pPlayer, npc = pCreature]() {
+            if (Creature* mekkatorque = player->FindNearestCreature(7937, 30.0F))
+            {
+                mekkatorque->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                mekkatorque->SetWalk(true);
+                mekkatorque->GetMotionMaster()->MovePoint(0, -8540.60F, 381.78F, 108.38F);
+            }
+            });
+        DoAfterTime(pPlayer, 1 * IN_MILLISECONDS, [player = pPlayer, npc = pCreature]() {
+            if (Creature* vereesa = player->FindNearestCreature(80877, 30.0F))
+            {
+                vereesa->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                vereesa->SetWalk(true);
+                vereesa->GetMotionMaster()->MovePoint(0, -8538.79F, 379.00F, 108.38F);
+            }
+            });
+        DoAfterTime(pPlayer, 12 * IN_MILLISECONDS, [player = pPlayer, npc = pCreature]() {
+            if (Creature* vereesa = player->FindNearestCreature(80877, 30.0F))
+            {
+                vereesa->SetWalk(true);
+                vereesa->GetMotionMaster()->MovePoint(0, -8539.31F, 379.04F, 108.38F);
+            }
+            });
+        DoAfterTime(pPlayer, 20 * IN_MILLISECONDS, [player = pPlayer, npc = pCreature]() {
+            if (Creature* tirande = player->FindNearestCreature(7999, 30.0F))
+            {
+                tirande->HandleEmote(EMOTE_ONESHOT_TALK);
+                tirande->MonsterSay(66121);
+            }
+            });
+        DoAfterTime(pPlayer, 25 * IN_MILLISECONDS, [player = pPlayer, npc = pCreature]() {
+            if (Creature* vereesa = player->FindNearestCreature(80877, 30.0F))
+            {
+                vereesa->HandleEmote(EMOTE_ONESHOT_TALK);
+                vereesa->MonsterSay(66122);
+            }
+            });
+        DoAfterTime(pPlayer, 30 * IN_MILLISECONDS, [player = pPlayer, npc = pCreature]() {
+            if (Creature* vereesa = player->FindNearestCreature(80877, 30.0F))
+            {
+                vereesa->HandleEmote(EMOTE_ONESHOT_TALK);
+                vereesa->MonsterSay(66123);
+            }
+            });
+        DoAfterTime(pPlayer, 35 * IN_MILLISECONDS, [player = pPlayer, npc = pCreature]() {
+            if (Creature* vereesa = player->FindNearestCreature(80877, 30.0F))
+            {
+                vereesa->HandleEmote(EMOTE_ONESHOT_TALK);
+                vereesa->MonsterSay(66124);
+            }
+            });
+        DoAfterTime(pPlayer, 40 * IN_MILLISECONDS, [player = pPlayer, npc = pCreature]() {
+            if (Creature* vereesa = player->FindNearestCreature(80877, 30.0F))
+            {
+                vereesa->HandleEmote(EMOTE_ONESHOT_TALK);
+                vereesa->MonsterSay(66125);
+            }
+            });
+        DoAfterTime(pPlayer, 45 * IN_MILLISECONDS, [player = pPlayer, npc = pCreature]() {
+            if (Creature* vereesa = player->FindNearestCreature(80877, 30.0F))
+            {
+                vereesa->HandleEmote(EMOTE_ONESHOT_TALK);
+                vereesa->MonsterSay(66126);
+            }
+            });
+        DoAfterTime(pPlayer, 50 * IN_MILLISECONDS, [player = pPlayer, npc = pCreature]() {
+            if (Creature* tirande = player->FindNearestCreature(7999, 30.0F))
+            {
+                tirande->HandleEmote(EMOTE_ONESHOT_TALK);
+                tirande->MonsterYell(66127);
+            }
+            });
+        DoAfterTime(pPlayer, 55 * IN_MILLISECONDS, [player = pPlayer, npc = pCreature]() {
+            if (Creature* magni = player->FindNearestCreature(2784, 30.0F))
+            {
+                magni->HandleEmote(EMOTE_ONESHOT_TALK);
+                magni->MonsterSay(66128);
+            }
+            });
+        DoAfterTime(pPlayer, 60 * IN_MILLISECONDS, [player = pPlayer, npc = pCreature]() {
+            if (Creature* mekkatorque = player->FindNearestCreature(7937, 30.0F))
+            {
+                mekkatorque->HandleEmote(EMOTE_ONESHOT_YES);
+                mekkatorque->MonsterSay(66128);
+            }
+            });
+        DoAfterTime(pPlayer, 65 * IN_MILLISECONDS, [player = pPlayer, npc = pCreature]() {
+            if (Creature* tirande = player->FindNearestCreature(7999, 30.0F))
+            {
+                tirande->HandleEmote(EMOTE_ONESHOT_TALK);
+                tirande->MonsterSay(66130);
+            }
+            });
+        DoAfterTime(pPlayer, 70 * IN_MILLISECONDS, [player = pPlayer, npc = pCreature]() {
+            if (Creature* vereesa = player->FindNearestCreature(80877, 30.0F))
+            {
+                vereesa->HandleEmote(EMOTE_ONESHOT_YES);
+                vereesa->MonsterSay(66131);
+            }
+            });
+        DoAfterTime(pPlayer, 75 * IN_MILLISECONDS, [player = pPlayer, npc = pCreature]() {
+            if (Creature* vereesa = player->FindNearestCreature(80877, 30.0F))
+            {
+                vereesa->HandleEmote(EMOTE_ONESHOT_TALK);
+                vereesa->MonsterSay(66132);
+            }
+            });
+        DoAfterTime(pPlayer, 80 * IN_MILLISECONDS, [player = pPlayer, npc = pCreature]() {
+            if (Creature* tirande = player->FindNearestCreature(7999, 30.0F))
+            {
+                tirande->HandleEmote(EMOTE_ONESHOT_TALK);
+                tirande->MonsterSay(66133);
+            }
+            });
+        DoAfterTime(pPlayer, 85 * IN_MILLISECONDS, [player = pPlayer, npc = pCreature]() {
+            if (Creature* bolvar = player->FindNearestCreature(1748, 30.0F))
+            {
+                bolvar->HandleEmote(EMOTE_ONESHOT_TALK);
+                bolvar->MonsterSay(66134);
+            }
+            });
+        DoAfterTime(pPlayer, 90 * IN_MILLISECONDS, [player = pPlayer, npc = pCreature]() {
+            if (Creature* bolvar = player->FindNearestCreature(1748, 30.0F))
+            {
+                bolvar->HandleEmote(EMOTE_ONESHOT_TALK);
+                bolvar->MonsterSay(66135);
+            }
+            });
+        DoAfterTime(pPlayer, 95 * IN_MILLISECONDS, [player = pPlayer, npc = pCreature]() {
+            if (Creature* tirande = player->FindNearestCreature(7999, 30.0F))
+            {
+                tirande->HandleEmote(EMOTE_ONESHOT_NO);
+                tirande->MonsterSay(66136);
+            }
+            });
+        DoAfterTime(pPlayer, 100 * IN_MILLISECONDS, [player = pPlayer, npc = pCreature]() {
+            if (Creature* magni = player->FindNearestCreature(2784, 30.0F))
+            {
+                magni->HandleEmote(EMOTE_ONESHOT_NO);
+                magni->MonsterSay(66137);
+            }
+            });
+        DoAfterTime(pPlayer, 105 * IN_MILLISECONDS, [player = pPlayer, npc = pCreature]() {
+            if (Creature* mekkatorque = player->FindNearestCreature(2784, 30.0F))
+            {
+                mekkatorque->HandleEmote(EMOTE_ONESHOT_YES);
+                mekkatorque->MonsterSay(66138);
+            }
+            });
+        DoAfterTime(pPlayer, 110 * IN_MILLISECONDS, [player = pPlayer, npc = pCreature]() {
+            if (Creature* mekkatorque = player->FindNearestCreature(2784, 30.0F))
+            {
+                mekkatorque->HandleEmote(EMOTE_ONESHOT_YES);
+                mekkatorque->MonsterSay(66139);
+            }
+            });
+        DoAfterTime(pPlayer, 115 * IN_MILLISECONDS, [player = pPlayer, npc = pCreature]() {
+            if (Creature* jaina = player->FindNearestCreature(4968, 30.0F))
+            {
+                jaina->HandleEmote(EMOTE_ONESHOT_TALK);
+                jaina->MonsterSay(66140);
+            }
+            });
+        DoAfterTime(pPlayer, 120 * IN_MILLISECONDS, [player = pPlayer, npc = pCreature]() {
+            if (Creature* tirande = player->FindNearestCreature(7999, 30.0F))
+            {
+                tirande->HandleEmote(EMOTE_ONESHOT_TALK);
+                tirande->MonsterSay(66141);
+            }
+            });
+        DoAfterTime(pPlayer, 125 * IN_MILLISECONDS, [player = pPlayer, npc = pCreature]() {
+            if (Creature* tirande = player->FindNearestCreature(7999, 30.0F))
+            {
+                tirande->HandleEmote(EMOTE_ONESHOT_TALK);
+                tirande->MonsterSay(66142);
+            }
+            });
+        DoAfterTime(pPlayer, 130 * IN_MILLISECONDS, [player = pPlayer, npc = pCreature]() {
+            if (Creature* jaina = player->FindNearestCreature(4968, 30.0F))
+            {
+                jaina->HandleEmote(EMOTE_ONESHOT_TALK);
+                jaina->MonsterSay(66143);
+            }
+            });
+        DoAfterTime(pPlayer, 135 * IN_MILLISECONDS, [player = pPlayer, npc = pCreature]() {
+            if (Creature* vereesa = player->FindNearestCreature(80877, 30.0F))
+            {
+                vereesa->HandleEmote(EMOTE_ONESHOT_YES);
+                vereesa->MonsterSay(66144);
+            }
+            });
+        DoAfterTime(pPlayer, 140 * IN_MILLISECONDS, [player = pPlayer, npc = pCreature]() {
+            if (Creature* tirande = player->FindNearestCreature(7999, 30.0F))
+            {
+                tirande->HandleEmote(EMOTE_ONESHOT_TALK);
+                tirande->MonsterSay(66145);
+            }
+            });
+        DoAfterTime(pPlayer, 145 * IN_MILLISECONDS, [player = pPlayer, npc = pCreature]() {
+            if (Creature* bolvar = player->FindNearestCreature(1748, 30.0F))
+            {
+                bolvar->HandleEmote(EMOTE_ONESHOT_YES);
+                bolvar->MonsterSay(66146);
+            }
+            });
+        DoAfterTime(pPlayer, 155 * IN_MILLISECONDS, [player = pPlayer, npc = pCreature]() {
+            if (Creature* vereesa = player->FindNearestCreature(80877, 30.0F))
+            {
+                vereesa->HandleEmote(EMOTE_ONESHOT_YES);
+                vereesa->MonsterSay(66147);
+            }
+            });
+        DoAfterTime(pPlayer, 150 * IN_MILLISECONDS, [player = pPlayer, npc = pCreature]() {
+            if (Creature* bolvar = player->FindNearestCreature(1748, 30.0F))
+            {
+                bolvar->SetWalk(true);
+                bolvar->GetMotionMaster()->MovePoint(0, -8502.77F, 409.88F, 108.38F);
+            }
+            });
+        DoAfterTime(pPlayer, 150 * IN_MILLISECONDS, [player = pPlayer, npc = pCreature]() {
+            if (Creature* jaina = player->FindNearestCreature(4968, 30.0F))
+            {
+                jaina->SetWalk(true);
+                jaina->GetMotionMaster()->MovePoint(0, -8502.77F, 409.88F, 108.38F);
+            }
+            });
+        DoAfterTime(pPlayer, 150 * IN_MILLISECONDS, [player = pPlayer, npc = pCreature]() {
+            if (Creature* tirande = player->FindNearestCreature(7999, 30.0F))
+            {
+                tirande->SetWalk(true);
+                tirande->GetMotionMaster()->MovePoint(0, -8502.77F, 409.88F, 108.38F);
+            }
+            });
+        DoAfterTime(pPlayer, 150 * IN_MILLISECONDS, [player = pPlayer, npc = pCreature]() {
+            if (Creature* magni = player->FindNearestCreature(2784, 30.0F))
+            {
+                magni->SetWalk(true);
+                magni->GetMotionMaster()->MovePoint(0, -8502.77F, 409.88F, 108.38F);
+            }
+            });
+        DoAfterTime(pPlayer, 150 * IN_MILLISECONDS, [player = pPlayer, npc = pCreature]() {
+            if (Creature* mekkatorque = player->FindNearestCreature(7937, 30.0F))
+            {
+                mekkatorque->SetWalk(true);
+                mekkatorque->GetMotionMaster()->MovePoint(0, -8502.77F, 409.88F, 108.38F);
+            }
+            });
+        DoAfterTime(pPlayer, 160 * IN_MILLISECONDS, [player = pPlayer, npc = pCreature]() {
+            if (Creature* vereesa = player->FindNearestCreature(80877, 30.0F))
+            {
+                vereesa->SetWalk(true);
+                vereesa->GetMotionMaster()->MovePoint(0, -8502.77F, 409.88F, 108.38F);
+            }
+            });
+        DoAfterTime(pPlayer, 161 * IN_MILLISECONDS, [player = pPlayer, npc = pCreature]() {
+            if (CreatureInfo const* cInfo = sObjectMgr.GetCreatureTemplate(60322))
+                player->KilledMonster(cInfo, ObjectGuid());
+            npc->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+            });
         pPlayer->CLOSE_GOSSIP_MENU();
     }
 
@@ -2968,11 +2705,11 @@ bool GossipSelect_npc_elsharin(Player* pPlayer, Creature* pCreature, uint32 /*ui
     if (uiAction == GOSSIP_ACTION_INFO_DEF + 1)
     {
         pCreature->MonsterSay(66148);
-        // float dis{ 1.0F };
-        // float x, y, z;
-        // pPlayer->GetSafePosition(x, y, z);
-        // x += dis * cos(pPlayer->GetOrientation());
-        // y += dis * sin(pPlayer->GetOrientation());
+        //float dis{ 1.0F };
+        //float x, y, z;
+        //pPlayer->GetSafePosition(x, y, z);
+        //x += dis * cos(pPlayer->GetOrientation());
+        //y += dis * sin(pPlayer->GetOrientation());
         pPlayer->SummonGameObject(3000220, -9002.817F, 883.549F, 29.58F, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 30, true);
     }
 
@@ -3041,7 +2778,7 @@ bool GOSelect_go_fm_acquisition(Player* pPlayer, GameObject* pGo, uint32 sender,
             pPlayer->DestroyItemCount(6948, 1, true);
             pPlayer->SaveInventoryAndGoldToDB();
         }
-        pPlayer->ActivateTaxiPathTo(1619, 0, true); // Weeeee!
+        pPlayer->ActivateTaxiPathTo(311, 0, true); // Weeeee!
     }
     return true;
 }
@@ -3084,95 +2821,89 @@ bool QuestComplete_npc_garthok(Player* pPlayer, Creature* pQuestGiver, Quest con
         Creature* SpratNozzleton = pQuestGiver->SummonCreature(NPC_SPRAT_NOZZLETON, 293.27F, -4719.20F, 12.74F, 2.87F, TEMPSUMMON_TIMED_DESPAWN, 1 * MINUTE * IN_MILLISECONDS);
 
         DoAfterTime(NertBlastenton, 5 * IN_MILLISECONDS,
-                    [playerGuid = pPlayer->GetObjectGuid(), me = NertBlastenton]()
-                    {
-                        auto player = ObjectAccessor::FindPlayer(playerGuid);
+            [playerGuid = pPlayer->GetObjectGuid(), me = NertBlastenton]()
+        {
+            auto player = ObjectAccessor::FindPlayer(playerGuid);
 
-                        if (!player)
-                            return;
+            if (!player)
+                return;
 
-                        me->HandleEmote(EMOTE_ONESHOT_TALK);
-                        me->MonsterSayToPlayer(66873, player);
-                    });
+            me->HandleEmote(EMOTE_ONESHOT_TALK);
+            me->MonsterSayToPlayer(66873, player);
+        });
 
         DoAfterTime(GrizzleEnforcer, 13 * IN_MILLISECONDS,
-                    [playerGuid = pPlayer->GetObjectGuid(), me = GrizzleEnforcer]()
-                    {
-                        auto player = ObjectAccessor::FindPlayer(playerGuid);
+            [playerGuid = pPlayer->GetObjectGuid(), me = GrizzleEnforcer]()
+        {
+                auto player = ObjectAccessor::FindPlayer(playerGuid);
 
-                        if (!player)
-                            return;
+                if (!player)
+                    return;
 
-                        me->HandleEmote(EMOTE_ONESHOT_TALK);
-                        me->MonsterSayToPlayer(66874, player);
-                    });
+            me->HandleEmote(EMOTE_ONESHOT_TALK);
+            me->MonsterSayToPlayer(66874, player);
+        });
 
         DoAfterTime(NertBlastenton, 21 * IN_MILLISECONDS,
-                    [playerGuid = pPlayer->GetObjectGuid(), me = NertBlastenton]()
-                    {
-                        auto player = ObjectAccessor::FindPlayer(playerGuid);
-                        if (!player)
-                            return;
+            [playerGuid = pPlayer->GetObjectGuid(), me = NertBlastenton]()
+        {
+            auto player = ObjectAccessor::FindPlayer(playerGuid);
+            if (!player) return;
 
-                        me->HandleEmote(EMOTE_ONESHOT_TALK);
-                        me->MonsterSayToPlayer(66875, player);
-                    });
+            me->HandleEmote(EMOTE_ONESHOT_TALK);
+            me->MonsterSayToPlayer(66875, player);
+        });
 
         DoAfterTime(LeytiQuicktongue, 23 * IN_MILLISECONDS,
-                    [playerGuid = pPlayer->GetObjectGuid(), me = LeytiQuicktongue]()
-                    {
-                        auto player = ObjectAccessor::FindPlayer(playerGuid);
-                        if (!player)
-                            return;
+            [playerGuid = pPlayer->GetObjectGuid(), me = LeytiQuicktongue]()
+        {
+            auto player = ObjectAccessor::FindPlayer(playerGuid);
+            if (!player) return;
 
-                        me->HandleEmote(EMOTE_ONESHOT_BOW);
-                        me->MonsterTextEmote(66876);
-                    });
+            me->HandleEmote(EMOTE_ONESHOT_BOW);
+            me->MonsterTextEmote(66876);
+        });
 
         DoAfterTime(WizetteIcewhistle, 31 * IN_MILLISECONDS,
-                    [playerGuid = pPlayer->GetObjectGuid(), me = WizetteIcewhistle]()
-                    {
-                        auto player = ObjectAccessor::FindPlayer(playerGuid);
-                        if (!player)
-                            return;
+            [playerGuid = pPlayer->GetObjectGuid(), me = WizetteIcewhistle]()
+        {
+            auto player = ObjectAccessor::FindPlayer(playerGuid);
+            if (!player) return;
 
-                        me->HandleEmote(EMOTE_ONESHOT_TALK);
-                        me->MonsterSayToPlayer(66877, player);
-                    });
+            me->HandleEmote(EMOTE_ONESHOT_TALK);
+            me->MonsterSayToPlayer(66877, player);
+        });
 
         DoAfterTime(AmriDemondeal, 39 * IN_MILLISECONDS,
-                    [playerGuid = pPlayer->GetObjectGuid(), me = AmriDemondeal]()
-                    {
-                        auto player = ObjectAccessor::FindPlayer(playerGuid);
-                        if (!player)
-                            return;
+            [playerGuid = pPlayer->GetObjectGuid(), me = AmriDemondeal]()
+        {
+            auto player = ObjectAccessor::FindPlayer(playerGuid);
+            if (!player) return;
 
-                        me->HandleEmote(EMOTE_ONESHOT_TALK);
-                        me->MonsterSayToPlayer(66878, player);
-                    });
+            me->HandleEmote(EMOTE_ONESHOT_TALK);
+            me->MonsterSayToPlayer(66878, player);
+        });
 
         DoAfterTime(SpratNozzleton, 48 * IN_MILLISECONDS,
-                    [playerGuid = pPlayer->GetObjectGuid(), me = SpratNozzleton]()
-                    {
-                        auto player = ObjectAccessor::FindPlayer(playerGuid);
-                        if (!player)
-                            return;
+            [playerGuid = pPlayer->GetObjectGuid(), me = SpratNozzleton]()
+        {
+            auto player = ObjectAccessor::FindPlayer(playerGuid);
+            if (!player) return;
 
-                        me->HandleEmote(EMOTE_ONESHOT_TALK);
-                        me->MonsterSayToPlayer(66879, player);
-                    });
+            me->HandleEmote(EMOTE_ONESHOT_TALK);
+            me->MonsterSayToPlayer(66879, player);
+        });
 
         DoAfterTime(pQuestGiver, 53 * IN_MILLISECONDS,
-                    [playerGuid = pPlayer->GetObjectGuid(), me = pQuestGiver]()
-                    {
-                        auto player = ObjectAccessor::FindPlayer(playerGuid);
-                        if (!player)
-                            return;
+            [playerGuid = pPlayer->GetObjectGuid(), me = pQuestGiver]()
+        {
+            auto player = ObjectAccessor::FindPlayer(playerGuid);
+            if (!player) return;
 
-                        me->HandleEmote(EMOTE_ONESHOT_LAUGH);
-                        me->MonsterTextEmote(66880);
-                        me->MonsterSayToPlayer(66881, player);
-                    });
+            me->HandleEmote(EMOTE_ONESHOT_LAUGH);
+            me->MonsterTextEmote(66880);
+            me->MonsterSayToPlayer(66881, player);
+        });
     }
     return false;
 }
@@ -3188,78 +2919,86 @@ bool QuestAccept_npc_nert_blastentom(Player* pPlayer, Creature* pQuestGiver, Que
     if (pQuest->GetQuestId() == QUEST_ME_NOT_ANY_KIND_OF_ORC)
     {
         DoAfterTime(pQuestGiver, 2 * IN_MILLISECONDS,
-                    [playerGuid = pPlayer->GetObjectGuid(), me = pQuestGiver]()
-                    {
-                        auto player = ObjectAccessor::FindPlayer(playerGuid);
-                        if (!player)
-                            return;
+            [playerGuid = pPlayer->GetObjectGuid(), me = pQuestGiver]()
+        {
+            auto player = ObjectAccessor::FindPlayer(playerGuid);
+            if (!player) return;
 
-                        me->HandleEmote(EMOTE_ONESHOT_NO);
-                        me->MonsterSayToPlayer(66882, player);
-                    });
+            me->HandleEmote(EMOTE_ONESHOT_NO);
+            me->MonsterSayToPlayer(66882, player);
+        });
 
         DoAfterTime(pQuestGiver, 8 * IN_MILLISECONDS,
-                    [playerGuid = pPlayer->GetObjectGuid(), me = pQuestGiver]()
-                    {
-                        auto player = ObjectAccessor::FindPlayer(playerGuid);
-                        if (!player)
-                            return;
+            [playerGuid = pPlayer->GetObjectGuid(), me = pQuestGiver]()
+        {
+            auto player = ObjectAccessor::FindPlayer(playerGuid);
+            if (!player) return;
 
-                        me->HandleEmote(EMOTE_ONESHOT_QUESTION);
-                        me->MonsterSayToPlayer(66883, player);
-                    });
+            me->HandleEmote(EMOTE_ONESHOT_QUESTION);
+            me->MonsterSayToPlayer(66883, player);
+        });
 
 
         DoAfterTime(pQuestGiver, 14 * IN_MILLISECONDS,
-                    [playerGuid = pPlayer->GetObjectGuid(), me = pQuestGiver]()
-                    {
-                        auto player = ObjectAccessor::FindPlayer(playerGuid);
-                        if (!player)
-                            return;
+            [playerGuid = pPlayer->GetObjectGuid(), me = pQuestGiver]()
+        {
+            auto player = ObjectAccessor::FindPlayer(playerGuid);
+            if (!player) return;
 
-                        me->HandleEmote(EMOTE_ONESHOT_LAUGH);
-                        me->MonsterSayToPlayer(66884, player);
-                    });
+            me->HandleEmote(EMOTE_ONESHOT_LAUGH);
+            me->MonsterSayToPlayer(66884, player);
+        });
 
 
         DoAfterTime(pQuestGiver, 18 * IN_MILLISECONDS,
-                    [playerGuid = pPlayer->GetObjectGuid(), me = pQuestGiver]()
-                    {
-                        auto player = ObjectAccessor::FindPlayer(playerGuid);
-                        if (!player)
-                            return;
+            [playerGuid = pPlayer->GetObjectGuid(), me = pQuestGiver]()
+        {
+            auto player = ObjectAccessor::FindPlayer(playerGuid);
+            if (!player) return;
 
-                        me->SetWalk(true);
-                        me->GetMotionMaster()->MovePoint(0, 1799.06F, 1349.06F, 144.95F, 4.04F, 1.7F);
-                        me->MonsterTextEmote(66885);
-                    });
+            me->SetWalk(true);
+            me->GetMotionMaster()->MovePoint(0, 1799.06F, 1349.06F, 144.95F, 4.04F, 1.7F);
+            me->MonsterTextEmote(66885);
+        });
 
         DoAfterTime(pQuestGiver, 20 * IN_MILLISECONDS,
-                    [playerGuid = pPlayer->GetObjectGuid(), me = pQuestGiver]()
-                    {
-                        auto player = ObjectAccessor::FindPlayer(playerGuid);
-                        if (!player)
-                            return;
+            [playerGuid = pPlayer->GetObjectGuid(), me = pQuestGiver]()
+        {
+            auto player = ObjectAccessor::FindPlayer(playerGuid);
+            if (!player) return;
 
-                        me->MonsterSayToPlayer(66886, player);
-                    });
+            me->MonsterSayToPlayer(66886, player);
+        });
 
-        DoAfterTime(pQuestGiver, 35 * IN_MILLISECONDS, [me = pQuestGiver]() { me->DespawnOrUnsummon(); });
+        DoAfterTime(pQuestGiver, 35 * IN_MILLISECONDS,
+            [me = pQuestGiver]()
+        {
+            me->DespawnOrUnsummon();
+        });
     }
     return false;
 }
 
 struct npc_tomb_shadowAI : public ScriptedAI
 {
-    npc_tomb_shadowAI(Creature* c) : ScriptedAI(c) { Reset(); }
+    npc_tomb_shadowAI(Creature* c) : ScriptedAI(c)
+    {
+        Reset();
+    }
 
-    void Aggro(Unit* who) { m_creature->MonsterSay(66168); }
+    void Aggro(Unit* who)
+    {
+        m_creature->MonsterSay(66168);
+    }
 
     void Reset() {}
 
     void KilledUnit(Unit* victim) {}
 
-    void JustDied(Unit*) { m_creature->MonsterSay(66169); }
+    void JustDied(Unit*)
+    {
+        m_creature->MonsterSay(66169);
+    }
 
     void UpdateAI(const uint32 diff)
     {
@@ -3267,9 +3006,13 @@ struct npc_tomb_shadowAI : public ScriptedAI
             return;
         DoMeleeAttackIfReady();
     }
+
 };
 
-CreatureAI* GetAI_npc_tomb_shadow(Creature* _Creature) { return new npc_tomb_shadowAI(_Creature); }
+CreatureAI* GetAI_npc_tomb_shadow(Creature* _Creature)
+{
+    return new npc_tomb_shadowAI(_Creature);
+}
 
 enum HighElfStartingZone
 {
@@ -3303,7 +3046,7 @@ bool QuestAccept_npc_kathy_wake(Player* pPlayer, Creature* pQuestGiver, Quest co
     return false;
 }
 
-#define EMPTY_BARREL 80209
+#define EMPTY_BARREL  80209
 #define FILLED_BARREL 80210
 
 bool GOHello_go_farstrider_well(Player* pPlayer, GameObject* pGo)
@@ -3340,127 +3083,117 @@ bool GossipSelect_npc_malvinah_sunblade(Player* pPlayer, Creature* pCreature, ui
     if (uiAction == GOSSIP_ACTION_INFO_DEF + 1)
     {
         DoAfterTime(pCreature, 1 * IN_MILLISECONDS,
-                    [playerGuid = pPlayer->GetObjectGuid(), me = pCreature]()
-                    {
-                        auto player = ObjectAccessor::FindPlayer(playerGuid);
-                        if (!player)
-                            return;
+            [playerGuid = pPlayer->GetObjectGuid(), me = pCreature]()
+        {
+            auto player = ObjectAccessor::FindPlayer(playerGuid);
+            if (!player) return;
 
-                        me->HandleEmote(EMOTE_ONESHOT_CRY);
-                        me->MonsterSayToPlayer(66890, player);
-                    });
+            me->HandleEmote(EMOTE_ONESHOT_CRY);
+            me->MonsterSayToPlayer(66890, player);
+        });
 
         DoAfterTime(pCreature, 5 * IN_MILLISECONDS,
-                    [playerGuid = pPlayer->GetObjectGuid(), me = pCreature]()
-                    {
-                        auto player = ObjectAccessor::FindPlayer(playerGuid);
-                        if (!player)
-                            return;
-                        me->HandleEmote(EMOTE_ONESHOT_TALK);
-                        me->MonsterSayToPlayer(66891, player);
-                    });
+            [playerGuid = pPlayer->GetObjectGuid(), me = pCreature]()
+        {
+            auto player = ObjectAccessor::FindPlayer(playerGuid);
+            if (!player) return;
+            me->HandleEmote(EMOTE_ONESHOT_TALK);
+            me->MonsterSayToPlayer(66891, player);
+        });
 
         DoAfterTime(pCreature, 10 * IN_MILLISECONDS,
-                    [playerGuid = pPlayer->GetObjectGuid(), me = pCreature]()
-                    {
-                        auto player = ObjectAccessor::FindPlayer(playerGuid);
-                        if (!player)
-                            return;
+            [playerGuid = pPlayer->GetObjectGuid(), me = pCreature]()
+        {
+            auto player = ObjectAccessor::FindPlayer(playerGuid);
+            if (!player) return;
 
-                        me->HandleEmote(EMOTE_ONESHOT_CRY);
-                        me->MonsterSayToPlayer(66892, player);
-                    });
+            me->HandleEmote(EMOTE_ONESHOT_CRY);
+            me->MonsterSayToPlayer(66892, player);
+        });
 
         DoAfterTime(pCreature, 15 * IN_MILLISECONDS,
-                    [playerGuid = pPlayer->GetObjectGuid(), me = pCreature]()
-                    {
-                        auto player = ObjectAccessor::FindPlayer(playerGuid);
-                        if (!player)
-                            return;
+            [playerGuid = pPlayer->GetObjectGuid(), me = pCreature]()
+        {
+            auto player = ObjectAccessor::FindPlayer(playerGuid);
+            if (!player) return;
 
-                        me->HandleEmote(EMOTE_ONESHOT_TALK);
-                        me->MonsterSayToPlayer(66893, player);
-                    });
+            me->HandleEmote(EMOTE_ONESHOT_TALK);
+            me->MonsterSayToPlayer(66893, player);
+        });
 
         DoAfterTime(pCreature, 20 * IN_MILLISECONDS,
-                    [playerGuid = pPlayer->GetObjectGuid(), me = pCreature]()
-                    {
-                        auto player = ObjectAccessor::FindPlayer(playerGuid);
-                        if (!player)
-                            return;
+            [playerGuid = pPlayer->GetObjectGuid(), me = pCreature]()
+        {
+            auto player = ObjectAccessor::FindPlayer(playerGuid);
+            if (!player) return;
 
-                        me->HandleEmote(EMOTE_ONESHOT_TALK);
-                        me->MonsterSayToPlayer(66894, player);
-                    });
+            me->HandleEmote(EMOTE_ONESHOT_TALK);
+            me->MonsterSayToPlayer(66894, player);
+        });
 
         DoAfterTime(pCreature, 25 * IN_MILLISECONDS,
-                    [playerGuid = pPlayer->GetObjectGuid(), me = pCreature]()
-                    {
-                        auto player = ObjectAccessor::FindPlayer(playerGuid);
-                        if (!player)
-                            return;
+            [playerGuid = pPlayer->GetObjectGuid(), me = pCreature]()
+        {
+            auto player = ObjectAccessor::FindPlayer(playerGuid);
+            if (!player) return;
 
-                        me->HandleEmote(EMOTE_ONESHOT_EXCLAMATION);
-                        me->MonsterSayToPlayer(66895, player);
-                        CreatureInfo const* cInfo = sObjectMgr.GetCreatureTemplate(NPC_CUSTOM_OBJECTIVE_BURNT_WHEELS);
-                        if (cInfo != nullptr)
-                            player->KilledMonster(cInfo, ObjectGuid());
-                    });
+            me->HandleEmote(EMOTE_ONESHOT_EXCLAMATION);
+            me->MonsterSayToPlayer(66895, player);
+            CreatureInfo const* cInfo = sObjectMgr.GetCreatureTemplate(NPC_CUSTOM_OBJECTIVE_BURNT_WHEELS);
+            if (cInfo != nullptr)
+                player->KilledMonster(cInfo, ObjectGuid());
+        });
     }
 
     if (uiAction == GOSSIP_ACTION_INFO_DEF + 2)
     {
         DoAfterTime(pCreature, 2 * IN_MILLISECONDS,
-                    [playerGuid = pPlayer->GetObjectGuid(), me = pCreature]()
-                    {
-                        auto player = ObjectAccessor::FindPlayer(playerGuid);
-                        if (!player)
-                            return;
+            [playerGuid = pPlayer->GetObjectGuid(), me = pCreature]()
+        {
+            auto player = ObjectAccessor::FindPlayer(playerGuid);
+            if (!player) return;
 
-                        me->SetCastingTarget(player);
-                        me->HandleEmote(EMOTE_ONESHOT_CRY);
-                        me->MonsterSayToPlayer(66896, player);
-                        me->SummonCreature(NPC_ALISHA_SUNBLADE, -5628.99F, -4319.46F, 401.18F, 4.4F, TEMPSUMMON_TIMED_DESPAWN, 25 * 1000);
-                    });
+            me->SetCastingTarget(player);
+            me->HandleEmote(EMOTE_ONESHOT_CRY);
+            me->MonsterSayToPlayer(66896, player);
+            me->SummonCreature(NPC_ALISHA_SUNBLADE, -5628.99F, -4319.46F, 401.18F, 4.4F, TEMPSUMMON_TIMED_DESPAWN, 25 * 1000);
+        });
 
 
         DoAfterTime(pCreature, 8 * IN_MILLISECONDS,
-                    [playerGuid = pPlayer->GetObjectGuid(), me = pCreature]()
-                    {
-                        auto player = ObjectAccessor::FindPlayer(playerGuid);
-                        if (!player)
-                            return;
+            [playerGuid = pPlayer->GetObjectGuid(), me = pCreature]()
+        {
+            auto player = ObjectAccessor::FindPlayer(playerGuid);
+            if (!player) return;
 
-                        me->HandleEmote(EMOTE_ONESHOT_TALK);
-                        me->MonsterSayToPlayer(66897, player);
-                    });
+            me->HandleEmote(EMOTE_ONESHOT_TALK);
+            me->MonsterSayToPlayer(66897, player);
+        });
 
 
         DoAfterTime(pCreature, 14 * IN_MILLISECONDS,
-                    [playerGuid = pPlayer->GetObjectGuid(), me = pCreature]()
-                    {
-                        auto player = ObjectAccessor::FindPlayer(playerGuid);
-                        if (!player)
-                            return;
+            [playerGuid = pPlayer->GetObjectGuid(), me = pCreature]()
+        {
+            auto player = ObjectAccessor::FindPlayer(playerGuid);
+            if (!player) return;
 
-                        me->HandleEmote(EMOTE_ONESHOT_TALK);
-                        me->MonsterSayToPlayer(66898, player);
-                    });
+            me->HandleEmote(EMOTE_ONESHOT_TALK);
+            me->MonsterSayToPlayer(66898, player);
+        });
 
 
         DoAfterTime(pCreature, 19 * IN_MILLISECONDS,
-                    [playerGuid = pPlayer->GetObjectGuid(), me = pCreature]()
-                    {
-                        auto player = ObjectAccessor::FindPlayer(playerGuid);
-                        if (!player)
-                            return;
+            [playerGuid = pPlayer->GetObjectGuid(), me = pCreature]()
+        {
+            auto player = ObjectAccessor::FindPlayer(playerGuid);
+            if (!player) return;
 
-                        me->HandleEmote(EMOTE_ONESHOT_APPLAUD);
-                        me->MonsterSayToPlayer(66899, player);
-                        CreatureInfo const* cInfo = sObjectMgr.GetCreatureTemplate(NPC_CUSTOM_OBJECTIVE_SUNBLADE_RENUNION);
-                        if (cInfo != nullptr)
-                            player->KilledMonster(cInfo, ObjectGuid());
-                    });
+            me->HandleEmote(EMOTE_ONESHOT_APPLAUD);
+            me->MonsterSayToPlayer(66899, player);
+            CreatureInfo const* cInfo = sObjectMgr.GetCreatureTemplate(NPC_CUSTOM_OBJECTIVE_SUNBLADE_RENUNION);
+            if (cInfo != nullptr)
+                player->KilledMonster(cInfo, ObjectGuid());
+        });
     }
 
     pPlayer->CLOSE_GOSSIP_MENU();
@@ -3498,7 +3231,11 @@ bool GOHello_go_shadowforge_cage(Player* pPlayer, GameObject* pGo)
             Alisha->GetMotionMaster()->MovePoint(0, -5831.14F, -4119.65F, 387.77F, 0, 3.0F);
             Alisha->SetWalk(false);
 
-            DoAfterTime(Alisha, 25 * IN_MILLISECONDS, [playerGuid = pPlayer->GetObjectGuid(), me = Alisha]() { me->DespawnOrUnsummon(); });
+            DoAfterTime(Alisha, 25 * IN_MILLISECONDS,
+                [playerGuid = pPlayer->GetObjectGuid(), me = Alisha]()
+            {
+                me->DespawnOrUnsummon();
+            });
         }
     }
     else
@@ -3509,7 +3246,8 @@ bool GOHello_go_shadowforge_cage(Player* pPlayer, GameObject* pGo)
 
 struct go_shadowforge_cage : public GameObjectAI
 {
-    explicit go_shadowforge_cage(GameObject* pGo) : GameObjectAI(pGo) {}
+    explicit go_shadowforge_cage(GameObject* pGo) : GameObjectAI(pGo)
+    {}
 
     uint32 BackTimer = 0;
     char DebugInfo[32];
@@ -3548,9 +3286,13 @@ struct go_shadowforge_cage : public GameObjectAI
         sprintf(DebugInfo, "BackTimer %u", BackTimer);
         return DebugInfo;
     }
+
 };
 
-GameObjectAI* GetAI_shadoforge_cage(GameObject* Obj) { return new go_shadowforge_cage(Obj); }
+GameObjectAI* GetAI_shadoforge_cage(GameObject* Obj)
+{
+    return new go_shadowforge_cage(Obj);
+}
 
 
 bool GossipHello_npc_magistrix_ishalah(Player* pPlayer, Creature* pCreature)
@@ -3599,20 +3341,29 @@ bool GOHello_go_portal_goldshire(Player* pPlayer, GameObject* pGo)
 
 #define WHIZZBOT_MIN_AGGRO_TEXT 80000
 #define WHIZZBOT_MAX_AGGRO_TEXT 80005
-#define WHIZZBOT_MIN_DIE_TEXT 80011
-#define WHIZZBOT_MAX_DIE_TEXT 80016
+#define WHIZZBOT_MIN_DIE_TEXT   80011
+#define WHIZZBOT_MAX_DIE_TEXT   80016
 
 struct npc_whizzbotAI : public ScriptedAI
 {
-    npc_whizzbotAI(Creature* c) : ScriptedAI(c) { Reset(); }
+    npc_whizzbotAI(Creature* c) : ScriptedAI(c)
+    {
+        Reset();
+    }
 
-    void Aggro(Unit* who) { m_creature->MonsterSay(irand(WHIZZBOT_MIN_AGGRO_TEXT, WHIZZBOT_MAX_AGGRO_TEXT)); }
+    void Aggro(Unit* who)
+    {
+        m_creature->MonsterSay(irand(WHIZZBOT_MIN_AGGRO_TEXT, WHIZZBOT_MAX_AGGRO_TEXT));
+    }
 
     void Reset() {}
 
     void KilledUnit(Unit* victim) {}
 
-    void JustDied(Unit*) { m_creature->MonsterSay(irand(WHIZZBOT_MIN_DIE_TEXT, WHIZZBOT_MAX_DIE_TEXT)); }
+    void JustDied(Unit*)
+    {
+        m_creature->MonsterSay(irand(WHIZZBOT_MIN_DIE_TEXT, WHIZZBOT_MAX_DIE_TEXT));
+    }
 
     void UpdateAI(const uint32 diff)
     {
@@ -3620,9 +3371,13 @@ struct npc_whizzbotAI : public ScriptedAI
             return;
         DoMeleeAttackIfReady();
     }
+
 };
 
-CreatureAI* GetAI_npc_whizzbot(Creature* _Creature) { return new npc_whizzbotAI(_Creature); }
+CreatureAI* GetAI_npc_whizzbot(Creature* _Creature)
+{
+    return new npc_whizzbotAI(_Creature);
+}
 
 bool GOHello_go_crypt_door(Player* pPlayer, GameObject* pGo)
 {
@@ -3631,7 +3386,11 @@ bool GOHello_go_crypt_door(Player* pPlayer, GameObject* pGo)
         pGo->UseDoorOrButton();
         pGo->SummonCreature(NPC_TOMB_SHADOW, 1626.74F, 1698.38F, 146.65F, 5.708F, TEMPSUMMON_TIMED_DESPAWN, 60 * 1000);
 
-        DoAfterTime(pGo, 10 * IN_MILLISECONDS, [me = pGo]() { me->ResetDoorOrButton(); });
+        DoAfterTime(pGo, 10 * IN_MILLISECONDS,
+            [me = pGo]()
+        {
+            me->ResetDoorOrButton();
+        });
     }
     return false;
 }
@@ -3640,14 +3399,9 @@ bool GOHello_go_translocation_orb(Player* pPlayer, GameObject* pGo)
 {
     switch (pGo->GetEntry())
     {
-    case 3000224:
-        pPlayer->TeleportTo(0, 4235.40F, -2778.20F, 20.65F, 6.25F);
-        break;
-    case 3000225:
-        pPlayer->TeleportTo(0, 4225.31F, -2723.46F, 121.87F, 0.70F);
-        break;
-    default:
-        break;
+    case 3000224: pPlayer->TeleportTo(0, 4235.40F, -2778.20F, 20.65F, 6.25F); break;
+    case 3000225: pPlayer->TeleportTo(0, 4225.31F, -2723.46F, 121.87F, 0.70F); break;
+    default: break;
     }
 
     return true;
@@ -3685,7 +3439,12 @@ uint32 handleRecords(Player* pPlayer, uint32 amount, int result)
 
     if (!gamblingRecords.count(pPlayer->GetGUID()))
     {
-        currentInfo = {0, amount, currentTime};
+        currentInfo =
+        {
+            0,
+            amount,
+            currentTime
+        };
     }
     else
         currentInfo = gamblingRecords[pPlayer->GetGUID()];
@@ -3769,7 +3528,8 @@ bool GossipSelect_npc_agne_gambler(Player* pPlayer, Creature* pCreature, uint32 
 
     result = urand(1, 100);
 
-    pCreature->PMonsterEmote("%s rolls a dice for %s... %u!", nullptr, false, pCreature->GetName(), pPlayer->GetName(), result);
+    pCreature->PMonsterEmote("%s rolls a dice for %s... %u!", nullptr, false,
+                             pCreature->GetName(), pPlayer->GetName(), result);
 
     amountToAward = handleRecords(pPlayer, amount, result);
     if (amountToAward > 0)
@@ -3826,50 +3586,50 @@ bool GossipSelect_npc_rov(Player* pPlayer, Creature* pCreature, uint32 /*uiSende
         pCreature->SetWalk(true);
 
         DoAfterTime(pPlayer, 7 * IN_MILLISECONDS,
-                    [CreatureGuid = pCreature->GetObjectGuid(), player = pPlayer, sturkGuid = sturk->GetObjectGuid()]()
-                    {
-                        Map* map = player->GetMap();
-                        if (!map)
-                            return;
+            [CreatureGuid = pCreature->GetObjectGuid(), player = pPlayer, sturkGuid = sturk->GetObjectGuid()]()
+        {
+            Map* map = player->GetMap();
+            if (!map)
+                return;
 
-                        Creature* creature = map->GetCreature(CreatureGuid);
-                        Creature* sturk_mob = map->GetCreature(sturkGuid);
+            Creature* creature = map->GetCreature(CreatureGuid);
+            Creature* sturk_mob = map->GetCreature(sturkGuid);
 
-                        if (!creature || !sturk_mob)
-                            return;
+            if (!creature || !sturk_mob)
+                return;
 
-                        creature->Attack(sturk_mob, true);
+            creature->Attack(sturk_mob, true);
 
-                        CreatureInfo const* cInfo = sObjectMgr.GetCreatureTemplate(80606);
-                        if (cInfo != nullptr)
-                            player->KilledMonster(cInfo, ObjectGuid());
-                    });
+            CreatureInfo const* cInfo = sObjectMgr.GetCreatureTemplate(80606);
+            if (cInfo != nullptr)
+                player->KilledMonster(cInfo, ObjectGuid());
+        });
 
         DoAfterTime(pPlayer, 6 * IN_MILLISECONDS,
-                    [me = sturk]()
-                    {
-                        me->MonsterSay(66173);
-                        me->GetMotionMaster()->MovePoint(1, 2026.39f, -4645.33f, 29.66f, 0, 5.0F);
-                        me->SetWalk(false);
-                    });
+            [ me = sturk]()
+        {
+            me->MonsterSay(66173);
+            me->GetMotionMaster()->MovePoint(1, 2026.39f, -4645.33f, 29.66f, 0, 5.0F);
+            me->SetWalk(false);
+        });
 
         DoAfterTime(pPlayer, 11 * IN_MILLISECONDS,
-                    [CreatureGuid = pCreature->GetObjectGuid(), player = pPlayer, sturkGuid = sturk->GetObjectGuid()]()
-                    {
-                        Map* map = player->GetMap();
-                        if (!map)
-                            return;
+            [CreatureGuid = pCreature->GetObjectGuid(), player = pPlayer, sturkGuid = sturk->GetObjectGuid()]()
+        {
+            Map* map = player->GetMap();
+            if (!map)
+                return;
 
-                        Creature* creature = map->GetCreature(CreatureGuid);
-                        Creature* sturk_mob = map->GetCreature(sturkGuid);
+            Creature* creature = map->GetCreature(CreatureGuid);
+            Creature* sturk_mob = map->GetCreature(sturkGuid);
 
-                        if (!creature || !sturk_mob)
-                            return;
+            if (!creature || !sturk_mob)
+                return;
 
 
-                        creature->ForcedDespawn(300);
-                        sturk_mob->ForcedDespawn(300);
-                    });
+            creature->ForcedDespawn(300);
+            sturk_mob->ForcedDespawn(300);
+        });
     }
 
     pPlayer->CLOSE_GOSSIP_MENU();
@@ -3894,7 +3654,7 @@ bool GossipSelect_npc_deino(Player* pPlayer, Creature* pCreature, uint32 /*uiSen
     {
         pCreature->MonsterSayToPlayer(66904, pPlayer);
 
-        float dis{-3.0F};
+        float dis{ -3.0F };
         float x, y, z;
         pPlayer->GetSafePosition(x, y, z);
         x += dis * cos(pPlayer->GetOrientation());
@@ -4010,59 +3770,55 @@ bool QuestComplete_npc_voldana(Player* pPlayer, Creature* pQuestGiver, Quest con
     {
 
         DoAfterTime(pQuestGiver, 3 * IN_MILLISECONDS,
-                    [playerGuid = pPlayer->GetObjectGuid(), me = pQuestGiver]()
-                    {
-                        auto player = ObjectAccessor::FindPlayer(playerGuid);
-                        if (!player)
-                            return;
+            [playerGuid = pPlayer->GetObjectGuid(), me = pQuestGiver]()
+        {
+            auto player = ObjectAccessor::FindPlayer(playerGuid);
+            if (!player) return;
 
-                        me->HandleEmote(EMOTE_ONESHOT_TALK);
-                        me->MonsterSayToPlayer(66932, player);
-                    });
+            me->HandleEmote(EMOTE_ONESHOT_TALK);
+            me->MonsterSayToPlayer(66932, player);
+        });
 
         DoAfterTime(pQuestGiver, 9 * IN_MILLISECONDS,
-                    [playerGuid = pPlayer->GetObjectGuid(), me = pQuestGiver]()
-                    {
-                        auto player = ObjectAccessor::FindPlayer(playerGuid);
-                        if (!player)
-                            return;
+            [playerGuid = pPlayer->GetObjectGuid(), me = pQuestGiver]()
+        {
+            auto player = ObjectAccessor::FindPlayer(playerGuid);
+            if (!player) return;
 
-                        me->HandleEmote(EMOTE_ONESHOT_TALK);
-                        me->MonsterSayToPlayer(66933, player);
-                    });
+            me->HandleEmote(EMOTE_ONESHOT_TALK);
+            me->MonsterSayToPlayer(66933, player);
+        });
 
         DoAfterTime(pQuestGiver, 15 * IN_MILLISECONDS,
-                    [playerGuid = pPlayer->GetObjectGuid(), me = pQuestGiver]()
-                    {
-                        auto player = ObjectAccessor::FindPlayer(playerGuid);
-                        if (!player)
-                            return;
+            [playerGuid = pPlayer->GetObjectGuid(), me = pQuestGiver]()
+        {
+            auto player = ObjectAccessor::FindPlayer(playerGuid);
+            if (!player) return;
 
-                        me->HandleEmote(EMOTE_ONESHOT_TALK);
-                        me->MonsterSayToPlayer(66934, player);
-                    });
+            me->HandleEmote(EMOTE_ONESHOT_TALK);
+            me->MonsterSayToPlayer(66934, player);
+        });
 
         DoAfterTime(pQuestGiver, 23 * IN_MILLISECONDS,
-                    [playerGuid = pPlayer->GetObjectGuid(), me = pQuestGiver]()
-                    {
-                        auto player = ObjectAccessor::FindPlayer(playerGuid);
-                        if (!player)
-                            return;
+            [playerGuid = pPlayer->GetObjectGuid(), me = pQuestGiver]()
+        {
+            auto player = ObjectAccessor::FindPlayer(playerGuid);
+            if (!player) return;
 
-                        me->HandleEmote(EMOTE_ONESHOT_CRY);
-                        me->MonsterSayToPlayer(66935, player);
-                    });
+            me->HandleEmote(EMOTE_ONESHOT_CRY);
+            me->MonsterSayToPlayer(66935, player);
+        });
 
         DoAfterTime(pQuestGiver, 30 * IN_MILLISECONDS,
-                    [playerGuid = pPlayer->GetObjectGuid(), me = pQuestGiver]()
-                    {
-                        auto player = ObjectAccessor::FindPlayer(playerGuid);
-                        if (!player)
-                            return;
+            [playerGuid = pPlayer->GetObjectGuid(), me = pQuestGiver]()
+        {
+            auto player = ObjectAccessor::FindPlayer(playerGuid);
+            if (!player) return;
 
-                        me->HandleEmote(EMOTE_ONESHOT_TALK);
-                        me->MonsterSayToPlayer(66936, player);
-                    });
+            me->HandleEmote(EMOTE_ONESHOT_TALK);
+            me->MonsterSayToPlayer(66936, player);
+        });
+
     }
     return false;
 }
@@ -4086,16 +3842,17 @@ bool GOHello_go_kheyna_wormhole(Player* pPlayer, GameObject* pGo)
             Creature* chromie = pGo->SummonCreature(65019, pGo->GetPositionX() + 1.0F, pGo->GetPositionY() + 1.0F, pGo->GetPositionZ(), pGo->GetOrientation(), TEMPSUMMON_TIMED_DESPAWN, 60 * 1000);
 
             DoAfterTime(chromie, 2 * IN_MILLISECONDS,
-                        [playerGuid = pPlayer->GetObjectGuid(), me = chromie]()
-                        {
-                            me->HandleEmote(EMOTE_ONESHOT_TALK);
-                            me->MonsterSay(66174);
-                        });
+                [playerGuid = pPlayer->GetObjectGuid(), me = chromie]()
+            {
+                me->HandleEmote(EMOTE_ONESHOT_TALK);
+                me->MonsterSay(66174);
+            });
         }
-        else if (!pPlayer->FindNearestCreature(81041, 15.0F))
-        {
-            pGo->SummonCreature(81041, pGo->GetPositionX() + 1.0F, pGo->GetPositionY() + 1.0F, pGo->GetPositionZ(), pGo->GetOrientation(), TEMPSUMMON_TIMED_DESPAWN, 60 * 1000);
-        }
+        else
+            if (!pPlayer->FindNearestCreature(81041, 15.0F))
+            {
+                pGo->SummonCreature(81041, pGo->GetPositionX() + 1.0F, pGo->GetPositionY() + 1.0F, pGo->GetPositionZ(), pGo->GetOrientation(), TEMPSUMMON_TIMED_DESPAWN, 60 * 1000);
+            }
         return true;
     }
     else
@@ -4130,11 +3887,12 @@ bool QuestRewarded_npc_norvok(Player* pPlayer, Creature* pQuestGiver, Quest cons
         if (Taupo && Taupo->IsAlive())
         {
             DoAfterTime(Taupo, 3 * IN_MILLISECONDS,
-                        [playerGuid = pPlayer->GetObjectGuid(), me = Taupo]()
-                        {
-                            me->HandleEmote(EMOTE_ONESHOT_TALK);
-                            me->MonsterSay(66176);
-                        });
+                [playerGuid = pPlayer->GetObjectGuid(), me = Taupo]()
+            {
+
+               me->HandleEmote(EMOTE_ONESHOT_TALK);
+               me->MonsterSay(66176);
+            });
         }
 
         return true;
@@ -4143,7 +3901,7 @@ bool QuestRewarded_npc_norvok(Player* pPlayer, Creature* pQuestGiver, Quest cons
     return false;
 }
 
-bool ItemUseSpell_item_gnome_enlargement(Player* pPlayer, Item* pItem, const SpellCastTargets&)
+bool ItemUseSpell_item_gnome_enlargement(Player* pPlayer, Item* pItem, const SpellCastTargets&) 
 {
     if (pPlayer->GetRace() == RACE_GNOME)
     {
@@ -4162,6 +3920,7 @@ bool ItemUseSpell_item_gnome_enlargement(Player* pPlayer, Item* pItem, const Spe
         pPlayer->SetDisplayId(12349);
         return true;
     }
+
 }
 
 
@@ -4169,7 +3928,7 @@ bool ItemUseSpell_item_tauren_shrink(Player* pPlayer, Item* pItem, const SpellCa
 {
     if (pPlayer->GetRace() == RACE_TAUREN)
     {
-        // taurens by default do not have 1.0 as scale so this shrinks them.
+        //taurens by default do not have 1.0 as scale so this shrinks them.
         if (pPlayer->GetObjectScale() < DEFAULT_TAUREN_FEMALE_SCALE)
         {
             pPlayer->GetSession()->SendNotification("You can't shrink more!");
@@ -4187,6 +3946,7 @@ bool ItemUseSpell_item_tauren_shrink(Player* pPlayer, Item* pItem, const SpellCa
         }
         return true;
     }
+
 }
 
 bool GOHello_go_shagu_shisha(Player* pPlayer, GameObject* pGo)
@@ -4261,11 +4021,11 @@ bool GossipHello_npc_questions_and_answers(Player* pPlayer, Creature* pCreature)
     if (pPlayer->GetQuestStatus(80721) == QUEST_STATUS_INCOMPLETE) // Grim News
         switch (pCreature->GetEntry())
         {
-        case 1515:
+        case 1515: 
             if (pPlayer->GetQuestStatusData(80721)->m_creatureOrGOcount[0] == 0)
                 pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, 66937, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
             break;
-        case 1952:
+        case 1952: 
             if (pPlayer->GetQuestStatusData(80721)->m_creatureOrGOcount[1] == 0)
                 pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, 66938, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
             break;
@@ -4317,11 +4077,17 @@ bool GossipSelect_npc_questions_and_answers(Player* pPlayer, Creature* pCreature
 
 struct npc_vladeus_springriverAI : public ScriptedAI
 {
-    npc_vladeus_springriverAI(Creature* c) : ScriptedAI(c) { Reset(); }
+    npc_vladeus_springriverAI(Creature* c) : ScriptedAI(c)
+    {
+        Reset();
+    }
 
     ShortTimeTracker m_despawnCheckTimer;
 
-    void Reset() override { m_despawnCheckTimer.Reset(5000); }
+    void Reset() override
+    {
+        m_despawnCheckTimer.Reset(5000);
+    }
 
     void DamageTaken(Unit* pAttacker, uint32& damage) override
     {
@@ -4544,44 +4310,27 @@ bool GossipSelect_npc_vladeus_interrogation(Player* pPlayer, Creature* pCreature
 
 bool QuestRewarded_npc_brother_crowley(Player* pPlayer, Creature* pQuestGiver, Quest const* pQuest)
 {
-    if (!pQuestGiver || !pPlayer)
-        return false;
+    if (!pQuestGiver || ! pPlayer) return false;
 
     if (pQuest->GetQuestId() == 80708) // Scarlet Aid
     {
-        DoAfterTime(pQuestGiver, 2 * IN_MILLISECONDS,
-                    [playerGuid = pPlayer->GetObjectGuid(), me = pQuestGiver]()
-                    {
-                        auto player = ObjectAccessor::FindPlayer(playerGuid);
-                        if (!player)
-                            return;
-                        me->MonsterSayToPlayer(66976, player);
-                    });
-        DoAfterTime(pQuestGiver, 10 * IN_MILLISECONDS,
-                    [playerGuid = pPlayer->GetObjectGuid(), me = pQuestGiver]()
-                    {
-                        auto player = ObjectAccessor::FindPlayer(playerGuid);
-                        if (!player)
-                            return;
-                        me->MonsterSayToPlayer(66977, player);
-                    });
-        DoAfterTime(pQuestGiver, 18 * IN_MILLISECONDS,
-                    [playerGuid = pPlayer->GetObjectGuid(), me = pQuestGiver]()
-                    {
-                        auto player = ObjectAccessor::FindPlayer(playerGuid);
-                        if (!player)
-                            return;
-                        me->MonsterSayToPlayer(66978, player);
-                    });
-        DoAfterTime(pQuestGiver, 28 * IN_MILLISECONDS,
-                    [playerGuid = pPlayer->GetObjectGuid(), me = pQuestGiver]()
-                    {
-                        auto player = ObjectAccessor::FindPlayer(playerGuid);
-                        if (!player)
-                            return;
-                        me->MonsterSayToPlayer(66979, player);
-                        me->HandleEmote(EMOTE_ONESHOT_QUESTION);
-                    });
+        DoAfterTime(pQuestGiver, 2 * IN_MILLISECONDS, [playerGuid = pPlayer->GetObjectGuid(), me = pQuestGiver]() {
+            auto player = ObjectAccessor::FindPlayer(playerGuid);
+                if (!player) return;
+            me->MonsterSayToPlayer(66976, player);});
+        DoAfterTime(pQuestGiver, 10 * IN_MILLISECONDS, [playerGuid = pPlayer->GetObjectGuid(), me = pQuestGiver]() {
+            auto player = ObjectAccessor::FindPlayer(playerGuid);
+                if (!player) return;
+                me->MonsterSayToPlayer(66977, player); });
+        DoAfterTime(pQuestGiver, 18 * IN_MILLISECONDS, [playerGuid = pPlayer->GetObjectGuid(), me = pQuestGiver]() {
+            auto player = ObjectAccessor::FindPlayer(playerGuid);
+                if (!player) return;
+                me->MonsterSayToPlayer(66978, player); });
+        DoAfterTime(pQuestGiver, 28 * IN_MILLISECONDS, [playerGuid = pPlayer->GetObjectGuid(), me = pQuestGiver]() {
+            auto player = ObjectAccessor::FindPlayer(playerGuid);
+                if (!player) return;
+                me->MonsterSayToPlayer(66979, player);
+            me->HandleEmote(EMOTE_ONESHOT_QUESTION); });
     }
     return false;
 }
@@ -4613,43 +4362,35 @@ bool GossipSelect_npc_maverick(Player* pPlayer, Creature* maverick, uint32 /*uiS
         maverick->GetMotionMaster()->MovePoint(0, 2545.8F, -651.11F, 78.8F);
         maverick->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_SPAWNING | UNIT_FLAG_IMMUNE_TO_NPC);
 
-        DoAfterTime(maverick, 40 * IN_MILLISECONDS,
-                    [playerGuid = pPlayer->GetObjectGuid(), me = maverick]()
-                    {
-                        me->SummonCreature(50680, 2552.95F, -650.62F, 80.09F, 3.20F, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 60 * IN_MILLISECONDS);
-                        me->SummonGameObject(2005011, 2545.8F, -651.11F, 78.8F, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 100, true);
-                    });
-        DoAfterTime(maverick, 41 * IN_MILLISECONDS,
-                    [playerGuid = pPlayer->GetObjectGuid(), me = maverick]()
-                    {
-                        auto player = ObjectAccessor::FindPlayer(playerGuid);
-                        if (!player)
-                            return;
+        DoAfterTime(maverick, 40 * IN_MILLISECONDS, [playerGuid = pPlayer->GetObjectGuid(), me = maverick]() {
+            me->SummonCreature(50680, 2552.95F, -650.62F, 80.09F, 3.20F, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 60 * IN_MILLISECONDS);
+            me->SummonGameObject(2005011, 2545.8F, -651.11F, 78.8F, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 100, true);
+            });
+        DoAfterTime(maverick, 41 * IN_MILLISECONDS, [playerGuid = pPlayer->GetObjectGuid(), me = maverick]() {
+            auto player = ObjectAccessor::FindPlayer(playerGuid);
+            if (!player) return;
 
-                        me->MonsterSayToPlayer(66983, player);
-                        me->SummonCreature(50680, 2544.84F, -658.78F, 79.53F, 1.5F, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 60 * IN_MILLISECONDS);
-                    });
-        DoAfterTime(maverick, 44 * IN_MILLISECONDS,
-                    [playerGuid = pPlayer->GetObjectGuid(), me = maverick]()
-                    {
-                        auto player = ObjectAccessor::FindPlayer(playerGuid);
-                        if (!player)
-                            return;
+            me->MonsterSayToPlayer(66983, player);
+            me->SummonCreature(50680, 2544.84F, -658.78F, 79.53F, 1.5F, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 60 * IN_MILLISECONDS);
+            });
+        DoAfterTime(maverick, 44 * IN_MILLISECONDS, [playerGuid = pPlayer->GetObjectGuid(), me = maverick]() {
+            auto player = ObjectAccessor::FindPlayer(playerGuid);
+            if (!player) return;
 
-                        me->MonsterSayToPlayer(66984, player);
-                        me->CastSpell(me, 25148, true);
-                        me->HandleEmote(EMOTE_STATE_SLEEP);
-                        me->SetStandState(UNIT_STAND_STATE_SLEEP);
-                        me->SummonCreature(50682, 2558.14F, -663.63F, 88.68F, 2.19F, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 120 * IN_MILLISECONDS);
-                    });
-        DoAfterTime(maverick, 53 * IN_MILLISECONDS, [playerGuid = pPlayer->GetObjectGuid(), me = maverick]() { me->SummonCreature(50681, 2544.84F, -658.78F, 79.53F, 1.5F, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 60 * IN_MILLISECONDS); });
-        DoAfterTime(maverick, 54 * IN_MILLISECONDS,
-                    [playerGuid = pPlayer->GetObjectGuid(), me = maverick]()
-                    {
-                        me->SummonCreature(50681, 2546.42F, -643.44F, 80.20F, 4.6F, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 60 * IN_MILLISECONDS);
-                        me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                        me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_SPAWNING);
-                    });
+            me->MonsterSayToPlayer(66984, player);
+            me->CastSpell(me, 25148, true);
+            me->HandleEmote(EMOTE_STATE_SLEEP);
+            me->SetStandState(UNIT_STAND_STATE_SLEEP);
+            me->SummonCreature(50682, 2558.14F, -663.63F, 88.68F, 2.19F, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 120 * IN_MILLISECONDS);
+            });
+        DoAfterTime(maverick, 53 * IN_MILLISECONDS, [playerGuid = pPlayer->GetObjectGuid(), me = maverick]() {
+            me->SummonCreature(50681, 2544.84F, -658.78F, 79.53F, 1.5F, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 60 * IN_MILLISECONDS);
+            });
+        DoAfterTime(maverick, 54 * IN_MILLISECONDS, [playerGuid = pPlayer->GetObjectGuid(), me = maverick]() {
+            me->SummonCreature(50681, 2546.42F, -643.44F, 80.20F, 4.6F, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 60 * IN_MILLISECONDS);
+            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_SPAWNING);
+            });
     }
     if (uiAction == GOSSIP_ACTION_INFO_DEF + 2)
     {
@@ -4679,7 +4420,7 @@ struct npc_scarlet_magicianAI : public ScriptedAI
 {
     npc_scarlet_magicianAI(Creature* c) : ScriptedAI(c) { Reset(); }
 
-    void Reset() {}
+    void Reset(){}
 
     void UpdateAI(const uint32 diff)
     {
@@ -4687,13 +4428,16 @@ struct npc_scarlet_magicianAI : public ScriptedAI
         {
             if (m_creature->GetEntry() == 50680)
                 m_creature->CastSpell((Unit*)nullptr, 23017, true);
-            else
+            else           
                 m_creature->CastSpell((Unit*)nullptr, 13540, true);
         }
         DoMeleeAttackIfReady();
     }
-    void EnterCombat() { m_creature->MonsterSay(66181); }
-    void JustRespawned() {}
+    void EnterCombat()
+    {
+        m_creature->MonsterSay(66181);
+    }
+    void JustRespawned(){}
 };
 
 CreatureAI* GetAI_npc_scarlet_magician(Creature* _Creature) { return new npc_scarlet_magicianAI(_Creature); }
@@ -4710,7 +4454,8 @@ bool GOHello_go_gunthers_favor(Player* pPlayer, GameObject* pGo)
             gAI->SetData(1, 1);
         }
 
-        pGo->SummonCreature(50683, pGo->GetPositionX(), pGo->GetPositionY(), pGo->GetPositionZ(), pGo->GetOrientation(), TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 60 * IN_MILLISECONDS);
+        pGo->SummonCreature(50683, pGo->GetPositionX(), pGo->GetPositionY(), pGo->GetPositionZ(), pGo->GetOrientation(), 
+                            TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 60 * IN_MILLISECONDS);
     }
     return true;
 }
@@ -4761,7 +4506,10 @@ struct npc_alphus_wordwillAI : public ScriptedAI
 
     void Reset() {}
 
-    void Aggro(Unit* pWho) override { m_creature->MonsterSay(66182); }
+    void Aggro(Unit* pWho) override
+    {
+        m_creature->MonsterSay(66182);
+    }
 
     void UpdateAI(const uint32 diff)
     {
@@ -4814,6 +4562,7 @@ struct npc_alphus_wordwillAI : public ScriptedAI
 CreatureAI* GetAI_npc_alphus_wordwill(Creature* _Creature) { return new npc_alphus_wordwillAI(_Creature); }
 
 
+
 bool GossipHello_npc_bloodsail_traitor(Player* pPlayer, Creature* pCreature)
 {
     if (pPlayer->GetQuestStatus(55030) == QUEST_STATUS_INCOMPLETE && pPlayer->GetQuestStatusData(55030)->m_creatureOrGOcount[0] == 0)
@@ -4855,33 +4604,24 @@ bool QuestAccept_npc_shalgrig(Player* pPlayer, Creature* pQuestGiver, Quest cons
 
         if (spanessa && brizclang)
         {
-            DoAfterTime(pQuestGiver, 1 * IN_MILLISECONDS,
-                        [playerGuid = pPlayer->GetObjectGuid(), me = pQuestGiver]()
-                        {
-                            auto player = ObjectAccessor::FindPlayer(playerGuid);
-                            if (!player)
-                                return;
-                            me->HandleEmote(EMOTE_ONESHOT_TALK);
-                            me->MonsterSayToPlayer(66988, player);
-                        });
-            DoAfterTime(pQuestGiver, 3 * IN_MILLISECONDS,
-                        [playerGuid = pPlayer->GetObjectGuid(), me = pQuestGiver]()
-                        {
-                            auto player = ObjectAccessor::FindPlayer(playerGuid);
-                            if (!player)
-                                return;
-                            me->HandleEmote(EMOTE_ONESHOT_CHEER);
-                            me->MonsterSayToPlayer(66989, player);
-                        });
-            DoAfterTime(pQuestGiver, 5 * IN_MILLISECONDS,
-                        [playerGuid = pPlayer->GetObjectGuid(), me = pQuestGiver]()
-                        {
-                            auto player = ObjectAccessor::FindPlayer(playerGuid);
-                            if (!player)
-                                return;
-                            me->HandleEmote(EMOTE_ONESHOT_WAVE);
-                            me->MonsterSayToPlayer(66990, player);
-                        });
+            DoAfterTime(pQuestGiver, 1 * IN_MILLISECONDS, [playerGuid = pPlayer->GetObjectGuid(), me = pQuestGiver]() {
+                auto player = ObjectAccessor::FindPlayer(playerGuid);
+                if (!player) return;
+                me->HandleEmote(EMOTE_ONESHOT_TALK);
+                me->MonsterSayToPlayer(66988, player);
+                });
+            DoAfterTime(pQuestGiver, 3 * IN_MILLISECONDS, [playerGuid = pPlayer->GetObjectGuid(), me = pQuestGiver]() {
+                auto player = ObjectAccessor::FindPlayer(playerGuid);
+                if (!player) return;
+                me->HandleEmote(EMOTE_ONESHOT_CHEER);
+                me->MonsterSayToPlayer(66989, player);
+                });
+            DoAfterTime(pQuestGiver, 5 * IN_MILLISECONDS, [playerGuid = pPlayer->GetObjectGuid(), me = pQuestGiver]() {
+                auto player = ObjectAccessor::FindPlayer(playerGuid);
+                if (!player) return;
+                me->HandleEmote(EMOTE_ONESHOT_WAVE);
+                me->MonsterSayToPlayer(66990, player);
+                });
             return true;
         }
         else
@@ -4907,25 +4647,20 @@ bool QuestAccept_npc_ansirem(Player* pPlayer, Creature* pQuestGiver, Quest const
         pQuestGiver->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_SPAWNING);
         pQuestGiver->CastSpell(pQuestGiver, 23017, false); // Arcane Channeling
 
-        DoAfterTime(pQuestGiver, 18 * IN_MILLISECONDS,
-                    [npc = pQuestGiver]()
-                    {
-                        npc->HandleEmote(EMOTE_ONESHOT_YES);
-                        npc->CastSpell(npc, 1449, false);
-                    });
-        DoAfterTime(pQuestGiver, 20 * IN_MILLISECONDS,
-                    [playerGuid = pPlayer->GetObjectGuid(), npc = pQuestGiver]()
-                    {
-                        auto player = ObjectAccessor::FindPlayer(playerGuid);
-                        if (!player)
-                            return;
-                        npc->MonsterSayToPlayer(66991, player);
-                        npc->HandleEmote(EMOTE_ONESHOT_TALK);
-                        if (CreatureInfo const* cInfo = sObjectMgr.GetCreatureTemplate(60327))
-                            player->KilledMonster(cInfo, ObjectGuid());
-                        npc->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                        npc->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_SPAWNING);
-                    });
+        DoAfterTime(pQuestGiver, 18 * IN_MILLISECONDS, [ npc = pQuestGiver]() {
+            npc->HandleEmote(EMOTE_ONESHOT_YES);
+            npc->CastSpell(npc, 1449, false);
+            });
+        DoAfterTime(pQuestGiver, 20 * IN_MILLISECONDS, [playerGuid = pPlayer->GetObjectGuid(), npc = pQuestGiver]() {
+            auto player = ObjectAccessor::FindPlayer(playerGuid);
+            if (!player) return;
+            npc->MonsterSayToPlayer(66991, player);
+            npc->HandleEmote(EMOTE_ONESHOT_TALK);
+            if (CreatureInfo const* cInfo = sObjectMgr.GetCreatureTemplate(60327))
+                player->KilledMonster(cInfo, ObjectGuid());
+            npc->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+            npc->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_SPAWNING);
+            });
 
         return true;
     }
@@ -5002,24 +4737,18 @@ bool QuestRewarded_npc_pazzle_brightwrench(Player* pPlayer, Creature* pQuestGive
 
     if (pQuest->GetQuestId() == 55043) // The Brightwater Logs
     {
-        DoAfterTime(pQuestGiver, 1 * IN_MILLISECONDS,
-                    [playerGuid = pPlayer->GetObjectGuid(), npc = pQuestGiver]()
-                    {
-                        auto player = ObjectAccessor::FindPlayer(playerGuid);
-                        if (!player)
-                            return;
-                        npc->HandleEmote(EMOTE_ONESHOT_EAT_NOSHEATHE);
-                        npc->MonsterSayToPlayer(66994, player);
-                    });
-        DoAfterTime(pQuestGiver, 3 * IN_MILLISECONDS,
-                    [playerGuid = pPlayer->GetObjectGuid(), npc = pQuestGiver]()
-                    {
-                        auto player = ObjectAccessor::FindPlayer(playerGuid);
-                        if (!player)
-                            return;
-                        npc->HandleEmote(EMOTE_ONESHOT_LAUGH);
-                        npc->MonsterSayToPlayer(66995, player);
-                    });
+        DoAfterTime(pQuestGiver, 1 * IN_MILLISECONDS, [playerGuid = pPlayer->GetObjectGuid(), npc = pQuestGiver]() {
+            auto player = ObjectAccessor::FindPlayer(playerGuid);
+            if (!player) return;
+            npc->HandleEmote(EMOTE_ONESHOT_EAT_NOSHEATHE);
+            npc->MonsterSayToPlayer(66994, player);
+            });
+        DoAfterTime(pQuestGiver, 3 * IN_MILLISECONDS, [playerGuid = pPlayer->GetObjectGuid(), npc = pQuestGiver]() {
+            auto player = ObjectAccessor::FindPlayer(playerGuid);
+            if (!player) return;
+            npc->HandleEmote(EMOTE_ONESHOT_LAUGH);
+            npc->MonsterSayToPlayer(66995, player);
+            });
         return true;
     }
     return true;
@@ -5079,27 +4808,23 @@ bool QuestAccept_npc_barthos(Player* pPlayer, Creature* pQuestGiver, Quest const
         pQuestGiver->MonsterSayToPlayer(66997, pPlayer);
         pQuestGiver->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_SPAWNING | UNIT_FLAG_IMMUNE_TO_NPC);
 
-        DoAfterTime(pQuestGiver, 6 * IN_MILLISECONDS,
-                    [playerGuid = pPlayer->GetObjectGuid(), npc = pQuestGiver]()
-                    {
-                        auto player = ObjectAccessor::FindPlayer(playerGuid);
-                        if (!player)
-                            return;
-                        npc->MonsterSayToPlayer(66998, player);
-                    });
-        DoAfterTime(pQuestGiver, 12 * IN_MILLISECONDS,
-                    [playerGuid = pPlayer->GetObjectGuid(), npc = pQuestGiver]()
-                    {
-                        auto player = ObjectAccessor::FindPlayer(playerGuid);
-                        if (!player)
-                            return;
-                        npc->MonsterSayToPlayer(66999, player);
-                        npc->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                        npc->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_SPAWNING);
-                        if (CreatureInfo const* cInfo = sObjectMgr.GetCreatureTemplate(91301))
-                            player->KilledMonster(cInfo, ObjectGuid());
-                    });
-        DoAfterTime(pQuestGiver, 14 * IN_MILLISECONDS, [npc = pQuestGiver]() { npc->HandleEmote(EMOTE_ONESHOT_NONE); });
+        DoAfterTime(pQuestGiver, 6 * IN_MILLISECONDS, [playerGuid = pPlayer->GetObjectGuid(), npc = pQuestGiver]() {
+            auto player = ObjectAccessor::FindPlayer(playerGuid);
+            if (!player) return;
+            npc->MonsterSayToPlayer(66998, player);
+            });
+        DoAfterTime(pQuestGiver, 12 * IN_MILLISECONDS, [playerGuid = pPlayer->GetObjectGuid(), npc = pQuestGiver]() {
+            auto player = ObjectAccessor::FindPlayer(playerGuid);
+            if (!player) return;
+            npc->MonsterSayToPlayer(66999, player);
+            npc->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+            npc->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_SPAWNING);
+            if (CreatureInfo const* cInfo = sObjectMgr.GetCreatureTemplate(91301))
+                player->KilledMonster(cInfo, ObjectGuid());
+            });
+        DoAfterTime(pQuestGiver, 14 * IN_MILLISECONDS, [npc = pQuestGiver]() {
+            npc->HandleEmote(EMOTE_ONESHOT_NONE);
+            });
     }
     return false;
 }
@@ -5129,64 +4854,46 @@ bool GossipSelect_npc_zuljin(Player* pPlayer, Creature* pCreature, uint32 uiSend
     {
         pCreature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_SPAWNING | UNIT_FLAG_IMMUNE_TO_NPC);
         pCreature->MonsterSayToPlayer(67002, pPlayer);
-        DoAfterTime(pPlayer, 5 * IN_MILLISECONDS,
-                    [player = pPlayer, c = pCreature]()
-                    {
-                        c->MonsterSayToPlayer(67003, player);
-                        c->HandleEmote(EMOTE_ONESHOT_TALK);
-                    });
-        DoAfterTime(pPlayer, 10 * IN_MILLISECONDS,
-                    [player = pPlayer, c = pCreature]()
-                    {
-                        c->MonsterSayToPlayer(67004, player);
-                        c->HandleEmote(EMOTE_ONESHOT_NO);
-                    });
-        DoAfterTime(pPlayer, 15 * IN_MILLISECONDS,
-                    [player = pPlayer, c = pCreature]()
-                    {
-                        c->MonsterSayToPlayer(67005, player);
-                        c->HandleEmote(EMOTE_ONESHOT_TALK);
-                    });
-        DoAfterTime(pPlayer, 20 * IN_MILLISECONDS,
-                    [player = pPlayer, c = pCreature]()
-                    {
-                        c->MonsterSayToPlayer(67006, player);
-                        c->HandleEmote(EMOTE_ONESHOT_YES);
-                    });
-        DoAfterTime(pPlayer, 25 * IN_MILLISECONDS,
-                    [player = pPlayer, c = pCreature]()
-                    {
-                        c->MonsterSayToPlayer(67007, player);
-                        c->HandleEmote(EMOTE_ONESHOT_TALK);
-                    });
-        DoAfterTime(pPlayer, 30 * IN_MILLISECONDS,
-                    [player = pPlayer, c = pCreature]()
-                    {
-                        c->MonsterSayToPlayer(67008, player);
-                        c->HandleEmote(EMOTE_ONESHOT_YES);
-                    });
-        DoAfterTime(pPlayer, 35 * IN_MILLISECONDS,
-                    [player = pPlayer, c = pCreature]()
-                    {
-                        c->MonsterSayToPlayer(67009, player);
-                        c->HandleEmote(EMOTE_ONESHOT_EXCLAMATION);
-                    });
-        DoAfterTime(pPlayer, 40 * IN_MILLISECONDS,
-                    [player = pPlayer, c = pCreature]()
-                    {
-                        c->MonsterYell(67010);
-                        c->HandleEmote(EMOTE_ONESHOT_BATTLEROAR);
-                    });
-        DoAfterTime(pPlayer, 45 * IN_MILLISECONDS,
-                    [player = pPlayer, c = pCreature]()
-                    {
-                        c->MonsterYell(67011);
-                        c->HandleEmote(EMOTE_ONESHOT_EXCLAMATION);
-                        if (CreatureInfo const* cInfo = sObjectMgr.GetCreatureTemplate(91320))
-                            player->KilledMonster(cInfo, ObjectGuid());
-                        c->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                        c->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_SPAWNING);
-                    });
+        DoAfterTime(pPlayer, 5 * IN_MILLISECONDS, [player = pPlayer, c = pCreature]() {
+            c->MonsterSayToPlayer(67003, player);
+            c->HandleEmote(EMOTE_ONESHOT_TALK);
+            });
+        DoAfterTime(pPlayer, 10 * IN_MILLISECONDS, [player = pPlayer, c = pCreature]() {
+            c->MonsterSayToPlayer(67004, player);
+            c->HandleEmote(EMOTE_ONESHOT_NO);
+            });
+        DoAfterTime(pPlayer, 15 * IN_MILLISECONDS, [player = pPlayer, c = pCreature]() {
+            c->MonsterSayToPlayer(67005, player);
+            c->HandleEmote(EMOTE_ONESHOT_TALK);
+            });
+        DoAfterTime(pPlayer, 20 * IN_MILLISECONDS, [player = pPlayer, c = pCreature]() {
+            c->MonsterSayToPlayer(67006, player);
+            c->HandleEmote(EMOTE_ONESHOT_YES);
+            });
+        DoAfterTime(pPlayer, 25 * IN_MILLISECONDS, [player = pPlayer, c = pCreature]() {
+            c->MonsterSayToPlayer(67007, player);
+            c->HandleEmote(EMOTE_ONESHOT_TALK);
+            });
+        DoAfterTime(pPlayer, 30 * IN_MILLISECONDS, [player = pPlayer, c = pCreature]() {
+            c->MonsterSayToPlayer(67008, player);
+            c->HandleEmote(EMOTE_ONESHOT_YES);
+            });
+        DoAfterTime(pPlayer, 35 * IN_MILLISECONDS, [player = pPlayer, c = pCreature]() {
+            c->MonsterSayToPlayer(67009, player);
+            c->HandleEmote(EMOTE_ONESHOT_EXCLAMATION);
+            });
+        DoAfterTime(pPlayer, 40 * IN_MILLISECONDS, [player = pPlayer, c = pCreature]() {
+            c->MonsterYell(67010);
+            c->HandleEmote(EMOTE_ONESHOT_BATTLEROAR);
+            });
+        DoAfterTime(pPlayer, 45 * IN_MILLISECONDS, [player = pPlayer, c = pCreature]() {
+            c->MonsterYell(67011);
+            c->HandleEmote(EMOTE_ONESHOT_EXCLAMATION);
+            if (CreatureInfo const* cInfo = sObjectMgr.GetCreatureTemplate(91320))
+                player->KilledMonster(cInfo, ObjectGuid());
+            c->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+            c->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_SPAWNING);
+            }); 
     }
 
     if (uiAction == GOSSIP_ACTION_INFO_DEF + 2)
@@ -5212,26 +4919,20 @@ bool GossipSelect_npc_harlus(Player* pPlayer, Creature* pCreature, uint32 uiSend
     if (uiAction == GOSSIP_ACTION_INFO_DEF + 1)
     {
         pCreature->SetCastingTarget(pPlayer);
-        DoAfterTime(pPlayer, 1 * IN_MILLISECONDS,
-                    [player = pPlayer, c = pCreature]()
-                    {
-                        c->MonsterSayToPlayer(67014, player);
-                        c->HandleEmote(EMOTE_ONESHOT_LAUGH);
-                    });
-        DoAfterTime(pPlayer, 5 * IN_MILLISECONDS,
-                    [player = pPlayer, c = pCreature]()
-                    {
-                        c->MonsterSayToPlayer(67015, player);
-                        c->HandleEmote(EMOTE_ONESHOT_NO);
-                    });
-        DoAfterTime(pPlayer, 9 * IN_MILLISECONDS,
-                    [player = pPlayer, c = pCreature]()
-                    {
-                        c->MonsterSayToPlayer(67016, player);
-                        c->SetFactionTemporary(14, TEMPFACTION_RESTORE_RESPAWN);
-                        c->HandleEmote(EMOTE_ONESHOT_ATTACK1H);
-                        c->ClearCastingTarget();
-                    });
+        DoAfterTime(pPlayer, 1 * IN_MILLISECONDS, [player = pPlayer, c = pCreature]() {
+            c->MonsterSayToPlayer(67014, player);
+            c->HandleEmote(EMOTE_ONESHOT_LAUGH);
+            });
+        DoAfterTime(pPlayer, 5 * IN_MILLISECONDS, [player = pPlayer, c = pCreature]() {
+            c->MonsterSayToPlayer(67015, player);
+            c->HandleEmote(EMOTE_ONESHOT_NO);
+            });
+        DoAfterTime(pPlayer, 9 * IN_MILLISECONDS, [player = pPlayer, c = pCreature]() {
+            c->MonsterSayToPlayer(67016, player);
+            c->SetFactionTemporary(14, TEMPFACTION_RESTORE_RESPAWN);
+            c->HandleEmote(EMOTE_ONESHOT_ATTACK1H);
+            c->ClearCastingTarget();
+            });
     }
     pPlayer->CLOSE_GOSSIP_MENU();
     return true;
@@ -5259,8 +4960,14 @@ struct npc_naxiarAI : public ScriptedAI
     npc_naxiarAI(Creature* c) : ScriptedAI(c) { Reset(); }
 
     void Reset() {}
-    void UpdateAI(const uint32 diff) { DoMeleeAttackIfReady(); }
-    void Aggro(Unit* who) { m_creature->MonsterSay(66189); }
+    void UpdateAI(const uint32 diff)
+    {
+        DoMeleeAttackIfReady();
+    }
+    void Aggro(Unit* who)
+    {
+        m_creature->MonsterSay(66189);
+    }
     void JustRespawned() { Reset(); }
 };
 
@@ -5277,12 +4984,10 @@ bool QuestAccept_npc_truthseeker_magellas(Player* pPlayer, Creature* pQuestGiver
     bool first_item_added = false;
     bool second_item_added = false;
 
-    if (pQuest->GetQuestId() == 40106 || pQuest->GetQuestId() == 40114) // Gates of Uldum  //Uldum Awaits
+    if (pQuest->GetQuestId() == 40106 || pQuest->GetQuestId() == 40114) //Gates of Uldum  //Uldum Awaits
     {
-        if (pPlayer->AddItem(60102))
-            first_item_added = true;
-        if (pPlayer->AddItem(60103))
-            second_item_added = true;
+        if (pPlayer->AddItem(60102)) first_item_added = true;
+        if (pPlayer->AddItem(60103)) second_item_added = true;
 
         if (!first_item_added || !second_item_added)
         {
@@ -5317,13 +5022,11 @@ bool QuestRewarded_npc_magus_bromley(Player* pPlayer, Creature* pQuestGiver, Que
         pQuestGiver->MonsterSayToPlayer(67017, pPlayer);
         pQuestGiver->CastSpell(pQuestGiver, 23017, false); // Arcane Channeling
 
-        DoAfterTime(pPlayer, 6 * IN_MILLISECONDS,
-                    [player = pPlayer, c = pQuestGiver]()
-                    {
-                        c->MonsterSayToPlayer(67018, player);
-                        c->HandleEmote(EMOTE_ONESHOT_NO);
-                        c->CastSpell(c, 1449, false);
-                    });
+        DoAfterTime(pPlayer, 6 * IN_MILLISECONDS, [player = pPlayer, c = pQuestGiver]() {
+            c->MonsterSayToPlayer(67018, player);
+            c->HandleEmote(EMOTE_ONESHOT_NO);
+            c->CastSpell(c, 1449, false);
+            });
 
         return true;
     }
@@ -5333,20 +5036,17 @@ bool QuestRewarded_npc_magus_bromley(Player* pPlayer, Creature* pQuestGiver, Que
 
 bool QuestRewarded_npc_lord_rog(Player* pPlayer, Creature* pQuestGiver, Quest const* pQuest)
 {
-    if (!pQuestGiver || !pPlayer)
-        return false;
+    if (!pQuestGiver || !pPlayer) return false;
 
     if (pQuest->GetQuestId() == 40024) // Lord Rog's Exiles
     {
         Creature* speaker_ganzih = pPlayer->FindNearestCreature(91411, 30.0F);
         if (speaker_ganzih)
         {
-            DoAfterTime(pPlayer, 1 * IN_MILLISECONDS,
-                        [player = pPlayer, npc = speaker_ganzih]()
-                        {
-                            npc->HandleEmote(EMOTE_ONESHOT_TALK);
-                            npc->MonsterSayToPlayer(67019, player);
-                        });
+            DoAfterTime(pPlayer, 1 * IN_MILLISECONDS, [player = pPlayer, npc = speaker_ganzih]() {
+                npc->HandleEmote(EMOTE_ONESHOT_TALK);
+                npc->MonsterSayToPlayer(67019, player);
+                });
             return true;
         }
     }
@@ -5355,8 +5055,7 @@ bool QuestRewarded_npc_lord_rog(Player* pPlayer, Creature* pQuestGiver, Quest co
 
 bool QuestAccept_npc_ganzih(Player* pPlayer, Creature* pQuestGiver, Quest const* pQuest)
 {
-    if (!pQuestGiver || !pPlayer)
-        return false;
+    if (!pQuestGiver || !pPlayer) return false;
 
     if (pQuest->GetQuestId() == 40026) // Lord Rog's Favor
     {
@@ -5367,19 +5066,21 @@ bool QuestAccept_npc_ganzih(Player* pPlayer, Creature* pQuestGiver, Quest const*
             lord_rog->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_SPAWNING | UNIT_FLAG_IMMUNE_TO_NPC);
             lord_rog->CastSpell(pQuestGiver, 13236, false);
 
-            DoAfterTime(pPlayer, 10 * IN_MILLISECONDS, [player = pPlayer, npc = lord_rog]() { npc->MonsterSayToPlayer(67020, player); });
-            DoAfterTime(pPlayer, 12 * IN_MILLISECONDS, [player = pPlayer, npc = lord_rog]() { npc->CastSpell(npc, 5906, false); });
-            DoAfterTime(pPlayer, 20 * IN_MILLISECONDS,
-                        [player = pPlayer, npc = lord_rog]()
-                        {
-                            npc->MonsterSayToPlayer(67021, player);
+            DoAfterTime(pPlayer, 10 * IN_MILLISECONDS, [player = pPlayer, npc = lord_rog]() {
+                npc->MonsterSayToPlayer(67020, player);
+                });
+            DoAfterTime(pPlayer, 12 * IN_MILLISECONDS, [player = pPlayer, npc = lord_rog]() {
+                npc->CastSpell(npc, 5906, false);
+                });
+            DoAfterTime(pPlayer, 20 * IN_MILLISECONDS, [player = pPlayer, npc = lord_rog]() {
+                npc->MonsterSayToPlayer(67021, player);
 
-                            if (CreatureInfo const* cInfo = sObjectMgr.GetCreatureTemplate(60313))
-                                player->KilledMonster(cInfo, ObjectGuid());
-                            npc->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_SPAWNING);
-                            npc->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                            npc->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_NPC);
-                        });
+                if (CreatureInfo const* cInfo = sObjectMgr.GetCreatureTemplate(60313))
+                    player->KilledMonster(cInfo, ObjectGuid());
+                npc->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_SPAWNING);
+                npc->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                npc->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_NPC);
+                });
             return true;
         }
     }
@@ -5391,8 +5092,14 @@ struct npc_speaker_gantoAI : public ScriptedAI
     npc_speaker_gantoAI(Creature* c) : ScriptedAI(c) { Reset(); }
 
     void Reset() {}
-    void UpdateAI(const uint32 diff) { DoMeleeAttackIfReady(); }
-    void Aggro(Unit* who) { m_creature->MonsterSay(66190); }
+    void UpdateAI(const uint32 diff)
+    {
+        DoMeleeAttackIfReady();
+    }
+    void Aggro(Unit* who)
+    {
+        m_creature->MonsterSay(66190);
+    }
     void JustRespawned() { Reset(); }
 };
 
@@ -5400,47 +5107,38 @@ CreatureAI* GetAI_npc_speaker_ganto(Creature* _Creature) { return new npc_speake
 
 bool QuestRewarded_npc_magtoor(Player* pPlayer, Creature* pQuestGiver, Quest const* pQuest)
 {
-    if (!pQuestGiver || !pPlayer)
-        return false;
+    if (!pQuestGiver || !pPlayer) return false;
 
     if (pQuest->GetQuestId() == 40030) // Noboru the Cudgel
     {
         Creature* exile1 = pPlayer->FindNearestCreature(60421, 40.0F);
         if (exile1)
         {
-            DoAfterTime(pPlayer, 1 * IN_MILLISECONDS,
-                        [player = pPlayer, npc = exile1]()
-                        {
-                            npc->HandleEmote(EMOTE_ONESHOT_TALK);
-                            npc->MonsterSayToPlayer(67022, player);
-                        });
+            DoAfterTime(pPlayer, 1 * IN_MILLISECONDS, [player = pPlayer, npc = exile1]() {
+                npc->HandleEmote(EMOTE_ONESHOT_TALK);
+                npc->MonsterSayToPlayer(67022, player);
+                });
 
-            Creature* exile2 = pPlayer->FindNearestCreature(60422, 40.0F);
-            if (exile2)
-                DoAfterTime(pPlayer, 3 * IN_MILLISECONDS,
-                            [player = pPlayer, npc = exile2]()
-                            {
-                                npc->HandleEmote(EMOTE_ONESHOT_TALK);
-                                npc->MonsterSayToPlayer(67023, player);
-                            });
+        Creature* exile2 = pPlayer->FindNearestCreature(60422, 40.0F);
+        if (exile2)
+            DoAfterTime(pPlayer, 3 * IN_MILLISECONDS, [player = pPlayer, npc = exile2]() {
+                npc->HandleEmote(EMOTE_ONESHOT_TALK);
+                npc->MonsterSayToPlayer(67023, player);
+                });
 
-            Creature* exile3 = pPlayer->FindNearestCreature(60423, 40.0F);
-            if (exile3)
-                DoAfterTime(pPlayer, 5 * IN_MILLISECONDS,
-                            [player = pPlayer, npc = exile3]()
-                            {
-                                npc->HandleEmote(EMOTE_ONESHOT_TALK);
-                                npc->MonsterSayToPlayer(67024, player);
-                            });
+        Creature* exile3 = pPlayer->FindNearestCreature(60423, 40.0F);
+        if (exile3)
+            DoAfterTime(pPlayer, 5 * IN_MILLISECONDS, [player = pPlayer, npc = exile3]() {
+                npc->HandleEmote(EMOTE_ONESHOT_TALK);
+                npc->MonsterSayToPlayer(67024, player);
+                });
 
-            Creature* exile4 = pPlayer->FindNearestCreature(60424, 40.0F);
-            if (exile4)
-                DoAfterTime(pPlayer, 7 * IN_MILLISECONDS,
-                            [player = pPlayer, npc = exile4]()
-                            {
-                                npc->HandleEmote(EMOTE_ONESHOT_TALK);
-                                npc->MonsterSayToPlayer(67025, player);
-                            });
+        Creature* exile4 = pPlayer->FindNearestCreature(60424, 40.0F);
+        if (exile4)
+            DoAfterTime(pPlayer, 7 * IN_MILLISECONDS, [player = pPlayer, npc = exile4]() {
+                npc->HandleEmote(EMOTE_ONESHOT_TALK);
+                npc->MonsterSayToPlayer(67025, player);
+                });
             return true;
         }
     }
@@ -5490,7 +5188,7 @@ bool GossipSelect_glyph_master(Player* pPlayer, Creature* pCreature, uint32 uiSe
     if (uiAction == GOSSIP_ACTION_INFO_DEF + 2)
     {
         if (pPlayer->HasChallenge(CHALLENGE_SLOW_AND_STEADY))
-            pPlayer->RemoveSpell(SPELL_SLOW_AND_STEADY, false, false);
+            pPlayer->RemoveSpell(SPELL_SLOW_AND_STEADY, false, false);        
     }
 
     if (uiAction == GOSSIP_ACTION_INFO_DEF + 3)
@@ -5555,20 +5253,21 @@ struct ZulJinMovementStages
     float z;
     float o;
 };
-static ZulJinMovementStages const zjmovement[] = {
-    {1879.89f, 220.57f, 60.10f, 3.56f}, // 0
-    {1875.24f, 218.92f, 61.10f, 3.48f}, // 1
-    {1300.997f, 338.57f, -60.08f, 0.00f}, // 2 Sylvanas Room for Player
-    {1295.29f, 329.69f, -60.08f, 4.28f}, // 3 Sylv room for Zuljin
-    {1297.57f, 331.80f, -60.08f, 4.33f}, // 4 Sylv Room Guard 1
-    {1293.81f, 333.30f, -60.08f, 4.43f}, // 5 Sylv Room Guard 2
-    {1292.52f, 324.65f, -58.45f, 4.46f}, // 6 Talking to Sylv
-    {1298.23f, 340.94f, -60.08f, 1.41f}, // 7 Final portal leaving Sylv
+static ZulJinMovementStages const zjmovement[] =
+{
+    { 1879.89f, 220.57f, 60.10f, 3.56f }, // 0
+    { 1875.24f, 218.92f, 61.10f, 3.48f }, // 1
+    { 1300.997f, 338.57f, -60.08f, 0.00f }, // 2 Sylvanas Room for Player
+    { 1295.29f, 329.69f, -60.08f, 4.28f }, // 3 Sylv room for Zuljin
+    { 1297.57f, 331.80f, -60.08f, 4.33f }, // 4 Sylv Room Guard 1
+    { 1293.81f, 333.30f, -60.08f, 4.43f }, // 5 Sylv Room Guard 2
+    { 1292.52f, 324.65f, -58.45f, 4.46f }, // 6 Talking to Sylv
+    { 1298.23f, 340.94f, -60.08f, 1.41f }, // 7 Final portal leaving Sylv
     {1296.27f, 334.79f, -60.08f, 1.39f} // 8 Final Zul jin location before leaving
 
 };
 
-ObjectGuid playerOnQuestGUID;
+ ObjectGuid playerOnQuestGUID;
 
 bool QuestAccept_npc_zuljin(Player* pPlayer, Creature* pQuestGiver, Quest const* pQuest)
 {
@@ -5578,65 +5277,64 @@ bool QuestAccept_npc_zuljin(Player* pPlayer, Creature* pQuestGiver, Quest const*
     switch (pQuest->GetQuestId())
     {
     case 65008: // An audience with the Queen
-        {
-            playerOnQuestGUID = pPlayer->GetGUIDLow();
+    {
+        playerOnQuestGUID = pPlayer->GetGUIDLow();
 
-            pQuestGiver->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER | UNIT_NPC_FLAG_GOSSIP);
-            pQuestGiver->PMonsterSay(66191);
-            pQuestGiver->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_SPAWNING | UNIT_FLAG_IMMUNE_TO_NPC);
-            Creature* guard1 = pQuestGiver->FindNearestCreature(65144, 20, true);
-            Creature* guard2 = pQuestGiver->FindNearestCreature(65144, 20, true, guard1);
-            GameObject* portal{nullptr};
+        pQuestGiver->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER | UNIT_NPC_FLAG_GOSSIP);
+        pQuestGiver->PMonsterSay(66191);
+        pQuestGiver->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_SPAWNING | UNIT_FLAG_IMMUNE_TO_NPC);
+        Creature* guard1 = pQuestGiver->FindNearestCreature(65144, 20, true);
+        Creature* guard2 = pQuestGiver->FindNearestCreature(65144, 20, true, guard1);
+        GameObject* portal{ nullptr };
 
 
-            DoAfterTime(pPlayer, 5 * IN_MILLISECONDS, [player = pPlayer, npc = pQuestGiver]() { npc->GetMotionMaster()->MovePoint(0, zjmovement[0].x, zjmovement[0].y, zjmovement[0].z); });
-            DoAfterTime(pPlayer, 6 * IN_MILLISECONDS, [player = pPlayer, npc = pQuestGiver]() { npc->CastSpell(npc, 23017, false); });
-            DoAfterTime(pPlayer, 8 * IN_MILLISECONDS,
-                        [player = pPlayer, npc = pQuestGiver]()
-                        {
-                            GameObject* portal = npc->SummonGameObject(4000001, zjmovement[1].x, zjmovement[1].y, zjmovement[1].z, zjmovement[1].o, 0, 0, 0, 0, 10000);
+        DoAfterTime(pPlayer, 5 * IN_MILLISECONDS, [player = pPlayer, npc = pQuestGiver]() {
+            npc->GetMotionMaster()->MovePoint(0, zjmovement[0].x, zjmovement[0].y, zjmovement[0].z);
+            });
+        DoAfterTime(pPlayer, 6 * IN_MILLISECONDS, [player = pPlayer, npc = pQuestGiver]() {
+            npc->CastSpell(npc, 23017, false);
+            });
+        DoAfterTime(pPlayer, 8 * IN_MILLISECONDS, [player = pPlayer, npc = pQuestGiver]() {
+            GameObject* portal = npc->SummonGameObject(4000001, zjmovement[1].x, zjmovement[1].y, zjmovement[1].z, zjmovement[1].o, 0, 0, 0, 0, 10000);
 
-                            DoAfterTime(player, 22 * IN_MILLISECONDS,
-                                        [portal = portal]()
-                                        {
-                                            if (portal)
-                                                portal->Despawn();
-                                        });
-                        });
+            DoAfterTime(player, 22 * IN_MILLISECONDS, [portal = portal]() {
+                if (portal)
+                    portal->Despawn();
+                });
+            });
 
-            DoAfterTime(pPlayer, 10 * IN_MILLISECONDS,
-                        [player = pPlayer, npc = pQuestGiver, guard1 = guard1, guard2 = guard2]()
-                        {
-                            npc->GetMotionMaster()->MovePoint(0, zjmovement[1].x, zjmovement[1].y, zjmovement[1].z);
-                            guard1->GetMotionMaster()->MovePoint(0, zjmovement[1].x, zjmovement[1].y, zjmovement[1].z);
-                            guard2->GetMotionMaster()->MovePoint(0, zjmovement[1].x, zjmovement[1].y, zjmovement[1].z);
-                        });
-            break;
-        }
+        DoAfterTime(pPlayer, 10 * IN_MILLISECONDS, [player = pPlayer, npc = pQuestGiver, guard1 = guard1, guard2 = guard2]() {
+            npc->GetMotionMaster()->MovePoint(0, zjmovement[1].x, zjmovement[1].y, zjmovement[1].z);
+            guard1->GetMotionMaster()->MovePoint(0, zjmovement[1].x, zjmovement[1].y, zjmovement[1].z);
+            guard2->GetMotionMaster()->MovePoint(0, zjmovement[1].x, zjmovement[1].y, zjmovement[1].z);
+            });
+        break;
+    }
     case 65010: // Bringing them home
-        {
-            GameObject* portal{nullptr};
+    {
+        GameObject* portal{ nullptr };
 
-            pQuestGiver->MonsterSay(66192);
-            pQuestGiver->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+        pQuestGiver->MonsterSay(66192);
+        pQuestGiver->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
 
-            DoAfterTime(pPlayer, 2 * IN_MILLISECONDS, [player = pPlayer, npc = pQuestGiver]() { npc->GetMotionMaster()->MovePoint(0, 3020.22f, 2397.66f, 188.25f, 3.58f); });
-            DoAfterTime(pPlayer, 4 * IN_MILLISECONDS, [player = pPlayer, npc = pQuestGiver]() { npc->CastSpell(npc, 23017, false); });
-            DoAfterTime(pPlayer, 6 * IN_MILLISECONDS,
-                        [player = pPlayer, npc = pQuestGiver]()
-                        {
-                            GameObject* portal = npc->SummonGameObject(4000001, 3017.30f, 2395.70f, 188.26f, 0, 0, 0, 0, 10000);
+        DoAfterTime(pPlayer, 2 * IN_MILLISECONDS, [player = pPlayer, npc = pQuestGiver]() {
+            npc->GetMotionMaster()->MovePoint(0, 3020.22f, 2397.66f, 188.25f, 3.58f);
+            });
+        DoAfterTime(pPlayer, 4 * IN_MILLISECONDS, [player = pPlayer, npc = pQuestGiver]() {
+            npc->CastSpell(npc, 23017, false);
+            });
+        DoAfterTime(pPlayer, 6 * IN_MILLISECONDS, [player = pPlayer, npc = pQuestGiver]() {
+            GameObject* portal = npc->SummonGameObject(4000001, 3017.30f, 2395.70f, 188.26f, 0, 0, 0, 0, 10000);
 
-                            DoAfterTime(player, 30 * IN_MILLISECONDS,
-                                        [portal = portal]()
-                                        {
-                                            if (portal)
-                                                portal->Despawn();
-                                        });
-                        });
-        }
+            DoAfterTime(player, 30 * IN_MILLISECONDS, [portal = portal]() {
+                if (portal)
+                    portal->Despawn();
+                });
+            });
     }
 
+    }
+   
     return false;
 }
 
@@ -5649,7 +5347,7 @@ struct npc_zuljinAI : public ScriptedAI
     bool complete;
     bool havePlayer;
     Player* playerOnQuest;
-    void Reset()
+    void Reset() 
     {
         phase = 0;
         gossipTimer = 1000;
@@ -5661,6 +5359,7 @@ struct npc_zuljinAI : public ScriptedAI
             playerOnQuest = sObjectAccessor.FindPlayer(playerOnQuestGUID);
             playerOnQuestGUID.Clear();
         }
+
     }
     void UpdateAI(const uint32 uiDiff)
     {
@@ -5692,23 +5391,23 @@ struct npc_zuljinAI : public ScriptedAI
         switch (phase)
         {
 
-        case 0: // Still in Tirisfall
+            case 0: // Still in Tirisfall
             {
                 if (eventInProgress)
                     m_creature->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
-                else
+                else 
                     m_creature->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
 
-                // if (m_creature->GetZoneId() == 85 && m_creature->IsGossip()) // tirisfall
-                //     m_creature->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
-                // else if (!m_creature->IsGossip())
-                //     m_creature->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                //if (m_creature->GetZoneId() == 85 && m_creature->IsGossip()) // tirisfall
+                //    m_creature->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                //else if (!m_creature->IsGossip())
+                //    m_creature->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
 
                 if (m_creature->FindNearestCreature(10181, 15, true) && !complete)
                     phase++;
                 break;
             }
-        case 1: // In Sylvanas chamber
+            case 1: // In Sylvanas chamber
             {
                 eventInProgress = true;
 
@@ -5727,14 +5426,14 @@ struct npc_zuljinAI : public ScriptedAI
 
                 break;
             }
-        case 2:
+            case 2:
             {
                 m_creature->GetMotionMaster()->MovePoint(0, zjmovement[6].x, zjmovement[6].y, zjmovement[6].z);
                 phase++;
                 gossipTimer = 5000;
                 break;
             }
-        case 3:
+            case 3:
             {
                 if (Creature* sylvanas = m_creature->FindNearestCreature(10181, 15, true))
                 {
@@ -5743,201 +5442,163 @@ struct npc_zuljinAI : public ScriptedAI
 
                     if (playerOnQuest)
                     {
-                        DoAfterTime(playerOnQuest, 10 * IN_MILLISECONDS,
-                                    [playerOnQuest = playerOnQuest, zuljin = m_creature, sylvanas = sylvanas]()
-                                    {
-                                        if (Creature* varimathras = zuljin->FindNearestCreature(2425, 25, true))
-                                        {
-                                            varimathras->SetFacingToObject(sylvanas);
-                                            varimathras->HandleEmote(EMOTE_ONESHOT_TALK);
-                                            varimathras->PMonsterSay(66194);
-                                        }
-                                    });
+                        DoAfterTime(playerOnQuest, 10 * IN_MILLISECONDS, [playerOnQuest = playerOnQuest, zuljin = m_creature, sylvanas = sylvanas]() {
+                            if (Creature* varimathras = zuljin->FindNearestCreature(2425, 25, true))
+                            {
+                                varimathras->SetFacingToObject(sylvanas);
+                                varimathras->HandleEmote(EMOTE_ONESHOT_TALK);
+                                varimathras->PMonsterSay(66194);
+                            }
+                            });
 
-                        DoAfterTime(playerOnQuest, 20 * IN_MILLISECONDS,
-                                    [playerOnQuest = playerOnQuest, sylvanas = sylvanas]()
-                                    {
-                                        if (Creature* varimathras = sylvanas->FindNearestCreature(2425, 25, true))
-                                        {
-                                            sylvanas->SetFacingToObject(varimathras);
-                                            sylvanas->HandleEmote(EMOTE_ONESHOT_TALK);
-                                            sylvanas->PMonsterSay(66195);
-                                        }
-                                    });
+                        DoAfterTime(playerOnQuest, 20 * IN_MILLISECONDS, [playerOnQuest = playerOnQuest, sylvanas = sylvanas]() {
+                            if (Creature* varimathras = sylvanas->FindNearestCreature(2425, 25, true))
+                            {
+                                sylvanas->SetFacingToObject(varimathras);
+                                sylvanas->HandleEmote(EMOTE_ONESHOT_TALK);
+                                sylvanas->PMonsterSay(66195);
+                            }
+                            });
 
-                        DoAfterTime(playerOnQuest, 30 * IN_MILLISECONDS,
-                                    [playerOnQuest = playerOnQuest, zuljin = m_creature, sylvanas = sylvanas]()
-                                    {
-                                        if (Creature* varimathras = zuljin->FindNearestCreature(2425, 25, true))
-                                        {
-                                            varimathras->SetFacingToObject(sylvanas);
-                                            varimathras->HandleEmote(EMOTE_ONESHOT_TALK);
-                                            varimathras->PMonsterSay(66196);
-                                        }
-                                    });
+                        DoAfterTime(playerOnQuest, 30 * IN_MILLISECONDS, [playerOnQuest = playerOnQuest, zuljin = m_creature, sylvanas = sylvanas]() {
+                            if (Creature* varimathras = zuljin->FindNearestCreature(2425, 25, true))
+                            {
+                                varimathras->SetFacingToObject(sylvanas);
+                                varimathras->HandleEmote(EMOTE_ONESHOT_TALK);
+                                varimathras->PMonsterSay(66196);
+                            }
+                            });
 
-                        DoAfterTime(playerOnQuest, 40 * IN_MILLISECONDS,
-                                    [playerOnQuest = playerOnQuest, zuljin = m_creature, sylvanas = sylvanas]()
-                                    {
-                                        if (Creature* varimathras = zuljin->FindNearestCreature(2425, 25, true))
-                                        {
-                                            sylvanas->SetFacingToObject(zuljin);
-                                            sylvanas->HandleEmote(EMOTE_ONESHOT_TALK);
-                                            sylvanas->PMonsterSay(66197);
-                                        }
-                                    });
+                        DoAfterTime(playerOnQuest, 40 * IN_MILLISECONDS, [playerOnQuest = playerOnQuest, zuljin = m_creature, sylvanas = sylvanas]() {
+                            if (Creature* varimathras = zuljin->FindNearestCreature(2425, 25, true))
+                            {
+                                sylvanas->SetFacingToObject(zuljin);
+                                sylvanas->HandleEmote(EMOTE_ONESHOT_TALK);
+                                sylvanas->PMonsterSay(66197);
+                            }
+                            });
 
-                        DoAfterTime(playerOnQuest, 50 * IN_MILLISECONDS,
-                                    [playerOnQuest = playerOnQuest, zuljin = m_creature, sylvanas = sylvanas]()
-                                    {
-                                        if (Creature* varimathras = zuljin->FindNearestCreature(2425, 25, true))
-                                        {
-                                            zuljin->HandleEmote(EMOTE_ONESHOT_TALK);
-                                            zuljin->PMonsterSay(66198);
-                                        }
-                                    });
+                        DoAfterTime(playerOnQuest, 50 * IN_MILLISECONDS, [playerOnQuest = playerOnQuest, zuljin = m_creature, sylvanas = sylvanas]() {
+                            if (Creature* varimathras = zuljin->FindNearestCreature(2425, 25, true))
+                            {
+                                zuljin->HandleEmote(EMOTE_ONESHOT_TALK);
+                                zuljin->PMonsterSay(66198);
+                            }
+                            });
 
-                        DoAfterTime(playerOnQuest, 60 * IN_MILLISECONDS,
-                                    [playerOnQuest = playerOnQuest, zuljin = m_creature, sylvanas = sylvanas]()
-                                    {
-                                        if (Creature* varimathras = zuljin->FindNearestCreature(2425, 25, true))
-                                        {
-                                            sylvanas->SetFacingToObject(zuljin);
-                                            sylvanas->HandleEmote(EMOTE_ONESHOT_TALK);
-                                            sylvanas->PMonsterSay(66199);
-                                            varimathras->PMonsterSay(66200);
-                                        }
-                                    });
+                        DoAfterTime(playerOnQuest, 60 * IN_MILLISECONDS, [playerOnQuest = playerOnQuest, zuljin = m_creature, sylvanas = sylvanas]() {
+                            if (Creature* varimathras = zuljin->FindNearestCreature(2425, 25, true))
+                            {
+                                sylvanas->SetFacingToObject(zuljin);
+                                sylvanas->HandleEmote(EMOTE_ONESHOT_TALK);
+                                sylvanas->PMonsterSay(66199);
+                                varimathras->PMonsterSay(66200);
+                            }
+                            });
 
-                        DoAfterTime(playerOnQuest, 70 * IN_MILLISECONDS,
-                                    [playerOnQuest = playerOnQuest, zuljin = m_creature, sylvanas = sylvanas]()
-                                    {
-                                        zuljin->HandleEmote(EMOTE_ONESHOT_TALK);
-                                        zuljin->PMonsterSay(66201);
-                                    });
+                        DoAfterTime(playerOnQuest, 70 * IN_MILLISECONDS, [playerOnQuest = playerOnQuest, zuljin = m_creature, sylvanas = sylvanas]() {
+                            zuljin->HandleEmote(EMOTE_ONESHOT_TALK);
+                            zuljin->PMonsterSay(66201);
+                            });
 
-                        DoAfterTime(playerOnQuest, 80 * IN_MILLISECONDS,
-                                    [playerOnQuest = playerOnQuest, zuljin = m_creature, sylvanas = sylvanas]()
-                                    {
-                                        sylvanas->HandleEmote(EMOTE_ONESHOT_TALK);
-                                        sylvanas->PMonsterSay(66202);
-                                    });
+                        DoAfterTime(playerOnQuest, 80 * IN_MILLISECONDS, [playerOnQuest = playerOnQuest, zuljin = m_creature, sylvanas = sylvanas]() {
+                            sylvanas->HandleEmote(EMOTE_ONESHOT_TALK);
+                            sylvanas->PMonsterSay(66202);
+                            });
 
-                        DoAfterTime(playerOnQuest, 90 * IN_MILLISECONDS,
-                                    [playerOnQuest = playerOnQuest, zuljin = m_creature, sylvanas = sylvanas]()
-                                    {
-                                        zuljin->HandleEmote(EMOTE_ONESHOT_TALK);
-                                        zuljin->PMonsterSay(66203);
-                                    });
+                        DoAfterTime(playerOnQuest, 90 * IN_MILLISECONDS, [playerOnQuest = playerOnQuest, zuljin = m_creature, sylvanas = sylvanas]() {
+                            zuljin->HandleEmote(EMOTE_ONESHOT_TALK);
+                            zuljin->PMonsterSay(66203);
+                            });
 
-                        DoAfterTime(playerOnQuest, 100 * IN_MILLISECONDS,
-                                    [playerOnQuest = playerOnQuest, zuljin = m_creature, sylvanas = sylvanas]()
-                                    {
-                                        sylvanas->HandleEmote(EMOTE_ONESHOT_TALK);
-                                        sylvanas->PMonsterSay(66204);
-                                    });
+                        DoAfterTime(playerOnQuest, 100 * IN_MILLISECONDS, [playerOnQuest = playerOnQuest, zuljin = m_creature, sylvanas = sylvanas]() {
+                            sylvanas->HandleEmote(EMOTE_ONESHOT_TALK);
+                            sylvanas->PMonsterSay(66204);
+                            });
 
-                        DoAfterTime(playerOnQuest, 110 * IN_MILLISECONDS,
-                                    [playerOnQuest = playerOnQuest, zuljin = m_creature, sylvanas = sylvanas]()
-                                    {
-                                        zuljin->HandleEmote(EMOTE_ONESHOT_TALK);
-                                        zuljin->PMonsterSay(66205);
-                                    });
+                        DoAfterTime(playerOnQuest, 110 * IN_MILLISECONDS, [playerOnQuest = playerOnQuest, zuljin = m_creature, sylvanas = sylvanas]() {
+                            zuljin->HandleEmote(EMOTE_ONESHOT_TALK);
+                            zuljin->PMonsterSay(66205);
+                            });
 
-                        DoAfterTime(playerOnQuest, 120 * IN_MILLISECONDS,
-                                    [playerOnQuest = playerOnQuest, zuljin = m_creature, sylvanas = sylvanas]()
-                                    {
-                                        zuljin->HandleEmote(EMOTE_ONESHOT_TALK);
-                                        zuljin->PMonsterSay(66206);
-                                    });
+                        DoAfterTime(playerOnQuest, 120 * IN_MILLISECONDS, [playerOnQuest = playerOnQuest, zuljin = m_creature, sylvanas = sylvanas]() {
+                            zuljin->HandleEmote(EMOTE_ONESHOT_TALK);
+                            zuljin->PMonsterSay(66206);
+                            });
 
-                        DoAfterTime(playerOnQuest, 125 * IN_MILLISECONDS,
-                                    [playerOnQuest = playerOnQuest, zuljin = m_creature, sylvanas = sylvanas]()
-                                    {
-                                        sylvanas->HandleEmote(EMOTE_ONESHOT_TALK);
-                                        sylvanas->PMonsterSay(66207);
-                                    });
+                        DoAfterTime(playerOnQuest, 125 * IN_MILLISECONDS, [playerOnQuest = playerOnQuest, zuljin = m_creature, sylvanas = sylvanas]() {
+                            sylvanas->HandleEmote(EMOTE_ONESHOT_TALK);
+                            sylvanas->PMonsterSay(66207);
+                            });
 
-                        DoAfterTime(playerOnQuest, 135 * IN_MILLISECONDS,
-                                    [playerOnQuest = playerOnQuest, zuljin = m_creature, sylvanas = sylvanas]()
-                                    {
-                                        if (Creature* varimathras = zuljin->FindNearestCreature(2425, 25, true))
-                                        {
-                                            sylvanas->HandleEmote(EMOTE_ONESHOT_TALK);
-                                            sylvanas->PMonsterSay(66208);
-                                        }
-                                    });
+                        DoAfterTime(playerOnQuest, 135 * IN_MILLISECONDS, [playerOnQuest = playerOnQuest, zuljin = m_creature, sylvanas = sylvanas]() {
+                            if (Creature* varimathras = zuljin->FindNearestCreature(2425, 25, true))
+                            {
+                                sylvanas->HandleEmote(EMOTE_ONESHOT_TALK);
+                                sylvanas->PMonsterSay(66208);
+                            }
+                            });
 
-                        DoAfterTime(playerOnQuest, 145 * IN_MILLISECONDS,
-                                    [playerOnQuest = playerOnQuest, zuljin = m_creature, sylvanas = sylvanas]()
-                                    {
-                                        if (Creature* varimathras = zuljin->FindNearestCreature(2425, 25, true))
-                                        {
-                                            varimathras->SetFacingToObject(sylvanas);
-                                            varimathras->HandleEmote(EMOTE_ONESHOT_TALK);
-                                            varimathras->PMonsterSay(66209);
-                                        }
-                                    });
+                        DoAfterTime(playerOnQuest, 145 * IN_MILLISECONDS, [playerOnQuest = playerOnQuest, zuljin = m_creature, sylvanas = sylvanas]() {
+                            if (Creature* varimathras = zuljin->FindNearestCreature(2425, 25, true))
+                            {
+                                varimathras->SetFacingToObject(sylvanas);
+                                varimathras->HandleEmote(EMOTE_ONESHOT_TALK);
+                                varimathras->PMonsterSay(66209);
+                            }
+                            });
 
-                        DoAfterTime(playerOnQuest, 155 * IN_MILLISECONDS,
-                                    [playerOnQuest = playerOnQuest, zuljin = m_creature, sylvanas = sylvanas]()
-                                    {
-                                        if (Creature* varimathras = zuljin->FindNearestCreature(2425, 25, true))
-                                        {
-                                            sylvanas->SetFacingToObject(varimathras);
-                                            sylvanas->HandleEmote(EMOTE_ONESHOT_TALK);
-                                            sylvanas->PMonsterSay(66210);
-                                        }
-                                    });
+                        DoAfterTime(playerOnQuest, 155 * IN_MILLISECONDS, [playerOnQuest = playerOnQuest, zuljin = m_creature, sylvanas = sylvanas]() {
+                            if (Creature* varimathras = zuljin->FindNearestCreature(2425, 25, true))
+                            {
+                                sylvanas->SetFacingToObject(varimathras);
+                                sylvanas->HandleEmote(EMOTE_ONESHOT_TALK);
+                                sylvanas->PMonsterSay(66210);
+                            }
+                            });
 
-                        DoAfterTime(playerOnQuest, 165 * IN_MILLISECONDS,
-                                    [playerOnQuest = playerOnQuest, zuljin = m_creature, sylvanas = sylvanas]()
-                                    {
-                                        if (Creature* varimathras = zuljin->FindNearestCreature(2425, 25, true))
-                                        {
-                                            varimathras->SetFacingToObject(sylvanas);
-                                            varimathras->HandleEmote(EMOTE_ONESHOT_TALK);
-                                            varimathras->PMonsterSay(66211);
-                                        }
-                                    });
+                        DoAfterTime(playerOnQuest, 165 * IN_MILLISECONDS, [playerOnQuest = playerOnQuest, zuljin = m_creature, sylvanas = sylvanas]() {
+                            if (Creature* varimathras = zuljin->FindNearestCreature(2425, 25, true))
+                            {
+                                varimathras->SetFacingToObject(sylvanas);
+                                varimathras->HandleEmote(EMOTE_ONESHOT_TALK);
+                                varimathras->PMonsterSay(66211);
+                            }
+                            });
 
-                        DoAfterTime(playerOnQuest, 170 * IN_MILLISECONDS,
-                                    [playerOnQuest = playerOnQuest, zuljin = m_creature, sylvanas = sylvanas]()
-                                    {
-                                        sylvanas->SetFacingToObject(zuljin);
-                                        sylvanas->HandleEmote(EMOTE_ONESHOT_TALK);
-                                        sylvanas->PMonsterSay(66212);
-                                    });
+                        DoAfterTime(playerOnQuest, 170 * IN_MILLISECONDS, [playerOnQuest = playerOnQuest, zuljin = m_creature, sylvanas = sylvanas]() {
+                            sylvanas->SetFacingToObject(zuljin);
+                            sylvanas->HandleEmote(EMOTE_ONESHOT_TALK);
+                            sylvanas->PMonsterSay(66212);
+                            });
 
-                        DoAfterTime(playerOnQuest, 175 * IN_MILLISECONDS, [playerOnQuest = playerOnQuest, zuljin = m_creature, sylvanas = sylvanas]() { zuljin->MonsterTextEmote(66213); });
+                        DoAfterTime(playerOnQuest, 175 * IN_MILLISECONDS, [playerOnQuest = playerOnQuest, zuljin = m_creature, sylvanas = sylvanas]() {
+                            zuljin->MonsterTextEmote(66213);
+                            });
 
-                        DoAfterTime(playerOnQuest, 180 * IN_MILLISECONDS,
-                                    [playerOnQuest = playerOnQuest, zuljin = m_creature, sylvanas = sylvanas]()
-                                    {
-                                        if (playerOnQuest && playerOnQuest->FindNearestCreature(zuljin->GetEntry(), 20, true))
-                                        {
-                                            zuljin->SetFacingToObject(playerOnQuest);
-                                            zuljin->PMonsterSay(66214, playerOnQuest->GetName());
+                        DoAfterTime(playerOnQuest, 180 * IN_MILLISECONDS, [playerOnQuest = playerOnQuest, zuljin = m_creature, sylvanas = sylvanas]() {
+                            if (playerOnQuest && playerOnQuest->FindNearestCreature(zuljin->GetEntry(), 20, true))
+                            {
+                                zuljin->SetFacingToObject(playerOnQuest);
+                                zuljin->PMonsterSay(66214, playerOnQuest->GetName());
 
-                                            playerOnQuest->SetQuestStatus(65008, QUEST_STATUS_COMPLETE);
-                                        }
-                                    });
+                                playerOnQuest->SetQuestStatus(65008, QUEST_STATUS_COMPLETE);
+                            }
+                            });
 
-                        DoAfterTime(playerOnQuest, 195 * IN_MILLISECONDS,
-                                    [playerOnQuest = playerOnQuest, zuljin = m_creature, phase = phase]()
-                                    {
-                                        zuljin->SummonGameObject(4000001, zjmovement[7].x, zjmovement[7].y, zjmovement[7].z, zjmovement[7].o, 0, 0, 0, 0, 5 * MINUTE);
-                                        zuljin->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER | UNIT_NPC_FLAG_GOSSIP);
-                                        zuljin->ForcedDespawn(120 * IN_MILLISECONDS);
-                                        eventInProgress = false;
-                                    });
+                        DoAfterTime(playerOnQuest, 195 * IN_MILLISECONDS, [playerOnQuest = playerOnQuest, zuljin = m_creature, phase = phase]() {
+                            zuljin->SummonGameObject(4000001, zjmovement[7].x, zjmovement[7].y, zjmovement[7].z, zjmovement[7].o, 0, 0, 0, 0, 5 * MINUTE);
+                            zuljin->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER | UNIT_NPC_FLAG_GOSSIP);
+                            zuljin->ForcedDespawn(120 * IN_MILLISECONDS);
+                            eventInProgress = false;
+                            });
                     }
                 }
 
                 phase++;
                 break;
             }
-        case 4:
+            case 4:
             {
                 complete = true;
                 break;
@@ -5958,42 +5619,41 @@ bool QuestRewarded_npc_zul_jin(Player* pPlayer, Creature* pQuestGiver, Quest con
 
     switch (pQuest->GetQuestId())
     {
-    case 65008: // Da Banshees Favour in Undercity
+        case 65008: // Da Banshees Favour in Undercity
         {
 
 
-            Quest const* pQuest = sObjectMgr.GetQuestTemplate(65013);
-            pPlayer->AddQuest(pQuest, pQuestGiver);
+                Quest const* pQuest = sObjectMgr.GetQuestTemplate(65013);
+                pPlayer->AddQuest(pQuest, pQuestGiver);
 
-            Creature* guard1 = pQuestGiver->FindNearestCreature(65144, 20, true);
-            Creature* guard2 = pQuestGiver->FindNearestCreature(65144, 20, true, guard1);
+                Creature* guard1 = pQuestGiver->FindNearestCreature(65144, 20, true);
+                Creature* guard2 = pQuestGiver->FindNearestCreature(65144, 20, true, guard1);
 
-            if (!guard1 || !guard2)
-                return false;
+                if (!guard1 || !guard2)
+                    return false;
 
-            ObjectGuid guardGuid1 = guard1->GetObjectGuid();
-            ObjectGuid guardGuid2 = guard2->GetObjectGuid();
-            ObjectGuid zuljinGuid = pQuestGiver->GetObjectGuid();
+                ObjectGuid guardGuid1 = guard1->GetObjectGuid();
+                ObjectGuid guardGuid2 = guard2->GetObjectGuid();
+                ObjectGuid zuljinGuid = pQuestGiver->GetObjectGuid();
 
-            if (pPlayer)
-            {
-                DoAfterTime(pPlayer, 5 * IN_MILLISECONDS,
-                            [pPlayer, zuljinGuid, guardGuid1, guardGuid2]()
-                            {
-                                if (!pPlayer->IsInWorld())
-                                    return;
+                if (pPlayer)
+                {
+                    DoAfterTime(pPlayer, 5 * IN_MILLISECONDS, [pPlayer, zuljinGuid, guardGuid1, guardGuid2]()
+                    {
+                        if (!pPlayer->IsInWorld())
+                            return;
 
-                                if (Creature* zuljin = pPlayer->GetMap()->GetCreature(zuljinGuid))
-                                    zuljin->GetMotionMaster()->MovePoint(0, zjmovement[7].x, zjmovement[7].y, zjmovement[7].z);
-                                if (Creature* guard1 = pPlayer->GetMap()->GetCreature(guardGuid1))
-                                    guard1->GetMotionMaster()->MovePoint(0, zjmovement[7].x, zjmovement[7].y, zjmovement[7].z);
-                                if (Creature* guard2 = pPlayer->GetMap()->GetCreature(guardGuid2))
-                                    guard2->GetMotionMaster()->MovePoint(0, zjmovement[7].x, zjmovement[7].y, zjmovement[7].z);
-                            });
-            }
+                        if (Creature* zuljin = pPlayer->GetMap()->GetCreature(zuljinGuid))
+                            zuljin->GetMotionMaster()->MovePoint(0, zjmovement[7].x, zjmovement[7].y, zjmovement[7].z);
+                        if (Creature* guard1 = pPlayer->GetMap()->GetCreature(guardGuid1))
+                            guard1->GetMotionMaster()->MovePoint(0, zjmovement[7].x, zjmovement[7].y, zjmovement[7].z);
+                        if (Creature* guard2 = pPlayer->GetMap()->GetCreature(guardGuid2))
+                            guard2->GetMotionMaster()->MovePoint(0, zjmovement[7].x, zjmovement[7].y, zjmovement[7].z);
+                    });
+                }
             break;
         }
-    case 65010: // The Horde's Council
+        case 65010: // The Horde's Council
         {
 
             break;
@@ -6010,12 +5670,14 @@ struct npc_guard_emoteAI : public ScriptedAI
 {
     uint32 m_uiTimer;
 
-    npc_guard_emoteAI(Creature* m_creature) : ScriptedAI(m_creature) { Reset(); }
+    npc_guard_emoteAI(Creature* m_creature) : ScriptedAI(m_creature)
+    {
+        Reset();
+    }
 
     bool CheckEmoteCooldown()
     {
-        if (m_uiTimer == 0)
-            m_uiTimer = time(nullptr) + 0;
+        if (m_uiTimer == 0) m_uiTimer = time(nullptr) + 0;
         if (time(nullptr) >= m_uiTimer)
         {
             m_uiTimer = time(nullptr) + 120; // Cooldown time of Emote interaction
@@ -6031,7 +5693,7 @@ struct npc_guard_emoteAI : public ScriptedAI
         {
             switch (pPlayer->GetTeam())
             {
-            case ALLIANCE:
+                case ALLIANCE:
                 {
                     // Human Guards
                     if (m_creature->GetEntry() == 68)
@@ -6039,11 +5701,8 @@ struct npc_guard_emoteAI : public ScriptedAI
                         switch (uiEmote)
                         {
 
-                        // General greeting
-                        case TEXTEMOTE_HAIL:
-                        case TEXTEMOTE_HELLO:
-                        case TEXTEMOTE_WAVE:
-                        case TEXTEMOTE_GREET:
+                            // General greeting
+                            case TEXTEMOTE_HAIL: case TEXTEMOTE_HELLO: case TEXTEMOTE_WAVE: case TEXTEMOTE_GREET:
                             {
                                 if (m_creature->GetDistance3dToCenter(pPlayer) < 20.f)
                                 {
@@ -6052,55 +5711,24 @@ struct npc_guard_emoteAI : public ScriptedAI
                                         const auto TextRandom = urand(1, 5);
                                         switch (TextRandom)
                                         {
-                                        case 1:
-                                            {
-                                                m_creature->MonsterSay(66215, Language::LANG_COMMON);
-                                                break;
-                                            }
-                                        case 2:
-                                            {
-                                                m_creature->MonsterSay(66216, Language::LANG_COMMON);
-                                                break;
-                                            }
-                                        case 3:
-                                            {
-                                                m_creature->MonsterSay(66217, Language::LANG_COMMON);
-                                                break;
-                                            }
-                                        case 4:
-                                            {
-                                                m_creature->MonsterSay(66218, Language::LANG_COMMON);
-                                                break;
-                                            }
-                                        case 5:
-                                            {
-                                                m_creature->MonsterSay(66219, Language::LANG_COMMON);
-                                                break;
-                                            }
+                                            case 1: {m_creature->MonsterSay(66215, Language::LANG_COMMON); break; }
+                                            case 2: {m_creature->MonsterSay(66216, Language::LANG_COMMON); break; }
+                                            case 3: {m_creature->MonsterSay(66217, Language::LANG_COMMON); break; }
+                                            case 4: {m_creature->MonsterSay(66218, Language::LANG_COMMON); break; }
+                                            case 5: {m_creature->MonsterSay(66219, Language::LANG_COMMON); break; }
                                         }
                                         switch (TextRandom)
                                         {
-                                        case 1:
-                                        case 2:
-                                        case 3:
-                                            {
-                                                m_creature->HandleEmote(EMOTE_ONESHOT_WAVE);
-                                                break;
-                                            }
-                                        case 4:
-                                        case 5:
-                                            {
-                                                m_creature->HandleEmote(EMOTE_ONESHOT_SALUTE);
-                                                break;
-                                            }
+                                            case 1: case 2: case 3: {m_creature->HandleEmote(EMOTE_ONESHOT_WAVE); break; }
+                                            case 4: case 5: {m_creature->HandleEmote(EMOTE_ONESHOT_SALUTE); break; }
                                         }
                                     }
                                 }
                                 break;
                             }
 
-                        // Salute
-                        case TEXTEMOTE_SALUTE:
+                            // Salute
+                            case TEXTEMOTE_SALUTE:
                             {
                                 if (m_creature->GetDistance3dToCenter(pPlayer) < 10.f)
                                 {
@@ -6109,50 +5737,23 @@ struct npc_guard_emoteAI : public ScriptedAI
                                         const auto TextRandom = urand(1, 5);
                                         switch (TextRandom)
                                         {
-                                        case 1:
-                                            {
-                                                m_creature->MonsterSay(66220, Language::LANG_COMMON);
-                                                break;
-                                            }
-                                        case 2:
-                                            {
-                                                m_creature->MonsterSay(66221, Language::LANG_COMMON);
-                                                break;
-                                            }
-                                        case 3:
-                                            {
-                                                m_creature->MonsterSay(66222, Language::LANG_COMMON);
-                                                break;
-                                            }
-                                        case 4:
-                                            {
-                                                m_creature->MonsterSay(66223, Language::LANG_COMMON);
-                                                break;
-                                            }
-                                        case 5:
-                                            {
-                                                break;
-                                            }
+                                            case 1: {m_creature->MonsterSay(66220, Language::LANG_COMMON); break; }
+                                            case 2: {m_creature->MonsterSay(66221, Language::LANG_COMMON); break; }
+                                            case 3: {m_creature->MonsterSay(66222, Language::LANG_COMMON); break; }
+                                            case 4: {m_creature->MonsterSay(66223, Language::LANG_COMMON); break; }
+                                            case 5: {break; }
                                         }
                                         switch (TextRandom)
                                         {
-                                        case 1:
-                                        case 2:
-                                        case 3:
-                                        case 4:
-                                        case 5:
-                                            {
-                                                m_creature->HandleEmote(EMOTE_ONESHOT_SALUTE);
-                                                break;
-                                            }
+                                            case 1: case 2: case 3: case 4: case 5: {m_creature->HandleEmote(EMOTE_ONESHOT_SALUTE); break; }
                                         }
                                     }
                                 }
                                 break;
                             }
 
-                        // Bye
-                        case TEXTEMOTE_BYE:
+                            // Bye
+                            case TEXTEMOTE_BYE:
                             {
                                 if (m_creature->GetDistance3dToCenter(pPlayer) < 20.f)
                                 {
@@ -6161,51 +5762,23 @@ struct npc_guard_emoteAI : public ScriptedAI
                                         const auto TextRandom = urand(1, 5);
                                         switch (TextRandom)
                                         {
-                                        case 1:
-                                            {
-                                                m_creature->MonsterSay(66224, Language::LANG_COMMON);
-                                                break;
-                                            }
-                                        case 2:
-                                            {
-                                                m_creature->MonsterSay(66225, Language::LANG_COMMON);
-                                                break;
-                                            }
-                                        case 3:
-                                            {
-                                                m_creature->MonsterSay(66226, Language::LANG_COMMON);
-                                                break;
-                                            }
-                                        case 4:
-                                            {
-                                                m_creature->MonsterSay(66227, Language::LANG_COMMON);
-                                                break;
-                                            }
-                                        case 5:
-                                            {
-                                                m_creature->MonsterSay(66228, Language::LANG_COMMON);
-                                                break;
-                                            }
+                                            case 1: {m_creature->MonsterSay(66224, Language::LANG_COMMON); break; }
+                                            case 2: {m_creature->MonsterSay(66225, Language::LANG_COMMON); break; }
+                                            case 3: {m_creature->MonsterSay(66226, Language::LANG_COMMON); break; }
+                                            case 4: {m_creature->MonsterSay(66227, Language::LANG_COMMON); break; }
+                                            case 5: {m_creature->MonsterSay(66228, Language::LANG_COMMON); break; }
                                         }
                                         switch (TextRandom)
                                         {
-                                        case 1:
-                                        case 2:
-                                        case 3:
-                                        case 4:
-                                        case 5:
-                                            {
-                                                m_creature->HandleEmote(EMOTE_ONESHOT_WAVE);
-                                                break;
-                                            }
+                                            case 1: case 2: case 3: case 4: case 5: {m_creature->HandleEmote(EMOTE_ONESHOT_WAVE); break; }
                                         }
                                     }
                                 }
                                 break;
                             }
 
-                        // Joke
-                        case TEXTEMOTE_JOKE:
+                            // Joke
+                            case TEXTEMOTE_JOKE:
                             {
                                 if (m_creature->GetDistance3dToCenter(pPlayer) < 5.f)
                                 {
@@ -6214,64 +5787,26 @@ struct npc_guard_emoteAI : public ScriptedAI
                                         const auto TextRandom = urand(1, 6);
                                         switch (TextRandom)
                                         {
-                                        case 1:
-                                            {
-                                                m_creature->MonsterSay(66229, Language::LANG_COMMON);
-                                                break;
-                                            }
-                                        case 2:
-                                            {
-                                                m_creature->MonsterSay(66230, Language::LANG_COMMON);
-                                                break;
-                                            }
-                                        case 3:
-                                            {
-                                                break;
-                                            }
-                                        case 4:
-                                            {
-                                                m_creature->MonsterSay(66231, Language::LANG_COMMON);
-                                                break;
-                                            }
-                                        case 5:
-                                            {
-                                                m_creature->MonsterSay(66232, Language::LANG_COMMON);
-                                                break;
-                                            }
-                                        case 6:
-                                            {
-                                                m_creature->MonsterSay(66233, Language::LANG_COMMON);
-                                                break;
-                                            }
+                                            case 1: {m_creature->MonsterSay(66229, Language::LANG_COMMON); break; }
+                                            case 2: {m_creature->MonsterSay(66230, Language::LANG_COMMON); break; }
+                                            case 3: {break; }
+                                            case 4: {m_creature->MonsterSay(66231, Language::LANG_COMMON); break; }
+                                            case 5: {m_creature->MonsterSay(66232, Language::LANG_COMMON); break; }
+                                            case 6: {m_creature->MonsterSay(66233, Language::LANG_COMMON); break; }
                                         }
                                         switch (TextRandom)
                                         {
-                                        case 1:
-                                        case 2:
-                                        case 3:
-                                            {
-                                                m_creature->HandleEmote(EMOTE_ONESHOT_LAUGH);
-                                                break;
-                                            }
-                                        case 4:
-                                        case 5:
-                                            {
-                                                m_creature->HandleEmote(EMOTE_ONESHOT_TALK);
-                                                break;
-                                            }
-                                        case 6:
-                                            {
-                                                m_creature->HandleEmote(EMOTE_ONESHOT_POINT);
-                                                break;
-                                            }
+                                            case 1: case 2: case 3: {m_creature->HandleEmote(EMOTE_ONESHOT_LAUGH); break; }
+                                            case 4: case 5: {m_creature->HandleEmote(EMOTE_ONESHOT_TALK); break; }
+                                            case 6: {m_creature->HandleEmote(EMOTE_ONESHOT_POINT); break; }
                                         }
                                     }
                                 }
                                 break;
                             }
 
-                        // Flex
-                        case TEXTEMOTE_FLEX:
+                            //Flex
+                            case TEXTEMOTE_FLEX:
                             {
                                 if (m_creature->GetDistance3dToCenter(pPlayer) < 10.f)
                                 {
@@ -6280,53 +5815,24 @@ struct npc_guard_emoteAI : public ScriptedAI
                                         const auto TextRandom = urand(1, 4);
                                         switch (TextRandom)
                                         {
-                                        case 1:
-                                            {
-                                                m_creature->MonsterSay(66234, Language::LANG_COMMON);
-                                                break;
-                                            }
-                                        case 2:
-                                            {
-                                                m_creature->MonsterSay(66235, Language::LANG_COMMON);
-                                                break;
-                                            }
-                                        case 3:
-                                            {
-                                                m_creature->MonsterSay(66236, Language::LANG_COMMON);
-                                                break;
-                                            }
-                                        case 4:
-                                            {
-                                                m_creature->MonsterSay(66237, Language::LANG_COMMON);
-                                                break;
-                                            }
+                                            case 1: {m_creature->MonsterSay(66234, Language::LANG_COMMON); break; }
+                                            case 2: {m_creature->MonsterSay(66235, Language::LANG_COMMON); break; }
+                                            case 3: {m_creature->MonsterSay(66236, Language::LANG_COMMON); break; }
+                                            case 4: {m_creature->MonsterSay(66237, Language::LANG_COMMON); break; }
                                         }
                                         switch (TextRandom)
                                         {
-                                        case 1:
-                                        case 2:
-                                            {
-                                                m_creature->HandleEmote(EMOTE_ONESHOT_FLEX);
-                                                break;
-                                            }
-                                        case 3:
-                                            {
-                                                m_creature->HandleEmote(EMOTE_ONESHOT_APPLAUD);
-                                                break;
-                                            }
-                                        case 4:
-                                            {
-                                                m_creature->HandleEmote(EMOTE_ONESHOT_BOW);
-                                                break;
-                                            }
+                                            case 1: case 2: {m_creature->HandleEmote(EMOTE_ONESHOT_FLEX); break; }
+                                            case 3: {m_creature->HandleEmote(EMOTE_ONESHOT_APPLAUD); break; }
+                                            case 4: {m_creature->HandleEmote(EMOTE_ONESHOT_BOW); break; }
                                         }
                                     }
                                 }
                                 break;
                             }
 
-                        // Taunt
-                        case TEXTEMOTE_TAUNT:
+                            // Taunt
+                            case TEXTEMOTE_TAUNT:
                             {
                                 if (m_creature->GetDistance3dToCenter(pPlayer) < 10.f)
                                 {
@@ -6335,43 +5841,22 @@ struct npc_guard_emoteAI : public ScriptedAI
                                         const auto TextRandom = urand(1, 3);
                                         switch (TextRandom)
                                         {
-                                        case 1:
-                                            {
-                                                m_creature->MonsterSay(66238, Language::LANG_COMMON);
-                                                break;
-                                            }
-                                        case 2:
-                                            {
-                                                m_creature->MonsterSay(66239, Language::LANG_COMMON);
-                                                break;
-                                            }
-                                        case 3:
-                                            {
-                                                m_creature->MonsterSay(66240, Language::LANG_COMMON);
-                                                break;
-                                            }
+                                            case 1: {m_creature->MonsterSay(66238, Language::LANG_COMMON); break; }
+                                            case 2: {m_creature->MonsterSay(66239, Language::LANG_COMMON); break; }
+                                            case 3: {m_creature->MonsterSay(66240, Language::LANG_COMMON); break; }
                                         }
                                         switch (TextRandom)
                                         {
-                                        case 1:
-                                            {
-                                                m_creature->HandleEmote(EMOTE_ONESHOT_RUDE);
-                                                break;
-                                            }
-                                        case 2:
-                                        case 3:
-                                            {
-                                                m_creature->HandleEmote(EMOTE_ONESHOT_LAUGH);
-                                                break;
-                                            }
+                                            case 1: {m_creature->HandleEmote(EMOTE_ONESHOT_RUDE); break; }
+                                            case 2: case 3: {m_creature->HandleEmote(EMOTE_ONESHOT_LAUGH); break; }
                                         }
                                     }
                                 }
                                 break;
                             }
 
-                        // Tickle
-                        case TEXTEMOTE_TICKLE:
+                            // Tickle
+                            case TEXTEMOTE_TICKLE:
                             {
                                 if (m_creature->GetDistance3dToCenter(pPlayer) < 5.f)
                                 {
@@ -6380,39 +5865,15 @@ struct npc_guard_emoteAI : public ScriptedAI
                                         const auto TextRandom = urand(1, 3);
                                         switch (TextRandom)
                                         {
-                                        case 1:
-                                            {
-                                                m_creature->MonsterSay(66241, Language::LANG_COMMON);
-                                                break;
-                                            }
-                                        case 2:
-                                            {
-                                                m_creature->MonsterSay(66242, Language::LANG_COMMON);
-                                                break;
-                                            }
-                                        case 3:
-                                            {
-                                                m_creature->MonsterSay(66243, Language::LANG_COMMON);
-                                                break;
-                                            }
+                                            case 1: {m_creature->MonsterSay(66241, Language::LANG_COMMON); break; }
+                                            case 2: {m_creature->MonsterSay(66242, Language::LANG_COMMON); break; }
+                                            case 3: {m_creature->MonsterSay(66243, Language::LANG_COMMON); break; }
                                         }
                                         switch (TextRandom)
                                         {
-                                        case 1:
-                                            {
-                                                m_creature->HandleEmote(EMOTE_ONESHOT_ATTACK1H);
-                                                break;
-                                            }
-                                        case 2:
-                                            {
-                                                m_creature->HandleEmote(EMOTE_ONESHOT_LAUGH);
-                                                break;
-                                            }
-                                        case 3:
-                                            {
-                                                m_creature->HandleEmote(EMOTE_ONESHOT_TALK);
-                                                break;
-                                            }
+                                            case 1: {m_creature->HandleEmote(EMOTE_ONESHOT_ATTACK1H); break; }
+                                            case 2: {m_creature->HandleEmote(EMOTE_ONESHOT_LAUGH); break; }
+                                            case 3: {m_creature->HandleEmote(EMOTE_ONESHOT_TALK); break; }
                                         }
                                     }
                                 }
@@ -6427,11 +5888,8 @@ struct npc_guard_emoteAI : public ScriptedAI
                         switch (uiEmote)
                         {
 
-                        // General greeting
-                        case TEXTEMOTE_HAIL:
-                        case TEXTEMOTE_HELLO:
-                        case TEXTEMOTE_WAVE:
-                        case TEXTEMOTE_GREET:
+                            // General greeting
+                            case TEXTEMOTE_HAIL: case TEXTEMOTE_HELLO: case TEXTEMOTE_WAVE: case TEXTEMOTE_GREET:
                             {
                                 if (m_creature->GetDistance3dToCenter(pPlayer) < 20.f)
                                 {
@@ -6440,61 +5898,25 @@ struct npc_guard_emoteAI : public ScriptedAI
                                         const auto TextRandom = urand(1, 6);
                                         switch (TextRandom)
                                         {
-                                        case 1:
-                                            {
-                                                m_creature->MonsterSay(66244, Language::LANG_COMMON);
-                                                break;
-                                            }
-                                        case 2:
-                                            {
-                                                m_creature->MonsterSay(66245, Language::LANG_COMMON);
-                                                break;
-                                            }
-                                        case 3:
-                                            {
-                                                m_creature->MonsterSay(66246, Language::LANG_COMMON);
-                                                break;
-                                            }
-                                        case 4:
-                                            {
-                                                m_creature->MonsterSay(66247, Language::LANG_COMMON);
-                                                break;
-                                            }
-                                        case 5:
-                                            {
-                                                m_creature->MonsterSay(66248, Language::LANG_COMMON);
-                                                break;
-                                            }
-                                        case 6:
-                                            {
-                                                m_creature->MonsterSay(66249, Language::LANG_COMMON);
-                                                break;
-                                            }
+                                            case 1: {m_creature->MonsterSay(66244, Language::LANG_COMMON); break; }
+                                            case 2: {m_creature->MonsterSay(66245, Language::LANG_COMMON); break; }
+                                            case 3: {m_creature->MonsterSay(66246, Language::LANG_COMMON); break; }
+                                            case 4: {m_creature->MonsterSay(66247, Language::LANG_COMMON); break; }
+                                            case 5: {m_creature->MonsterSay(66248, Language::LANG_COMMON); break; }
+                                            case 6: {m_creature->MonsterSay(66249, Language::LANG_COMMON); break; }
                                         }
                                         switch (TextRandom)
                                         {
-                                        case 1:
-                                        case 2:
-                                        case 3:
-                                        case 4:
-                                            {
-                                                m_creature->HandleEmote(EMOTE_ONESHOT_WAVE);
-                                                break;
-                                            }
-                                        case 5:
-                                        case 6:
-                                            {
-                                                m_creature->HandleEmote(EMOTE_ONESHOT_BOW);
-                                                break;
-                                            }
+                                            case 1: case 2: case 3: case 4: {m_creature->HandleEmote(EMOTE_ONESHOT_WAVE); break; }
+                                            case 5: case 6: {m_creature->HandleEmote(EMOTE_ONESHOT_BOW); break; }
                                         }
                                     }
                                 }
                                 break;
                             }
 
-                        // Salute
-                        case TEXTEMOTE_SALUTE:
+                            // Salute
+                            case TEXTEMOTE_SALUTE:
                             {
                                 if (m_creature->GetDistance3dToCenter(pPlayer) < 10.f)
                                 {
@@ -6503,45 +5925,22 @@ struct npc_guard_emoteAI : public ScriptedAI
                                         const auto TextRandom = urand(1, 4);
                                         switch (TextRandom)
                                         {
-                                        case 1:
-                                            {
-                                                m_creature->MonsterSay(66250, Language::LANG_COMMON);
-                                                break;
-                                            }
-                                        case 2:
-                                            {
-                                                m_creature->MonsterSay(66251, Language::LANG_COMMON);
-                                                break;
-                                            }
-                                        case 3:
-                                            {
-                                                m_creature->MonsterSay(66252, Language::LANG_COMMON);
-                                                break;
-                                            }
-                                        case 4:
-                                            {
-                                                m_creature->MonsterSay(66253, Language::LANG_COMMON);
-                                                break;
-                                            }
+                                            case 1: {m_creature->MonsterSay(66250, Language::LANG_COMMON); break; }
+                                            case 2: {m_creature->MonsterSay(66251, Language::LANG_COMMON); break; }
+                                            case 3: {m_creature->MonsterSay(66252, Language::LANG_COMMON); break; }
+                                            case 4: {m_creature->MonsterSay(66253, Language::LANG_COMMON); break; }
                                         }
                                         switch (TextRandom)
                                         {
-                                        case 1:
-                                        case 2:
-                                        case 3:
-                                        case 4:
-                                            {
-                                                m_creature->HandleEmote(EMOTE_ONESHOT_SALUTE);
-                                                break;
-                                            }
+                                            case 1: case 2: case 3: case 4: {m_creature->HandleEmote(EMOTE_ONESHOT_SALUTE); break; }
                                         }
                                     }
                                 }
                                 break;
                             }
 
-                        // Bye
-                        case TEXTEMOTE_BYE:
+                            // Bye
+                            case TEXTEMOTE_BYE:
                             {
                                 if (m_creature->GetDistance3dToCenter(pPlayer) < 20.f)
                                 {
@@ -6550,45 +5949,22 @@ struct npc_guard_emoteAI : public ScriptedAI
                                         const auto TextRandom = urand(1, 4);
                                         switch (TextRandom)
                                         {
-                                        case 1:
-                                            {
-                                                m_creature->MonsterSay(66254, Language::LANG_COMMON);
-                                                break;
-                                            }
-                                        case 2:
-                                            {
-                                                m_creature->MonsterSay(66255, Language::LANG_COMMON);
-                                                break;
-                                            }
-                                        case 3:
-                                            {
-                                                m_creature->MonsterSay(66256, Language::LANG_COMMON);
-                                                break;
-                                            }
-                                        case 4:
-                                            {
-                                                m_creature->MonsterSay(66257, Language::LANG_COMMON);
-                                                break;
-                                            }
+                                            case 1: {m_creature->MonsterSay(66254, Language::LANG_COMMON); break; }
+                                            case 2: {m_creature->MonsterSay(66255, Language::LANG_COMMON); break; }
+                                            case 3: {m_creature->MonsterSay(66256, Language::LANG_COMMON); break; }
+                                            case 4: {m_creature->MonsterSay(66257, Language::LANG_COMMON); break; }
                                         }
                                         switch (TextRandom)
                                         {
-                                        case 1:
-                                        case 2:
-                                        case 3:
-                                        case 4:
-                                            {
-                                                m_creature->HandleEmote(EMOTE_ONESHOT_WAVE);
-                                                break;
-                                            }
+                                            case 1: case 2: case 3: case 4: {m_creature->HandleEmote(EMOTE_ONESHOT_WAVE); break; }
                                         }
                                     }
                                 }
                                 break;
                             }
 
-                        // Joke
-                        case TEXTEMOTE_JOKE:
+                            // Joke
+                            case TEXTEMOTE_JOKE:
                             {
                                 if (m_creature->GetDistance3dToCenter(pPlayer) < 5.f)
                                 {
@@ -6597,55 +5973,24 @@ struct npc_guard_emoteAI : public ScriptedAI
                                         const auto TextRandom = urand(1, 5);
                                         switch (TextRandom)
                                         {
-                                        case 1:
-                                            {
-                                                m_creature->MonsterSay(66258, Language::LANG_COMMON);
-                                                break;
-                                            }
-                                        case 2:
-                                            {
-                                                m_creature->MonsterSay(66259, Language::LANG_COMMON);
-                                                break;
-                                            }
-                                        case 3:
-                                            {
-                                                m_creature->MonsterSay(66260, Language::LANG_COMMON);
-                                                break;
-                                            }
-                                        case 4:
-                                            {
-                                                m_creature->MonsterSay(66261, Language::LANG_COMMON);
-                                                break;
-                                            }
-                                        case 5:
-                                            {
-                                                m_creature->MonsterSay(66262, Language::LANG_COMMON);
-                                                break;
-                                            }
+                                            case 1: {m_creature->MonsterSay(66258, Language::LANG_COMMON); break; }
+                                            case 2: {m_creature->MonsterSay(66259, Language::LANG_COMMON); break; }
+                                            case 3: {m_creature->MonsterSay(66260, Language::LANG_COMMON); break; }
+                                            case 4: {m_creature->MonsterSay(66261, Language::LANG_COMMON); break; }
+                                            case 5: {m_creature->MonsterSay(66262, Language::LANG_COMMON); break; }
                                         }
                                         switch (TextRandom)
                                         {
-                                        case 1:
-                                        case 2:
-                                        case 3:
-                                        case 4:
-                                            {
-                                                m_creature->HandleEmote(EMOTE_ONESHOT_LAUGH);
-                                                break;
-                                            }
-                                        case 5:
-                                            {
-                                                m_creature->HandleEmote(EMOTE_ONESHOT_TALK);
-                                                break;
-                                            }
+                                            case 1: case 2: case 3: case 4: {m_creature->HandleEmote(EMOTE_ONESHOT_LAUGH); break; }
+                                            case 5: {m_creature->HandleEmote(EMOTE_ONESHOT_TALK); break; }
                                         }
                                     }
                                 }
                                 break;
                             }
 
-                        // Flex
-                        case TEXTEMOTE_FLEX:
+                            // Flex
+                            case TEXTEMOTE_FLEX:
                             {
                                 if (m_creature->GetDistance3dToCenter(pPlayer) < 10.f)
                                 {
@@ -6654,53 +5999,24 @@ struct npc_guard_emoteAI : public ScriptedAI
                                         const auto TextRandom = urand(1, 4);
                                         switch (TextRandom)
                                         {
-                                        case 1:
-                                            {
-                                                m_creature->MonsterSay(66263, Language::LANG_COMMON);
-                                                break;
-                                            }
-                                        case 2:
-                                            {
-                                                m_creature->MonsterSay(66264, Language::LANG_COMMON);
-                                                break;
-                                            }
-                                        case 3:
-                                            {
-                                                m_creature->MonsterSay(66265, Language::LANG_COMMON);
-                                                break;
-                                            }
-                                        case 4:
-                                            {
-                                                m_creature->MonsterSay(66266, Language::LANG_COMMON);
-                                                break;
-                                            }
+                                            case 1: {m_creature->MonsterSay(66263, Language::LANG_COMMON); break; }
+                                            case 2: {m_creature->MonsterSay(66264, Language::LANG_COMMON); break; }
+                                            case 3: {m_creature->MonsterSay(66265, Language::LANG_COMMON); break; }
+                                            case 4: {m_creature->MonsterSay(66266, Language::LANG_COMMON); break; }
                                         }
                                         switch (TextRandom)
                                         {
-                                        case 1:
-                                        case 2:
-                                            {
-                                                m_creature->HandleEmote(EMOTE_ONESHOT_APPLAUD);
-                                                break;
-                                            }
-                                        case 3:
-                                            {
-                                                m_creature->HandleEmote(EMOTE_ONESHOT_FLEX);
-                                                break;
-                                            }
-                                        case 4:
-                                            {
-                                                m_creature->HandleEmote(EMOTE_ONESHOT_BOW);
-                                                break;
-                                            }
+                                            case 1: case 2: {m_creature->HandleEmote(EMOTE_ONESHOT_APPLAUD);  break; }
+                                            case 3: {m_creature->HandleEmote(EMOTE_ONESHOT_FLEX);  break; }
+                                            case 4: {m_creature->HandleEmote(EMOTE_ONESHOT_BOW); break; }
                                         }
                                     }
                                 }
                                 break;
                             }
 
-                        // Taunt
-                        case TEXTEMOTE_TAUNT:
+                            // Taunt
+                            case TEXTEMOTE_TAUNT:
                             {
                                 if (m_creature->GetDistance3dToCenter(pPlayer) < 10.f)
                                 {
@@ -6709,49 +6025,23 @@ struct npc_guard_emoteAI : public ScriptedAI
                                         const auto TextRandom = urand(1, 4);
                                         switch (TextRandom)
                                         {
-                                        case 1:
-                                            {
-                                                m_creature->MonsterSay(66267, Language::LANG_COMMON);
-                                                break;
-                                            }
-                                        case 2:
-                                            {
-                                                m_creature->MonsterSay(66268, Language::LANG_COMMON);
-                                                break;
-                                            }
-                                        case 3:
-                                            {
-                                                m_creature->MonsterSay(66269, Language::LANG_COMMON);
-                                                break;
-                                            }
-                                        case 4:
-                                            {
-                                                m_creature->MonsterSay(66270, Language::LANG_COMMON);
-                                                break;
-                                            }
+                                            case 1: {m_creature->MonsterSay(66267, Language::LANG_COMMON); break; }
+                                            case 2: {m_creature->MonsterSay(66268, Language::LANG_COMMON); break; }
+                                            case 3: {m_creature->MonsterSay(66269, Language::LANG_COMMON); break; }
+                                            case 4: {m_creature->MonsterSay(66270, Language::LANG_COMMON); break; }
                                         }
                                         switch (TextRandom)
                                         {
-                                        case 1:
-                                        case 2:
-                                        case 3:
-                                            {
-                                                m_creature->HandleEmote(EMOTE_ONESHOT_RUDE);
-                                                break;
-                                            }
-                                        case 4:
-                                            {
-                                                m_creature->HandleEmote(EMOTE_ONESHOT_TALK);
-                                                break;
-                                            }
+                                            case 1: case 2: case 3: {m_creature->HandleEmote(EMOTE_ONESHOT_RUDE); break; }
+                                            case 4: {m_creature->HandleEmote(EMOTE_ONESHOT_TALK); break; }
                                         }
                                     }
                                 }
                                 break;
                             }
 
-                        // Tickle
-                        case TEXTEMOTE_TICKLE:
+                            // Tickle
+                            case TEXTEMOTE_TICKLE:
                             {
                                 if (m_creature->GetDistance3dToCenter(pPlayer) < 5.f)
                                 {
@@ -6760,35 +6050,14 @@ struct npc_guard_emoteAI : public ScriptedAI
                                         const auto TextRandom = urand(1, 3);
                                         switch (TextRandom)
                                         {
-                                        case 1:
-                                            {
-                                                m_creature->MonsterSay(66271, Language::LANG_COMMON);
-                                                break;
-                                            }
-                                        case 2:
-                                            {
-                                                m_creature->MonsterSay(66272, Language::LANG_COMMON);
-                                                break;
-                                            }
-                                        case 3:
-                                            {
-                                                m_creature->MonsterSay(66273, Language::LANG_COMMON);
-                                                break;
-                                            }
+                                            case 1: {m_creature->MonsterSay(66271, Language::LANG_COMMON); break; }
+                                            case 2: {m_creature->MonsterSay(66272, Language::LANG_COMMON); break; }
+                                            case 3: {m_creature->MonsterSay(66273, Language::LANG_COMMON); break; }
                                         }
                                         switch (TextRandom)
                                         {
-                                        case 1:
-                                        case 2:
-                                            {
-                                                m_creature->HandleEmote(EMOTE_ONESHOT_LAUGH);
-                                                break;
-                                            }
-                                        case 3:
-                                            {
-                                                m_creature->HandleEmote(EMOTE_ONESHOT_ATTACKUNARMED);
-                                                break;
-                                            }
+                                            case 1: case 2: {m_creature->HandleEmote(EMOTE_ONESHOT_LAUGH); break; }
+                                            case 3: {m_creature->HandleEmote(EMOTE_ONESHOT_ATTACKUNARMED);  break; }
                                         }
                                     }
                                 }
@@ -6803,11 +6072,8 @@ struct npc_guard_emoteAI : public ScriptedAI
                         switch (uiEmote)
                         {
 
-                        // General greeting
-                        case TEXTEMOTE_HAIL:
-                        case TEXTEMOTE_HELLO:
-                        case TEXTEMOTE_WAVE:
-                        case TEXTEMOTE_GREET:
+                            // General greeting
+                            case TEXTEMOTE_HAIL: case TEXTEMOTE_HELLO: case TEXTEMOTE_WAVE: case TEXTEMOTE_GREET:
                             {
                                 if (m_creature->GetDistance3dToCenter(pPlayer) < 20.f)
                                 {
@@ -6816,57 +6082,24 @@ struct npc_guard_emoteAI : public ScriptedAI
                                         const auto TextRandom = urand(1, 6);
                                         switch (TextRandom)
                                         {
-                                        case 1:
-                                            {
-                                                m_creature->MonsterSay(66274, Language::LANG_COMMON);
-                                                break;
-                                            }
-                                        case 2:
-                                            {
-                                                m_creature->MonsterSay(66275, Language::LANG_COMMON);
-                                                break;
-                                            }
-                                        case 3:
-                                            {
-                                                m_creature->MonsterSay(66276, Language::LANG_COMMON);
-                                                break;
-                                            }
-                                        case 4:
-                                            {
-                                                m_creature->MonsterSay(66277, Language::LANG_COMMON);
-                                                break;
-                                            }
-                                        case 5:
-                                            {
-                                                m_creature->MonsterSay(66278, Language::LANG_COMMON);
-                                                break;
-                                            }
-                                        case 6:
-                                            {
-                                                m_creature->MonsterSay(66279, Language::LANG_COMMON);
-                                                break;
-                                            }
+                                            case 1: {m_creature->MonsterSay(66274, Language::LANG_COMMON); break; }
+                                            case 2: {m_creature->MonsterSay(66275, Language::LANG_COMMON); break; }
+                                            case 3: {m_creature->MonsterSay(66276, Language::LANG_COMMON); break; }
+                                            case 4: {m_creature->MonsterSay(66277, Language::LANG_COMMON); break; }
+                                            case 5: {m_creature->MonsterSay(66278, Language::LANG_COMMON); break; }
+                                            case 6: {m_creature->MonsterSay(66279, Language::LANG_COMMON); break; }
                                         }
                                         switch (TextRandom)
                                         {
-                                        case 1:
-                                        case 2:
-                                        case 3:
-                                        case 4:
-                                        case 5:
-                                        case 6:
-                                            {
-                                                m_creature->HandleEmote(EMOTE_ONESHOT_WAVE);
-                                                break;
-                                            }
+                                            case 1: case 2: case 3: case 4: case 5: case 6: {m_creature->HandleEmote(EMOTE_ONESHOT_WAVE); break; }
                                         }
                                     }
                                 }
                                 break;
                             }
 
-                        // Salute
-                        case TEXTEMOTE_SALUTE:
+                            // Salute
+                            case TEXTEMOTE_SALUTE:
                             {
                                 if (m_creature->GetDistance3dToCenter(pPlayer) < 10.f)
                                 {
@@ -6875,45 +6108,23 @@ struct npc_guard_emoteAI : public ScriptedAI
                                         const auto TextRandom = urand(1, 4);
                                         switch (TextRandom)
                                         {
-                                        case 1:
-                                            {
-                                                m_creature->MonsterSay(66280, Language::LANG_COMMON);
-                                                break;
-                                            }
-                                        case 2:
-                                            {
-                                                m_creature->MonsterSay(66281, Language::LANG_COMMON);
-                                                break;
-                                            }
-                                        case 3:
-                                            {
-                                                m_creature->MonsterSay(66282, Language::LANG_COMMON);
-                                                break;
-                                            }
-                                        case 4:
-                                            {
-                                                m_creature->MonsterSay(66283, Language::LANG_COMMON);
-                                                break;
-                                            }
+                                            case 1: {m_creature->MonsterSay(66280, Language::LANG_COMMON); break; }
+                                            case 2: {m_creature->MonsterSay(66281, Language::LANG_COMMON); break; }
+                                            case 3: {m_creature->MonsterSay(66282, Language::LANG_COMMON); break; }
+                                            case 4: {m_creature->MonsterSay(66283, Language::LANG_COMMON); break; }
                                         }
                                         switch (TextRandom)
                                         {
-                                        case 1:
-                                        case 2:
-                                        case 3:
-                                        case 4:
-                                            {
-                                                m_creature->HandleEmote(EMOTE_ONESHOT_SALUTE);
-                                                break;
-                                            }
+                                            case 1: case 2: case 3: case 4: {m_creature->HandleEmote(EMOTE_ONESHOT_SALUTE); break; }
+
                                         }
                                     }
                                 }
                                 break;
                             }
 
-                        // Bye
-                        case TEXTEMOTE_BYE:
+                            // Bye
+                            case TEXTEMOTE_BYE:
                             {
                                 if (m_creature->GetDistance3dToCenter(pPlayer) < 20.f)
                                 {
@@ -6922,45 +6133,22 @@ struct npc_guard_emoteAI : public ScriptedAI
                                         const auto TextRandom = urand(1, 4);
                                         switch (TextRandom)
                                         {
-                                        case 1:
-                                            {
-                                                m_creature->MonsterSay(66284, Language::LANG_COMMON);
-                                                break;
-                                            }
-                                        case 2:
-                                            {
-                                                m_creature->MonsterSay(66285, Language::LANG_COMMON);
-                                                break;
-                                            }
-                                        case 3:
-                                            {
-                                                m_creature->MonsterSay(66286, Language::LANG_COMMON);
-                                                break;
-                                            }
-                                        case 4:
-                                            {
-                                                m_creature->MonsterSay(66287, Language::LANG_COMMON);
-                                                break;
-                                            }
+                                            case 1: {m_creature->MonsterSay(66284, Language::LANG_COMMON); break; }
+                                            case 2: {m_creature->MonsterSay(66285, Language::LANG_COMMON); break; }
+                                            case 3: {m_creature->MonsterSay(66286, Language::LANG_COMMON); break; }
+                                            case 4: {m_creature->MonsterSay(66287, Language::LANG_COMMON); break; }
                                         }
                                         switch (TextRandom)
                                         {
-                                        case 1:
-                                        case 2:
-                                        case 3:
-                                        case 4:
-                                            {
-                                                m_creature->HandleEmote(EMOTE_ONESHOT_WAVE);
-                                                break;
-                                            }
+                                            case 1: case 2: case 3: case 4: {m_creature->HandleEmote(EMOTE_ONESHOT_WAVE); break; }
                                         }
                                     }
                                 }
                                 break;
                             }
 
-                        // Joke
-                        case TEXTEMOTE_JOKE:
+                            // Joke
+                            case TEXTEMOTE_JOKE:
                             {
                                 if (m_creature->GetDistance3dToCenter(pPlayer) < 5.f)
                                 {
@@ -6969,49 +6157,23 @@ struct npc_guard_emoteAI : public ScriptedAI
                                         const auto TextRandom = urand(1, 4);
                                         switch (TextRandom)
                                         {
-                                        case 1:
-                                            {
-                                                m_creature->MonsterSay(66288, Language::LANG_COMMON);
-                                                break;
-                                            }
-                                        case 2:
-                                            {
-                                                m_creature->MonsterSay(66289, Language::LANG_COMMON);
-                                                break;
-                                            }
-                                        case 3:
-                                            {
-                                                m_creature->MonsterSay(66290, Language::LANG_COMMON);
-                                                break;
-                                            }
-                                        case 4:
-                                            {
-                                                m_creature->MonsterSay(66291, Language::LANG_COMMON);
-                                                break;
-                                            }
+                                            case 1: {m_creature->MonsterSay(66288, Language::LANG_COMMON); break; }
+                                            case 2: {m_creature->MonsterSay(66289, Language::LANG_COMMON); break; }
+                                            case 3: {m_creature->MonsterSay(66290, Language::LANG_COMMON); break; }
+                                            case 4: {m_creature->MonsterSay(66291, Language::LANG_COMMON); break; }
                                         }
                                         switch (TextRandom)
                                         {
-                                        case 1:
-                                        case 2:
-                                        case 3:
-                                            {
-                                                m_creature->HandleEmote(EMOTE_ONESHOT_LAUGH);
-                                                break;
-                                            }
-                                        case 4:
-                                            {
-                                                m_creature->HandleEmote(EMOTE_ONESHOT_TALK);
-                                                break;
-                                            }
+                                            case 1: case 2: case 3: {m_creature->HandleEmote(EMOTE_ONESHOT_LAUGH); break; }
+                                            case 4: {m_creature->HandleEmote(EMOTE_ONESHOT_TALK); break; }
                                         }
                                     }
                                 }
                                 break;
                             }
 
-                        // Flex
-                        case TEXTEMOTE_FLEX:
+                            // Flex
+                            case TEXTEMOTE_FLEX:
                             {
                                 if (m_creature->GetDistance3dToCenter(pPlayer) < 10.f)
                                 {
@@ -7020,53 +6182,24 @@ struct npc_guard_emoteAI : public ScriptedAI
                                         const auto TextRandom = urand(1, 4);
                                         switch (TextRandom)
                                         {
-                                        case 1:
-                                            {
-                                                m_creature->MonsterSay(66292, Language::LANG_COMMON);
-                                                break;
-                                            }
-                                        case 2:
-                                            {
-                                                m_creature->MonsterSay(66293, Language::LANG_COMMON);
-                                                break;
-                                            }
-                                        case 3:
-                                            {
-                                                m_creature->MonsterSay(66294, Language::LANG_COMMON);
-                                                break;
-                                            }
-                                        case 4:
-                                            {
-                                                m_creature->MonsterSay(66295, Language::LANG_COMMON);
-                                                break;
-                                            }
+                                            case 1: {m_creature->MonsterSay(66292, Language::LANG_COMMON); break; }
+                                            case 2: {m_creature->MonsterSay(66293, Language::LANG_COMMON); break; }
+                                            case 3: {m_creature->MonsterSay(66294, Language::LANG_COMMON); break; }
+                                            case 4: {m_creature->MonsterSay(66295, Language::LANG_COMMON); break; }
                                         }
                                         switch (TextRandom)
                                         {
-                                        case 1:
-                                        case 2:
-                                            {
-                                                m_creature->HandleEmote(EMOTE_ONESHOT_APPLAUD);
-                                                break;
-                                            }
-                                        case 3:
-                                            {
-                                                m_creature->HandleEmote(EMOTE_ONESHOT_FLEX);
-                                                break;
-                                            }
-                                        case 4:
-                                            {
-                                                m_creature->HandleEmote(EMOTE_ONESHOT_LAUGH);
-                                                break;
-                                            }
+                                            case 1: case 2: {m_creature->HandleEmote(EMOTE_ONESHOT_APPLAUD); break; }
+                                            case 3: {m_creature->HandleEmote(EMOTE_ONESHOT_FLEX); break; }
+                                            case 4: {m_creature->HandleEmote(EMOTE_ONESHOT_LAUGH); break; }
                                         }
                                     }
                                 }
                                 break;
                             }
 
-                        // Taunt
-                        case TEXTEMOTE_TAUNT:
+                            // Taunt
+                            case TEXTEMOTE_TAUNT:
                             {
                                 if (m_creature->GetDistance3dToCenter(pPlayer) < 10.f)
                                 {
@@ -7075,59 +6208,25 @@ struct npc_guard_emoteAI : public ScriptedAI
                                         const auto TextRandom = urand(1, 5);
                                         switch (TextRandom)
                                         {
-                                        case 1:
-                                            {
-                                                m_creature->MonsterSay(66296, Language::LANG_COMMON);
-                                                break;
-                                            }
-                                        case 2:
-                                            {
-                                                m_creature->MonsterSay(66297, Language::LANG_COMMON);
-                                                break;
-                                            }
-                                        case 3:
-                                            {
-                                                m_creature->MonsterSay(66298, Language::LANG_COMMON);
-                                                break;
-                                            }
-                                        case 4:
-                                            {
-                                                m_creature->MonsterSay(66299, Language::LANG_COMMON);
-                                                break;
-                                            }
-                                        case 5:
-                                            {
-                                                m_creature->MonsterSay(66301, Language::LANG_COMMON);
-                                                break;
-                                            }
+                                            case 1: {m_creature->MonsterSay(66296, Language::LANG_COMMON); break; }
+                                            case 2: {m_creature->MonsterSay(66297, Language::LANG_COMMON); break; }
+                                            case 3: {m_creature->MonsterSay(66298, Language::LANG_COMMON); break; }
+                                            case 4: {m_creature->MonsterSay(66299, Language::LANG_COMMON); break; }
+                                            case 5: {m_creature->MonsterSay(66301, Language::LANG_COMMON); break; }
                                         }
                                         switch (TextRandom)
                                         {
-                                        case 1:
-                                        case 2:
-                                            {
-                                                m_creature->HandleEmote(EMOTE_ONESHOT_ROAR);
-                                                break;
-                                            }
-                                        case 3:
-                                        case 4:
-                                            {
-                                                m_creature->HandleEmote(EMOTE_ONESHOT_RUDE);
-                                                break;
-                                            }
-                                        case 5:
-                                            {
-                                                m_creature->HandleEmote(EMOTE_ONESHOT_TALK);
-                                                break;
-                                            }
+                                            case 1: case 2: {m_creature->HandleEmote(EMOTE_ONESHOT_ROAR); break; }
+                                            case 3: case 4: {m_creature->HandleEmote(EMOTE_ONESHOT_RUDE); break; }
+                                            case 5: {m_creature->HandleEmote(EMOTE_ONESHOT_TALK); break; }
                                         }
                                     }
                                 }
                                 break;
                             }
 
-                        // Tickle
-                        case TEXTEMOTE_TICKLE:
+                            // Tickle
+                            case TEXTEMOTE_TICKLE:
                             {
                                 if (m_creature->GetDistance3dToCenter(pPlayer) < 5.f)
                                 {
@@ -7136,51 +6235,17 @@ struct npc_guard_emoteAI : public ScriptedAI
                                         const auto TextRandom = urand(1, 5);
                                         switch (TextRandom)
                                         {
-                                        case 1:
-                                            {
-                                                m_creature->MonsterSay(66302, Language::LANG_COMMON);
-                                                break;
-                                            }
-                                        case 2:
-                                            {
-                                                m_creature->MonsterSay(66303, Language::LANG_COMMON);
-                                                break;
-                                            }
-                                        case 3:
-                                            {
-                                                m_creature->MonsterSay(66304, Language::LANG_COMMON);
-                                                break;
-                                            }
-                                        case 4:
-                                            {
-                                                m_creature->MonsterSay(66305, Language::LANG_COMMON);
-                                                break;
-                                            }
-                                        case 5:
-                                            {
-                                                m_creature->MonsterSay(66306, Language::LANG_COMMON);
-                                                break;
-                                            }
+                                            case 1: {m_creature->MonsterSay(66302, Language::LANG_COMMON); break; }
+                                            case 2: {m_creature->MonsterSay(66303, Language::LANG_COMMON); break; }
+                                            case 3: {m_creature->MonsterSay(66304, Language::LANG_COMMON); break; }
+                                            case 4: {m_creature->MonsterSay(66305, Language::LANG_COMMON); break; }
+                                            case 5: {m_creature->MonsterSay(66306, Language::LANG_COMMON); break; }
                                         }
                                         switch (TextRandom)
                                         {
-                                        case 1:
-                                        case 2:
-                                        case 3:
-                                            {
-                                                m_creature->HandleEmote(EMOTE_ONESHOT_LAUGH);
-                                                break;
-                                            }
-                                        case 4:
-                                            {
-                                                m_creature->HandleEmote(EMOTE_ONESHOT_TALK);
-                                                break;
-                                            }
-                                        case 5:
-                                            {
-                                                m_creature->HandleEmote(EMOTE_ONESHOT_ATTACKUNARMED);
-                                                break;
-                                            }
+                                            case 1: case 2: case 3: {m_creature->HandleEmote(EMOTE_ONESHOT_LAUGH); break; }
+                                            case 4: {m_creature->HandleEmote(EMOTE_ONESHOT_TALK); break; }
+                                            case 5: {m_creature->HandleEmote(EMOTE_ONESHOT_ATTACKUNARMED); break; }
                                         }
                                     }
                                 }
@@ -7207,7 +6272,7 @@ struct npc_guard_emoteAI : public ScriptedAI
                     break;
                 }
 
-            case HORDE:
+                case HORDE:
                 {
                     // Orc Guards
                     if (m_creature->GetEntry() == 3296)
@@ -7215,11 +6280,8 @@ struct npc_guard_emoteAI : public ScriptedAI
                         switch (uiEmote)
                         {
 
-                        // General greeting
-                        case TEXTEMOTE_HAIL:
-                        case TEXTEMOTE_HELLO:
-                        case TEXTEMOTE_WAVE:
-                        case TEXTEMOTE_GREET:
+                            // General greeting
+                            case TEXTEMOTE_HAIL: case TEXTEMOTE_HELLO: case TEXTEMOTE_WAVE: case TEXTEMOTE_GREET:
                             {
                                 if (m_creature->GetDistance3dToCenter(pPlayer) < 20.f)
                                 {
@@ -7228,61 +6290,25 @@ struct npc_guard_emoteAI : public ScriptedAI
                                         const auto TextRandom = urand(1, 6);
                                         switch (TextRandom)
                                         {
-                                        case 1:
-                                            {
-                                                m_creature->MonsterSay(66307, Language::LANG_ORCISH);
-                                                break;
-                                            }
-                                        case 2:
-                                            {
-                                                m_creature->MonsterSay(66308, Language::LANG_ORCISH);
-                                                break;
-                                            }
-                                        case 3:
-                                            {
-                                                m_creature->MonsterSay(66309, Language::LANG_ORCISH);
-                                                break;
-                                            }
-                                        case 4:
-                                            {
-                                                m_creature->MonsterSay(66310, Language::LANG_ORCISH);
-                                                break;
-                                            }
-                                        case 5:
-                                            {
-                                                m_creature->MonsterSay(66311, Language::LANG_ORCISH);
-                                                break;
-                                            }
-                                        case 6:
-                                            {
-                                                m_creature->MonsterSay(66312, Language::LANG_ORCISH);
-                                                break;
-                                            }
+                                            case 1: {m_creature->MonsterSay(66307, Language::LANG_ORCISH); break; }
+                                            case 2: {m_creature->MonsterSay(66308, Language::LANG_ORCISH); break; }
+                                            case 3: {m_creature->MonsterSay(66309, Language::LANG_ORCISH); break; }
+                                            case 4: {m_creature->MonsterSay(66310, Language::LANG_ORCISH); break; }
+                                            case 5: {m_creature->MonsterSay(66311, Language::LANG_ORCISH); break; }
+                                            case 6: {m_creature->MonsterSay(66312, Language::LANG_ORCISH); break; }
                                         }
                                         switch (TextRandom)
                                         {
-                                        case 1:
-                                        case 2:
-                                        case 3:
-                                            {
-                                                m_creature->HandleEmote(EMOTE_ONESHOT_SALUTE);
-                                                break;
-                                            }
-                                        case 4:
-                                        case 5:
-                                        case 6:
-                                            {
-                                                m_creature->HandleEmote(EMOTE_ONESHOT_WAVE);
-                                                break;
-                                            }
+                                            case 1: case 2: case 3: {m_creature->HandleEmote(EMOTE_ONESHOT_SALUTE); break; }
+                                            case 4: case 5: case 6: {m_creature->HandleEmote(EMOTE_ONESHOT_WAVE); break; }
                                         }
                                     }
                                 }
                                 break;
                             }
 
-                        // Salute
-                        case TEXTEMOTE_SALUTE:
+                            // Salute
+                            case TEXTEMOTE_SALUTE:
                             {
                                 if (m_creature->GetDistance3dToCenter(pPlayer) < 10.f)
                                 {
@@ -7291,56 +6317,24 @@ struct npc_guard_emoteAI : public ScriptedAI
                                         const auto TextRandom = urand(1, 6);
                                         switch (TextRandom)
                                         {
-                                        case 1:
-                                            {
-                                                m_creature->MonsterSay(66313, Language::LANG_ORCISH);
-                                                break;
-                                            }
-                                        case 2:
-                                            {
-                                                m_creature->MonsterSay(66314, Language::LANG_ORCISH);
-                                                break;
-                                            }
-                                        case 3:
-                                            {
-                                                m_creature->MonsterSay(66315, Language::LANG_ORCISH);
-                                                break;
-                                            }
-                                        case 4:
-                                            {
-                                                m_creature->MonsterSay(66316, Language::LANG_ORCISH);
-                                                break;
-                                            }
-                                        case 5:
-                                            {
-                                                m_creature->MonsterSay(66317, Language::LANG_ORCISH);
-                                                break;
-                                            }
-                                        case 6:
-                                            {
-                                                break;
-                                            }
+                                            case 1: {m_creature->MonsterSay(66313, Language::LANG_ORCISH); break; }
+                                            case 2: {m_creature->MonsterSay(66314, Language::LANG_ORCISH); break; }
+                                            case 3: {m_creature->MonsterSay(66315, Language::LANG_ORCISH); break; }
+                                            case 4: {m_creature->MonsterSay(66316, Language::LANG_ORCISH); break; }
+                                            case 5: {m_creature->MonsterSay(66317, Language::LANG_ORCISH); break; }
+                                            case 6: { break; }
                                         }
                                         switch (TextRandom)
                                         {
-                                        case 1:
-                                        case 2:
-                                        case 3:
-                                        case 4:
-                                        case 5:
-                                        case 6:
-                                            {
-                                                m_creature->HandleEmote(EMOTE_ONESHOT_SALUTE);
-                                                break;
-                                            }
+                                            case 1: case 2: case 3: case 4: case 5: case 6: {m_creature->HandleEmote(EMOTE_ONESHOT_SALUTE); break; }
                                         }
                                     }
                                 }
                                 break;
                             }
 
-                        // Bye
-                        case TEXTEMOTE_BYE:
+                            // Bye
+                            case TEXTEMOTE_BYE:
                             {
                                 if (m_creature->GetDistance3dToCenter(pPlayer) < 20.f)
                                 {
@@ -7349,49 +6343,23 @@ struct npc_guard_emoteAI : public ScriptedAI
                                         const auto TextRandom = urand(1, 4);
                                         switch (TextRandom)
                                         {
-                                        case 1:
-                                            {
-                                                m_creature->MonsterSay(66318, Language::LANG_ORCISH);
-                                                break;
-                                            }
-                                        case 2:
-                                            {
-                                                m_creature->MonsterSay(66319, Language::LANG_ORCISH);
-                                                break;
-                                            }
-                                        case 3:
-                                            {
-                                                m_creature->MonsterSay(66320, Language::LANG_ORCISH);
-                                                break;
-                                            }
-                                        case 4:
-                                            {
-                                                m_creature->MonsterSay(66321, Language::LANG_ORCISH);
-                                                break;
-                                            }
+                                            case 1: {m_creature->MonsterSay(66318, Language::LANG_ORCISH); break; }
+                                            case 2: {m_creature->MonsterSay(66319, Language::LANG_ORCISH); break; }
+                                            case 3: {m_creature->MonsterSay(66320, Language::LANG_ORCISH); break; }
+                                            case 4: {m_creature->MonsterSay(66321, Language::LANG_ORCISH); break; }
                                         }
                                         switch (TextRandom)
                                         {
-                                        case 1:
-                                        case 2:
-                                        case 3:
-                                            {
-                                                m_creature->HandleEmote(EMOTE_ONESHOT_WAVE);
-                                                break;
-                                            }
-                                        case 4:
-                                            {
-                                                m_creature->HandleEmote(EMOTE_ONESHOT_SALUTE);
-                                                break;
-                                            }
+                                            case 1: case 2: case 3: {m_creature->HandleEmote(EMOTE_ONESHOT_WAVE); break; }
+                                            case 4: {m_creature->HandleEmote(EMOTE_ONESHOT_SALUTE); break; }
                                         }
                                     }
                                 }
                                 break;
                             }
 
-                        // Joke
-                        case TEXTEMOTE_JOKE:
+                            // Joke
+                            case TEXTEMOTE_JOKE:
                             {
                                 if (m_creature->GetDistance3dToCenter(pPlayer) < 5.f)
                                 {
@@ -7400,53 +6368,24 @@ struct npc_guard_emoteAI : public ScriptedAI
                                         const auto TextRandom = urand(1, 4);
                                         switch (TextRandom)
                                         {
-                                        case 1:
-                                            {
-                                                m_creature->MonsterSay(66322, Language::LANG_ORCISH);
-                                                break;
-                                            }
-                                        case 2:
-                                            {
-                                                m_creature->MonsterSay(66323, Language::LANG_ORCISH);
-                                                break;
-                                            }
-                                        case 3:
-                                            {
-                                                m_creature->MonsterSay(66324, Language::LANG_ORCISH);
-                                                break;
-                                            }
-                                        case 4:
-                                            {
-                                                m_creature->MonsterSay(66325, Language::LANG_ORCISH);
-                                                break;
-                                            }
+                                            case 1: {m_creature->MonsterSay(66322, Language::LANG_ORCISH); break; }
+                                            case 2: {m_creature->MonsterSay(66323, Language::LANG_ORCISH); break; }
+                                            case 3: {m_creature->MonsterSay(66324, Language::LANG_ORCISH); break; }
+                                            case 4: {m_creature->MonsterSay(66325, Language::LANG_ORCISH); break; }
                                         }
                                         switch (TextRandom)
                                         {
-                                        case 1:
-                                        case 2:
-                                            {
-                                                m_creature->HandleEmote(EMOTE_ONESHOT_NO);
-                                                break;
-                                            }
-                                        case 3:
-                                            {
-                                                m_creature->HandleEmote(EMOTE_ONESHOT_LAUGH);
-                                                break;
-                                            }
-                                        case 4:
-                                            {
-                                                m_creature->HandleEmote(EMOTE_ONESHOT_POINT);
-                                                break;
-                                            }
+                                            case 1: case 2: {m_creature->HandleEmote(EMOTE_ONESHOT_NO); break; }
+                                            case 3: {m_creature->HandleEmote(EMOTE_ONESHOT_LAUGH); break; }
+                                            case 4: {m_creature->HandleEmote(EMOTE_ONESHOT_POINT); break; }
                                         }
                                     }
                                 }
                                 break;
                             }
 
-                        // Flex
-                        case TEXTEMOTE_FLEX:
+                            // Flex
+                            case TEXTEMOTE_FLEX:
                             {
                                 if (m_creature->GetDistance3dToCenter(pPlayer) < 10.f)
                                 {
@@ -7455,63 +6394,26 @@ struct npc_guard_emoteAI : public ScriptedAI
                                         const auto TextRandom = urand(1, 5);
                                         switch (TextRandom)
                                         {
-                                        case 1:
-                                            {
-                                                m_creature->MonsterSay(66326, Language::LANG_ORCISH);
-                                                break;
-                                            }
-                                        case 2:
-                                            {
-                                                m_creature->MonsterSay(66327, Language::LANG_ORCISH);
-                                                break;
-                                            }
-                                        case 3:
-                                            {
-                                                m_creature->MonsterSay(66328, Language::LANG_ORCISH);
-                                                break;
-                                            }
-                                        case 4:
-                                            {
-                                                m_creature->MonsterSay(66329, Language::LANG_ORCISH);
-                                                break;
-                                            }
-                                        case 5:
-                                            {
-                                                m_creature->MonsterSay(66330, Language::LANG_ORCISH);
-                                                break;
-                                            }
+                                            case 1: {m_creature->MonsterSay(66326, Language::LANG_ORCISH); break; }
+                                            case 2: {m_creature->MonsterSay(66327, Language::LANG_ORCISH); break; }
+                                            case 3: {m_creature->MonsterSay(66328, Language::LANG_ORCISH); break; }
+                                            case 4: {m_creature->MonsterSay(66329, Language::LANG_ORCISH); break; }
+                                            case 5: {m_creature->MonsterSay(66330, Language::LANG_ORCISH); break; }
                                         }
                                         switch (TextRandom)
                                         {
-                                        case 1:
-                                        case 2:
-                                            {
-                                                m_creature->HandleEmote(EMOTE_ONESHOT_APPLAUD);
-                                                break;
-                                            }
-                                        case 3:
-                                            {
-                                                m_creature->HandleEmote(EMOTE_ONESHOT_FLEX);
-                                                break;
-                                            }
-                                        case 4:
-                                            {
-                                                m_creature->HandleEmote(EMOTE_ONESHOT_SALUTE);
-                                                break;
-                                            }
-                                        case 5:
-                                            {
-                                                m_creature->HandleEmote(EMOTE_ONESHOT_LAUGH);
-                                                break;
-                                            }
+                                            case 1: case 2: {m_creature->HandleEmote(EMOTE_ONESHOT_APPLAUD); break; }
+                                            case 3: {m_creature->HandleEmote(EMOTE_ONESHOT_FLEX); break; }
+                                            case 4: {m_creature->HandleEmote(EMOTE_ONESHOT_SALUTE); break; }
+                                            case 5: {m_creature->HandleEmote(EMOTE_ONESHOT_LAUGH); break; }
                                         }
                                     }
                                 }
                                 break;
                             }
 
-                        // Taunt
-                        case TEXTEMOTE_TAUNT:
+                            // Taunt
+                            case TEXTEMOTE_TAUNT:
                             {
                                 if (m_creature->GetDistance3dToCenter(pPlayer) < 10.f)
                                 {
@@ -7520,49 +6422,23 @@ struct npc_guard_emoteAI : public ScriptedAI
                                         const auto TextRandom = urand(1, 4);
                                         switch (TextRandom)
                                         {
-                                        case 1:
-                                            {
-                                                m_creature->MonsterSay(66331, Language::LANG_ORCISH);
-                                                break;
-                                            }
-                                        case 2:
-                                            {
-                                                m_creature->MonsterSay(66332, Language::LANG_ORCISH);
-                                                break;
-                                            }
-                                        case 3:
-                                            {
-                                                m_creature->MonsterSay(66333, Language::LANG_ORCISH);
-                                                break;
-                                            }
-                                        case 4:
-                                            {
-                                                m_creature->MonsterSay(66334, Language::LANG_ORCISH);
-                                                break;
-                                            }
+                                            case 1: {m_creature->MonsterSay(66331, Language::LANG_ORCISH); break; }
+                                            case 2: {m_creature->MonsterSay(66332, Language::LANG_ORCISH); break; }
+                                            case 3: {m_creature->MonsterSay(66333, Language::LANG_ORCISH); break; }
+                                            case 4: {m_creature->MonsterSay(66334, Language::LANG_ORCISH); break; }
                                         }
                                         switch (TextRandom)
                                         {
-                                        case 1:
-                                        case 2:
-                                        case 3:
-                                            {
-                                                m_creature->HandleEmote(EMOTE_ONESHOT_RUDE);
-                                                break;
-                                            }
-                                        case 4:
-                                            {
-                                                m_creature->HandleEmote(EMOTE_ONESHOT_LAUGH);
-                                                break;
-                                            }
+                                            case 1: case 2: case 3: {m_creature->HandleEmote(EMOTE_ONESHOT_RUDE); break; }
+                                            case 4: {m_creature->HandleEmote(EMOTE_ONESHOT_LAUGH); break; }
                                         }
                                     }
                                 }
                                 break;
                             }
 
-                        // Tickle
-                        case TEXTEMOTE_TICKLE:
+                            // Tickle
+                            case TEXTEMOTE_TICKLE:
                             {
                                 if (m_creature->GetDistance3dToCenter(pPlayer) < 5.f)
                                 {
@@ -7571,39 +6447,15 @@ struct npc_guard_emoteAI : public ScriptedAI
                                         const auto TextRandom = urand(1, 3);
                                         switch (TextRandom)
                                         {
-                                        case 1:
-                                            {
-                                                m_creature->MonsterSay(66335, Language::LANG_ORCISH);
-                                                break;
-                                            }
-                                        case 2:
-                                            {
-                                                m_creature->MonsterSay(66336, Language::LANG_ORCISH);
-                                                break;
-                                            }
-                                        case 3:
-                                            {
-                                                m_creature->MonsterSay(66337, Language::LANG_ORCISH);
-                                                break;
-                                            }
+                                            case 1: {m_creature->MonsterSay(66335, Language::LANG_ORCISH); break; }
+                                            case 2: {m_creature->MonsterSay(66336, Language::LANG_ORCISH); break; }
+                                            case 3: {m_creature->MonsterSay(66337, Language::LANG_ORCISH); break; }
                                         }
                                         switch (TextRandom)
                                         {
-                                        case 1:
-                                            {
-                                                m_creature->HandleEmote(EMOTE_ONESHOT_RUDE);
-                                                break;
-                                            }
-                                        case 2:
-                                            {
-                                                m_creature->HandleEmote(EMOTE_ONESHOT_ATTACKUNARMED);
-                                                break;
-                                            }
-                                        case 3:
-                                            {
-                                                m_creature->HandleEmote(EMOTE_ONESHOT_TALK);
-                                                break;
-                                            }
+                                            case 1: {m_creature->HandleEmote(EMOTE_ONESHOT_RUDE); break; }
+                                            case 2: {m_creature->HandleEmote(EMOTE_ONESHOT_ATTACKUNARMED); break; }
+                                            case 3: {m_creature->HandleEmote(EMOTE_ONESHOT_TALK); break; }
                                         }
                                     }
                                 }
@@ -7631,11 +6483,8 @@ struct npc_guard_emoteAI : public ScriptedAI
                         switch (uiEmote)
                         {
 
-                        // General greeting
-                        case TEXTEMOTE_HAIL:
-                        case TEXTEMOTE_HELLO:
-                        case TEXTEMOTE_WAVE:
-                        case TEXTEMOTE_GREET:
+                            // General greeting
+                            case TEXTEMOTE_HAIL: case TEXTEMOTE_HELLO: case TEXTEMOTE_WAVE: case TEXTEMOTE_GREET:
                             {
                                 if (m_creature->GetDistance3dToCenter(pPlayer) < 20.f)
                                 {
@@ -7644,57 +6493,24 @@ struct npc_guard_emoteAI : public ScriptedAI
                                         const auto TextRandom = urand(1, 6);
                                         switch (TextRandom)
                                         {
-                                        case 1:
-                                            {
-                                                m_creature->MonsterSay(66339, Language::LANG_ORCISH);
-                                                break;
-                                            }
-                                        case 2:
-                                            {
-                                                m_creature->MonsterSay(66340, Language::LANG_ORCISH);
-                                                break;
-                                            }
-                                        case 3:
-                                            {
-                                                m_creature->MonsterSay(66341, Language::LANG_ORCISH);
-                                                break;
-                                            }
-                                        case 4:
-                                            {
-                                                m_creature->MonsterSay(66342, Language::LANG_ORCISH);
-                                                break;
-                                            }
-                                        case 5:
-                                            {
-                                                m_creature->MonsterSay(66343, Language::LANG_ORCISH);
-                                                break;
-                                            }
-                                        case 6:
-                                            {
-                                                m_creature->MonsterSay(66344, Language::LANG_ORCISH);
-                                                break;
-                                            }
+                                            case 1: {m_creature->MonsterSay(66339, Language::LANG_ORCISH); break; }
+                                            case 2: {m_creature->MonsterSay(66340, Language::LANG_ORCISH); break; }
+                                            case 3: {m_creature->MonsterSay(66341, Language::LANG_ORCISH); break; }
+                                            case 4: {m_creature->MonsterSay(66342, Language::LANG_ORCISH); break; }
+                                            case 5: {m_creature->MonsterSay(66343, Language::LANG_ORCISH); break; }
+                                            case 6: {m_creature->MonsterSay(66344, Language::LANG_ORCISH); break; }
                                         }
                                         switch (TextRandom)
                                         {
-                                        case 1:
-                                        case 2:
-                                        case 3:
-                                        case 4:
-                                        case 5:
-                                        case 6:
-                                            {
-                                                m_creature->HandleEmote(EMOTE_ONESHOT_WAVE);
-                                                break;
-                                            }
+                                            case 1: case 2: case 3: case 4: case 5: case 6: {m_creature->HandleEmote(EMOTE_ONESHOT_WAVE); break; }
                                         }
                                     }
                                 }
                                 break;
                             }
 
-                        // Salute
-                        case TEXTEMOTE_SALUTE:
+                            // Salute
+                            case TEXTEMOTE_SALUTE:
                             {
                                 if (m_creature->GetDistance3dToCenter(pPlayer) < 10.f)
                                 {
@@ -7703,51 +6519,23 @@ struct npc_guard_emoteAI : public ScriptedAI
                                         const auto TextRandom = urand(1, 5);
                                         switch (TextRandom)
                                         {
-                                        case 1:
-                                            {
-                                                m_creature->MonsterSay(66345, Language::LANG_ORCISH);
-                                                break;
-                                            }
-                                        case 2:
-                                            {
-                                                m_creature->MonsterSay(66346, Language::LANG_ORCISH);
-                                                break;
-                                            }
-                                        case 3:
-                                            {
-                                                m_creature->MonsterSay(66347, Language::LANG_ORCISH);
-                                                break;
-                                            }
-                                        case 4:
-                                            {
-                                                m_creature->MonsterSay(66348, Language::LANG_ORCISH);
-                                                break;
-                                            }
-                                        case 5:
-                                            {
-                                                m_creature->MonsterSay(66349, Language::LANG_ORCISH);
-                                                break;
-                                            }
+                                            case 1: {m_creature->MonsterSay(66345, Language::LANG_ORCISH); break; }
+                                            case 2: {m_creature->MonsterSay(66346, Language::LANG_ORCISH); break; }
+                                            case 3: {m_creature->MonsterSay(66347, Language::LANG_ORCISH); break; }
+                                            case 4: {m_creature->MonsterSay(66348, Language::LANG_ORCISH); break; }
+                                            case 5: {m_creature->MonsterSay(66349, Language::LANG_ORCISH); break; }
                                         }
                                         switch (TextRandom)
                                         {
-                                        case 1:
-                                        case 2:
-                                        case 3:
-                                        case 4:
-                                        case 5:
-                                            {
-                                                m_creature->HandleEmote(EMOTE_ONESHOT_SALUTE);
-                                                break;
-                                            }
+                                            case 1: case 2: case 3: case 4: case 5: {m_creature->HandleEmote(EMOTE_ONESHOT_SALUTE); break; }
                                         }
                                     }
                                 }
                                 break;
                             }
 
-                        // Bye
-                        case TEXTEMOTE_BYE:
+                            // Bye
+                            case TEXTEMOTE_BYE:
                             {
                                 if (m_creature->GetDistance3dToCenter(pPlayer) < 20.f)
                                 {
@@ -7756,63 +6544,25 @@ struct npc_guard_emoteAI : public ScriptedAI
                                         const auto TextRandom = urand(1, 7);
                                         switch (TextRandom)
                                         {
-                                        case 1:
-                                            {
-                                                m_creature->MonsterSay(66350, Language::LANG_ORCISH);
-                                                break;
-                                            }
-                                        case 2:
-                                            {
-                                                m_creature->MonsterSay(66351, Language::LANG_ORCISH);
-                                                break;
-                                            }
-                                        case 3:
-                                            {
-                                                m_creature->MonsterSay(66352, Language::LANG_ORCISH);
-                                                break;
-                                            }
-                                        case 4:
-                                            {
-                                                m_creature->MonsterSay(66353, Language::LANG_ORCISH);
-                                                break;
-                                            }
-                                        case 5:
-                                            {
-                                                m_creature->MonsterSay(66354, Language::LANG_ORCISH);
-                                                break;
-                                            }
-                                        case 6:
-                                            {
-                                                m_creature->MonsterSay(66355, Language::LANG_ORCISH);
-                                                break;
-                                            }
-                                        case 7:
-                                            {
-                                                m_creature->MonsterSay(66356, Language::LANG_ORCISH);
-                                                break;
-                                            }
+                                            case 1: {m_creature->MonsterSay(66350, Language::LANG_ORCISH); break; }
+                                            case 2: {m_creature->MonsterSay(66351, Language::LANG_ORCISH); break; }
+                                            case 3: {m_creature->MonsterSay(66352, Language::LANG_ORCISH); break; }
+                                            case 4: {m_creature->MonsterSay(66353, Language::LANG_ORCISH); break; }
+                                            case 5: {m_creature->MonsterSay(66354, Language::LANG_ORCISH); break; }
+                                            case 6: {m_creature->MonsterSay(66355, Language::LANG_ORCISH); break; }
+                                            case 7: {m_creature->MonsterSay(66356, Language::LANG_ORCISH); break; }
                                         }
                                         switch (TextRandom)
                                         {
-                                        case 1:
-                                        case 2:
-                                        case 3:
-                                        case 4:
-                                        case 5:
-                                        case 6:
-                                        case 7:
-                                            {
-                                                m_creature->HandleEmote(EMOTE_ONESHOT_WAVE);
-                                                break;
-                                            }
+                                            case 1: case 2: case 3: case 4: case 5: case 6: case 7: {m_creature->HandleEmote(EMOTE_ONESHOT_WAVE); break; }
                                         }
                                     }
                                 }
                                 break;
                             }
 
-                        // Joke
-                        case TEXTEMOTE_JOKE:
+                            // Joke
+                            case TEXTEMOTE_JOKE:
                             {
                                 if (m_creature->GetDistance3dToCenter(pPlayer) < 5.f)
                                 {
@@ -7821,48 +6571,23 @@ struct npc_guard_emoteAI : public ScriptedAI
                                         const auto TextRandom = urand(1, 4);
                                         switch (TextRandom)
                                         {
-                                        case 1:
-                                            {
-                                                m_creature->MonsterSay(66357, Language::LANG_ORCISH);
-                                                break;
-                                            }
-                                        case 2:
-                                            {
-                                                m_creature->MonsterSay(66358, Language::LANG_ORCISH);
-                                                break;
-                                            }
-                                        case 3:
-                                            {
-                                                break;
-                                            }
-                                        case 4:
-                                            {
-                                                m_creature->MonsterSay(66359, Language::LANG_ORCISH);
-                                                break;
-                                            }
+                                            case 1: {m_creature->MonsterSay(66357, Language::LANG_ORCISH); break; }
+                                            case 2: {m_creature->MonsterSay(66358, Language::LANG_ORCISH); break; }
+                                            case 3: {break; }
+                                            case 4: {m_creature->MonsterSay(66359, Language::LANG_ORCISH); break; }
                                         }
                                         switch (TextRandom)
                                         {
-                                        case 1:
-                                        case 2:
-                                        case 3:
-                                            {
-                                                m_creature->HandleEmote(EMOTE_ONESHOT_LAUGH);
-                                                break;
-                                            }
-                                        case 4:
-                                            {
-                                                m_creature->HandleEmote(EMOTE_ONESHOT_TALK);
-                                                break;
-                                            }
+                                            case 1: case 2: case 3: {m_creature->HandleEmote(EMOTE_ONESHOT_LAUGH); break; }
+                                            case 4: {m_creature->HandleEmote(EMOTE_ONESHOT_TALK); break; }
                                         }
                                     }
                                 }
                                 break;
                             }
 
-                        // Flex
-                        case TEXTEMOTE_FLEX:
+                            // Flex
+                            case TEXTEMOTE_FLEX:
                             {
                                 if (m_creature->GetDistance3dToCenter(pPlayer) < 10.f)
                                 {
@@ -7871,53 +6596,24 @@ struct npc_guard_emoteAI : public ScriptedAI
                                         const auto TextRandom = urand(1, 4);
                                         switch (TextRandom)
                                         {
-                                        case 1:
-                                            {
-                                                m_creature->MonsterSay(66360, Language::LANG_ORCISH);
-                                                break;
-                                            }
-                                        case 2:
-                                            {
-                                                m_creature->MonsterSay(66361, Language::LANG_ORCISH);
-                                                break;
-                                            }
-                                        case 3:
-                                            {
-                                                m_creature->MonsterSay(66362, Language::LANG_ORCISH);
-                                                break;
-                                            }
-                                        case 4:
-                                            {
-                                                m_creature->MonsterSay(66363, Language::LANG_ORCISH);
-                                                break;
-                                            }
+                                            case 1: {m_creature->MonsterSay(66360, Language::LANG_ORCISH); break; }
+                                            case 2: {m_creature->MonsterSay(66361, Language::LANG_ORCISH); break; }
+                                            case 3: {m_creature->MonsterSay(66362, Language::LANG_ORCISH); break; }
+                                            case 4: {m_creature->MonsterSay(66363, Language::LANG_ORCISH); break; }
                                         }
                                         switch (TextRandom)
                                         {
-                                        case 1:
-                                        case 2:
-                                            {
-                                                m_creature->HandleEmote(EMOTE_ONESHOT_APPLAUD);
-                                                break;
-                                            }
-                                        case 3:
-                                            {
-                                                m_creature->HandleEmote(EMOTE_ONESHOT_FLEX);
-                                                break;
-                                            }
-                                        case 4:
-                                            {
-                                                m_creature->HandleEmote(EMOTE_ONESHOT_LAUGH);
-                                                break;
-                                            }
+                                            case 1: case 2: {m_creature->HandleEmote(EMOTE_ONESHOT_APPLAUD); break; }
+                                            case 3: {m_creature->HandleEmote(EMOTE_ONESHOT_FLEX); break; }
+                                            case 4: {m_creature->HandleEmote(EMOTE_ONESHOT_LAUGH); break; }
                                         }
                                     }
                                 }
                                 break;
                             }
 
-                        // Taunt
-                        case TEXTEMOTE_TAUNT:
+                            // Taunt
+                            case TEXTEMOTE_TAUNT:
                             {
                                 if (m_creature->GetDistance3dToCenter(pPlayer) < 10.f)
                                 {
@@ -7926,55 +6622,24 @@ struct npc_guard_emoteAI : public ScriptedAI
                                         const auto TextRandom = urand(1, 5);
                                         switch (TextRandom)
                                         {
-                                        case 1:
-                                            {
-                                                m_creature->MonsterSay(66364, Language::LANG_ORCISH);
-                                                break;
-                                            }
-                                        case 2:
-                                            {
-                                                m_creature->MonsterSay(66365, Language::LANG_ORCISH);
-                                                break;
-                                            }
-                                        case 3:
-                                            {
-                                                m_creature->MonsterSay(66366, Language::LANG_ORCISH);
-                                                break;
-                                            }
-                                        case 4:
-                                            {
-                                                m_creature->MonsterSay(66367, Language::LANG_ORCISH);
-                                                break;
-                                            }
-                                        case 5:
-                                            {
-                                                m_creature->MonsterSay(66368, Language::LANG_ORCISH);
-                                                break;
-                                            }
+                                            case 1: {m_creature->MonsterSay(66364, Language::LANG_ORCISH); break; }
+                                            case 2: {m_creature->MonsterSay(66365, Language::LANG_ORCISH); break; }
+                                            case 3: {m_creature->MonsterSay(66366, Language::LANG_ORCISH); break; }
+                                            case 4: {m_creature->MonsterSay(66367, Language::LANG_ORCISH); break; }
+                                            case 5: {m_creature->MonsterSay(66368, Language::LANG_ORCISH); break; }
                                         }
                                         switch (TextRandom)
                                         {
-                                        case 1:
-                                        case 2:
-                                        case 3:
-                                        case 4:
-                                            {
-                                                m_creature->HandleEmote(EMOTE_ONESHOT_RUDE);
-                                                break;
-                                            }
-                                        case 5:
-                                            {
-                                                m_creature->HandleEmote(EMOTE_ONESHOT_LAUGH);
-                                                break;
-                                            }
+                                            case 1: case 2: case 3: case 4: {m_creature->HandleEmote(EMOTE_ONESHOT_RUDE); break; }
+                                            case 5: {m_creature->HandleEmote(EMOTE_ONESHOT_LAUGH); break; }
                                         }
                                     }
                                 }
                                 break;
                             }
 
-                        // Tickle
-                        case TEXTEMOTE_TICKLE:
+                            // Tickle
+                            case TEXTEMOTE_TICKLE:
                             {
                                 if (m_creature->GetDistance3dToCenter(pPlayer) < 5.f)
                                 {
@@ -7983,40 +6648,15 @@ struct npc_guard_emoteAI : public ScriptedAI
                                         const auto TextRandom = urand(1, 4);
                                         switch (TextRandom)
                                         {
-                                        case 1:
-                                            {
-                                                m_creature->MonsterSay(66369, Language::LANG_ORCISH);
-                                                break;
-                                            }
-                                        case 2:
-                                            {
-                                                m_creature->MonsterSay(66370, Language::LANG_ORCISH);
-                                                break;
-                                            }
-                                        case 3:
-                                            {
-                                                break;
-                                            }
-                                        case 4:
-                                            {
-                                                m_creature->MonsterSay(66371, Language::LANG_ORCISH);
-                                                break;
-                                            }
+                                            case 1: {m_creature->MonsterSay(66369, Language::LANG_ORCISH); break; }
+                                            case 2: {m_creature->MonsterSay(66370, Language::LANG_ORCISH); break; }
+                                            case 3: {break; }
+                                            case 4: {m_creature->MonsterSay(66371, Language::LANG_ORCISH); break; }
                                         }
                                         switch (TextRandom)
                                         {
-                                        case 1:
-                                        case 2:
-                                        case 3:
-                                            {
-                                                m_creature->HandleEmote(EMOTE_ONESHOT_LAUGH);
-                                                break;
-                                            }
-                                        case 4:
-                                            {
-                                                m_creature->HandleEmote(EMOTE_ONESHOT_NO);
-                                                break;
-                                            }
+                                            case 1: case 2: case 3: {m_creature->HandleEmote(EMOTE_ONESHOT_LAUGH); break; }
+                                            case 4: {m_creature->HandleEmote(EMOTE_ONESHOT_NO); break; }
                                         }
                                     }
                                 }
@@ -8033,7 +6673,10 @@ struct npc_guard_emoteAI : public ScriptedAI
     void Reset() {}
 };
 
-CreatureAI* GetAI_npc_guard_emote(Creature* m_creature) { return new npc_guard_emoteAI(m_creature); }
+CreatureAI* GetAI_npc_guard_emote(Creature* m_creature)
+{
+    return new npc_guard_emoteAI(m_creature);
+}
 
 void AddSC_random_scripts_1()
 {
@@ -8218,7 +6861,7 @@ void AddSC_random_scripts_1()
     newscript->Name = "item_tauren_shrink";
     newscript->pItemUseSpell = &ItemUseSpell_item_tauren_shrink;
     newscript->RegisterSelf();
-
+    
     newscript = new Script;
     newscript->Name = "npc_norvok";
     newscript->pQuestRewardedNPC = &QuestRewarded_npc_norvok;
@@ -8582,21 +7225,21 @@ void AddSC_random_scripts_1()
     newscript->pItemUseSpell = &ItemUseSpell_item_holy_strike_book;
     newscript->RegisterSelf();
 
-    newscript = new Script;
-    newscript->Name = "item_supercharged_chronoboon_displacer";
-    newscript->pItemUseSpell = &ItemUseSpell_item_supercharged_chronoboon_displacer;
-    newscript->RegisterSelf();
+	newscript = new Script;
+	newscript->Name = "item_supercharged_chronoboon_displacer";
+	newscript->pItemUseSpell = &ItemUseSpell_item_supercharged_chronoboon_displacer;
+	newscript->RegisterSelf();
 
-    newscript = new Script;
-    newscript->Name = "item_chronoboon_displacer";
-    newscript->pItemUseSpell = &ItemUseSpell_item_chronoboon_displacer;
-    newscript->RegisterSelf();
+	newscript = new Script;
+	newscript->Name = "item_chronoboon_displacer";
+	newscript->pItemUseSpell = &ItemUseSpell_item_chronoboon_displacer;
+	newscript->RegisterSelf();
 
-    newscript = new Script;
-    newscript->Name = "item_warlock_soulwell_ritual";
-    newscript->pItemUseSpell = &ItemUseSpell_item_warlock_soulwell_ritual;
-    newscript->RegisterSelf();
-
+	newscript = new Script;
+	newscript->Name = "item_warlock_soulwell_ritual";
+	newscript->pItemUseSpell = &ItemUseSpell_item_warlock_soulwell_ritual;
+	newscript->RegisterSelf();
+    
     newscript = new Script;
     newscript->Name = "npc_guard_emote";
     newscript->GetAI = &GetAI_npc_guard_emote;

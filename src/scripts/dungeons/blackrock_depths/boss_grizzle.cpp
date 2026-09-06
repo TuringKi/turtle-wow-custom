@@ -30,7 +30,10 @@ EndScriptData */
 
 struct boss_grizzleAI : public ScriptedAI
 {
-    boss_grizzleAI(Creature* pCreature) : ScriptedAI(pCreature) { Reset(); }
+    boss_grizzleAI(Creature* pCreature) : ScriptedAI(pCreature)
+    {
+        Reset();
+    }
 
     uint32 GroundTremor_Timer;
     uint32 Frenzy_Timer;
@@ -43,11 +46,11 @@ struct boss_grizzleAI : public ScriptedAI
 
     void UpdateAI(const uint32 diff) override
     {
-        // Return since we have no target
+        //Return since we have no target
         if (!m_creature->SelectHostileTarget() || !m_creature->GetVictim())
             return;
 
-        // GroundTremor_Timer
+        //GroundTremor_Timer
         if (GroundTremor_Timer < diff)
         {
             DoCastSpellIfCan(m_creature, SPELL_GROUNDTREMOR);
@@ -56,7 +59,7 @@ struct boss_grizzleAI : public ScriptedAI
         else
             GroundTremor_Timer -= diff;
 
-        // Frenzy_Timer
+        //Frenzy_Timer
         if (m_creature->GetHealthPercent() < 51.0f)
         {
             if (Frenzy_Timer < diff)
@@ -75,11 +78,14 @@ struct boss_grizzleAI : public ScriptedAI
     }
 };
 
-CreatureAI* GetAI_boss_grizzle(Creature* pCreature) { return new boss_grizzleAI(pCreature); }
+CreatureAI* GetAI_boss_grizzle(Creature* pCreature)
+{
+    return new boss_grizzleAI(pCreature);
+}
 
 void AddSC_boss_grizzle()
 {
-    Script* newscript;
+    Script *newscript;
     newscript = new Script;
     newscript->Name = "boss_grizzle";
     newscript->GetAI = &GetAI_boss_grizzle;

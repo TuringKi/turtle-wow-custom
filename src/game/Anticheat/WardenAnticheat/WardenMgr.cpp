@@ -14,21 +14,21 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#include "WardenMgr.h"
-#include <ace/OS_NS_dirent.h>
-#include <mutex>
-#include <openssl/md5.h>
-#include "Anticheat.h"
 #include "Common.h"
-#include "Database/DatabaseEnv.h"
-#include "Log.h"
-#include "Util.h"
-#include "Warden.h"
 #include "World.h"
 #include "WorldPacket.h"
 #include "WorldSession.h"
+#include "Util.h"
+#include "Log.h"
+#include "Database/DatabaseEnv.h"
+#include "WardenMgr.h"
+#include "Warden.h"
+#include <mutex>
+#include <ace/OS_NS_dirent.h>
+#include <openssl/md5.h>
+#include "Anticheat.h"
 
-WardenMgr::WardenMgr() : CheckStore(), CheckResultStore() {}
+WardenMgr::WardenMgr() : CheckStore(), CheckResultStore() { }
 
 WardenMgr::~WardenMgr()
 {
@@ -49,7 +49,7 @@ void WardenMgr::LoadWardenChecks()
         return;
 
     //                                                                0     1        2       3       4         5          6         7      8          9
-    std::unique_ptr<QueryResult> result(WorldDatabase.Query("SELECT `id`, `build`, `type`, `data`, `result`, `address`, `length`, `str`, `penalty`, `comment` FROM `warden_checks` ORDER BY `build` ASC, `id` ASC"));
+    std::unique_ptr<QueryResult> result (WorldDatabase.Query("SELECT `id`, `build`, `type`, `data`, `result`, `address`, `length`, `str`, `penalty`, `comment` FROM `warden_checks` ORDER BY `build` ASC, `id` ASC"));
 
     if (!result)
         return;
@@ -61,16 +61,16 @@ void WardenMgr::LoadWardenChecks()
     {
         fields = result->Fetch();
 
-        uint16 id = fields[0].GetUInt16();
-        uint16 build = fields[1].GetUInt16();
-        uint8 checkType = fields[2].GetUInt8();
-        std::string data = fields[3].GetString();
+        uint16 id               = fields[0].GetUInt16();
+        uint16 build            = fields[1].GetUInt16();
+        uint8 checkType         = fields[2].GetUInt8();
+        std::string data        = fields[3].GetString();
         std::string checkResult = fields[4].GetString();
-        uint32 address = fields[5].GetUInt32();
-        uint8 length = fields[6].GetUInt8();
-        std::string str = fields[7].GetString();
-        int8 penalty = fields[8].GetUInt8();
-        std::string comment = fields[9].GetString();
+        uint32 address          = fields[5].GetUInt32();
+        uint8 length            = fields[6].GetUInt8();
+        std::string str         = fields[7].GetString();
+        int8 penalty            = fields[8].GetUInt8();
+        std::string comment     = fields[9].GetString();
 
         WardenCheck* wardenCheck = new WardenCheck();
         wardenCheck->Type = checkType;
@@ -117,7 +117,7 @@ void WardenMgr::LoadWardenChecks()
             int len = checkResult.size() / 2;
             if (wr->Result.GetNumBytes() < len)
             {
-                uint8* temp = new uint8[len];
+                uint8 *temp = new uint8[len];
                 memset(temp, 0, len);
                 memcpy(temp, wr->Result.AsByteArray().data(), wr->Result.GetNumBytes());
                 std::reverse(temp, temp + len);
@@ -134,8 +134,7 @@ void WardenMgr::LoadWardenChecks()
             wardenCheck->Comment = comment;
 
         ++count;
-    }
-    while (result->NextRow());
+    } while (result->NextRow());
 
     sLog.outString();
     sLog.outString("Loaded %u warden checks.", count);
@@ -172,7 +171,7 @@ void WardenMgr::LoadWardenModule(std::string module_name)
     uint32 len = 0;
 
     {
-        FILE* pBinFile = fopen(module_name.c_str(), "rb");
+        FILE * pBinFile = fopen(module_name.c_str(), "rb");
         if (pBinFile == 0)
         {
             sLog.outError("Failed to load warden module binary: %s", module_name.c_str());
@@ -210,7 +209,7 @@ void WardenMgr::LoadWardenModule(std::string module_name)
         module_name = module_name.substr(0, module_name.length() - 4);
         module_name += ".key";
 
-        FILE* pKeyFile = fopen(module_name.c_str(), "rb");
+        FILE * pKeyFile = fopen(module_name.c_str(), "rb");
         if (pKeyFile == 0)
         {
             sLog.outError("Failed to load warden module key: %s", module_name.c_str());
@@ -238,7 +237,7 @@ void WardenMgr::LoadWardenModule(std::string module_name)
         module_name = module_name.substr(0, module_name.length() - 4);
         module_name += ".cr";
 
-        FILE* pCRFile = fopen(module_name.c_str(), "rb");
+        FILE * pCRFile = fopen(module_name.c_str(), "rb");
         if (pCRFile == 0)
         {
             sLog.outError("Failed to load warden module challenge and response data: %s", module_name.c_str());

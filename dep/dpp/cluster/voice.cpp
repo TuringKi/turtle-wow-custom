@@ -18,15 +18,18 @@
  * limitations under the License.
  *
  ************************************************************************************/
-#include <dpp/restrequest.h>
 #include <dpp/voiceregion.h>
+#include <dpp/restrequest.h>
 
-namespace dpp
-{
+namespace dpp {
 
-    void cluster::get_voice_regions(command_completion_event_t callback) { rest_request_list<voiceregion>(this, "/voice/v9/regions", "", "", m_get, "", callback); }
+void cluster::get_voice_regions(command_completion_event_t callback) {
+	rest_request_list<voiceregion>(this, "/voice/v9/regions", "", "", m_get, "", callback);
+}
 
 
-    void cluster::guild_get_voice_regions(snowflake guild_id, command_completion_event_t callback) { rest_request_list<voiceregion>(this, API_PATH "/guilds", std::to_string(guild_id), "regions", m_get, "", callback); }
+void cluster::guild_get_voice_regions(snowflake guild_id, command_completion_event_t callback) {
+	rest_request_list<voiceregion>(this, API_PATH "/guilds", std::to_string(guild_id), "regions", m_get, "", callback);
+}
 
-}; // namespace dpp
+};

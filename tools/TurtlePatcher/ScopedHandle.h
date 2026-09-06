@@ -3,7 +3,7 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /// The invalid handle NULL.
 ///
-/// The class returns invalid handle for all handles which invalid value is NULL.
+/// The class returns invalid handle for all handles which invalid value is NULL. 
 template <typename HandleType>
 class NullHandleValue
 {
@@ -102,7 +102,7 @@ class FreeLibraryMethod
 {
 public:
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    /// Frees the loaded dynamic-link library (DLL).
+    /// Frees the loaded dynamic-link library (DLL). 
     static inline void Close(HMODULE Handle) { FreeLibrary(Handle); }
 };
 
@@ -132,9 +132,10 @@ class ScopedHandle
 public:
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////
     /// Constructor.
-    explicit ScopedHandle(HandleType Handle = InvalidValue::Get() ///< Windows object handle to wrap
-                          ) :
-        m_Handle(Handle)
+    explicit ScopedHandle
+    (
+        HandleType     Handle = InvalidValue::Get()  ///< Windows object handle to wrap
+    ) : m_Handle(Handle)
     {
     } // ScopedHandle
 
@@ -148,7 +149,9 @@ public:
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////
     /// Reset the wrapped handle.
-    void Reset(HandleType Handle = InvalidValue::Get() ///< Windows object handle to reset
+    void Reset
+    (
+        HandleType     Handle = InvalidValue::Get()  ///< Windows object handle to reset
     )
     {
         ScopedHandle NewWrapper(m_Handle);
@@ -160,23 +163,40 @@ public:
     ///
     /// \return
     /// The wrapped handle.
-    HandleType Get() const { return m_Handle; } // Get
+    HandleType Get() const
+    {
+        return m_Handle;
+    } // Get
 
-    operator HandleType() const { return m_Handle; }
+    operator HandleType() const
+    {
+        return m_Handle;
+    }
 
-    bool IsValid() const { return m_Handle != InvalidValue::Get(); }
+    bool IsValid() const
+    {
+        return m_Handle != InvalidValue::Get();
+    }
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////
     /// Implementation of the cast operator to bool.
-    operator bool() const { return m_Handle != InvalidValue::Get(); } // operator bool()
+    operator bool() const
+    {
+        return m_Handle != InvalidValue::Get();
+    } // operator bool()
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////
     /// Implementation of the operator!.
-    bool operator!() const { return m_Handle == InvalidValue::Get(); } // operator!()
+    bool operator!() const
+    {
+        return m_Handle == InvalidValue::Get();
+    } // operator!()
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////
     /// Exchanges the contents of the two scoped handles.
-    void Swap(ScopedHandle& Other ///< Object to swap the value with
+    void Swap
+    (
+        ScopedHandle& Other                         ///< Object to swap the value with
     )
     {
         HandleType Tmp = m_Handle;
@@ -189,7 +209,7 @@ private:
     ScopedHandle(const ScopedHandle&);
     ScopedHandle& operator=(const ScopedHandle&);
 
-    HandleType m_Handle; ///< the Windows object handle to wrap
+    HandleType      m_Handle;       ///< the Windows object handle to wrap
 };
 
 /// The wrapper for the event handle returned from CreateEvent() method.
@@ -218,3 +238,4 @@ typedef ScopedHandle<HMODULE, NullHandleValue<HMODULE>, FreeLibraryMethod> Modul
 
 /// The wrapper for the find file handle returned from FindFirstFile() method.
 typedef ScopedHandle<HANDLE, InvalidHandleValue, FindCloseMethod> FindFileScopedHandle;
+

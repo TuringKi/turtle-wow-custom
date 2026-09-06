@@ -22,21 +22,14 @@
 #ifndef MANGOS_FORMULAS_H
 #define MANGOS_FORMULAS_H
 
-#include "ObjectMgr.h"
 #include "World.h"
+#include "ObjectMgr.h"
 
 namespace MaNGOS
 {
     namespace XP
     {
-        enum XPColorChar
-        {
-            RED,
-            ORANGE,
-            YELLOW,
-            GREEN,
-            GRAY
-        };
+        enum XPColorChar { RED, ORANGE, YELLOW, GREEN, GRAY };
 
         inline uint32 GetGrayLevel(uint32 pl_level)
         {
@@ -64,28 +57,17 @@ namespace MaNGOS
 
         inline uint32 GetZeroDifference(uint32 pl_level)
         {
-            if (pl_level < 8)
-                return 5;
-            if (pl_level < 10)
-                return 6;
-            if (pl_level < 12)
-                return 7;
-            if (pl_level < 16)
-                return 8;
-            if (pl_level < 20)
-                return 9;
-            if (pl_level < 30)
-                return 11;
-            if (pl_level < 40)
-                return 12;
-            if (pl_level < 45)
-                return 13;
-            if (pl_level < 50)
-                return 14;
-            if (pl_level < 55)
-                return 15;
-            if (pl_level < 60)
-                return 16;
+            if (pl_level < 8)  return 5;
+            if (pl_level < 10) return 6;
+            if (pl_level < 12) return 7;
+            if (pl_level < 16) return 8;
+            if (pl_level < 20) return 9;
+            if (pl_level < 30) return 11;
+            if (pl_level < 40) return 12;
+            if (pl_level < 45) return 13;
+            if (pl_level < 50) return 14;
+            if (pl_level < 55) return 15;
+            if (pl_level < 60) return 16;
             return 17;
         }
 
@@ -119,7 +101,11 @@ namespace MaNGOS
 
         inline uint32 Gain(Unit* pUnit, Creature* pCreature, bool withChallenges = true)
         {
-            if (pCreature->GetUInt32Value(UNIT_CREATED_BY_SPELL) && ((pCreature->GetCreatureInfo()->type == CREATURE_TYPE_CRITTER) || (pCreature->GetCreatureInfo()->type == CREATURE_TYPE_NOT_SPECIFIED) || (pCreature->GetCreatureInfo()->type == CREATURE_TYPE_TOTEM) || (pCreature->GetCreatureInfo()->health_min <= 50)))
+            if (pCreature->GetUInt32Value(UNIT_CREATED_BY_SPELL) &&
+               ((pCreature->GetCreatureInfo()->type == CREATURE_TYPE_CRITTER) ||
+                (pCreature->GetCreatureInfo()->type == CREATURE_TYPE_NOT_SPECIFIED) ||
+                (pCreature->GetCreatureInfo()->type == CREATURE_TYPE_TOTEM) ||
+                (pCreature->GetCreatureInfo()->health_min <= 50)))
                 return 0;
 
             if (pCreature->HasUnitState(UNIT_STAT_NO_KILL_REWARD))
@@ -188,21 +174,21 @@ namespace MaNGOS
             // TODO: this formula is completely guesswork only based on a logical assumption
             switch (count)
             {
-            case 0:
-            case 1:
-            case 2:
-                return 1.0f;
-            case 3:
-                return 1.166f;
-            case 4:
-                return 1.3f;
-            case 5:
-                return 1.4f;
-            default:
-                return std::max(1.f - count * 0.05f, 0.01f);
+                case 0:
+                case 1:
+                case 2:
+                    return 1.0f;
+                case 3:
+                    return 1.166f;
+                case 4:
+                    return 1.3f;
+                case 5:
+                    return 1.4f;
+                default:
+                    return std::max(1.f - count * 0.05f, 0.01f);
             }
         }
-    } // namespace XP
+    }
 
     namespace Honor
     {
@@ -232,21 +218,24 @@ namespace MaNGOS
             else if ((killerLevel <= 29) && (killerLevel >= 20))
                 levelCoeff = 0.2070;
             // Blizzlike:
-            // else if (killerLevel <= 19)
+            //else if (killerLevel <= 19)
             //    levelCoeff = 0.1212;
-            // else
+            //else
             //    levelCoeff = 0.1212; // Not sure
             // Turtle WoW:
-            else
-                levelCoeff = 0.1212;
+            else levelCoeff = 0.1212; 
 
-            const float expFactor = 188.3f;
+            // Original expFactor from 1.17.1
+            // const float expFactor = 188.3f;
 
-            // Blizzlike:
-            return levelCoeff * sameVictimPenalty * (expFactor * exp(0.05331 * victimRank)) * diffLevelPenalty / groupSize;
+            // Adjusted expFactor in 1.18.1
+            const float expFactor = 18.83f;
+
+            //Blizzlike:
+            return ceil(levelCoeff * sameVictimPenalty * (expFactor * exp(0.05331 * victimRank)) * diffLevelPenalty / groupSize);
             // Turtle WoW. Adding x5 honor inside Gurubashi's Arena Battle Ring:
             // return static_cast<float>(ceil(levelCoeff * sameVictimPenalty * (expFactor * exp(0.05331 * victimRank)) * diffLevelPenalty / groupSize) * (inGurubashiArena ? 2 : 1));
         }
-    } // namespace Honor
-} // namespace MaNGOS
+    }
+}
 #endif

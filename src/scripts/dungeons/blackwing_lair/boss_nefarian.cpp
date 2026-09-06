@@ -1,5 +1,5 @@
-#include "blackwing_lair.h"
 #include "scriptPCH.h"
+#include "blackwing_lair.h"
 
 struct ClassCallInfo
 {
@@ -132,7 +132,10 @@ struct boss_nefarianAI : ScriptedAI
         m_creature->DeleteLater();
     }
 
-    void JustSummoned(Creature* p_Summoned) override { p_Summoned->SetInCombatWithZone(); }
+    void JustSummoned(Creature* p_Summoned) override
+    {
+        p_Summoned->SetInCombatWithZone();
+    }
 
     void MovementInform(uint32 ui_Type, uint32 ui_PointId) override
     {
@@ -176,22 +179,22 @@ struct boss_nefarianAI : ScriptedAI
                     b_ClassFound = true;
                     switch (ui_ClassCalled)
                     {
-                    case CLASS_WARRIOR:
+                        case CLASS_WARRIOR:
                         {
                             p_Player->AddAura(SPELL_WARRIOR);
                             break;
                         }
-                    case CLASS_PALADIN:
+                        case CLASS_PALADIN:
                         {
                             p_Player->CastSpell(p_Player, SPELL_PALADIN, true);
                             break;
                         }
-                    case CLASS_HUNTER:
+                        case CLASS_HUNTER:
                         {
                             p_Player->CastSpell(p_Player, SPELL_HUNTER, true);
                             break;
                         }
-                    case CLASS_ROGUE:
+                        case CLASS_ROGUE:
                         {
                             WorldLocation loc;
                             double d_ang = frand(0, M_PI_F * 2);
@@ -206,30 +209,30 @@ struct boss_nefarianAI : ScriptedAI
                             p_Player->AddAura(SPELL_ROGUE);
                             break;
                         }
-                    case CLASS_PRIEST:
+                        case CLASS_PRIEST:
                         {
                             p_Player->AddAura(SPELL_PRIEST);
                             break;
                         }
-                    case CLASS_SHAMAN:
+                        case CLASS_SHAMAN:
                         {
                             p_Player->AddAura(SPELL_SHAMAN);
                             break;
                         }
-                    case CLASS_MAGE:
+                        case CLASS_MAGE:
                         {
                             p_Player->AddAura(SPELL_MAGE);
                             MagePlayerGUID.push_back(p_Player->GetObjectGuid());
                             break;
                         }
-                    case CLASS_WARLOCK:
+                        case CLASS_WARLOCK:
                         {
                             p_Player->CastSpell(p_Player, SPELL_WARLOCK, true);
                             m_creature->SummonCreature(NPC_CORRUPTED_INFERNAL, p_Player->GetPositionX(), p_Player->GetPositionY(), p_Player->GetPositionZ(), p_Player->GetOrientation(), TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 10000);
                             m_creature->SummonCreature(NPC_CORRUPTED_INFERNAL, p_Player->GetPositionX(), p_Player->GetPositionY(), p_Player->GetPositionZ(), p_Player->GetOrientation(), TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 10000);
                             break;
                         }
-                    case CLASS_DRUID:
+                        case CLASS_DRUID:
                         {
                             p_Player->AddAura(SPELL_DRUID);
                             break;
@@ -252,7 +255,7 @@ struct boss_nefarianAI : ScriptedAI
             {
                 switch (ui_TransitionStage)
                 {
-                case 0:
+                    case 0:
                     {
                         SetCombatMovement(false);
                         m_creature->SetInCombatWithZone();
@@ -264,7 +267,7 @@ struct boss_nefarianAI : ScriptedAI
                         ui_TransitionTimer = 0;
                         break;
                     }
-                case 1:
+                    case 1:
                     {
                         m_creature->SetFly(false);
                         DoScriptText(SAY_SHADOWFLAME, m_creature);
@@ -272,7 +275,7 @@ struct boss_nefarianAI : ScriptedAI
                         ui_TransitionTimer = 1000;
                         break;
                     }
-                case 2:
+                    case 2:
                     {
                         m_creature->SetWalk(true);
                         m_creature->RemoveAurasDueToSpell(SPELL_HOVER);
@@ -387,7 +390,7 @@ struct boss_nefarianAI : ScriptedAI
                             if (v_PossibleVictim.empty())
                                 continue;
 
-                            if (Unit* p_Target = m_creature->GetMap()->GetUnit(v_PossibleVictim[urand(0, v_PossibleVictim.size() - 1)]))
+                            if (Unit *p_Target = m_creature->GetMap()->GetUnit(v_PossibleVictim[urand(0, v_PossibleVictim.size() - 1)]))
                             {
                                 p_Mage->InterruptNonMeleeSpells(false);
                                 p_Mage->CastSpell(p_Target, SPELL_POLYMORPH, false);
@@ -434,7 +437,10 @@ struct boss_nefarianAI : ScriptedAI
     }
 };
 
-CreatureAI* GetAI_boss_nefarian(Creature* p_Creature) { return new boss_nefarianAI(p_Creature); }
+CreatureAI* GetAI_boss_nefarian(Creature* p_Creature)
+{
+    return new boss_nefarianAI(p_Creature);
+}
 
 struct npc_corrupted_totemAI : ScriptedAI
 {
@@ -475,23 +481,26 @@ struct npc_corrupted_totemAI : ScriptedAI
         ui_CheckTimer = 1000;
     }
 
-    void Aggro(Unit* /*pWho*/) override { m_creature->SetInCombatWithZone(); }
+    void Aggro(Unit* /*pWho*/) override
+    {
+        m_creature->SetInCombatWithZone();
+    }
 
     void JustDied(Unit* /*pKiller*/) override
     {
         switch (ui_CreatureEntry)
         {
-        case NPC_CORRUPTED_STONESKIN_TOTEM_VI:
+            case NPC_CORRUPTED_STONESKIN_TOTEM_VI:
             {
                 SetAura(false, SPELL_STONESKIN);
                 break;
             }
-        case NPC_CORRUPTED_HEALING_STREAM_TOTEM_V:
+            case NPC_CORRUPTED_HEALING_STREAM_TOTEM_V:
             {
                 SetAura(false, SPELL_HEALING_STREAM);
                 break;
             }
-        case NPC_CORRUPTED_WINDFURY_TOTEM_III:
+            case NPC_CORRUPTED_WINDFURY_TOTEM_III:
             {
                 SetAura(false, SPELL_WINDFURY_TOTEM_PASSIVE);
                 break;
@@ -582,7 +591,7 @@ struct npc_corrupted_totemAI : ScriptedAI
         uint32 ui_addAuraEntry = 0;
         switch (ui_CreatureEntry)
         {
-        case NPC_CORRUPTED_FIRE_NOVA_TOTEM_V:
+            case NPC_CORRUPTED_FIRE_NOVA_TOTEM_V:
             {
                 if (!b_AuraAdded)
                 {
@@ -594,17 +603,17 @@ struct npc_corrupted_totemAI : ScriptedAI
 
                 break;
             }
-        case NPC_CORRUPTED_STONESKIN_TOTEM_VI:
+            case NPC_CORRUPTED_STONESKIN_TOTEM_VI:
             {
                 ui_addAuraEntry = SPELL_STONESKIN;
                 break;
             }
-        case NPC_CORRUPTED_HEALING_STREAM_TOTEM_V:
+            case NPC_CORRUPTED_HEALING_STREAM_TOTEM_V:
             {
                 ui_addAuraEntry = SPELL_HEALING_STREAM;
                 break;
             }
-        case NPC_CORRUPTED_WINDFURY_TOTEM_III:
+            case NPC_CORRUPTED_WINDFURY_TOTEM_III:
             {
                 ui_addAuraEntry = SPELL_WINDFURY_TOTEM_PASSIVE;
                 break;
@@ -624,7 +633,55 @@ struct npc_corrupted_totemAI : ScriptedAI
     }
 };
 
-CreatureAI* GetAI_npc_corrupted_totem(Creature* p_Creature) { return new npc_corrupted_totemAI(p_Creature); }
+CreatureAI* GetAI_npc_corrupted_totem(Creature* p_Creature)
+{
+    return new npc_corrupted_totemAI(p_Creature);
+}
+
+namespace
+{
+template <class T>
+SpellScript* GetSpellScript(SpellEntry const*)
+{
+    return new T();
+}
+
+void RegisterSpellScript(char const* name, SpellScript* (*getter)(SpellEntry const*))
+{
+    Script* script = new Script;
+    script->Name = name;
+    script->GetSpellScript = getter;
+    script->RegisterSelf();
+}
+
+struct spell_nefarian_corrupted_totems : public SpellScript
+{
+    bool OnEffectExecute(Spell* spell, SpellEffectIndex /*effIdx*/) const override
+    {
+        Unit* caster = spell->m_casterUnit;
+        if (!caster)
+            return false;
+
+        switch (urand(0, 3))
+        {
+            case 0:
+                caster->CastSpell(caster, 23419, true);
+                break;
+            case 1:
+                caster->CastSpell(caster, 23420, true);
+                break;
+            case 2:
+                caster->CastSpell(caster, 23423, true);
+                break;
+            case 3:
+                caster->CastSpell(caster, 23422, true);
+                break;
+        }
+
+        return false;
+    }
+};
+}
 
 void AddSC_boss_nefarian()
 {
@@ -639,4 +696,6 @@ void AddSC_boss_nefarian()
     p_NewScript->Name = "npc_corrupted_totem";
     p_NewScript->GetAI = &GetAI_npc_corrupted_totem;
     p_NewScript->RegisterSelf();
+
+    RegisterSpellScript("spell_nefarian_corrupted_totems", &GetSpellScript<spell_nefarian_corrupted_totems>);
 }

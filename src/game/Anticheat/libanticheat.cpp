@@ -8,286 +8,301 @@
 #include "libanticheat.hpp"
 #include "Config.hpp"
 
-#include "AccountMgr.h"
-#include "Channel.h"
-#include "ChannelMgr.h"
-#include "Chat.h"
-#include "Database/DatabaseEnv.h"
-#include "Database/DatabaseImpl.h"
-#include "Language.h"
-#include "MasterPlayer.h"
-#include "ObjectAccessor.h"
-#include "ObjectMgr.h"
-#include "Player.h"
 #include "Policies/SingletonImp.h"
 #include "World.h"
+#include "Player.h"
 #include "WorldSession.h"
+#include "AccountMgr.h"
+#include "MasterPlayer.h"
+#include "ObjectAccessor.h"
+#include "Channel.h"
+#include "ChannelMgr.h"
+#include "Database/DatabaseImpl.h"
+#include "Database/DatabaseEnv.h"
+#include "Chat.h"
+#include "Language.h"
+#include "ObjectMgr.h"
 
 #include "Antispam/Antispam.h"
 #include "Movement/Movement.hpp"
 #include "Warden/Warden.hpp"
-#include "Warden/WardenMac.hpp"
-#include "Warden/WardenModuleMgr.hpp"
-#include "Warden/WardenScanMgr.hpp"
 #include "Warden/WardenWin.hpp"
+#include "Warden/WardenMac.hpp"
+#include "Warden/WardenScanMgr.hpp"
+#include "Warden/WardenModuleMgr.hpp"
 
-#include <algorithm>
-#include <cstdio>
-#include <exception>
-#include <functional>
-#include <iostream>
 #include <memory>
-#include <mutex>
 #include <sstream>
+#include <iostream>
 #include <string>
+#include <cstdio>
+#include <functional>
+#include <algorithm>
+#include <exception>
+#include <mutex>
 
 namespace
 {
-    Warden* CreateWarden(WorldSession* session, const BigNumber& K, Anticheat::SessionAnticheat* anticheat)
+Warden *CreateWarden(WorldSession *session, const BigNumber &K, Anticheat::SessionAnticheat *anticheat)
+{
+    Warden* warden;
+    ClientOSType os = session->GetOS();
+
+    if (os == CLIENT_OS_MAC)
+        warden = new WardenMac(session, K, anticheat);
+    else if (os == CLIENT_OS_WIN)
+        warden = new WardenWin(session, K, anticheat);
+    else
     {
-        Warden* warden;
-        ClientOSType os = session->GetOS();
+        anticheat->RecordCheatInternal(Anticheat::CheatType::CHEAT_TYPE_WARDEN, "Unknown client operating system");
 
-        if (os == CLIENT_OS_MAC)
-            warden = new WardenMac(session, K, anticheat);
-        else if (os == CLIENT_OS_WIN)
-            warden = new WardenWin(session, K, anticheat);
-        else
-        {
-            anticheat->RecordCheatInternal(Anticheat::CheatType::CHEAT_TYPE_WARDEN, "Unknown client operating system");
-
-            // kick here regardless of what the config says because we cannot support this scenario!
-            session->KickPlayer();
-            return nullptr;
-        }
-
-        return warden;
+        // kick here regardless of what the config says because we cannot support this scenario!
+        session->KickPlayer();
+        return nullptr;
     }
 
-    std::string SplitWord(std::string& in)
+    return warden;
+}
+
+std::string SplitWord(std::string &in)
+{
+    auto space = in.find(' ');
+
+    if (space == std::string::npos)
+        return std::move(in);
+
+    auto const ret = in.substr(0, space);
+    in = in.substr(space + 1);
+    return ret;
+}
+
+// taken from https://graphics.stanford.edu/~seander/bithacks.html#CountBitsSetParallel
+int CountBits(uint32 value)
+{
+    value = value - ((value >> 1) & 0x55555555);
+    value = (value & 0x33333333) + ((value >> 2) & 0x33333333);
+    return (((value + (value >> 4)) & 0x0F0F0F0F) * 0x01010101) >> 24;
+}
+
+std::string ActionMaskToString(uint32 actionMask)
+{
+    if (actionMask == CHEAT_ACTION_NONE)
+        return "None";
+
+    std::stringstream r;
+
+    if (!!(actionMask & CHEAT_ACTION_PROMPT_LOG))
+        r << "ActionPrompt, ";
+    else if (!!(actionMask & CHEAT_ACTION_INFO_LOG))
+        r << "Inform, ";
+
+    if (!!(actionMask & CHEAT_ACTION_KICK))
+        r << "Kick, ";
+    else
     {
-        auto space = in.find(' ');
-
-        if (space == std::string::npos)
-            return std::move(in);
-
-        auto const ret = in.substr(0, space);
-        in = in.substr(space + 1);
-        return ret;
+        if (!!(actionMask & CHEAT_ACTION_BAN_ACCOUNT))
+            r << "BanAccount, ";
+        if (!!(actionMask & CHEAT_ACTION_BAN_IP))
+            r << "BanIP, ";
     }
 
-    // taken from https://graphics.stanford.edu/~seander/bithacks.html#CountBitsSetParallel
-    int CountBits(uint32 value)
-    {
-        value = value - ((value >> 1) & 0x55555555);
-        value = (value & 0x33333333) + ((value >> 2) & 0x33333333);
-        return (((value + (value >> 4)) & 0x0F0F0F0F) * 0x01010101) >> 24;
-    }
+    if (!!(actionMask & CHEAT_ACTION_SILENCE))
+        r << "Silence, ";
 
-    std::string ActionMaskToString(uint32 actionMask)
-    {
-        if (actionMask == CHEAT_ACTION_NONE)
-            return "None";
+    auto ret = r.str();
+    if (ret[ret.length() - 2] == ',')
+        ret = ret.substr(0, ret.length() - 2);
 
-        std::stringstream r;
+    return ret;
+}
 
-        if (!!(actionMask & CHEAT_ACTION_PROMPT_LOG))
-            r << "ActionPrompt, ";
-        else if (!!(actionMask & CHEAT_ACTION_INFO_LOG))
-            r << "Inform, ";
+// log cheat event into database, and notify GMs.  the comment is not required to have player,
+// account, ip, etc. information.  it IS expected to have information about the cheat itself
+void LogCheat(WorldSession *session, uint32 actionMask, const std::string &info)
+{
+    auto const name = session->GetPlayerName();
+    auto const action = ActionMaskToString(actionMask);
 
-        if (!!(actionMask & CHEAT_ACTION_KICK))
-            r << "Kick, ";
-        else
-        {
-            if (!!(actionMask & CHEAT_ACTION_BAN_ACCOUNT))
-                r << "BanAccount, ";
-            if (!!(actionMask & CHEAT_ACTION_BAN_IP))
-                r << "BanIP, ";
-        }
+    std::stringstream message;
 
-        if (!!(actionMask & CHEAT_ACTION_SILENCE))
-            r << "Silence, ";
+    message << "Player: " << name
+            << " IP: " << session->GetRemoteAddress()
+            << " Account ID: " << session->GetAccountId()
+            << " Action: " << action
+            << " " << info;
 
-        auto ret = r.str();
-        if (ret[ret.length() - 2] == ',')
-            ret = ret.substr(0, ret.length() - 2);
-
-        return ret;
-    }
-
-    // log cheat event into database, and notify GMs.  the comment is not required to have player,
-    // account, ip, etc. information.  it IS expected to have information about the cheat itself
-    void LogCheat(WorldSession* session, uint32 actionMask, const std::string& info)
-    {
-        auto const name = session->GetPlayerName();
-        auto const action = ActionMaskToString(actionMask);
-
-        std::stringstream message;
-
-        message << "Player: " << name << " IP: " << session->GetRemoteAddress() << " Account ID: " << session->GetAccountId() << " Action: " << action << " " << info;
-
-        sWorld.SendGMTextFlags(ACCOUNT_FLAG_SHOW_ANTICHEAT, LANG_GM_ANNOUNCE_COLOR, "AntiCheat", message.str().c_str());
+    sWorld.SendGMTextFlags(ACCOUNT_FLAG_SHOW_ANTICHEAT, LANG_GM_ANNOUNCE_COLOR, "AntiCheat", message.str().c_str());
 
 
 #ifdef USING_DISCORD_BOT
-        try
-        {
-            sDiscordBot->SendMessageToChannel(1102940763970609152, message.str(), DiscordBot::MessagePriority::Requeue);
-        }
-        catch ([[maybe_unused]] const std::exception& e)
-        {
-        }
+    try {
+        sDiscordBot->SendMessageToChannel(1102940763970609152, message.str(), DiscordBot::MessagePriority::Requeue);
+    }
+    catch ([[maybe_unused]] const std::exception& e) {}
 #endif
 
-        static SqlStatementID insLog;
+    static SqlStatementID insLog;
+    
+    CharacterDatabase.BeginTransaction();
 
-        CharacterDatabase.BeginTransaction();
+    auto stmt = CharacterDatabase.CreateStatement(insLog,
+        "INSERT INTO logs_anticheat (realm, account, ip, fingerprint, actionMask, player, info) VALUES(?, ?, ?, ?, ?, ?, ?)");
 
-        auto stmt = CharacterDatabase.CreateStatement(insLog, "INSERT INTO logs_anticheat (realm, account, ip, fingerprint, actionMask, player, info) VALUES(?, ?, ?, ?, ?, ?, ?)");
+    stmt.addUInt32(realmID);
+    stmt.addUInt32(session->GetAccountId());
+    stmt.addString(session->GetRemoteAddress());
 
-        stmt.addUInt32(realmID);
-        stmt.addUInt32(session->GetAccountId());
-        stmt.addString(session->GetRemoteAddress());
+    if (auto const anticheat = dynamic_cast<Anticheat::SessionAnticheat *>(session->GetAntiCheat()))
+        stmt.addUInt32(anticheat->GetFingerprint());
+    else
+        stmt.addUInt32(0);
 
-        if (auto const anticheat = dynamic_cast<Anticheat::SessionAnticheat*>(session->GetAntiCheat()))
-            stmt.addUInt32(anticheat->GetFingerprint());
-        else
-            stmt.addUInt32(0);
+    stmt.addUInt8(actionMask);
+    stmt.addString(name);
+    stmt.addString(info);
 
-        stmt.addUInt8(actionMask);
-        stmt.addString(name);
-        stmt.addString(info);
+    sLog.out(LOG_ANTICHEAT_BASIC, "Cheat detected: %s", message.str().c_str());
 
-        sLog.out(LOG_ANTICHEAT_BASIC, "Cheat detected: %s", message.str().c_str());
+    stmt.Execute();
 
-        stmt.Execute();
+    CharacterDatabase.CommitTransaction();
+}
 
-        CharacterDatabase.CommitTransaction();
+void CleanupFingerprintHistoryCallback(QueryResult *result, uint32 fingerprint)
+{
+    if (!result)
+        return;
+
+    auto const history = sAnticheatConfig.GetFingerprintHistory();
+    auto const pruneCount = result->Fetch()[0].GetUInt32();
+
+    if (pruneCount > history)
+    {
+        static SqlStatementID pruneLog;
+
+        LoginDatabase.BeginTransaction();
+
+        auto prune = LoginDatabase.CreateStatement(pruneLog, "DELETE FROM system_fingerprint_usage WHERE fingerprint = ? ORDER BY `time` ASC LIMIT ?");
+
+        prune.addUInt32(fingerprint);
+        prune.addUInt32(pruneCount - history);
+        prune.Execute();
+        LoginDatabase.CommitTransaction();
     }
 
-    void CleanupFingerprintHistoryCallback(QueryResult* result, uint32 fingerprint)
-    {
-        if (!result)
-            return;
+    delete result;
+}
 
-        auto const history = sAnticheatConfig.GetFingerprintHistory();
-        auto const pruneCount = result->Fetch()[0].GetUInt32();
+const struct
+{
+    uint32 spell;
+    uint16 flag;
 
-        if (pruneCount > history)
-        {
-            static SqlStatementID pruneLog;
-
-            LoginDatabase.BeginTransaction();
-
-            auto prune = LoginDatabase.CreateStatement(pruneLog, "DELETE FROM system_fingerprint_usage WHERE fingerprint = ? ORDER BY `time` ASC LIMIT ?");
-
-            prune.addUInt32(fingerprint);
-            prune.addUInt32(pruneCount - history);
-            prune.Execute();
-            LoginDatabase.CommitTransaction();
-        }
-
-        delete result;
-    }
-
-    const struct
-    {
-        uint32 spell;
-        uint16 flag;
-
-    } sUnitTracking[] =
-        {
-            {1494, 0x01}, // beasts
-            {19879, 0x02}, // dragonkin
-            {19878, 0x04}, // demons
-            {19880, 0x08}, // elementals
-            {19882, 0x10}, // giants
-            {19884, 0x20}, // undead
-            {19883, 0x40}, // humanoids
-            {5225, 0x40}, // humanoids
-    },
-      sResourceTracking[] = {
-          {2383, 0x02}, // herbs
-          {2580, 0x04}, // minerals
-          {2481, 0x20}, // treasure
-    };
-} // namespace
+} sUnitTracking[] =
+{
+    { 1494,     0x01 }, // beasts
+    { 19879,    0x02 }, // dragonkin
+    { 19878,    0x04 }, // demons
+    { 19880,    0x08 }, // elementals
+    { 19882,    0x10 }, // giants
+    { 19884,    0x20 }, // undead
+    { 19883,    0x40 }, // humanoids
+    { 5225,     0x40 }, // humanoids
+},
+sResourceTracking[] =
+{
+    { 2383,     0x02 }, // herbs
+    { 2580,     0x04 }, // minerals
+    { 2481,     0x20 }, // treasure
+};
+}
 
 namespace Anticheat
 {
-    void AnticheatLib::Reload()
+void AnticheatLib::Reload()
+{
+    if (!sAnticheatConfig.SetSource(_LIB_ANTICHEAT_CONFIG))
+        sLog.outError("[Anticheat] Could not find configuration file %s.", _LIB_ANTICHEAT_CONFIG);
+
+    // the configuration setting must be loaded before the database data because the current config settings
+    // will affect how the database data is interpreted (i.e. normalization of antispam blacklist entries)
+    sAnticheatConfig.loadConfigSettings();
+
+    sLog.outString("Loading antispam system ...");
+    sAntispam.LoadConfig();
+
+    sLog.outString("Loading Warden scan database...");
+    sWardenScanMgr.loadFromDB();
+}
+
+void AnticheatLib::Initialize()
+{
+    Reload();
+
+    sWardenModuleMgr.LoadWardenModules();
+
+    // these should be loaded only on startup since they wont change without a recompile anyway
+    sLog.outString("Loading scripted Warden scans...");
+    Warden::LoadScriptedScans();
+}
+
+std::unique_ptr<SessionAnticheatInterface> AnticheatLib::NewSession(WorldSession *session, const BigNumber &K)
+{
+    if (sAnticheatConfig.EnableAnticheat())
+        return std::make_unique<SessionAnticheat>(session, K);
+
+    return std::make_unique<NullSessionAnticheat>(session);
+}
+
+AntispamInterface* AnticheatLib::GetAntispam() const
+{
+    return &sAntispam;
+}
+
+void AnticheatLib::EnableExtrapolationDebug(uint32 seconds)
+{
+    _extrapDebugActive = true;
+    _extrapDebugTimer = WorldTimer::getMSTime() + seconds * IN_MILLISECONDS;
+}
+
+void AnticheatLib::OfferExtrapolationData(
+    const MovementInfo &start, float speed1, float speed2,
+    const MovementInfo &theirEnd, const Position &extrapEnd, float errorDistance)
+{
+    if (!_extrapDebugActive)
+        return;
+
+    std::lock_guard<std::mutex> guard(_extrapMutex);
+
+    _extrapPoints.insert(errorDistance, { start, theirEnd, extrapEnd, speed1, speed2, errorDistance });
+
+    if (_extrapDebugTimer < WorldTimer::getMSTime())
     {
-        if (!sAnticheatConfig.SetSource(_LIB_ANTICHEAT_CONFIG))
-            sLog.outError("[Anticheat] Could not find configuration file %s.", _LIB_ANTICHEAT_CONFIG);
+        _extrapDebugActive = false;
+        _extrapDebugTimer = 0;
 
-        // the configuration setting must be loaded before the database data because the current config settings
-        // will affect how the database data is interpreted (i.e. normalization of antispam blacklist entries)
-        sAnticheatConfig.loadConfigSettings();
+        std::stringstream str;
 
-        sLog.outString("Loading antispam system ...");
-        sAntispam.LoadConfig();
-
-        sLog.outString("Loading Warden scan database...");
-        sWardenScanMgr.loadFromDB();
-    }
-
-    void AnticheatLib::Initialize()
-    {
-        Reload();
-
-        sWardenModuleMgr.LoadWardenModules();
-
-        // these should be loaded only on startup since they wont change without a recompile anyway
-        sLog.outString("Loading scripted Warden scans...");
-        Warden::LoadScriptedScans();
-    }
-
-    std::unique_ptr<SessionAnticheatInterface> AnticheatLib::NewSession(WorldSession* session, const BigNumber& K)
-    {
-        if (sAnticheatConfig.EnableAnticheat())
-            return std::make_unique<SessionAnticheat>(session, K);
-
-        return std::make_unique<NullSessionAnticheat>(session);
-    }
-
-    AntispamInterface* AnticheatLib::GetAntispam() const { return &sAntispam; }
-
-    void AnticheatLib::EnableExtrapolationDebug(uint32 seconds)
-    {
-        _extrapDebugActive = true;
-        _extrapDebugTimer = WorldTimer::getMSTime() + seconds * IN_MILLISECONDS;
-    }
-
-    void AnticheatLib::OfferExtrapolationData(const MovementInfo& start, float speed1, float speed2, const MovementInfo& theirEnd, const Position& extrapEnd, float errorDistance)
-    {
-        if (!_extrapDebugActive)
-            return;
-
-        std::lock_guard<std::mutex> guard(_extrapMutex);
-
-        _extrapPoints.insert(errorDistance, {start, theirEnd, extrapEnd, speed1, speed2, errorDistance});
-
-        if (_extrapDebugTimer < WorldTimer::getMSTime())
+        for (auto const &i : _extrapPoints)
         {
-            _extrapDebugActive = false;
-            _extrapDebugTimer = 0;
-
-            std::stringstream str;
-
-            for (auto const& i : _extrapPoints)
-            {
-                str << "Start: (" << i.start.pos.x << ", " << i.start.pos.y << ", " << i.start.pos.z << ") o: " << i.start.pos.o << " pitch: " << i.start.s_pitch << " flags: 0x" << std::hex << i.start.moveFlags << std::dec << " Speed 1: " << i.speed1 << " Speed 2: " << i.speed2 << " Client time: " << i.start.ctime << " Server time: " << i.start.stime << "\n"
-                    << "Their end: (" << i.theirEnd.pos.x << ", " << i.theirEnd.pos.y << ", " << i.theirEnd.pos.z << ") o: " << i.theirEnd.pos.o << " pitch: " << i.theirEnd.s_pitch << " flags: 0x" << std::hex << i.theirEnd.moveFlags << std::dec << " Client time: " << i.theirEnd.ctime << " Server time: " << i.theirEnd.stime << "\n"
-                    << "Extrapolated end position: (" << i.extrapEnd.x << ", " << i.extrapEnd.y << ", " << i.extrapEnd.z << ") o: " << i.extrapEnd.o << "\n"
-                    << "Error distance: " << i.errorDistance << "\n";
-            }
-
-            sLog.out(LOG_ANTICHEAT_BASIC, "Extrapolation debug window has ended.  Highest errors:\n%s", str.str().c_str());
-
-            _extrapPoints.clear();
+            str << "Start: (" << i.start.pos.x << ", " << i.start.pos.y << ", " << i.start.pos.z
+                << ") o: " << i.start.pos.o << " pitch: " << i.start.s_pitch << " flags: 0x"
+                << std::hex << i.start.moveFlags << std::dec << " Speed 1: " << i.speed1 << " Speed 2: " << i.speed2
+                << " Client time: " << i.start.ctime << " Server time: " << i.start.stime << "\n"
+                << "Their end: (" << i.theirEnd.pos.x << ", " << i.theirEnd.pos.y << ", " << i.theirEnd.pos.z
+                << ") o: " << i.theirEnd.pos.o << " pitch: " << i.theirEnd.s_pitch << " flags: 0x"
+                << std::hex << i.theirEnd.moveFlags << std::dec
+                << " Client time: " << i.theirEnd.ctime << " Server time: " << i.theirEnd.stime << "\n"
+                << "Extrapolated end position: (" << i.extrapEnd.x << ", " << i.extrapEnd.y << ", " << i.extrapEnd.z
+                << ") o: " << i.extrapEnd.o << "\n"
+                << "Error distance: " << i.errorDistance << "\n";
         }
+
+        sLog.out(LOG_ANTICHEAT_BASIC, "Extrapolation debug window has ended.  Highest errors:\n%s", str.str().c_str());
+
+        _extrapPoints.clear();
     }
+}
 
 #if 0
 bool AnticheatLib::ChatCommand(ChatHandler *handler, const std::string &origArgs)
@@ -652,25 +667,81 @@ bool AnticheatLib::ChatCommand(ChatHandler *handler, const std::string &origArgs
 }
 #endif
 
-    SessionAnticheat::SessionAnticheat(WorldSession* session, const BigNumber& K) : _session(session), _warden(CreateWarden(session, K, this)), _inWorld(false), _fingerprint(0), _tickTimer(0), _cheatsReported(0), _kickTimer(0), _banTimer(0), _banAccount(false), _banIP(false), _worldEnterTime(0)
+SessionAnticheat::SessionAnticheat(WorldSession *session, const BigNumber &K) :
+    _session(session), _warden(CreateWarden(session, K, this)), _inWorld(false),_fingerprint(0), _tickTimer(0),
+    _cheatsReported(0), _kickTimer(0), _banTimer(0), _banAccount(false), _banIP(false), _worldEnterTime(0)
+{
+    memset(_cheatOccuranceTick, 0, sizeof(_cheatOccuranceTick));
+    memset(_cheatOccuranceTotal, 0, sizeof(_cheatOccuranceTotal));
+}
+
+SessionAnticheat::~SessionAnticheat()
+{
+    // if the kick timer is running, kick them right away.  this is probably redundant but
+    // may prove useful if they are disconnecting from this realm and connecting to another
+    // with the same session id with the auth server.
+    if (!!_kickTimer)
     {
-        memset(_cheatOccuranceTick, 0, sizeof(_cheatOccuranceTick));
-        memset(_cheatOccuranceTotal, 0, sizeof(_cheatOccuranceTotal));
+        _kickTimer = 0;
+        _session->KickPlayer();
     }
 
-    SessionAnticheat::~SessionAnticheat()
+    // if the ban timer is running, ban them right away
+    if (!!_banTimer)
     {
-        // if the kick timer is running, kick them right away.  this is probably redundant but
-        // may prove useful if they are disconnecting from this realm and connecting to another
-        // with the same session id with the auth server.
-        if (!!_kickTimer)
+        _banTimer = 0;
+
+        if (_banAccount)
+            sWorld.BanAccount(_session->GetAccountId(), 0, "Cheat detected", "Anticheat");
+
+        if (_banIP)
+            sWorld.BanAccount(BAN_IP, _session->GetRemoteAddress(), 0, "Cheat detected", "Anticheat");
+    }
+}
+
+void SessionAnticheat::EnterWorld()
+{
+    _inWorld = true;
+    _worldEnterTime = WorldTimer::getMSTime();
+    _movementData->HandleEnterWorld();
+}
+
+void SessionAnticheat::BeginKickTimer()
+{
+    // if the kick or ban timers are already running, don't restart this, otherwise repeated hacks means they'll be online forever!
+    if (!_kickTimer && !_banTimer)
+        _kickTimer = sAnticheatConfig.GetKickDelay();
+}
+
+void SessionAnticheat::BeginBanTimer(bool account, bool ip)
+{
+    // if the timer is already running, don't restart it, otherwise repeated hacks means they'll be online forever!
+    if (!!_banTimer)
+        return;
+
+    _banAccount = account;
+    _banIP = ip;
+    _banTimer = sAnticheatConfig.GetBanDelay();
+}
+
+void SessionAnticheat::Update(uint32 diff)
+{
+    if (!!_kickTimer)
+    {
+        if (_kickTimer > diff)
+            _kickTimer -= diff;
+        else
         {
             _kickTimer = 0;
             _session->KickPlayer();
         }
+    }
 
-        // if the ban timer is running, ban them right away
-        if (!!_banTimer)
+    if (!!_banTimer)
+    {
+        if (_banTimer > diff)
+            _banTimer -= diff;
+        else
         {
             _banTimer = 0;
 
@@ -682,286 +753,99 @@ bool AnticheatLib::ChatCommand(ChatHandler *handler, const std::string &origArgs
         }
     }
 
-    void SessionAnticheat::EnterWorld()
+    // if the anticheat is disabled, do nothing (except enforcement of previously scheduled actions, above)
+    if (!sAnticheatConfig.EnableAnticheat())
+        return;
+
+    _warden->Update();
+
+    if (_tickTimer > diff)
+        _tickTimer -= diff;
+    else
     {
-        _inWorld = true;
-        _worldEnterTime = WorldTimer::getMSTime();
-        _movementData->HandleEnterWorld();
-    }
-
-    void SessionAnticheat::BeginKickTimer()
-    {
-        // if the kick or ban timers are already running, don't restart this, otherwise repeated hacks means they'll be online forever!
-        if (!_kickTimer && !_banTimer)
-            _kickTimer = sAnticheatConfig.GetKickDelay();
-    }
-
-    void SessionAnticheat::BeginBanTimer(bool account, bool ip)
-    {
-        // if the timer is already running, don't restart it, otherwise repeated hacks means they'll be online forever!
-        if (!!_banTimer)
-            return;
-
-        _banAccount = account;
-        _banIP = ip;
-        _banTimer = sAnticheatConfig.GetBanDelay();
-    }
-
-    void SessionAnticheat::Update(uint32 diff)
-    {
-        if (!!_kickTimer)
-        {
-            if (_kickTimer > diff)
-                _kickTimer -= diff;
-            else
-            {
-                _kickTimer = 0;
-                _session->KickPlayer();
-            }
-        }
-
-        if (!!_banTimer)
-        {
-            if (_banTimer > diff)
-                _banTimer -= diff;
-            else
-            {
-                _banTimer = 0;
-
-                if (_banAccount)
-                    sWorld.BanAccount(_session->GetAccountId(), 0, "Cheat detected", "Anticheat");
-
-                if (_banIP)
-                    sWorld.BanAccount(BAN_IP, _session->GetRemoteAddress(), 0, "Cheat detected", "Anticheat");
-            }
-        }
-
-        // if the anticheat is disabled, do nothing (except enforcement of previously scheduled actions, above)
-        if (!sAnticheatConfig.EnableAnticheat())
-            return;
-
-        _warden->Update();
-
-        if (_tickTimer > diff)
-            _tickTimer -= diff;
-        else
-        {
-            // reset per-tick values
-            if (_movementData)
-            {
-                _movementData->CheckExpiredOrders(_session->GetLatency());
-                _movementData->overSpeedDistanceTick = 0.f;
-            }
-
-            _tickTimer = AnticheatUpdateInterval;
-            memset(_cheatOccuranceTick, 0, sizeof(_cheatOccuranceTick));
-            _cheatsReported = 0;
-        }
-    }
-
-    void SessionAnticheat::SendCharEnum(WorldPacket&& packet) { _warden->SetCharEnumPacket(std::move(packet)); }
-
-    void SessionAnticheat::NewPlayer()
-    {
-        auto const player = _session->GetPlayer();
-
-        if (!player)
-            _movementData.reset();
-        else
-            _movementData = std::make_unique<Anticheat::Movement>(player);
-    }
-
-    void SessionAnticheat::LeaveWorld()
-    {
-        _inWorld = false;
-        _movementData->overSpeedDistanceTick = _movementData->overSpeedDistanceTotal = 0.f;
-    }
-
-    void SessionAnticheat::Disconnect() {}
-
-    void SessionAnticheat::SendPlayerInfo(ChatHandler* handler) const
-    {
-        auto const includeFingerprint = !handler->GetSession() || static_cast<uint32>(handler->GetSession()->GetSecurity()) >= sAnticheatConfig.GetFingerprintLevel();
-
-        if (includeFingerprint)
-            handler->PSendSysMessage("OS: %s Build: %u Fingerprint: 0x%lx Local IP: %s", _session->GetOS() == CLIENT_OS_WIN ? "Win" : "Mac", _session->GetGameBuild(), _fingerprint, _session->GetRemoteAddress().c_str());
-
-        _warden->SendPlayerInfo(handler, includeFingerprint);
-    }
-
-    void SessionAnticheat::SendCheatInfo(ChatHandler* handler) const
-    {
-        handler->SendSysMessage("----- ANTICHEAT v3 -----");
-
-        _movementData->SendOrderInfo(handler);
-
-        handler->SendSysMessage("_____ Cheats detected");
-
-        for (auto i = 0; i < CHEATS_COUNT; ++i)
-            if (_cheatOccuranceTotal[i])
-                handler->PSendSysMessage("%2u x %s (cheat %u)", _cheatOccuranceTotal[i], sAnticheatConfig.GetDetectorName(static_cast<CheatType>(i)), i);
-
-        handler->SendSysMessage("_____ Extrapolation");
-        handler->PSendSysMessage("Over speed distance tick = %f", _movementData->overSpeedDistanceTick);
-        handler->PSendSysMessage("Over speed distance total = %f", _movementData->overSpeedDistanceTotal);
-
-        SendPlayerInfo(handler);
-    }
-
-    void SessionAnticheat::RecordCheat(uint32 actionMask, const char* detector, const char* format, ...)
-    {
-        if (actionMask == CHEAT_ACTION_NONE)
-            return;
-
-        std::string reason;
-
-        {
-            std::stringstream msg;
-
-            msg << "Detector: " << detector;
-
-            if (!!format && !!strlen(format))
-            {
-                char buff[1024];
-
-                va_list ap;
-                va_start(ap, format);
-                vsnprintf(buff, sizeof(buff), format, ap);
-                va_end(ap);
-
-                msg << " Message: " << buff;
-            }
-
-            reason = msg.str();
-        }
-
-        // all cheat logging should be done here!
-        if (actionMask & (CHEAT_ACTION_INFO_LOG | CHEAT_ACTION_PROMPT_LOG))
-        {
-            LogCheat(_session, actionMask, reason);
-
-            // if the prompt-log flag is set, any other flags are interpreted as acceptable manual actions when prompting for user intervention
-            if (actionMask & CHEAT_ACTION_PROMPT_LOG)
-                return;
-        }
-
-        // permanently silence
-        if (actionMask & CHEAT_ACTION_SILENCE)
-        {
-            if (_session->GetSecurity() == SEC_PLAYER)
-            {
-                LoginDatabase.PExecute("UPDATE account SET flags = flags | 0x%x WHERE id = %u", _session->GetAccountId(), ACCOUNT_FLAG_SILENCED);
-
-                _session->SetAccountFlags(_session->GetAccountFlags() | ACCOUNT_FLAG_SILENCED);
-            }
-        }
-
-        // either kick, or some combination of account and/or ip ban
-        if (actionMask & CHEAT_ACTION_KICK)
-            BeginKickTimer();
-        else if (actionMask & (CHEAT_ACTION_BAN_ACCOUNT | CHEAT_ACTION_BAN_IP))
-            BeginBanTimer(!!(actionMask & CHEAT_ACTION_BAN_ACCOUNT), !!(actionMask & CHEAT_ACTION_BAN_IP));
-    }
-
-    bool SessionAnticheat::Movement(MovementInfo& mi, const WorldPacket& packet)
-    {
-        // we use this as a signal that the client has finished its world entry process.  don't bother
-        // checking for any cheats yet (much of our data structure will not yet be populated).
-        if (!_inWorld && packet.GetOpcode() == CMSG_SET_ACTIVE_MOVER)
-        {
-            EnterWorld();
-            return false;
-        }
-
-        if (_movementData->HandleAnticheatTests(mi, _session, packet))
-            return true;
-
-        if (_movementData->CheckTeleport(packet.GetOpcode(), mi))
-            return true;
-
-        // if the above checks do not object to the message, update some other status...
-        if (mi.HasMovementFlag(MOVEFLAG_ONTRANSPORT))
-        {
-            auto const mover = _session->GetPlayer()->GetMover();
-
-            if (mover->GetTypeId() == TYPEID_PLAYER)
-                _movementData->OnTransport(reinterpret_cast<Player*>(mover), mi.GetTransportGuid());
-        }
-
-        return false;
-    }
-
-    void SessionAnticheat::TimeSkipped(const ObjectGuid& mover, uint32 ms)
-    {
+        // reset per-tick values
         if (_movementData)
-            _movementData->TimeSkipped(mover, ms);
-    }
-
-    bool SessionAnticheat::ExtrapolateMovement(MovementInfo const& mi, uint32 diffMs, Position& pos) { return _movementData && _movementData->ExtrapolateMovement(mi, diffMs, pos); }
-
-    bool SessionAnticheat::SpeedChangeAck(MovementInfo& mi, const WorldPacket& packet, float newSpeed) { return !_movementData || _movementData->HandleSpeedChangeAck(mi, _session, packet, newSpeed); }
-
-    bool SessionAnticheat::IsInKnockBack() const { return _movementData && _movementData->IsInKnockBack(); }
-
-    void SessionAnticheat::KnockBack(float speedxy, float speedz, float cos, float sin)
-    {
-        if (_movementData)
-            _movementData->KnockBack(speedxy, speedz, cos, sin);
-    }
-
-    void SessionAnticheat::OnExplore(const AreaEntry* p)
-    {
-        if (_movementData)
-            _movementData->OnExplore(p);
-    }
-
-    void SessionAnticheat::Teleport(const Position& pos)
-    {
-        if (_movementData)
-            _movementData->HandleTeleport(pos);
-    }
-
-    void SessionAnticheat::OrderSent(uint16 opcode, uint32 counter)
-    {
-        if (_movementData)
-            _movementData->OrderSent(opcode, counter);
-    }
-
-    void SessionAnticheat::OrderAck(uint16 opcode, uint32 counter) { _movementData->OrderAck(opcode, counter); }
-
-    void SessionAnticheat::WardenPacket(WorldPacket& packet) { _warden->HandlePacket(packet); }
-
-    void SessionAnticheat::RecordCheatInternal(CheatType cheat, const char* format, ...)
-    {
-        MANGOS_ASSERT(cheat < CHEATS_COUNT);
-
-        if (_session != nullptr)
         {
-            if (_session->GetAccountFlags() & ACCOUNT_FLAG_HIDDEN)
-                return;
+            _movementData->CheckExpiredOrders(_session->GetLatency());
+            _movementData->overSpeedDistanceTick = 0.f;
         }
 
-        ++_cheatOccuranceTotal[cheat];
-        ++_cheatOccuranceTick[cheat];
+        _tickTimer = AnticheatUpdateInterval;
+        memset(_cheatOccuranceTick, 0, sizeof(_cheatOccuranceTick));
+        _cheatsReported = 0;
+    }
+}
 
-        uint32 actionMask;
+void SessionAnticheat::SendCharEnum(WorldPacket &&packet)
+{
+    _warden->SetCharEnumPacket(std::move(packet));
+}
 
-        // when false, take no action
-        if (!sAnticheatConfig.CheckResponse(cheat, _cheatOccuranceTick[cheat], _cheatOccuranceTotal[cheat], actionMask))
-            return;
+void SessionAnticheat::NewPlayer()
+{
+    auto const player = _session->GetPlayer();
 
-        auto constexpr activeActionMask = CHEAT_ACTION_KICK | CHEAT_ACTION_BAN_ACCOUNT | CHEAT_ACTION_BAN_IP | CHEAT_ACTION_SILENCE;
+    if (!player)
+        _movementData.reset();
+    else
+        _movementData = std::make_unique<Anticheat::Movement>(player);
+}
 
-        // special handling for cheats detected by Warden to make it harder for hack and bot authors to analyze
-        // if we are prompting GMs to suggest actions, then none of the other flags matter right now
-        // too low level for warden non-logging ("active") actions?  remove them
-        if (cheat == CHEAT_TYPE_WARDEN && !(actionMask & CHEAT_ACTION_PROMPT_LOG) && _session->GetAccountMaxLevel() < sAnticheatConfig.GetWardenMinimumLevel())
-            actionMask &= ~activeActionMask;
+void SessionAnticheat::LeaveWorld()
+{
+    _inWorld = false;
+    _movementData->overSpeedDistanceTick = _movementData->overSpeedDistanceTotal = 0.f;
+}
 
-        std::string comment("");
+void SessionAnticheat::Disconnect()
+{
 
-        // can be null
-        if (!!format)
+}
+
+void SessionAnticheat::SendPlayerInfo(ChatHandler *handler) const
+{
+    auto const includeFingerprint = !handler->GetSession() ||
+        static_cast<uint32>(handler->GetSession()->GetSecurity()) >= sAnticheatConfig.GetFingerprintLevel();
+
+    if (includeFingerprint)
+        handler->PSendSysMessage("OS: %s Build: %u Fingerprint: 0x%lx Local IP: %s",
+            _session->GetOS() == CLIENT_OS_WIN ? "Win" : "Mac", _session->GetGameBuild(), _fingerprint, _session->GetRemoteAddress().c_str());
+
+    _warden->SendPlayerInfo(handler, includeFingerprint);
+}
+
+void SessionAnticheat::SendCheatInfo(ChatHandler *handler) const
+{
+    handler->SendSysMessage("----- ANTICHEAT v3 -----");
+
+    _movementData->SendOrderInfo(handler);
+
+    handler->SendSysMessage("_____ Cheats detected");
+
+    for (auto i = 0; i < CHEATS_COUNT; ++i)
+        if (_cheatOccuranceTotal[i])
+            handler->PSendSysMessage("%2u x %s (cheat %u)", _cheatOccuranceTotal[i], sAnticheatConfig.GetDetectorName(static_cast<CheatType>(i)), i);
+
+    handler->SendSysMessage("_____ Extrapolation");
+    handler->PSendSysMessage("Over speed distance tick = %f", _movementData->overSpeedDistanceTick);
+    handler->PSendSysMessage("Over speed distance total = %f", _movementData->overSpeedDistanceTotal);
+
+    SendPlayerInfo(handler);
+}
+
+void SessionAnticheat::RecordCheat(uint32 actionMask, const char *detector, const char *format, ...)
+{
+    if (actionMask == CHEAT_ACTION_NONE)
+        return;
+
+    std::string reason;
+
+    {
+        std::stringstream msg;
+
+        msg << "Detector: " << detector;
+
+        if (!!format && !!strlen(format))
         {
             char buff[1024];
 
@@ -970,151 +854,327 @@ bool AnticheatLib::ChatCommand(ChatHandler *handler, const std::string &origArgs
             vsnprintf(buff, sizeof(buff), format, ap);
             va_end(ap);
 
-            comment = buff;
+            msg << " Message: " << buff;
         }
 
-        // if a cheat of this type has recently been reported, do not do so again
-        if (_cheatsReported & (1 << cheat))
-            actionMask &= ~(CHEAT_ACTION_INFO_LOG | CHEAT_ACTION_PROMPT_LOG);
-        else
-            _cheatsReported |= (1 << cheat);
-
-        // if we are performing some active action, we always should log it, since the log is ommitted from the ban message
-        if (!(actionMask & CHEAT_ACTION_PROMPT_LOG) && actionMask & activeActionMask)
-            actionMask |= CHEAT_ACTION_INFO_LOG;
-
-        // TODO: delay notification until end of current anticheat tick so tick occurance can be included in the notification message
-        RecordCheat(actionMask, sAnticheatConfig.GetDetectorName(cheat), comment.c_str());
+        reason = msg.str();
     }
 
-    void SessionAnticheat::CleanupFingerprintHistory() const { LoginDatabase.AsyncPQuery(&CleanupFingerprintHistoryCallback, _fingerprint, "SELECT COUNT(*) FROM system_fingerprint_usage WHERE fingerprint = %u", _fingerprint); }
-
-    size_t SessionAnticheat::PendingOrderCount() const { return _movementData ? _movementData->PendingOrderCount() : 0; }
-
-    float SessionAnticheat::GetDistanceTraveled() const { return _movementData ? _movementData->TotalDistanceTraveled() : 0.f; }
-
-    bool SessionAnticheat::GetMovementSpeeds(float* speeds) const
+    // all cheat logging should be done here!
+    if (actionMask & (CHEAT_ACTION_INFO_LOG | CHEAT_ACTION_PROMPT_LOG))
     {
-        if (!_movementData)
-            return false;
+        LogCheat(_session, actionMask, reason);
 
-        memcpy(speeds, _movementData->clientSpeeds, sizeof(_movementData->clientSpeeds));
+        // if the prompt-log flag is set, any other flags are interpreted as acceptable manual actions when prompting for user intervention
+        if (actionMask & CHEAT_ACTION_PROMPT_LOG)
+            return;
+    }
+
+    // permanently silence
+    if (actionMask & CHEAT_ACTION_SILENCE)
+    {
+        if (_session->GetSecurity() == SEC_PLAYER)
+        {
+            LoginDatabase.PExecute("UPDATE account SET flags = flags | 0x%x WHERE id = %u",
+                _session->GetAccountId(), ACCOUNT_FLAG_SILENCED);
+
+            _session->SetAccountFlags(_session->GetAccountFlags() | ACCOUNT_FLAG_SILENCED);
+        }
+    }
+
+    // either kick, or some combination of account and/or ip ban
+    if (actionMask & CHEAT_ACTION_KICK)
+        BeginKickTimer();
+    else if (actionMask & (CHEAT_ACTION_BAN_ACCOUNT | CHEAT_ACTION_BAN_IP))
+        BeginBanTimer(!!(actionMask & CHEAT_ACTION_BAN_ACCOUNT), !!(actionMask & CHEAT_ACTION_BAN_IP));
+}
+
+bool SessionAnticheat::Movement(MovementInfo &mi, const WorldPacket &packet)
+{
+    // we use this as a signal that the client has finished its world entry process.  don't bother
+    // checking for any cheats yet (much of our data structure will not yet be populated).
+    if (!_inWorld && packet.GetOpcode() == CMSG_SET_ACTIVE_MOVER)
+    {
+        EnterWorld();
+        return false;
+    }
+
+    if (_movementData->HandleAnticheatTests(mi, _session, packet))
+        return true;
+
+    if (_movementData->CheckTeleport(packet.GetOpcode(), mi))
+        return true;
+
+    // if the above checks do not object to the message, update some other status...
+    if (mi.HasMovementFlag(MOVEFLAG_ONTRANSPORT))
+    {
+        auto const mover = _session->GetPlayer()->GetMover();
+
+        if (mover->GetTypeId() == TYPEID_PLAYER)
+            _movementData->OnTransport(reinterpret_cast<Player *>(mover), mi.GetTransportGuid());
+    }
+
+    return false;
+}
+
+void SessionAnticheat::TimeSkipped(const ObjectGuid &mover, uint32 ms)
+{
+    if (_movementData)
+        _movementData->TimeSkipped(mover, ms);
+}
+
+bool SessionAnticheat::ExtrapolateMovement(MovementInfo const& mi, uint32 diffMs, Position &pos)
+{
+    return _movementData && _movementData->ExtrapolateMovement(mi, diffMs, pos);
+}
+
+bool SessionAnticheat::SpeedChangeAck(MovementInfo &mi, const WorldPacket &packet, float newSpeed)
+{
+    return !_movementData || _movementData->HandleSpeedChangeAck(mi, _session, packet, newSpeed);
+}
+
+bool SessionAnticheat::IsInKnockBack() const
+{
+    return _movementData && _movementData->IsInKnockBack();
+}
+
+void SessionAnticheat::KnockBack(float speedxy, float speedz, float cos, float sin)
+{
+    if (_movementData)
+        _movementData->KnockBack(speedxy, speedz, cos, sin);
+}
+
+void SessionAnticheat::OnExplore(const AreaEntry *p)
+{
+    if (_movementData)
+        _movementData->OnExplore(p);
+}
+
+void SessionAnticheat::Teleport(const Position &pos)
+{
+    if (_movementData)
+        _movementData->HandleTeleport(pos);
+}
+
+void SessionAnticheat::OrderSent(uint16 opcode, uint32 counter)
+{
+    if (_movementData)
+        _movementData->OrderSent(opcode, counter);
+}
+
+void SessionAnticheat::OrderAck(uint16 opcode, uint32 counter)
+{
+    _movementData->OrderAck(opcode, counter);
+}
+
+void SessionAnticheat::WardenPacket(WorldPacket &packet)
+{
+    _warden->HandlePacket(packet);
+}
+
+void SessionAnticheat::RecordCheatInternal(CheatType cheat, const char *format, ...)
+{
+    MANGOS_ASSERT(cheat < CHEATS_COUNT);
+
+    if (_session != nullptr)
+    {
+        if (_session->GetAccountFlags() & ACCOUNT_FLAG_HIDDEN)
+            return;
+    }
+
+    ++_cheatOccuranceTotal[cheat];
+    ++_cheatOccuranceTick[cheat];
+
+    uint32 actionMask;
+
+    // when false, take no action
+    if (!sAnticheatConfig.CheckResponse(cheat, _cheatOccuranceTick[cheat], _cheatOccuranceTotal[cheat], actionMask))
+        return;
+
+    auto constexpr activeActionMask = CHEAT_ACTION_KICK | CHEAT_ACTION_BAN_ACCOUNT | CHEAT_ACTION_BAN_IP | CHEAT_ACTION_SILENCE;
+
+    // special handling for cheats detected by Warden to make it harder for hack and bot authors to analyze
+    // if we are prompting GMs to suggest actions, then none of the other flags matter right now
+    // too low level for warden non-logging ("active") actions?  remove them
+    if (cheat == CHEAT_TYPE_WARDEN &&
+        !(actionMask & CHEAT_ACTION_PROMPT_LOG) &&
+        _session->GetAccountMaxLevel() < sAnticheatConfig.GetWardenMinimumLevel())
+            actionMask &= ~activeActionMask;
+
+    std::string comment("");
+
+    // can be null
+    if (!!format)
+    {
+        char buff[1024];
+
+        va_list ap;
+        va_start(ap, format);
+        vsnprintf(buff, sizeof(buff), format, ap);
+        va_end(ap);
+
+        comment = buff;
+    }
+
+    // if a cheat of this type has recently been reported, do not do so again
+    if (_cheatsReported & (1 << cheat))
+        actionMask &= ~(CHEAT_ACTION_INFO_LOG | CHEAT_ACTION_PROMPT_LOG);
+    else
+        _cheatsReported |= (1 << cheat);
+
+    // if we are performing some active action, we always should log it, since the log is ommitted from the ban message
+    if (!(actionMask & CHEAT_ACTION_PROMPT_LOG) && actionMask & activeActionMask)
+        actionMask |= CHEAT_ACTION_INFO_LOG;
+
+    // TODO: delay notification until end of current anticheat tick so tick occurance can be included in the notification message
+    RecordCheat(actionMask, sAnticheatConfig.GetDetectorName(cheat), comment.c_str());
+}
+
+void SessionAnticheat::CleanupFingerprintHistory() const
+{
+    LoginDatabase.AsyncPQuery(&CleanupFingerprintHistoryCallback, _fingerprint,
+        "SELECT COUNT(*) FROM system_fingerprint_usage WHERE fingerprint = %u", _fingerprint);
+}
+
+size_t SessionAnticheat::PendingOrderCount() const
+{
+    return _movementData ? _movementData->PendingOrderCount() : 0;
+}
+
+float SessionAnticheat::GetDistanceTraveled() const
+{
+    return _movementData ? _movementData->TotalDistanceTraveled() : 0.f;
+}
+
+bool SessionAnticheat::GetMovementSpeeds(float *speeds) const
+{
+    if (!_movementData)
+        return false;
+
+    memcpy(speeds, _movementData->clientSpeeds, sizeof(_movementData->clientSpeeds));
+    return true;
+}
+
+bool SessionAnticheat::VerifyTracking(uint16 unitTracking, uint16 resourceTracking) const
+{
+    // if no tracking at all is enabled, no hack
+    if (!unitTracking && !resourceTracking)
+        return false;
+
+    auto const player = _session->GetPlayer();
+
+    if (!player)
+        return false;
+
+    // ensure that only one tracking is active across both categories
+    auto const unitBits = CountBits(unitTracking);
+    auto const resourceBits = CountBits(resourceTracking);
+
+    if (unitBits + resourceBits > 1)
+    {
+        sLog.out(LOG_ANTICHEAT_BASIC,
+            "AC Tracking hack unit tracking: 0x%lx (%u) resource tracking: 0x%lx (%u) player %s account %u ip %s",
+            unitTracking, unitBits, resourceTracking, resourceBits, _session->GetPlayerName(), _session->GetAccountId(),
+            _session->GetRemoteAddress().c_str());
+
         return true;
     }
 
-    bool SessionAnticheat::VerifyTracking(uint16 unitTracking, uint16 resourceTracking) const
+    bool legit = false;
+
+    // some single tracking is enabled.  make sure it is something the player can use
+    // note that needn't bother checking if the aura is currently present.  this is a workaround
+    // latency causing desync.  technically it means that someone can use a hack to track resources
+    // that they could track anyway, but we don't care about that.  if the player has the spell
+    // corresponding to the tracking that they have, the check is considered legitimate.  this
+    // allows for multiple spell entries in sUnitTracking and sResourceTracking for the same flag.
+
+    if (!!unitTracking)
     {
-        // if no tracking at all is enabled, no hack
-        if (!unitTracking && !resourceTracking)
-            return false;
+        auto constexpr unitTrackingCount = sizeof(sUnitTracking) / sizeof(sUnitTracking[0]);
 
-        auto const player = _session->GetPlayer();
-
-        if (!player)
-            return false;
-
-        // ensure that only one tracking is active across both categories
-        auto const unitBits = CountBits(unitTracking);
-        auto const resourceBits = CountBits(resourceTracking);
-
-        if (unitBits + resourceBits > 1)
+        for (auto i = 0u; i < unitTrackingCount; ++i)
         {
-            sLog.out(LOG_ANTICHEAT_BASIC, "AC Tracking hack unit tracking: 0x%lx (%u) resource tracking: 0x%lx (%u) player %s account %u ip %s", unitTracking, unitBits, resourceTracking, resourceBits, _session->GetPlayerName(), _session->GetAccountId(), _session->GetRemoteAddress().c_str());
+            // if they don't have the flag, who cares
+            if (!(unitTracking & sUnitTracking[i].flag))
+                continue;
 
-            return true;
-        }
-
-        bool legit = false;
-
-        // some single tracking is enabled.  make sure it is something the player can use
-        // note that needn't bother checking if the aura is currently present.  this is a workaround
-        // latency causing desync.  technically it means that someone can use a hack to track resources
-        // that they could track anyway, but we don't care about that.  if the player has the spell
-        // corresponding to the tracking that they have, the check is considered legitimate.  this
-        // allows for multiple spell entries in sUnitTracking and sResourceTracking for the same flag.
-
-        if (!!unitTracking)
-        {
-            auto constexpr unitTrackingCount = sizeof(sUnitTracking) / sizeof(sUnitTracking[0]);
-
-            for (auto i = 0u; i < unitTrackingCount; ++i)
+            // if they have the spell, it is considered legit, and stop looking
+            if (player->HasSpell(sUnitTracking[i].spell))
             {
-                // if they don't have the flag, who cares
-                if (!(unitTracking & sUnitTracking[i].flag))
-                    continue;
-
-                // if they have the spell, it is considered legit, and stop looking
-                if (player->HasSpell(sUnitTracking[i].spell))
-                {
-                    legit = true;
-                    break;
-                }
+                legit = true;
+                break;
             }
         }
-        else
+    }
+    else
+    {
+        auto constexpr resourceTrackingCount = sizeof(sResourceTracking) / sizeof(sResourceTracking[0]);
+
+        for (auto i = 0u; i < resourceTrackingCount; ++i)
         {
-            auto constexpr resourceTrackingCount = sizeof(sResourceTracking) / sizeof(sResourceTracking[0]);
+            // if they don't have the flag, who cares
+            if (!(resourceTracking & sResourceTracking[i].flag))
+                continue;
 
-            for (auto i = 0u; i < resourceTrackingCount; ++i)
+            // if they have the spell, it is considered legit, and stop looking
+            if (player->HasSpell(sResourceTracking[i].spell))
             {
-                // if they don't have the flag, who cares
-                if (!(resourceTracking & sResourceTracking[i].flag))
-                    continue;
-
-                // if they have the spell, it is considered legit, and stop looking
-                if (player->HasSpell(sResourceTracking[i].spell))
-                {
-                    legit = true;
-                    break;
-                }
+                legit = true;
+                break;
             }
         }
-
-        if (!legit)
-            sLog.out(LOG_ANTICHEAT_DEBUG, "AC Tracking not legit.  unit: 0x%lx resource: 0x%lx player %s account %u ip %s", unitTracking, resourceTracking, _session->GetPlayerName(), _session->GetAccountId(), _session->GetRemoteAddress().c_str());
-
-        // if it is not legit, consider it a hack
-        return !legit;
     }
 
-    void SessionAnticheat::VerifyMovementFlags(uint32 flags, uint32& removeFlags, bool strict) const
-    {
-        removeFlags = 0;
+    if (!legit)
+        sLog.out(LOG_ANTICHEAT_DEBUG,
+            "AC Tracking not legit.  unit: 0x%lx resource: 0x%lx player %s account %u ip %s",
+            unitTracking, resourceTracking, _session->GetPlayerName(), _session->GetAccountId(),
+            _session->GetRemoteAddress().c_str());
 
-        if (_movementData)
-            _movementData->VerifyMovementFlags(flags, removeFlags, strict);
-    }
+    // if it is not legit, consider it a hack
+    return !legit;
+}
 
-    void SessionAnticheat::GetMovementDebugString(std::string& out) const
-    {
-        std::stringstream ret;
+void SessionAnticheat::VerifyMovementFlags(uint32 flags, uint32 &removeFlags, bool strict) const
+{
+    removeFlags = 0;
 
-        if (!_movementData)
-            return;
+    if (_movementData)
+        _movementData->VerifyMovementFlags(flags, removeFlags, strict);
+}
 
-        std::string tmp;
+void SessionAnticheat::GetMovementDebugString(std::string &out) const
+{
+    std::stringstream ret;
 
-        _movementData->DumpOrders(tmp);
-        ret << "Orders:\n" << tmp;
+    if (!_movementData)
+        return;
 
-        _movementData->DumpAcks(tmp);
-        ret << "Acks:\n" << tmp;
+    std::string tmp;
 
-        _movementData->DumpTimeSkips(tmp);
-        ret << "Time Skips:\n" << tmp;
+    _movementData->DumpOrders(tmp);
+    ret << "Orders:\n" << tmp;
 
-        _movementData->DumpWorldChanges(tmp);
-        ret << "World changes:\n" << tmp;
+    _movementData->DumpAcks(tmp);
+    ret << "Acks:\n" << tmp;
 
-        _movementData->DumpMovement(tmp);
-        ret << "Movement:\n" << tmp;
+    _movementData->DumpTimeSkips(tmp);
+    ret << "Time Skips:\n" << tmp;
 
-        out = ret.str();
-    }
-} // namespace Anticheat
+    _movementData->DumpWorldChanges(tmp);
+    ret << "World changes:\n" << tmp;
+
+    _movementData->DumpMovement(tmp);
+    ret << "Movement:\n" << tmp;
+
+    out = ret.str();
+}
+}
 
 AnticheatLibInterface* GetAnticheatLib()
 {
     static Anticheat::AnticheatLib l;
     return &l;
 }
+

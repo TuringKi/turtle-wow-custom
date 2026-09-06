@@ -19,11 +19,11 @@
 #ifndef ADT_H
 #define ADT_H
 
-#include "libmpq/mpq.h"
-#include "model.h"
 #include "mpq_libmpq04.h"
-#include "vmapexport.h"
 #include "wmo.h"
+#include "vmapexport.h"
+#include "model.h"
+#include "libmpq/mpq.h"
 
 #define TILESIZE (533.33333f)
 #define CHUNKSIZE ((TILESIZE) / 16.0f)
@@ -61,7 +61,7 @@ typedef struct
     double v9[9][9];
     double v8[8][8];
     uint16 area_id;
-    // Liquid *lq;
+    //Liquid *lq;
     float waterlevel[9][9];
     uint8 flag;
 } chunk;
@@ -100,9 +100,9 @@ struct MapChunkHeader
     uint32 nSndEmitters;
     uint32 ofsLiquid;
     uint32 sizeLiquid;
-    float zpos;
-    float xpos;
-    float ypos;
+    float  zpos;
+    float  xpos;
+    float  ypos;
     uint32 textureId;
     uint32 props;
     uint32 effectId;
@@ -111,28 +111,28 @@ struct MapChunkHeader
 
 class ADTFile
 {
-public:
-    ADTFile(char* filename);
-    ~ADTFile();
-    int nWMO;
-    int nMDX;
-    string* WmoInstansName;
-    string* ModelInstansName;
-    bool init(uint32 map_num, uint32 tileX, uint32 tileY, StringSet& failedPaths);
-    // void LoadMapChunks();
+    public:
+        ADTFile(char* filename);
+        ~ADTFile();
+        int nWMO;
+        int nMDX;
+        string* WmoInstansName;
+        string* ModelInstansName;
+        bool init(uint32 map_num, uint32 tileX, uint32 tileY, StringSet& failedPaths);
+        //void LoadMapChunks();
 
-    // uint32 wmo_count;
-    /*
-        const mcell& Getmcell() const
-        {
-            return Mcell;
-        }
-    */
-private:
-    // size_t mcnk_offsets[256], mcnk_sizes[256];
-    MPQFile ADT;
-    // mcell Mcell;
-    string Adtfilename;
+        //uint32 wmo_count;
+        /*
+            const mcell& Getmcell() const
+            {
+                return Mcell;
+            }
+        */
+    private:
+        //size_t mcnk_offsets[256], mcnk_sizes[256];
+        MPQFile ADT;
+        //mcell Mcell;
+        string Adtfilename;
 };
 
 const char* GetPlainName(const char* FileName);
@@ -140,6 +140,6 @@ char* GetPlainName(char* FileName);
 char const* GetExtension(char const* FileName);
 void fixnamen(char* name, size_t len);
 void fixname2(char* name, size_t len);
-// void fixMapNamen(char *name, size_t len);
+//void fixMapNamen(char *name, size_t len);
 
 #endif

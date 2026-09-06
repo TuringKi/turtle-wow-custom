@@ -16,16 +16,18 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#include "model.h"
-#include <algorithm>
-#include <cassert>
-#include <cstdio>
-#include "matrix.h"
-#include "mpq_libmpq04.h"
 #include "vmapexport.h"
+#include "model.h"
 #include "wmo.h"
+#include "mpq_libmpq04.h"
+#include "matrix.h"
+#include <cassert>
+#include <algorithm>
+#include <cstdio>
 
-Model::Model(std::string& filename) : vertices(nullptr), indices(nullptr), filename(filename) {}
+Model::Model(std::string& filename) : vertices(nullptr), indices(nullptr), filename(filename)
+{
+}
 
 bool Model::open(StringSet& failedPaths)
 {
@@ -61,7 +63,7 @@ bool Model::open(StringSet& failedPaths)
     }
     else
     {
-        // printf("not included %s\n", filename.c_str());
+        //printf("not included %s\n", filename.c_str());
         f.close();
         return false;
     }
@@ -70,7 +72,7 @@ bool Model::open(StringSet& failedPaths)
 
 void Model::ScaleRotateTranslate(float scale, Vec3D rot, float w, Vec3D pos)
 {
-    Vec3D vdir(-rot.z, rot.x, rot.y);
+    Vec3D vdir(-rot.z,rot.x,rot.y);
     for (uint32 vpos = 0; vpos < header.nBoundingVertices; ++vpos)
     {
         // Scale
@@ -108,7 +110,7 @@ bool Model::ConvertToVMAPModel(const char* outfilename)
     uint32 nofgroups = 1;
     fwrite(&nofgroups, sizeof(uint32), 1, output);
     fwrite(N, 4 * 3, 1, output); // rootwmoid, flags, groupid
-    fwrite(N, sizeof(float), 3 * 2, output); // bbox, only needed for WMO currently
+    fwrite(N, sizeof(float), 3 * 2, output); //bbox, only needed for WMO currently
     fwrite(N, 4, 1, output); // liquidflags
     fwrite("GRP ", 4, 1, output);
     uint32 branches = 1;
@@ -158,9 +160,15 @@ bool Model::ConvertToVMAPModel(const char* outfilename)
 }
 
 
-Vec3D fixCoordSystem(Vec3D v) { return Vec3D(v.x, v.z, -v.y); }
+Vec3D fixCoordSystem(Vec3D v)
+{
+    return Vec3D(v.x, v.z, -v.y);
+}
 
-Vec3D fixCoordSystem2(Vec3D v) { return Vec3D(v.x, v.z, v.y); }
+Vec3D fixCoordSystem2(Vec3D v)
+{
+    return Vec3D(v.x, v.z, v.y);
+}
 
 ModelInstance::ModelInstance(MPQFile& f, const char* ModelInstName, uint32 mapID, uint32 tileX, uint32 tileY, FILE* pDirfile)
 {
@@ -171,9 +179,9 @@ ModelInstance::ModelInstance(MPQFile& f, const char* ModelInstName, uint32 mapID
     f.read(ff, 12);
     rot = Vec3D(ff[0], ff[1], ff[2]);
 
-    uint16 dummyFlags; // dummy var
+    uint16 dummyFlags;        // dummy var
     f.read(&scale, 2);
-    f.read(&dummyFlags, 2); // unknown but flag 1 is used for biodome in Outland, currently this value is not used
+    f.read(&dummyFlags, 2);   // unknown but flag 1 is used for biodome in Outland, currently this value is not used
 
     // scale factor - divide by 1024. blizzard devs must be on crack, why not just use a float?
     sc = scale / 1024.0f;
@@ -184,7 +192,7 @@ ModelInstance::ModelInstance(MPQFile& f, const char* ModelInstName, uint32 mapID
     FILE* input = fopen(tempname, "r+b");
     if (!input)
     {
-        // printf("ModelInstance::ModelInstance couldn't open %s\n", tempname);
+        //printf("ModelInstance::ModelInstance couldn't open %s\n", tempname);
         return;
     }
 
@@ -203,7 +211,7 @@ ModelInstance::ModelInstance(MPQFile& f, const char* ModelInstName, uint32 mapID
     if (!ModelLOSMgr::IsLOSEnabled(id, ModelInstName))
         flags |= MOD_NO_BREAK_LOS;
 
-    // write mapID, tileX, tileY, Flags, ID, Pos, Rot, Scale, name
+    //write mapID, tileX, tileY, Flags, ID, Pos, Rot, Scale, name
     fwrite(&mapID, sizeof(uint32), 1, pDirfile);
     fwrite(&tileX, sizeof(uint32), 1, pDirfile);
     fwrite(&tileY, sizeof(uint32), 1, pDirfile);

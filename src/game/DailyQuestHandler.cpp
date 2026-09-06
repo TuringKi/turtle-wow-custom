@@ -1,9 +1,9 @@
 #include "DailyQuestHandler.h"
 #include "Database/DatabaseEnv.h"
-#include "Player.h"
-#include "QuestDef.h"
 #include "World.h"
+#include "QuestDef.h"
 #include "WorldSession.h"
+#include "Player.h"
 
 #include <memory>
 #include <sstream>
@@ -27,15 +27,15 @@ void DailyQuestHandler::LoadFromDB(bool quests)
         return;
 
     // load quests with daily quest status flag if quests, initial load
-    auto questResult = std::unique_ptr<QueryResult>(WorldDatabase.PQuery("SELECT `entry` FROM `quest_template` WHERE `SpecialFlags` & %u = %u", QUEST_SPECIAL_FLAG_DAILY, QUEST_SPECIAL_FLAG_DAILY));
+    auto questResult = std::unique_ptr<QueryResult>(WorldDatabase.PQuery(
+        "SELECT `entry` FROM `quest_template` WHERE `SpecialFlags` & %u = %u", QUEST_SPECIAL_FLAG_DAILY, QUEST_SPECIAL_FLAG_DAILY));
 
     if (questResult)
     {
         do
         {
             m_questIds.push_back(questResult->Fetch()[0].GetUInt32());
-        }
-        while (questResult->NextRow());
+        } while (questResult->NextRow());
     }
 }
 
@@ -71,7 +71,7 @@ void DailyQuestHandler::Update(uint32 diff)
                 {
                     if (player->GetQuestStatus(questId) == QUEST_STATUS_COMPLETE)
                     {
-                        // remove quest
+                        //remove quest
                         player->RemoveQuest(questId);
 
                         // set quest status to not started (will updated in DB at next save)
@@ -83,7 +83,7 @@ void DailyQuestHandler::Update(uint32 diff)
                 }
             }
 
-            // build query for offline players
+            //build query for offline players
 
             std::ostringstream ss;
             ss << "DELETE FROM `character_queststatus` WHERE `status` = %u AND `quest` IN (";
@@ -101,7 +101,7 @@ void DailyQuestHandler::Update(uint32 diff)
         }
 
 
-        // now update next reset time to midnight next day.
+        //now update next reset time to midnight next day.
 
         WorldDatabase.DirectExecute("UPDATE `daily_quest_timer` SET `nextResetTime` = UNIX_TIMESTAMP(CURDATE() + INTERVAL 1 DAY)");
         LoadFromDB(false);

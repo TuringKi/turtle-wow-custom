@@ -38,23 +38,21 @@
  * @return slashcommand_map returned object on completion
  * \memberof dpp::cluster
  */
-auto inline co_global_bulk_command_create(const std::vector<slashcommand>& commands)
-{
-    return dpp::awaitable(this, [&](auto cc) { this->global_bulk_command_create(commands, cc); });
+auto inline co_global_bulk_command_create(const std::vector<slashcommand> &commands) {
+	return dpp::awaitable(this, [&] (auto cc) { this->global_bulk_command_create(commands, cc); }); 
 }
 
 /**
  * @brief Create a global slash command (a bot can have a maximum of 100 of these).
- *
+ * 
  * @see dpp::cluster::global_command_create
  * @see https://discord.com/developers/docs/interactions/application-commands#create-global-application-command
  * @param s Slash command to create
  * @return slashcommand returned object on completion
  * \memberof dpp::cluster
  */
-auto inline co_global_command_create(const slashcommand& s)
-{
-    return dpp::awaitable(this, [&](auto cc) { this->global_command_create(s, cc); });
+auto inline co_global_command_create(const slashcommand &s) {
+	return dpp::awaitable(this, [&] (auto cc) { this->global_command_create(s, cc); }); 
 }
 
 /**
@@ -66,9 +64,8 @@ auto inline co_global_command_create(const slashcommand& s)
  * @return slashcommand returned object on completion
  * \memberof dpp::cluster
  */
-auto inline co_global_command_get(snowflake id)
-{
-    return dpp::awaitable(this, [&](auto cc) { this->global_command_get(id, cc); });
+auto inline co_global_command_get(snowflake id) {
+	return dpp::awaitable(this, [&] (auto cc) { this->global_command_get(id, cc); }); 
 }
 
 /**
@@ -80,9 +77,8 @@ auto inline co_global_command_get(snowflake id)
  * @return confirmation returned object on completion
  * \memberof dpp::cluster
  */
-auto inline co_global_command_delete(snowflake id)
-{
-    return dpp::awaitable(this, [&](auto cc) { this->global_command_delete(id, cc); });
+auto inline co_global_command_delete(snowflake id) {
+	return dpp::awaitable(this, [&] (auto cc) { this->global_command_delete(id, cc); }); 
 }
 
 /**
@@ -94,9 +90,8 @@ auto inline co_global_command_delete(snowflake id)
  * @return confirmation returned object on completion
  * \memberof dpp::cluster
  */
-auto inline co_global_command_edit(const slashcommand& s)
-{
-    return dpp::awaitable(this, [&](auto cc) { this->global_command_edit(s, cc); });
+auto inline co_global_command_edit(const slashcommand &s) {
+	return dpp::awaitable(this, [&] (auto cc) { this->global_command_edit(s, cc); }); 
 }
 
 /**
@@ -107,9 +102,8 @@ auto inline co_global_command_edit(const slashcommand& s)
  * @return slashcommand_map returned object on completion
  * \memberof dpp::cluster
  */
-auto inline co_global_commands_get()
-{
-    return dpp::awaitable(this, [&](auto cc) { this->global_commands_get(cc); });
+auto inline co_global_commands_get() {
+	return dpp::awaitable(this, [&] (auto cc) { this->global_commands_get(cc); }); 
 }
 
 /**
@@ -124,9 +118,8 @@ auto inline co_global_commands_get()
  * @return slashcommand_map returned object on completion
  * \memberof dpp::cluster
  */
-auto inline co_guild_bulk_command_create(const std::vector<slashcommand>& commands, snowflake guild_id)
-{
-    return dpp::awaitable(this, [&](auto cc) { this->guild_bulk_command_create(commands, guild_id, cc); });
+auto inline co_guild_bulk_command_create(const std::vector<slashcommand> &commands, snowflake guild_id) {
+	return dpp::awaitable(this, [&] (auto cc) { this->guild_bulk_command_create(commands, guild_id, cc); }); 
 }
 
 /**
@@ -138,9 +131,8 @@ auto inline co_guild_bulk_command_create(const std::vector<slashcommand>& comman
  * @return guild_command_permissions_map returned object on completion
  * \memberof dpp::cluster
  */
-auto inline co_guild_commands_get_permissions(snowflake guild_id)
-{
-    return dpp::awaitable(this, [&](auto cc) { this->guild_commands_get_permissions(guild_id, cc); });
+auto inline co_guild_commands_get_permissions(snowflake guild_id) {
+	return dpp::awaitable(this, [&] (auto cc) { this->guild_commands_get_permissions(guild_id, cc); }); 
 }
 
 /**
@@ -157,9 +149,8 @@ auto inline co_guild_commands_get_permissions(snowflake guild_id)
  * @deprecated This has been disabled with updates to Permissions v2. You can use guild_command_edit_permissions instead
  * \memberof dpp::cluster
  */
-auto inline co_guild_bulk_command_edit_permissions(const std::vector<slashcommand>& commands, snowflake guild_id)
-{
-    return dpp::awaitable(this, [&](auto cc) { this->guild_bulk_command_edit_permissions(commands, guild_id, cc); });
+auto inline co_guild_bulk_command_edit_permissions(const std::vector<slashcommand> &commands, snowflake guild_id) {
+	return dpp::awaitable(this, [&] (auto cc) { this->guild_bulk_command_edit_permissions(commands, guild_id, cc); }); 
 }
 
 /**
@@ -173,9 +164,8 @@ auto inline co_guild_bulk_command_edit_permissions(const std::vector<slashcomman
  * @return slashcommand returned object on completion
  * \memberof dpp::cluster
  */
-auto inline co_guild_command_create(const slashcommand& s, snowflake guild_id)
-{
-    return dpp::awaitable(this, [&](auto cc) { this->guild_command_create(s, guild_id, cc); });
+auto inline co_guild_command_create(const slashcommand &s, snowflake guild_id) {
+	return dpp::awaitable(this, [&] (auto cc) { this->guild_command_create(s, guild_id, cc); }); 
 }
 
 /**
@@ -188,9 +178,8 @@ auto inline co_guild_command_create(const slashcommand& s, snowflake guild_id)
  * @return confirmation returned object on completion
  * \memberof dpp::cluster
  */
-auto inline co_guild_command_delete(snowflake id, snowflake guild_id)
-{
-    return dpp::awaitable(this, [&](auto cc) { this->guild_command_delete(id, guild_id, cc); });
+auto inline co_guild_command_delete(snowflake id, snowflake guild_id) {
+	return dpp::awaitable(this, [&] (auto cc) { this->guild_command_delete(id, guild_id, cc); }); 
 }
 
 /**
@@ -204,9 +193,8 @@ auto inline co_guild_command_delete(snowflake id, snowflake guild_id)
  * @return confirmation returned object on completion
  * \memberof dpp::cluster
  */
-auto inline co_guild_command_edit_permissions(const slashcommand& s, snowflake guild_id)
-{
-    return dpp::awaitable(this, [&](auto cc) { this->guild_command_edit_permissions(s, guild_id, cc); });
+auto inline co_guild_command_edit_permissions(const slashcommand &s, snowflake guild_id) {
+	return dpp::awaitable(this, [&] (auto cc) { this->guild_command_edit_permissions(s, guild_id, cc); }); 
 }
 
 /**
@@ -220,9 +208,8 @@ auto inline co_guild_command_edit_permissions(const slashcommand& s, snowflake g
  * @return slashcommand returned object on completion
  * \memberof dpp::cluster
  */
-auto inline co_guild_command_get(snowflake id, snowflake guild_id)
-{
-    return dpp::awaitable(this, [&](auto cc) { this->guild_command_get(id, guild_id, cc); });
+auto inline co_guild_command_get(snowflake id, snowflake guild_id) {
+	return dpp::awaitable(this, [&] (auto cc) { this->guild_command_get(id, guild_id, cc); }); 
 }
 
 /**
@@ -235,9 +222,8 @@ auto inline co_guild_command_get(snowflake id, snowflake guild_id)
  * @return guild_command_permissions returned object on completion
  * \memberof dpp::cluster
  */
-auto inline co_guild_command_get_permissions(snowflake id, snowflake guild_id)
-{
-    return dpp::awaitable(this, [&](auto cc) { this->guild_command_get_permissions(id, guild_id, cc); });
+auto inline co_guild_command_get_permissions(snowflake id, snowflake guild_id) {
+	return dpp::awaitable(this, [&] (auto cc) { this->guild_command_get_permissions(id, guild_id, cc); }); 
 }
 
 /**
@@ -250,9 +236,8 @@ auto inline co_guild_command_get_permissions(snowflake id, snowflake guild_id)
  * @return confirmation returned object on completion
  * \memberof dpp::cluster
  */
-auto inline co_guild_command_edit(const slashcommand& s, snowflake guild_id)
-{
-    return dpp::awaitable(this, [&](auto cc) { this->guild_command_edit(s, guild_id, cc); });
+auto inline co_guild_command_edit(const slashcommand &s, snowflake guild_id) {
+	return dpp::awaitable(this, [&] (auto cc) { this->guild_command_edit(s, guild_id, cc); }); 
 }
 
 /**
@@ -265,9 +250,8 @@ auto inline co_guild_command_edit(const slashcommand& s, snowflake guild_id)
  * @return slashcommand_map returned object on completion
  * \memberof dpp::cluster
  */
-auto inline co_guild_commands_get(snowflake guild_id)
-{
-    return dpp::awaitable(this, [&](auto cc) { this->guild_commands_get(guild_id, cc); });
+auto inline co_guild_commands_get(snowflake guild_id) {
+	return dpp::awaitable(this, [&] (auto cc) { this->guild_commands_get(guild_id, cc); }); 
 }
 
 /**
@@ -281,9 +265,8 @@ auto inline co_guild_commands_get(snowflake guild_id)
  * @return confirmation returned object on completion
  * \memberof dpp::cluster
  */
-auto inline co_interaction_response_create(snowflake interaction_id, const std::string& token, const interaction_response& r)
-{
-    return dpp::awaitable(this, [&](auto cc) { this->interaction_response_create(interaction_id, token, r, cc); });
+auto inline co_interaction_response_create(snowflake interaction_id, const std::string &token, const interaction_response &r) {
+	return dpp::awaitable(this, [&] (auto cc) { this->interaction_response_create(interaction_id, token, r, cc); }); 
 }
 
 /**
@@ -296,22 +279,20 @@ auto inline co_interaction_response_create(snowflake interaction_id, const std::
  * @return confirmation returned object on completion
  * \memberof dpp::cluster
  */
-auto inline co_interaction_response_edit(const std::string& token, const message& m)
-{
-    return dpp::awaitable(this, [&](auto cc) { this->interaction_response_edit(token, m, cc); });
+auto inline co_interaction_response_edit(const std::string &token, const message &m) {
+	return dpp::awaitable(this, [&] (auto cc) { this->interaction_response_edit(token, m, cc); }); 
 }
 
 /**
  * @brief Create a followup message to a slash command
- *
+ * 
  * @param token Token for the interaction webhook
  * @param m followup message to create
  * @return confirmation returned object on completion
  * \memberof dpp::cluster
  */
-auto inline co_interaction_followup_create(const std::string& token, const message& m)
-{
-    return dpp::awaitable(this, [&](auto cc) { this->interaction_followup_create(token, m, cc); });
+auto inline co_interaction_followup_create(const std::string &token, const message &m) {
+	return dpp::awaitable(this, [&] (auto cc) { this->interaction_followup_create(token, m, cc); }); 
 }
 
 /**
@@ -319,27 +300,25 @@ auto inline co_interaction_followup_create(const std::string& token, const messa
  * This is an alias for cluster::interaction_response_edit
  * @see dpp::cluster::interaction_followup_edit_original
  * @see cluster::interaction_response_edit
- *
+ * 
  * @param token Token for the interaction webhook
  * @param m message to edit, the ID should be set
  * @return confirmation returned object on completion
  * \memberof dpp::cluster
  */
-auto inline co_interaction_followup_edit_original(const std::string& token, const message& m)
-{
-    return dpp::awaitable(this, [&](auto cc) { this->interaction_followup_edit_original(token, m, cc); });
+auto inline co_interaction_followup_edit_original(const std::string &token, const message &m) {
+	return dpp::awaitable(this, [&] (auto cc) { this->interaction_followup_edit_original(token, m, cc); }); 
 }
 
 /**
- * @brief
- *
+ * @brief 
+ * 
  * @param token Token for the interaction webhook
  * @return confirmation returned object on completion
  * \memberof dpp::cluster
  */
-auto inline co_interaction_followup_delete(const std::string& token)
-{
-    return dpp::awaitable(this, [&](auto cc) { this->interaction_followup_delete(token, cc); });
+auto inline co_interaction_followup_delete(const std::string &token) {
+	return dpp::awaitable(this, [&] (auto cc) { this->interaction_followup_delete(token, cc); }); 
 }
 
 /**
@@ -350,9 +329,8 @@ auto inline co_interaction_followup_delete(const std::string& token)
  * @return confirmation returned object on completion
  * \memberof dpp::cluster
  */
-auto inline co_interaction_followup_edit(const std::string& token, const message& m)
-{
-    return dpp::awaitable(this, [&](auto cc) { this->interaction_followup_edit(token, m, cc); });
+auto inline co_interaction_followup_edit(const std::string &token, const message &m) {
+	return dpp::awaitable(this, [&] (auto cc) { this->interaction_followup_edit(token, m, cc); }); 
 }
 
 /**
@@ -362,84 +340,78 @@ auto inline co_interaction_followup_edit(const std::string& token, const message
  * @return message returned object on completion
  * \memberof dpp::cluster
  */
-auto inline co_interaction_followup_get(const std::string& token, snowflake message_id)
-{
-    return dpp::awaitable(this, [&](auto cc) { this->interaction_followup_get(token, message_id, cc); });
+auto inline co_interaction_followup_get(const std::string &token, snowflake message_id) {
+	return dpp::awaitable(this, [&] (auto cc) { this->interaction_followup_get(token, message_id, cc); }); 
 }
 
 /**
  * @brief Get all auto moderation rules for a guild
- *
+ * 
  * @param guild_id Guild id of the auto moderation rule
  * @return automod_rule_map returned object on completion
  * \memberof dpp::cluster
  */
-auto inline co_automod_rules_get(snowflake guild_id)
-{
-    return dpp::awaitable(this, [&](auto cc) { this->automod_rules_get(guild_id, cc); });
+auto inline co_automod_rules_get(snowflake guild_id) {
+	return dpp::awaitable(this, [&] (auto cc) { this->automod_rules_get(guild_id, cc); }); 
 }
 
 /**
  * @brief Get a single auto moderation rule
- *
+ * 
  * @param guild_id Guild id of the auto moderation rule
  * @param rule_id  Rule id to retrieve
  * @return automod_rule returned object on completion
  * \memberof dpp::cluster
  */
-auto inline co_automod_rule_get(snowflake guild_id, snowflake rule_id)
-{
-    return dpp::awaitable(this, [&](auto cc) { this->automod_rule_get(guild_id, rule_id, cc); });
+auto inline co_automod_rule_get(snowflake guild_id, snowflake rule_id) {
+	return dpp::awaitable(this, [&] (auto cc) { this->automod_rule_get(guild_id, rule_id, cc); }); 
 }
 
 /**
  * @brief Create an auto moderation rule
- *
+ * 
  * @param guild_id Guild id of the auto moderation rule
  * @param r Auto moderation rule to create
  * @return automod_rule returned object on completion
  * \memberof dpp::cluster
  */
-auto inline co_automod_rule_create(snowflake guild_id, const automod_rule& r)
-{
-    return dpp::awaitable(this, [&](auto cc) { this->automod_rule_create(guild_id, r, cc); });
+auto inline co_automod_rule_create(snowflake guild_id, const automod_rule& r) {
+	return dpp::awaitable(this, [&] (auto cc) { this->automod_rule_create(guild_id, r, cc); }); 
 }
 
 /**
  * @brief Edit an auto moderation rule
- *
+ * 
  * @param guild_id Guild id of the auto moderation rule
  * @param r Auto moderation rule to edit. The rule's id must be set.
  * @return automod_rule returned object on completion
  * \memberof dpp::cluster
  */
-auto inline co_automod_rule_edit(snowflake guild_id, const automod_rule& r)
-{
-    return dpp::awaitable(this, [&](auto cc) { this->automod_rule_edit(guild_id, r, cc); });
+auto inline co_automod_rule_edit(snowflake guild_id, const automod_rule& r) {
+	return dpp::awaitable(this, [&] (auto cc) { this->automod_rule_edit(guild_id, r, cc); }); 
 }
 
 /**
  * @brief Delete an auto moderation rule
- *
+ * 
  * @param guild_id Guild id of the auto moderation rule
  * @param rule_id Auto moderation rule id to delete
  * @return confirmation returned object on completion
  * \memberof dpp::cluster
  */
-auto inline co_automod_rule_delete(snowflake guild_id, snowflake rule_id)
-{
-    return dpp::awaitable(this, [&](auto cc) { this->automod_rule_delete(guild_id, rule_id, cc); });
+auto inline co_automod_rule_delete(snowflake guild_id, snowflake rule_id) {
+	return dpp::awaitable(this, [&] (auto cc) { this->automod_rule_delete(guild_id, rule_id, cc); }); 
 }
 
 /**
  * @brief Create a channel
- *
+ * 
  * Create a new channel object for the guild. Requires the `MANAGE_CHANNELS` permission. If setting permission overwrites,
  * only permissions your bot has in the guild can be allowed/denied. Setting `MANAGE_ROLES` permission in channels is only possible
  * for guild administrators. Returns the new channel object on success. Fires a `Channel Create Gateway` event.
- *
+ * 
  * All parameters to this endpoint are optional excluding `name`
- *
+ * 
  * @note This method supports audit log reasons set by the cluster::set_audit_reason() method.
  * @see dpp::cluster::channel_create
  * @see https://discord.com/developers/docs/resources/channel#create-channel
@@ -447,9 +419,8 @@ auto inline co_automod_rule_delete(snowflake guild_id, snowflake rule_id)
  * @return channel returned object on completion
  * \memberof dpp::cluster
  */
-auto inline co_channel_create(const class channel& c)
-{
-    return dpp::awaitable(this, [&](auto cc) { this->channel_create(c, cc); });
+auto inline co_channel_create(const class channel &c) {
+	return dpp::awaitable(this, [&] (auto cc) { this->channel_create(c, cc); }); 
 }
 
 /**
@@ -462,9 +433,8 @@ auto inline co_channel_create(const class channel& c)
  * @return confirmation returned object on completion
  * \memberof dpp::cluster
  */
-auto inline co_channel_delete_permission(const class channel& c, snowflake overwrite_id)
-{
-    return dpp::awaitable(this, [&](auto cc) { this->channel_delete_permission(c, overwrite_id, cc); });
+auto inline co_channel_delete_permission(const class channel &c, snowflake overwrite_id) {
+	return dpp::awaitable(this, [&] (auto cc) { this->channel_delete_permission(c, overwrite_id, cc); }); 
 }
 
 /**
@@ -476,14 +446,13 @@ auto inline co_channel_delete_permission(const class channel& c, snowflake overw
  * @return confirmation returned object on completion
  * \memberof dpp::cluster
  */
-auto inline co_channel_delete(snowflake channel_id)
-{
-    return dpp::awaitable(this, [&](auto cc) { this->channel_delete(channel_id, cc); });
+auto inline co_channel_delete(snowflake channel_id) {
+	return dpp::awaitable(this, [&] (auto cc) { this->channel_delete(channel_id, cc); }); 
 }
 
 /**
  * @brief Edit multiple channels positions
- *
+ * 
  * Modify the positions of a set of channel objects for the guild.
  * Requires `MANAGE_CHANNELS` permission. Fires multiple `Channel Update Gateway` events.
  * Only channels to be modified are required.
@@ -494,9 +463,8 @@ auto inline co_channel_delete(snowflake channel_id)
  * @return confirmation returned object on completion
  * \memberof dpp::cluster
  */
-auto inline co_channel_edit_positions(const std::vector<channel>& c)
-{
-    return dpp::awaitable(this, [&](auto cc) { this->channel_edit_positions(c, cc); });
+auto inline co_channel_edit_positions(const std::vector<channel> &c) {
+	return dpp::awaitable(this, [&] (auto cc) { this->channel_edit_positions(c, cc); }); 
 }
 
 /**
@@ -508,9 +476,8 @@ auto inline co_channel_edit_positions(const std::vector<channel>& c)
  * @return channel returned object on completion
  * \memberof dpp::cluster
  */
-auto inline co_channel_edit(const class channel& c)
-{
-    return dpp::awaitable(this, [&](auto cc) { this->channel_edit(c, cc); });
+auto inline co_channel_edit(const class channel &c) {
+	return dpp::awaitable(this, [&] (auto cc) { this->channel_edit(c, cc); }); 
 }
 
 /**
@@ -522,9 +489,8 @@ auto inline co_channel_edit(const class channel& c)
  * @return confirmation returned object on completion
  * \memberof dpp::cluster
  */
-auto inline co_channel_follow_news(const class channel& c, snowflake target_channel_id)
-{
-    return dpp::awaitable(this, [&](auto cc) { this->channel_follow_news(c, target_channel_id, cc); });
+auto inline co_channel_follow_news(const class channel &c, snowflake target_channel_id) {
+	return dpp::awaitable(this, [&] (auto cc) { this->channel_follow_news(c, target_channel_id, cc); }); 
 }
 
 /**
@@ -536,9 +502,8 @@ auto inline co_channel_follow_news(const class channel& c, snowflake target_chan
  * @return channel returned object on completion
  * \memberof dpp::cluster
  */
-auto inline co_channel_get(snowflake c)
-{
-    return dpp::awaitable(this, [&](auto cc) { this->channel_get(c, cc); });
+auto inline co_channel_get(snowflake c) {
+	return dpp::awaitable(this, [&] (auto cc) { this->channel_get(c, cc); }); 
 }
 
 /**
@@ -551,9 +516,8 @@ auto inline co_channel_get(snowflake c)
  * @return confirmation returned object on completion
  * \memberof dpp::cluster
  */
-auto inline co_channel_invite_create(const class channel& c, const class invite& i)
-{
-    return dpp::awaitable(this, [&](auto cc) { this->channel_invite_create(c, i, cc); });
+auto inline co_channel_invite_create(const class channel &c, const class invite &i) {
+	return dpp::awaitable(this, [&] (auto cc) { this->channel_invite_create(c, i, cc); }); 
 }
 
 /**
@@ -565,9 +529,8 @@ auto inline co_channel_invite_create(const class channel& c, const class invite&
  * @return invite_map returned object on completion
  * \memberof dpp::cluster
  */
-auto inline co_channel_invites_get(const class channel& c)
-{
-    return dpp::awaitable(this, [&](auto cc) { this->channel_invites_get(c, cc); });
+auto inline co_channel_invites_get(const class channel &c) {
+	return dpp::awaitable(this, [&] (auto cc) { this->channel_invites_get(c, cc); }); 
 }
 
 /**
@@ -579,9 +542,8 @@ auto inline co_channel_invites_get(const class channel& c)
  * @return channel_map returned object on completion
  * \memberof dpp::cluster
  */
-auto inline co_channels_get(snowflake guild_id)
-{
-    return dpp::awaitable(this, [&](auto cc) { this->channels_get(guild_id, cc); });
+auto inline co_channels_get(snowflake guild_id) {
+	return dpp::awaitable(this, [&] (auto cc) { this->channels_get(guild_id, cc); }); 
 }
 
 /**
@@ -592,20 +554,18 @@ auto inline co_channels_get(snowflake guild_id)
  * @return channel returned object on completion
  * \memberof dpp::cluster
  */
-auto inline co_create_dm_channel(snowflake user_id)
-{
-    return dpp::awaitable(this, [&](auto cc) { this->create_dm_channel(user_id, cc); });
+auto inline co_create_dm_channel(snowflake user_id) {
+	return dpp::awaitable(this, [&] (auto cc) { this->create_dm_channel(user_id, cc); }); 
 }
 
 /**
  * @brief Get current user DM channels
- *
+ * 
  * @return channel_map returned object on completion
  * \memberof dpp::cluster
  */
-auto inline co_current_user_get_dms()
-{
-    return dpp::awaitable(this, [&](auto cc) { this->current_user_get_dms(cc); });
+auto inline co_current_user_get_dms() {
+	return dpp::awaitable(this, [&] (auto cc) { this->current_user_get_dms(cc); }); 
 }
 
 /**
@@ -620,9 +580,8 @@ auto inline co_current_user_get_dms()
  * @return message returned object on completion
  * \memberof dpp::cluster
  */
-auto inline co_direct_message_create(snowflake user_id, const message& m)
-{
-    return dpp::awaitable(this, [&](auto cc) { this->direct_message_create(user_id, m, cc); });
+auto inline co_direct_message_create(snowflake user_id, const message &m) {
+	return dpp::awaitable(this, [&] (auto cc) { this->direct_message_create(user_id, m, cc); }); 
 }
 
 /**
@@ -636,9 +595,8 @@ auto inline co_direct_message_create(snowflake user_id, const message& m)
  * @return confirmation returned object on completion
  * \memberof dpp::cluster
  */
-auto inline co_gdm_add(snowflake channel_id, snowflake user_id, const std::string& access_token, const std::string& nick)
-{
-    return dpp::awaitable(this, [&](auto cc) { this->gdm_add(channel_id, user_id, access_token, nick, cc); });
+auto inline co_gdm_add(snowflake channel_id, snowflake user_id, const std::string &access_token, const std::string &nick) {
+	return dpp::awaitable(this, [&] (auto cc) { this->gdm_add(channel_id, user_id, access_token, nick, cc); }); 
 }
 
 /**
@@ -650,9 +608,8 @@ auto inline co_gdm_add(snowflake channel_id, snowflake user_id, const std::strin
  * @return confirmation returned object on completion
  * \memberof dpp::cluster
  */
-auto inline co_gdm_remove(snowflake channel_id, snowflake user_id)
-{
-    return dpp::awaitable(this, [&](auto cc) { this->gdm_remove(channel_id, user_id, cc); });
+auto inline co_gdm_remove(snowflake channel_id, snowflake user_id) {
+	return dpp::awaitable(this, [&] (auto cc) { this->gdm_remove(channel_id, user_id, cc); }); 
 }
 
 /**
@@ -667,9 +624,8 @@ auto inline co_gdm_remove(snowflake channel_id, snowflake user_id)
  * @return emoji returned object on completion
  * \memberof dpp::cluster
  */
-auto inline co_guild_emoji_create(snowflake guild_id, const class emoji& newemoji)
-{
-    return dpp::awaitable(this, [&](auto cc) { this->guild_emoji_create(guild_id, newemoji, cc); });
+auto inline co_guild_emoji_create(snowflake guild_id, const class emoji& newemoji) {
+	return dpp::awaitable(this, [&] (auto cc) { this->guild_emoji_create(guild_id, newemoji, cc); }); 
 }
 
 /**
@@ -683,14 +639,13 @@ auto inline co_guild_emoji_create(snowflake guild_id, const class emoji& newemoj
  * @return confirmation returned object on completion
  * \memberof dpp::cluster
  */
-auto inline co_guild_emoji_delete(snowflake guild_id, snowflake emoji_id)
-{
-    return dpp::awaitable(this, [&](auto cc) { this->guild_emoji_delete(guild_id, emoji_id, cc); });
+auto inline co_guild_emoji_delete(snowflake guild_id, snowflake emoji_id) {
+	return dpp::awaitable(this, [&] (auto cc) { this->guild_emoji_delete(guild_id, emoji_id, cc); }); 
 }
 
 /**
  * @brief Edit a single emoji.
- *
+ * 
  * You must ensure that the emoji passed contained image data using the emoji::load_image() method.
  * @see dpp::cluster::guild_emoji_edit
  * @see https://discord.com/developers/docs/resources/emoji#get-guild-emoji
@@ -700,9 +655,8 @@ auto inline co_guild_emoji_delete(snowflake guild_id, snowflake emoji_id)
  * @return emoji returned object on completion
  * \memberof dpp::cluster
  */
-auto inline co_guild_emoji_edit(snowflake guild_id, const class emoji& newemoji)
-{
-    return dpp::awaitable(this, [&](auto cc) { this->guild_emoji_edit(guild_id, newemoji, cc); });
+auto inline co_guild_emoji_edit(snowflake guild_id, const class emoji& newemoji) {
+	return dpp::awaitable(this, [&] (auto cc) { this->guild_emoji_edit(guild_id, newemoji, cc); }); 
 }
 
 /**
@@ -715,9 +669,8 @@ auto inline co_guild_emoji_edit(snowflake guild_id, const class emoji& newemoji)
  * @return emoji returned object on completion
  * \memberof dpp::cluster
  */
-auto inline co_guild_emoji_get(snowflake guild_id, snowflake emoji_id)
-{
-    return dpp::awaitable(this, [&](auto cc) { this->guild_emoji_get(guild_id, emoji_id, cc); });
+auto inline co_guild_emoji_get(snowflake guild_id, snowflake emoji_id) {
+	return dpp::awaitable(this, [&] (auto cc) { this->guild_emoji_get(guild_id, emoji_id, cc); }); 
 }
 
 /**
@@ -729,9 +682,8 @@ auto inline co_guild_emoji_get(snowflake guild_id, snowflake emoji_id)
  * @return emoji_map returned object on completion
  * \memberof dpp::cluster
  */
-auto inline co_guild_emojis_get(snowflake guild_id)
-{
-    return dpp::awaitable(this, [&](auto cc) { this->guild_emojis_get(guild_id, cc); });
+auto inline co_guild_emojis_get(snowflake guild_id) {
+	return dpp::awaitable(this, [&] (auto cc) { this->guild_emojis_get(guild_id, cc); }); 
 }
 
 /**
@@ -741,9 +693,8 @@ auto inline co_guild_emojis_get(snowflake guild_id)
  * @return gateway returned object on completion
  * \memberof dpp::cluster
  */
-auto inline co_get_gateway_bot()
-{
-    return dpp::awaitable(this, [&](auto cc) { this->get_gateway_bot(cc); });
+auto inline co_get_gateway_bot() {
+	return dpp::awaitable(this, [&] (auto cc) { this->get_gateway_bot(cc); }); 
 }
 
 /**
@@ -760,9 +711,8 @@ auto inline co_get_gateway_bot()
  * @return confirmation returned object on completion
  * \memberof dpp::cluster
  */
-auto inline co_guild_current_member_edit(snowflake guild_id, const std::string& nickname)
-{
-    return dpp::awaitable(this, [&](auto cc) { this->guild_current_member_edit(guild_id, nickname, cc); });
+auto inline co_guild_current_member_edit(snowflake guild_id, const std::string &nickname) {
+	return dpp::awaitable(this, [&] (auto cc) { this->guild_current_member_edit(guild_id, nickname, cc); }); 
 }
 
 /**
@@ -778,9 +728,8 @@ auto inline co_guild_current_member_edit(snowflake guild_id, const std::string& 
  * @return auditlog returned object on completion
  * \memberof dpp::cluster
  */
-auto inline co_guild_auditlog_get(snowflake guild_id, snowflake user_id, uint32_t action_type, snowflake before, uint32_t limit)
-{
-    return dpp::awaitable(this, [&](auto cc) { this->guild_auditlog_get(guild_id, user_id, action_type, before, limit, cc); });
+auto inline co_guild_auditlog_get(snowflake guild_id, snowflake user_id, uint32_t action_type, snowflake before, uint32_t limit) {
+	return dpp::awaitable(this, [&] (auto cc) { this->guild_auditlog_get(guild_id, user_id, action_type, before, limit, cc); }); 
 }
 
 /**
@@ -797,14 +746,13 @@ auto inline co_guild_auditlog_get(snowflake guild_id, snowflake user_id, uint32_
  * @return confirmation returned object on completion
  * \memberof dpp::cluster
  */
-auto inline co_guild_ban_add(snowflake guild_id, snowflake user_id, uint32_t delete_message_seconds)
-{
-    return dpp::awaitable(this, [&](auto cc) { this->guild_ban_add(guild_id, user_id, delete_message_seconds, cc); });
+auto inline co_guild_ban_add(snowflake guild_id, snowflake user_id, uint32_t delete_message_seconds) {
+	return dpp::awaitable(this, [&] (auto cc) { this->guild_ban_add(guild_id, user_id, delete_message_seconds, cc); }); 
 }
 
 /**
  * @brief Delete guild ban
- *
+ * 
  * Remove the ban for a user. Requires the `BAN_MEMBERS` permissions.
  * Fires a Guild Ban Remove Gateway event.
  * @see dpp::cluster::guild_ban_delete
@@ -815,16 +763,15 @@ auto inline co_guild_ban_add(snowflake guild_id, snowflake user_id, uint32_t del
  * @return confirmation returned object on completion
  * \memberof dpp::cluster
  */
-auto inline co_guild_ban_delete(snowflake guild_id, snowflake user_id)
-{
-    return dpp::awaitable(this, [&](auto cc) { this->guild_ban_delete(guild_id, user_id, cc); });
+auto inline co_guild_ban_delete(snowflake guild_id, snowflake user_id) {
+	return dpp::awaitable(this, [&] (auto cc) { this->guild_ban_delete(guild_id, user_id, cc); }); 
 }
 
 /**
  * @brief Create a guild
- *
+ * 
  * Create a new guild. Returns a guild object on success. `Fires a Guild Create Gateway` event.
- *
+ * 
  * When using the roles parameter, the first member of the array is used to change properties of the guild's everyone role.
  * If you are trying to bootstrap a guild with additional roles, keep this in mind. The required id field within each role object is an
  * integer placeholder, and will be replaced by the API upon consumption. Its purpose is to allow you to overwrite a role's permissions
@@ -841,14 +788,13 @@ auto inline co_guild_ban_delete(snowflake guild_id, snowflake user_id)
  * @return guild returned object on completion
  * \memberof dpp::cluster
  */
-auto inline co_guild_create(const class guild& g)
-{
-    return dpp::awaitable(this, [&](auto cc) { this->guild_create(g, cc); });
+auto inline co_guild_create(const class guild &g) {
+	return dpp::awaitable(this, [&] (auto cc) { this->guild_create(g, cc); }); 
 }
 
 /**
  * @brief Delete a guild
- *
+ * 
  * Delete a guild permanently. User must be owner. Fires a `Guild Delete Gateway` event.
  *
  * @see dpp::cluster::guild_delete
@@ -857,17 +803,16 @@ auto inline co_guild_create(const class guild& g)
  * @return confirmation returned object on completion
  * \memberof dpp::cluster
  */
-auto inline co_guild_delete(snowflake guild_id)
-{
-    return dpp::awaitable(this, [&](auto cc) { this->guild_delete(guild_id, cc); });
+auto inline co_guild_delete(snowflake guild_id) {
+	return dpp::awaitable(this, [&] (auto cc) { this->guild_delete(guild_id, cc); }); 
 }
 
 /**
  * @brief Delete guild integration
- *
+ * 
  * Delete the attached integration object for the guild. Deletes any associated webhooks and kicks the associated bot if there is one.
  * Requires the `MANAGE_GUILD` permission. Fires a Guild Integrations Update Gateway event.
- *
+ * 
  * @see dpp::cluster::guild_delete_integration
  * @see https://discord.com/developers/docs/resources/guild#delete-guild-integration
  * @note This method supports audit log reasons set by the cluster::set_audit_reason() method.
@@ -876,17 +821,16 @@ auto inline co_guild_delete(snowflake guild_id)
  * @return confirmation returned object on completion
  * \memberof dpp::cluster
  */
-auto inline co_guild_delete_integration(snowflake guild_id, snowflake integration_id)
-{
-    return dpp::awaitable(this, [&](auto cc) { this->guild_delete_integration(guild_id, integration_id, cc); });
+auto inline co_guild_delete_integration(snowflake guild_id, snowflake integration_id) {
+	return dpp::awaitable(this, [&] (auto cc) { this->guild_delete_integration(guild_id, integration_id, cc); }); 
 }
 
 /**
  * @brief Edit a guild
- *
+ * 
  * Modify a guild's settings. Requires the `MANAGE_GUILD` permission. Returns the updated guild object on success.
  * Fires a `Guild Update Gateway` event.
- *
+ * 
  * @see dpp::cluster::guild_edit
  * @see https://discord.com/developers/docs/resources/guild#modify-guild
  * @note This method supports audit log reasons set by the cluster::set_audit_reason() method.
@@ -894,14 +838,13 @@ auto inline co_guild_delete_integration(snowflake guild_id, snowflake integratio
  * @return guild returned object on completion
  * \memberof dpp::cluster
  */
-auto inline co_guild_edit(const class guild& g)
-{
-    return dpp::awaitable(this, [&](auto cc) { this->guild_edit(g, cc); });
+auto inline co_guild_edit(const class guild &g) {
+	return dpp::awaitable(this, [&] (auto cc) { this->guild_edit(g, cc); }); 
 }
 
 /**
  * @brief Edit guild widget
- *
+ * 
  * Requires the `MANAGE_GUILD` permission.
  *
  * @see dpp::cluster::guild_edit_widget
@@ -912,14 +855,13 @@ auto inline co_guild_edit(const class guild& g)
  * @return guild_widget returned object on completion
  * \memberof dpp::cluster
  */
-auto inline co_guild_edit_widget(snowflake guild_id, const class guild_widget& gw)
-{
-    return dpp::awaitable(this, [&](auto cc) { this->guild_edit_widget(guild_id, gw, cc); });
+auto inline co_guild_edit_widget(snowflake guild_id, const class guild_widget &gw) {
+	return dpp::awaitable(this, [&] (auto cc) { this->guild_edit_widget(guild_id, gw, cc); }); 
 }
 
 /**
  * @brief Get single guild ban
- *
+ * 
  * Requires the `BAN_MEMBERS` permission.
  * @see dpp::cluster::guild_get_ban
  * @see https://discord.com/developers/docs/resources/guild#get-guild-ban
@@ -928,14 +870,13 @@ auto inline co_guild_edit_widget(snowflake guild_id, const class guild_widget& g
  * @return ban returned object on completion
  * \memberof dpp::cluster
  */
-auto inline co_guild_get_ban(snowflake guild_id, snowflake user_id)
-{
-    return dpp::awaitable(this, [&](auto cc) { this->guild_get_ban(guild_id, user_id, cc); });
+auto inline co_guild_get_ban(snowflake guild_id, snowflake user_id) {
+	return dpp::awaitable(this, [&] (auto cc) { this->guild_get_ban(guild_id, user_id, cc); }); 
 }
 
 /**
  * @brief Get guild ban list
- *
+ * 
  * Requires the `BAN_MEMBERS` permission.
  * @see dpp::cluster::guild_get_bans
  * @see https://discord.com/developers/docs/resources/guild#get-guild-bans
@@ -947,20 +888,18 @@ auto inline co_guild_get_ban(snowflake guild_id, snowflake user_id)
  * @return ban_map returned object on completion
  * \memberof dpp::cluster
  */
-auto inline co_guild_get_bans(snowflake guild_id, snowflake before, snowflake after, snowflake limit)
-{
-    return dpp::awaitable(this, [&](auto cc) { this->guild_get_bans(guild_id, before, after, limit, cc); });
+auto inline co_guild_get_bans(snowflake guild_id, snowflake before, snowflake after, snowflake limit) {
+	return dpp::awaitable(this, [&] (auto cc) { this->guild_get_bans(guild_id, before, after, limit, cc); }); 
 }
 
 
-auto inline co_guild_get(snowflake guild_id)
-{
-    return dpp::awaitable(this, [&](auto cc) { this->guild_get(guild_id, cc); });
+auto inline co_guild_get(snowflake guild_id) {
+	return dpp::awaitable(this, [&] (auto cc) { this->guild_get(guild_id, cc); }); 
 }
 
 /**
  * @brief Get guild integrations
- *
+ * 
  * Requires the `MANAGE_GUILD` permission.
  *
  * @see dpp::cluster::guild_get_integrations
@@ -969,20 +908,18 @@ auto inline co_guild_get(snowflake guild_id)
  * @return integration_map returned object on completion
  * \memberof dpp::cluster
  */
-auto inline co_guild_get_integrations(snowflake guild_id)
-{
-    return dpp::awaitable(this, [&](auto cc) { this->guild_get_integrations(guild_id, cc); });
+auto inline co_guild_get_integrations(snowflake guild_id) {
+	return dpp::awaitable(this, [&] (auto cc) { this->guild_get_integrations(guild_id, cc); }); 
 }
 
 
-auto inline co_guild_get_preview(snowflake guild_id)
-{
-    return dpp::awaitable(this, [&](auto cc) { this->guild_get_preview(guild_id, cc); });
+auto inline co_guild_get_preview(snowflake guild_id) {
+	return dpp::awaitable(this, [&] (auto cc) { this->guild_get_preview(guild_id, cc); }); 
 }
 
 /**
  * @brief Get guild vanity url, if enabled
- *
+ * 
  * Returns a partial dpp::invite object for guilds with that feature enabled. Requires the `MANAGE_GUILD` permission. code will be null if a vanity url for the guild is not set.
  * @see dpp::cluster::guild_get_vanity
  * @see https://discord.com/developers/docs/resources/guild#get-guild-vanity-url
@@ -990,14 +927,13 @@ auto inline co_guild_get_preview(snowflake guild_id)
  * @return invite returned object on completion
  * \memberof dpp::cluster
  */
-auto inline co_guild_get_vanity(snowflake guild_id)
-{
-    return dpp::awaitable(this, [&](auto cc) { this->guild_get_vanity(guild_id, cc); });
+auto inline co_guild_get_vanity(snowflake guild_id) {
+	return dpp::awaitable(this, [&] (auto cc) { this->guild_get_vanity(guild_id, cc); }); 
 }
 
 /**
  * @brief Get guild widget
- *
+ * 
  * Requires the `MANAGE_GUILD` permission.
  *
  * @see dpp::cluster::guild_get_widget
@@ -1006,9 +942,8 @@ auto inline co_guild_get_vanity(snowflake guild_id)
  * @return guild_widget returned object on completion
  * \memberof dpp::cluster
  */
-auto inline co_guild_get_widget(snowflake guild_id)
-{
-    return dpp::awaitable(this, [&](auto cc) { this->guild_get_widget(guild_id, cc); });
+auto inline co_guild_get_widget(snowflake guild_id) {
+	return dpp::awaitable(this, [&] (auto cc) { this->guild_get_widget(guild_id, cc); }); 
 }
 
 /**
@@ -1022,14 +957,13 @@ auto inline co_guild_get_widget(snowflake guild_id)
  * @return confirmation returned object on completion
  * \memberof dpp::cluster
  */
-auto inline co_guild_modify_integration(snowflake guild_id, const class integration& i)
-{
-    return dpp::awaitable(this, [&](auto cc) { this->guild_modify_integration(guild_id, i, cc); });
+auto inline co_guild_modify_integration(snowflake guild_id, const class integration &i) {
+	return dpp::awaitable(this, [&] (auto cc) { this->guild_modify_integration(guild_id, i, cc); }); 
 }
 
 /**
  * @brief Get prune counts
- *
+ * 
  * Returns a prune object indicating the number of members that would be removed in a prune operation. Requires the `KICK_MEMBERS`
  * permission. By default, prune will not remove users with roles. You can optionally include specific roles in your prune by providing the
  * include_roles parameter. Any inactive user that has a subset of the provided role(s) will be counted in the prune and users with additional
@@ -1042,20 +976,19 @@ auto inline co_guild_modify_integration(snowflake guild_id, const class integrat
  * @return prune returned object on completion
  * \memberof dpp::cluster
  */
-auto inline co_guild_get_prune_counts(snowflake guild_id, const struct prune& pruneinfo)
-{
-    return dpp::awaitable(this, [&](auto cc) { this->guild_get_prune_counts(guild_id, pruneinfo, cc); });
+auto inline co_guild_get_prune_counts(snowflake guild_id, const struct prune& pruneinfo) {
+	return dpp::awaitable(this, [&] (auto cc) { this->guild_get_prune_counts(guild_id, pruneinfo, cc); }); 
 }
 
 /**
  * @brief Begin guild prune
- *
+ * 
  * Begin a prune operation. Requires the `KICK_MEMBERS` permission. Returns a prune object indicating the number of members
  * that were removed in the prune operation. For large guilds it's recommended to set the `compute_prune_count` option to false, forcing
  * 'pruned' to 0. Fires multiple `Guild Member Remove` Gateway events.
  * By default, prune will not remove users with roles. You can optionally include specific roles in your prune by providing the `include_roles`
  * parameter. Any inactive user that has a subset of the provided role(s) will be included in the prune and users with additional roles will not.
- *
+ * 
  * @see dpp::cluster::guild_begin_prune
  * @see https://discord.com/developers/docs/resources/guild#begin-guild-prune
  * @note This method supports audit log reasons set by the cluster::set_audit_reason() method.
@@ -1064,17 +997,16 @@ auto inline co_guild_get_prune_counts(snowflake guild_id, const struct prune& pr
  * @return prune returned object on completion
  * \memberof dpp::cluster
  */
-auto inline co_guild_begin_prune(snowflake guild_id, const struct prune& pruneinfo)
-{
-    return dpp::awaitable(this, [&](auto cc) { this->guild_begin_prune(guild_id, pruneinfo, cc); });
+auto inline co_guild_begin_prune(snowflake guild_id, const struct prune& pruneinfo) {
+	return dpp::awaitable(this, [&] (auto cc) { this->guild_begin_prune(guild_id, pruneinfo, cc); }); 
 }
 
 /**
  * @brief Change current user nickname
- *
+ * 
  * Modifies the nickname of the current user in a guild.
  * Fires a `Guild Member Update` Gateway event.
- *
+ * 
  * @deprecated Deprecated in favor of Modify Current Member. Will be replaced by dpp::cluster::guild_current_member_edit
  * @note This method supports audit log reasons set by the cluster::set_audit_reason() method.
  * @see dpp::cluster::guild_set_nickname
@@ -1084,9 +1016,8 @@ auto inline co_guild_begin_prune(snowflake guild_id, const struct prune& prunein
  * @return confirmation returned object on completion
  * \memberof dpp::cluster
  */
-auto inline co_guild_set_nickname(snowflake guild_id, const std::string& nickname)
-{
-    return dpp::awaitable(this, [&](auto cc) { this->guild_set_nickname(guild_id, nickname, cc); });
+auto inline co_guild_set_nickname(snowflake guild_id, const std::string &nickname) {
+	return dpp::awaitable(this, [&] (auto cc) { this->guild_set_nickname(guild_id, nickname, cc); }); 
 }
 
 /**
@@ -1099,20 +1030,19 @@ auto inline co_guild_set_nickname(snowflake guild_id, const std::string& nicknam
  * @return confirmation returned object on completion
  * \memberof dpp::cluster
  */
-auto inline co_guild_sync_integration(snowflake guild_id, snowflake integration_id)
-{
-    return dpp::awaitable(this, [&](auto cc) { this->guild_sync_integration(guild_id, integration_id, cc); });
+auto inline co_guild_sync_integration(snowflake guild_id, snowflake integration_id) {
+	return dpp::awaitable(this, [&] (auto cc) { this->guild_sync_integration(guild_id, integration_id, cc); }); 
 }
 
 /**
  * @brief Add guild member. Needs a specific oauth2 scope, from which you get the access_token.
- *
+ * 
  * Adds a user to the guild, provided you have a valid oauth2 access token for the user with the guilds.join scope.
  * Returns the guild_member, which is defaulted if the user is already a member of the guild. Fires a `Guild Member Add` Gateway event.
- *
+ * 
  * For guilds with Membership Screening enabled, this endpoint will default to adding new members as pending in the guild member object.
  * Members that are pending will have to complete membership screening before they become full members that can talk.
- *
+ * 
  * @note All parameters to this endpoint except for access_token are optional.
  * The bot must be a member of the guild with `CREATE_INSTANT_INVITE` permission.
  * @see dpp::cluster::guild_add_member
@@ -1122,14 +1052,13 @@ auto inline co_guild_sync_integration(snowflake guild_id, snowflake integration_
  * @return confirmation returned object on completion
  * \memberof dpp::cluster
  */
-auto inline co_guild_add_member(const guild_member& gm, const std::string& access_token)
-{
-    return dpp::awaitable(this, [&](auto cc) { this->guild_add_member(gm, access_token, cc); });
+auto inline co_guild_add_member(const guild_member& gm, const std::string &access_token) {
+	return dpp::awaitable(this, [&] (auto cc) { this->guild_add_member(gm, access_token, cc); }); 
 }
 
 /**
  * @brief Edit the properties of an existing guild member
- *
+ * 
  * Modify attributes of a guild member. Returns the guild_member. Fires a `Guild Member Update` Gateway event.
  * To remove a timeout, set the `communication_disabled_until` to a non-zero time in the past, e.g. 1.
  * When moving members to channels, the API user must have permissions to both connect to the channel and have the `MOVE_MEMBERS` permission.
@@ -1141,9 +1070,8 @@ auto inline co_guild_add_member(const guild_member& gm, const std::string& acces
  * @return guild_member returned object on completion
  * \memberof dpp::cluster
  */
-auto inline co_guild_edit_member(const guild_member& gm)
-{
-    return dpp::awaitable(this, [&](auto cc) { this->guild_edit_member(gm, cc); });
+auto inline co_guild_edit_member(const guild_member& gm) {
+	return dpp::awaitable(this, [&] (auto cc) { this->guild_edit_member(gm, cc); }); 
 }
 
 /**
@@ -1155,14 +1083,13 @@ auto inline co_guild_edit_member(const guild_member& gm)
  * @return guild_member returned object on completion
  * \memberof dpp::cluster
  */
-auto inline co_guild_get_member(snowflake guild_id, snowflake user_id)
-{
-    return dpp::awaitable(this, [&](auto cc) { this->guild_get_member(guild_id, user_id, cc); });
+auto inline co_guild_get_member(snowflake guild_id, snowflake user_id) {
+	return dpp::awaitable(this, [&] (auto cc) { this->guild_get_member(guild_id, user_id, cc); }); 
 }
 
 /**
  * @brief Get all guild members
- *
+ * 
  * @note This endpoint is restricted according to whether the `GUILD_MEMBERS` Privileged Intent is enabled for your application.
  * @see dpp::cluster::guild_get_members
  * @see https://discord.com/developers/docs/resources/guild#get-guild-members
@@ -1172,14 +1099,13 @@ auto inline co_guild_get_member(snowflake guild_id, snowflake user_id)
  * @return guild_member_map returned object on completion
  * \memberof dpp::cluster
  */
-auto inline co_guild_get_members(snowflake guild_id, uint16_t limit, snowflake after)
-{
-    return dpp::awaitable(this, [&](auto cc) { this->guild_get_members(guild_id, limit, after, cc); });
+auto inline co_guild_get_members(snowflake guild_id, uint16_t limit, snowflake after) {
+	return dpp::awaitable(this, [&] (auto cc) { this->guild_get_members(guild_id, limit, after, cc); }); 
 }
 
 /**
  * @brief Add role to guild member
- *
+ * 
  * Adds a role to a guild member. Requires the `MANAGE_ROLES` permission.
  * Fires a `Guild Member Update` Gateway event.
  * @see dpp::cluster::guild_member_add_role
@@ -1191,14 +1117,13 @@ auto inline co_guild_get_members(snowflake guild_id, uint16_t limit, snowflake a
  * @return confirmation returned object on completion
  * \memberof dpp::cluster
  */
-auto inline co_guild_member_add_role(snowflake guild_id, snowflake user_id, snowflake role_id)
-{
-    return dpp::awaitable(this, [&](auto cc) { this->guild_member_add_role(guild_id, user_id, role_id, cc); });
+auto inline co_guild_member_add_role(snowflake guild_id, snowflake user_id, snowflake role_id) {
+	return dpp::awaitable(this, [&] (auto cc) { this->guild_member_add_role(guild_id, user_id, role_id, cc); }); 
 }
 
 /**
  * @brief Remove (kick) a guild member
- *
+ * 
  * Remove a member from a guild. Requires `KICK_MEMBERS` permission.
  * Fires a `Guild Member Remove` Gateway event.
  * @see dpp::cluster::guild_member_delete
@@ -1210,14 +1135,13 @@ auto inline co_guild_member_add_role(snowflake guild_id, snowflake user_id, snow
  * @return confirmation returned object on completion
  * \memberof dpp::cluster
  */
-auto inline co_guild_member_delete(snowflake guild_id, snowflake user_id)
-{
-    return dpp::awaitable(this, [&](auto cc) { this->guild_member_delete(guild_id, user_id, cc); });
+auto inline co_guild_member_delete(snowflake guild_id, snowflake user_id) {
+	return dpp::awaitable(this, [&] (auto cc) { this->guild_member_delete(guild_id, user_id, cc); }); 
 }
 
 /**
  * @brief Remove (kick) a guild member
- *
+ *  
  * Remove a member from a guild. Requires `KICK_MEMBERS` permission.
  * Fires a `Guild Member Remove` Gateway event.
  * @see dpp::cluster::guild_member_kick
@@ -1228,9 +1152,8 @@ auto inline co_guild_member_delete(snowflake guild_id, snowflake user_id)
  * @return confirmation returned object on completion
  * \memberof dpp::cluster
  */
-auto inline co_guild_member_kick(snowflake guild_id, snowflake user_id)
-{
-    return dpp::awaitable(this, [&](auto cc) { this->guild_member_kick(guild_id, user_id, cc); });
+auto inline co_guild_member_kick(snowflake guild_id, snowflake user_id) {
+	return dpp::awaitable(this, [&] (auto cc) { this->guild_member_kick(guild_id, user_id, cc); }); 
 }
 
 /**
@@ -1246,14 +1169,13 @@ auto inline co_guild_member_kick(snowflake guild_id, snowflake user_id)
  * @return confirmation returned object on completion
  * \memberof dpp::cluster
  */
-auto inline co_guild_member_timeout(snowflake guild_id, snowflake user_id, time_t communication_disabled_until)
-{
-    return dpp::awaitable(this, [&](auto cc) { this->guild_member_timeout(guild_id, user_id, communication_disabled_until, cc); });
+auto inline co_guild_member_timeout(snowflake guild_id, snowflake user_id, time_t communication_disabled_until) {
+	return dpp::awaitable(this, [&] (auto cc) { this->guild_member_timeout(guild_id, user_id, communication_disabled_until, cc); }); 
 }
 
 /**
  * @brief Remove role from guild member
- *
+ * 
  * Removes a role from a guild member. Requires the `MANAGE_ROLES` permission.
  * Fires a `Guild Member Update` Gateway event.
  * @see dpp::cluster::guild_member_delete_role
@@ -1266,9 +1188,8 @@ auto inline co_guild_member_timeout(snowflake guild_id, snowflake user_id, time_
  * @deprecated Use dpp::cluster::guild_member_remove_role instead
  * \memberof dpp::cluster
  */
-auto inline co_guild_member_delete_role(snowflake guild_id, snowflake user_id, snowflake role_id)
-{
-    return dpp::awaitable(this, [&](auto cc) { this->guild_member_delete_role(guild_id, user_id, role_id, cc); });
+auto inline co_guild_member_delete_role(snowflake guild_id, snowflake user_id, snowflake role_id) {
+	return dpp::awaitable(this, [&] (auto cc) { this->guild_member_delete_role(guild_id, user_id, role_id, cc); }); 
 }
 
 /**
@@ -1285,9 +1206,8 @@ auto inline co_guild_member_delete_role(snowflake guild_id, snowflake user_id, s
  * @return confirmation returned object on completion
  * \memberof dpp::cluster
  */
-auto inline co_guild_member_remove_role(snowflake guild_id, snowflake user_id, snowflake role_id)
-{
-    return dpp::awaitable(this, [&](auto cc) { this->guild_member_remove_role(guild_id, user_id, role_id, cc); });
+auto inline co_guild_member_remove_role(snowflake guild_id, snowflake user_id, snowflake role_id) {
+	return dpp::awaitable(this, [&] (auto cc) { this->guild_member_remove_role(guild_id, user_id, role_id, cc); }); 
 }
 
 /**
@@ -1305,9 +1225,8 @@ auto inline co_guild_member_remove_role(snowflake guild_id, snowflake user_id, s
  * @return guild_member returned object on completion
  * \memberof dpp::cluster
  */
-auto inline co_guild_member_move(const snowflake channel_id, const snowflake guild_id, const snowflake user_id)
-{
-    return dpp::awaitable(this, [&](auto cc) { this->guild_member_move(channel_id, guild_id, user_id, cc); });
+auto inline co_guild_member_move(const snowflake channel_id, const snowflake guild_id, const snowflake user_id) {
+	return dpp::awaitable(this, [&] (auto cc) { this->guild_member_move(channel_id, guild_id, user_id, cc); }); 
 }
 
 /**
@@ -1322,14 +1241,13 @@ auto inline co_guild_member_move(const snowflake channel_id, const snowflake gui
  * @return guild_member_map returned object on completion
  * \memberof dpp::cluster
  */
-auto inline co_guild_search_members(snowflake guild_id, const std::string& query, uint16_t limit)
-{
-    return dpp::awaitable(this, [&](auto cc) { this->guild_search_members(guild_id, query, limit, cc); });
+auto inline co_guild_search_members(snowflake guild_id, const std::string& query, uint16_t limit) {
+	return dpp::awaitable(this, [&] (auto cc) { this->guild_search_members(guild_id, query, limit, cc); }); 
 }
 
 /**
  * @brief Get guild invites
- *
+ * 
  * Returns a list of invite objects (with invite metadata) for the guild. Requires the `MANAGE_GUILD` permission.
  *
  * @see dpp::cluster::guild_get_invites
@@ -1338,21 +1256,18 @@ auto inline co_guild_search_members(snowflake guild_id, const std::string& query
  * @return invite_map returned object on completion
  * \memberof dpp::cluster
  */
-auto inline co_guild_get_invites(snowflake guild_id)
-{
-    return dpp::awaitable(this, [&](auto cc) { this->guild_get_invites(guild_id, cc); });
+auto inline co_guild_get_invites(snowflake guild_id) {
+	return dpp::awaitable(this, [&] (auto cc) { this->guild_get_invites(guild_id, cc); }); 
 }
 
 
-auto inline co_invite_delete(const std::string& invitecode)
-{
-    return dpp::awaitable(this, [&](auto cc) { this->invite_delete(invitecode, cc); });
+auto inline co_invite_delete(const std::string &invitecode) {
+	return dpp::awaitable(this, [&] (auto cc) { this->invite_delete(invitecode, cc); }); 
 }
 
 
-auto inline co_invite_get(const std::string& invitecode)
-{
-    return dpp::awaitable(this, [&](auto cc) { this->invite_get(invitecode, cc); });
+auto inline co_invite_get(const std::string &invitecode) {
+	return dpp::awaitable(this, [&] (auto cc) { this->invite_get(invitecode, cc); }); 
 }
 
 /**
@@ -1364,9 +1279,8 @@ auto inline co_invite_get(const std::string& invitecode)
  * @return message returned object on completion
  * \memberof dpp::cluster
  */
-auto inline co_message_create(const message& m)
-{
-    return dpp::awaitable(this, [&](auto cc) { this->message_create(m, cc); });
+auto inline co_message_create(const message &m) {
+	return dpp::awaitable(this, [&] (auto cc) { this->message_create(m, cc); }); 
 }
 
 /**
@@ -1379,9 +1293,8 @@ auto inline co_message_create(const message& m)
  * @return message returned object on completion
  * \memberof dpp::cluster
  */
-auto inline co_message_crosspost(snowflake message_id, snowflake channel_id)
-{
-    return dpp::awaitable(this, [&](auto cc) { this->message_crosspost(message_id, channel_id, cc); });
+auto inline co_message_crosspost(snowflake message_id, snowflake channel_id) {
+	return dpp::awaitable(this, [&] (auto cc) { this->message_crosspost(message_id, channel_id, cc); }); 
 }
 
 /**
@@ -1397,9 +1310,8 @@ auto inline co_message_crosspost(snowflake message_id, snowflake channel_id)
  * @return confirmation returned object on completion
  * \memberof dpp::cluster
  */
-auto inline co_message_delete_bulk(const std::vector<snowflake>& message_ids, snowflake channel_id)
-{
-    return dpp::awaitable(this, [&](auto cc) { this->message_delete_bulk(message_ids, channel_id, cc); });
+auto inline co_message_delete_bulk(const std::vector<snowflake>& message_ids, snowflake channel_id) {
+	return dpp::awaitable(this, [&] (auto cc) { this->message_delete_bulk(message_ids, channel_id, cc); }); 
 }
 
 /**
@@ -1413,9 +1325,8 @@ auto inline co_message_delete_bulk(const std::vector<snowflake>& message_ids, sn
  * @return confirmation returned object on completion
  * \memberof dpp::cluster
  */
-auto inline co_message_delete(snowflake message_id, snowflake channel_id)
-{
-    return dpp::awaitable(this, [&](auto cc) { this->message_delete(message_id, channel_id, cc); });
+auto inline co_message_delete(snowflake message_id, snowflake channel_id) {
+	return dpp::awaitable(this, [&] (auto cc) { this->message_delete(message_id, channel_id, cc); }); 
 }
 
 /**
@@ -1427,9 +1338,8 @@ auto inline co_message_delete(snowflake message_id, snowflake channel_id)
  * @return message returned object on completion
  * \memberof dpp::cluster
  */
-auto inline co_message_edit(const message& m)
-{
-    return dpp::awaitable(this, [&](auto cc) { this->message_edit(m, cc); });
+auto inline co_message_edit(const message &m) {
+	return dpp::awaitable(this, [&] (auto cc) { this->message_edit(m, cc); }); 
 }
 
 /**
@@ -1442,9 +1352,8 @@ auto inline co_message_edit(const message& m)
  * @return message returned object on completion
  * \memberof dpp::cluster
  */
-auto inline co_message_get(snowflake message_id, snowflake channel_id)
-{
-    return dpp::awaitable(this, [&](auto cc) { this->message_get(message_id, channel_id, cc); });
+auto inline co_message_get(snowflake message_id, snowflake channel_id) {
+	return dpp::awaitable(this, [&] (auto cc) { this->message_get(message_id, channel_id, cc); }); 
 }
 
 /**
@@ -1457,14 +1366,13 @@ auto inline co_message_get(snowflake message_id, snowflake channel_id)
  * @return confirmation returned object on completion
  * \memberof dpp::cluster
  */
-auto inline co_message_pin(snowflake channel_id, snowflake message_id)
-{
-    return dpp::awaitable(this, [&](auto cc) { this->message_pin(channel_id, message_id, cc); });
+auto inline co_message_pin(snowflake channel_id, snowflake message_id) {
+	return dpp::awaitable(this, [&] (auto cc) { this->message_pin(channel_id, message_id, cc); }); 
 }
 
 /**
  * @brief Get multiple messages.
- *
+ * 
  * This function will attempt to fetch as many messages as possible using multiple API calls if needed.
  *
  * @see dpp::cluster::messages_get
@@ -1477,9 +1385,8 @@ auto inline co_message_pin(snowflake channel_id, snowflake message_id)
  * @return message_map returned object on completion
  * \memberof dpp::cluster
  */
-auto inline co_messages_get(snowflake channel_id, snowflake around, snowflake before, snowflake after, uint64_t limit)
-{
-    return dpp::awaitable(this, [&](auto cc) { this->messages_get(channel_id, around, before, after, limit, cc); });
+auto inline co_messages_get(snowflake channel_id, snowflake around, snowflake before, snowflake after, uint64_t limit) {
+	return dpp::awaitable(this, [&] (auto cc) { this->messages_get(channel_id, around, before, after, limit, cc); }); 
 }
 
 /**
@@ -1492,9 +1399,8 @@ auto inline co_messages_get(snowflake channel_id, snowflake around, snowflake be
  * @return confirmation returned object on completion
  * \memberof dpp::cluster
  */
-auto inline co_message_unpin(snowflake channel_id, snowflake message_id)
-{
-    return dpp::awaitable(this, [&](auto cc) { this->message_unpin(channel_id, message_id, cc); });
+auto inline co_message_unpin(snowflake channel_id, snowflake message_id) {
+	return dpp::awaitable(this, [&] (auto cc) { this->message_unpin(channel_id, message_id, cc); }); 
 }
 
 /**
@@ -1505,17 +1411,16 @@ auto inline co_message_unpin(snowflake channel_id, snowflake message_id)
  * @return message_map returned object on completion
  * \memberof dpp::cluster
  */
-auto inline co_channel_pins_get(snowflake channel_id)
-{
-    return dpp::awaitable(this, [&](auto cc) { this->channel_pins_get(channel_id, cc); });
+auto inline co_channel_pins_get(snowflake channel_id) {
+	return dpp::awaitable(this, [&] (auto cc) { this->channel_pins_get(channel_id, cc); }); 
 }
 
 /**
  * @brief Create a role on a guild
- *
+ * 
  * Create a new role for the guild. Requires the `MANAGE_ROLES` permission. Returns the new role object on success.
  * Fires a `Guild Role Create` Gateway event.
- *
+ * 
  * @see dpp::cluster::role_create
  * @see https://discord.com/developers/docs/resources/guild#create-guild-role
  * @note This method supports audit log reasons set by the cluster::set_audit_reason() method.
@@ -1523,16 +1428,15 @@ auto inline co_channel_pins_get(snowflake channel_id)
  * @return role returned object on completion
  * \memberof dpp::cluster
  */
-auto inline co_role_create(const class role& r)
-{
-    return dpp::awaitable(this, [&](auto cc) { this->role_create(r, cc); });
+auto inline co_role_create(const class role &r) {
+	return dpp::awaitable(this, [&] (auto cc) { this->role_create(r, cc); }); 
 }
 
 /**
  * @brief Delete a role
- *
+ * 
  * Requires the `MANAGE_ROLES` permission. Fires a `Guild Role Delete` Gateway event.
- *
+ * 
  * @see dpp::cluster::role_delete
  * @see https://discord.com/developers/docs/resources/guild#delete-guild-role
  * @note This method supports audit log reasons set by the cluster::set_audit_reason() method.
@@ -1541,16 +1445,15 @@ auto inline co_role_create(const class role& r)
  * @return confirmation returned object on completion
  * \memberof dpp::cluster
  */
-auto inline co_role_delete(snowflake guild_id, snowflake role_id)
-{
-    return dpp::awaitable(this, [&](auto cc) { this->role_delete(guild_id, role_id, cc); });
+auto inline co_role_delete(snowflake guild_id, snowflake role_id) {
+	return dpp::awaitable(this, [&] (auto cc) { this->role_delete(guild_id, role_id, cc); }); 
 }
 
 /**
  * @brief Edit a role on a guild
- *
+ * 
  * Requires the `MANAGE_ROLES` permission. Returns the updated role on success. Fires a `Guild Role Update` Gateway event.
- *
+ * 
  * @see dpp::cluster::role_edit
  * @see https://discord.com/developers/docs/resources/guild#modify-guild-role
  * @note This method supports audit log reasons set by the cluster::set_audit_reason() method.
@@ -1558,9 +1461,8 @@ auto inline co_role_delete(snowflake guild_id, snowflake role_id)
  * @return role returned object on completion
  * \memberof dpp::cluster
  */
-auto inline co_role_edit(const class role& r)
-{
-    return dpp::awaitable(this, [&](auto cc) { this->role_edit(r, cc); });
+auto inline co_role_edit(const class role &r) {
+	return dpp::awaitable(this, [&] (auto cc) { this->role_edit(r, cc); }); 
 }
 
 /**
@@ -1577,9 +1479,8 @@ auto inline co_role_edit(const class role& r)
  * @return role_map returned object on completion
  * \memberof dpp::cluster
  */
-auto inline co_roles_edit_position(snowflake guild_id, const std::vector<role>& roles)
-{
-    return dpp::awaitable(this, [&](auto cc) { this->roles_edit_position(guild_id, roles, cc); });
+auto inline co_roles_edit_position(snowflake guild_id, const std::vector<role> &roles) {
+	return dpp::awaitable(this, [&] (auto cc) { this->roles_edit_position(guild_id, roles, cc); }); 
 }
 
 /**
@@ -1591,9 +1492,8 @@ auto inline co_roles_edit_position(snowflake guild_id, const std::vector<role>& 
  * @return role_map returned object on completion
  * \memberof dpp::cluster
  */
-auto inline co_roles_get(snowflake guild_id)
-{
-    return dpp::awaitable(this, [&](auto cc) { this->roles_get(guild_id, cc); });
+auto inline co_roles_get(snowflake guild_id) {
+	return dpp::awaitable(this, [&] (auto cc) { this->roles_get(guild_id, cc); }); 
 }
 
 /**
@@ -1604,9 +1504,8 @@ auto inline co_roles_get(snowflake guild_id)
  * @return scheduled_event_map returned object on completion
  * \memberof dpp::cluster
  */
-auto inline co_guild_events_get(snowflake guild_id)
-{
-    return dpp::awaitable(this, [&](auto cc) { this->guild_events_get(guild_id, cc); });
+auto inline co_guild_events_get(snowflake guild_id) {
+	return dpp::awaitable(this, [&] (auto cc) { this->guild_events_get(guild_id, cc); }); 
 }
 
 /**
@@ -1618,9 +1517,8 @@ auto inline co_guild_events_get(snowflake guild_id)
  * @return scheduled_event returned object on completion
  * \memberof dpp::cluster
  */
-auto inline co_guild_event_create(const scheduled_event& event)
-{
-    return dpp::awaitable(this, [&](auto cc) { this->guild_event_create(event, cc); });
+auto inline co_guild_event_create(const scheduled_event& event) {
+	return dpp::awaitable(this, [&] (auto cc) { this->guild_event_create(event, cc); }); 
 }
 
 /**
@@ -1633,9 +1531,8 @@ auto inline co_guild_event_create(const scheduled_event& event)
  * @return confirmation returned object on completion
  * \memberof dpp::cluster
  */
-auto inline co_guild_event_delete(snowflake event_id, snowflake guild_id)
-{
-    return dpp::awaitable(this, [&](auto cc) { this->guild_event_delete(event_id, guild_id, cc); });
+auto inline co_guild_event_delete(snowflake event_id, snowflake guild_id) {
+	return dpp::awaitable(this, [&] (auto cc) { this->guild_event_delete(event_id, guild_id, cc); }); 
 }
 
 /**
@@ -1647,9 +1544,8 @@ auto inline co_guild_event_delete(snowflake event_id, snowflake guild_id)
  * @return scheduled_event returned object on completion
  * \memberof dpp::cluster
  */
-auto inline co_guild_event_edit(const scheduled_event& event)
-{
-    return dpp::awaitable(this, [&](auto cc) { this->guild_event_edit(event, cc); });
+auto inline co_guild_event_edit(const scheduled_event& event) {
+	return dpp::awaitable(this, [&] (auto cc) { this->guild_event_edit(event, cc); }); 
 }
 
 /**
@@ -1662,15 +1558,13 @@ auto inline co_guild_event_edit(const scheduled_event& event)
  * @return scheduled_event returned object on completion
  * \memberof dpp::cluster
  */
-auto inline co_guild_event_get(snowflake guild_id, snowflake event_id)
-{
-    return dpp::awaitable(this, [&](auto cc) { this->guild_event_get(guild_id, event_id, cc); });
+auto inline co_guild_event_get(snowflake guild_id, snowflake event_id) {
+	return dpp::awaitable(this, [&] (auto cc) { this->guild_event_get(guild_id, event_id, cc); }); 
 }
 
 
-auto inline co_stage_instance_create(const stage_instance& si)
-{
-    return dpp::awaitable(this, [&](auto cc) { this->stage_instance_create(si, cc); });
+auto inline co_stage_instance_create(const stage_instance& si) {
+	return dpp::awaitable(this, [&] (auto cc) { this->stage_instance_create(si, cc); }); 
 }
 
 /**
@@ -1681,15 +1575,13 @@ auto inline co_stage_instance_create(const stage_instance& si)
  * @return stage_instance returned object on completion
  * \memberof dpp::cluster
  */
-auto inline co_stage_instance_get(const snowflake channel_id)
-{
-    return dpp::awaitable(this, [&](auto cc) { this->stage_instance_get(channel_id, cc); });
+auto inline co_stage_instance_get(const snowflake channel_id) {
+	return dpp::awaitable(this, [&] (auto cc) { this->stage_instance_get(channel_id, cc); }); 
 }
 
 
-auto inline co_stage_instance_edit(const stage_instance& si)
-{
-    return dpp::awaitable(this, [&](auto cc) { this->stage_instance_edit(si, cc); });
+auto inline co_stage_instance_edit(const stage_instance& si) {
+	return dpp::awaitable(this, [&] (auto cc) { this->stage_instance_edit(si, cc); }); 
 }
 
 /**
@@ -1701,9 +1593,8 @@ auto inline co_stage_instance_edit(const stage_instance& si)
  * @note This method supports audit log reasons set by the cluster::set_audit_reason() method.
  * \memberof dpp::cluster
  */
-auto inline co_stage_instance_delete(const snowflake channel_id)
-{
-    return dpp::awaitable(this, [&](auto cc) { this->stage_instance_delete(channel_id, cc); });
+auto inline co_stage_instance_delete(const snowflake channel_id) {
+	return dpp::awaitable(this, [&] (auto cc) { this->stage_instance_delete(channel_id, cc); }); 
 }
 
 /**
@@ -1715,9 +1606,8 @@ auto inline co_stage_instance_delete(const snowflake channel_id)
  * @return sticker returned object on completion
  * \memberof dpp::cluster
  */
-auto inline co_guild_sticker_create(sticker& s)
-{
-    return dpp::awaitable(this, [&](auto cc) { this->guild_sticker_create(s, cc); });
+auto inline co_guild_sticker_create(sticker &s) {
+	return dpp::awaitable(this, [&] (auto cc) { this->guild_sticker_create(s, cc); }); 
 }
 
 /**
@@ -1730,9 +1620,8 @@ auto inline co_guild_sticker_create(sticker& s)
  * @return confirmation returned object on completion
  * \memberof dpp::cluster
  */
-auto inline co_guild_sticker_delete(snowflake sticker_id, snowflake guild_id)
-{
-    return dpp::awaitable(this, [&](auto cc) { this->guild_sticker_delete(sticker_id, guild_id, cc); });
+auto inline co_guild_sticker_delete(snowflake sticker_id, snowflake guild_id) {
+	return dpp::awaitable(this, [&] (auto cc) { this->guild_sticker_delete(sticker_id, guild_id, cc); }); 
 }
 
 /**
@@ -1744,9 +1633,8 @@ auto inline co_guild_sticker_delete(snowflake sticker_id, snowflake guild_id)
  * @return sticker returned object on completion
  * \memberof dpp::cluster
  */
-auto inline co_guild_sticker_get(snowflake id, snowflake guild_id)
-{
-    return dpp::awaitable(this, [&](auto cc) { this->guild_sticker_get(id, guild_id, cc); });
+auto inline co_guild_sticker_get(snowflake id, snowflake guild_id) {
+	return dpp::awaitable(this, [&] (auto cc) { this->guild_sticker_get(id, guild_id, cc); }); 
 }
 
 /**
@@ -1758,9 +1646,8 @@ auto inline co_guild_sticker_get(snowflake id, snowflake guild_id)
  * @return sticker returned object on completion
  * \memberof dpp::cluster
  */
-auto inline co_guild_sticker_modify(sticker& s)
-{
-    return dpp::awaitable(this, [&](auto cc) { this->guild_sticker_modify(s, cc); });
+auto inline co_guild_sticker_modify(sticker &s) {
+	return dpp::awaitable(this, [&] (auto cc) { this->guild_sticker_modify(s, cc); }); 
 }
 
 /**
@@ -1771,9 +1658,8 @@ auto inline co_guild_sticker_modify(sticker& s)
  * @return sticker_map returned object on completion
  * \memberof dpp::cluster
  */
-auto inline co_guild_stickers_get(snowflake guild_id)
-{
-    return dpp::awaitable(this, [&](auto cc) { this->guild_stickers_get(guild_id, cc); });
+auto inline co_guild_stickers_get(snowflake guild_id) {
+	return dpp::awaitable(this, [&] (auto cc) { this->guild_stickers_get(guild_id, cc); }); 
 }
 
 /**
@@ -1784,9 +1670,8 @@ auto inline co_guild_stickers_get(snowflake guild_id)
  * @return sticker returned object on completion
  * \memberof dpp::cluster
  */
-auto inline co_nitro_sticker_get(snowflake id)
-{
-    return dpp::awaitable(this, [&](auto cc) { this->nitro_sticker_get(id, cc); });
+auto inline co_nitro_sticker_get(snowflake id) {
+	return dpp::awaitable(this, [&] (auto cc) { this->nitro_sticker_get(id, cc); }); 
 }
 
 /**
@@ -1796,9 +1681,8 @@ auto inline co_nitro_sticker_get(snowflake id)
  * @return sticker_pack_map returned object on completion
  * \memberof dpp::cluster
  */
-auto inline co_sticker_packs_get()
-{
-    return dpp::awaitable(this, [&](auto cc) { this->sticker_packs_get(cc); });
+auto inline co_sticker_packs_get() {
+	return dpp::awaitable(this, [&] (auto cc) { this->sticker_packs_get(cc); }); 
 }
 
 /**
@@ -1811,9 +1695,8 @@ auto inline co_sticker_packs_get()
  * @return guild returned object on completion
  * \memberof dpp::cluster
  */
-auto inline co_guild_create_from_template(const std::string& code, const std::string& name)
-{
-    return dpp::awaitable(this, [&](auto cc) { this->guild_create_from_template(code, name, cc); });
+auto inline co_guild_create_from_template(const std::string &code, const std::string &name) {
+	return dpp::awaitable(this, [&] (auto cc) { this->guild_create_from_template(code, name, cc); }); 
 }
 
 /**
@@ -1827,9 +1710,8 @@ auto inline co_guild_create_from_template(const std::string& code, const std::st
  * @return dtemplate returned object on completion
  * \memberof dpp::cluster
  */
-auto inline co_guild_template_create(snowflake guild_id, const std::string& name, const std::string& description)
-{
-    return dpp::awaitable(this, [&](auto cc) { this->guild_template_create(guild_id, name, description, cc); });
+auto inline co_guild_template_create(snowflake guild_id, const std::string &name, const std::string &description) {
+	return dpp::awaitable(this, [&] (auto cc) { this->guild_template_create(guild_id, name, description, cc); }); 
 }
 
 /**
@@ -1842,9 +1724,8 @@ auto inline co_guild_template_create(snowflake guild_id, const std::string& name
  * @return confirmation returned object on completion
  * \memberof dpp::cluster
  */
-auto inline co_guild_template_delete(snowflake guild_id, const std::string& code)
-{
-    return dpp::awaitable(this, [&](auto cc) { this->guild_template_delete(guild_id, code, cc); });
+auto inline co_guild_template_delete(snowflake guild_id, const std::string &code) {
+	return dpp::awaitable(this, [&] (auto cc) { this->guild_template_delete(guild_id, code, cc); }); 
 }
 
 /**
@@ -1859,9 +1740,8 @@ auto inline co_guild_template_delete(snowflake guild_id, const std::string& code
  * @return dtemplate returned object on completion
  * \memberof dpp::cluster
  */
-auto inline co_guild_template_modify(snowflake guild_id, const std::string& code, const std::string& name, const std::string& description)
-{
-    return dpp::awaitable(this, [&](auto cc) { this->guild_template_modify(guild_id, code, name, description, cc); });
+auto inline co_guild_template_modify(snowflake guild_id, const std::string &code, const std::string &name, const std::string &description) {
+	return dpp::awaitable(this, [&] (auto cc) { this->guild_template_modify(guild_id, code, name, description, cc); }); 
 }
 
 /**
@@ -1873,9 +1753,8 @@ auto inline co_guild_template_modify(snowflake guild_id, const std::string& code
  * @return dtemplate_map returned object on completion
  * \memberof dpp::cluster
  */
-auto inline co_guild_templates_get(snowflake guild_id)
-{
-    return dpp::awaitable(this, [&](auto cc) { this->guild_templates_get(guild_id, cc); });
+auto inline co_guild_templates_get(snowflake guild_id) {
+	return dpp::awaitable(this, [&] (auto cc) { this->guild_templates_get(guild_id, cc); }); 
 }
 
 /**
@@ -1888,9 +1767,8 @@ auto inline co_guild_templates_get(snowflake guild_id)
  * @return dtemplate returned object on completion
  * \memberof dpp::cluster
  */
-auto inline co_guild_template_sync(snowflake guild_id, const std::string& code)
-{
-    return dpp::awaitable(this, [&](auto cc) { this->guild_template_sync(guild_id, code, cc); });
+auto inline co_guild_template_sync(snowflake guild_id, const std::string &code) {
+	return dpp::awaitable(this, [&] (auto cc) { this->guild_template_sync(guild_id, code, cc); }); 
 }
 
 /**
@@ -1901,9 +1779,8 @@ auto inline co_guild_template_sync(snowflake guild_id, const std::string& code)
  * @return dtemplate returned object on completion
  * \memberof dpp::cluster
  */
-auto inline co_template_get(const std::string& code)
-{
-    return dpp::awaitable(this, [&](auto cc) { this->template_get(code, cc); });
+auto inline co_template_get(const std::string &code) {
+	return dpp::awaitable(this, [&] (auto cc) { this->template_get(code, cc); }); 
 }
 
 /**
@@ -1914,9 +1791,8 @@ auto inline co_template_get(const std::string& code)
  * @return confirmation returned object on completion
  * \memberof dpp::cluster
  */
-auto inline co_current_user_join_thread(snowflake thread_id)
-{
-    return dpp::awaitable(this, [&](auto cc) { this->current_user_join_thread(thread_id, cc); });
+auto inline co_current_user_join_thread(snowflake thread_id) {
+	return dpp::awaitable(this, [&] (auto cc) { this->current_user_join_thread(thread_id, cc); }); 
 }
 
 /**
@@ -1927,9 +1803,8 @@ auto inline co_current_user_join_thread(snowflake thread_id)
  * @return confirmation returned object on completion
  * \memberof dpp::cluster
  */
-auto inline co_current_user_leave_thread(snowflake thread_id)
-{
-    return dpp::awaitable(this, [&](auto cc) { this->current_user_leave_thread(thread_id, cc); });
+auto inline co_current_user_leave_thread(snowflake thread_id) {
+	return dpp::awaitable(this, [&] (auto cc) { this->current_user_leave_thread(thread_id, cc); }); 
 }
 
 /**
@@ -1940,9 +1815,8 @@ auto inline co_current_user_leave_thread(snowflake thread_id)
  * @return thread_map returned object on completion
  * \memberof dpp::cluster
  */
-auto inline co_threads_get_active(snowflake channel_id)
-{
-    return dpp::awaitable(this, [&](auto cc) { this->threads_get_active(channel_id, cc); });
+auto inline co_threads_get_active(snowflake channel_id) {
+	return dpp::awaitable(this, [&] (auto cc) { this->threads_get_active(channel_id, cc); }); 
 }
 
 /**
@@ -1955,9 +1829,8 @@ auto inline co_threads_get_active(snowflake channel_id)
  * @return thread_map returned object on completion
  * \memberof dpp::cluster
  */
-auto inline co_threads_get_joined_private_archived(snowflake channel_id, snowflake before_id, uint16_t limit)
-{
-    return dpp::awaitable(this, [&](auto cc) { this->threads_get_joined_private_archived(channel_id, before_id, limit, cc); });
+auto inline co_threads_get_joined_private_archived(snowflake channel_id, snowflake before_id, uint16_t limit) {
+	return dpp::awaitable(this, [&] (auto cc) { this->threads_get_joined_private_archived(channel_id, before_id, limit, cc); }); 
 }
 
 /**
@@ -1970,9 +1843,8 @@ auto inline co_threads_get_joined_private_archived(snowflake channel_id, snowfla
  * @return thread_map returned object on completion
  * \memberof dpp::cluster
  */
-auto inline co_threads_get_private_archived(snowflake channel_id, time_t before_timestamp, uint16_t limit)
-{
-    return dpp::awaitable(this, [&](auto cc) { this->threads_get_private_archived(channel_id, before_timestamp, limit, cc); });
+auto inline co_threads_get_private_archived(snowflake channel_id, time_t before_timestamp, uint16_t limit) {
+	return dpp::awaitable(this, [&] (auto cc) { this->threads_get_private_archived(channel_id, before_timestamp, limit, cc); }); 
 }
 
 /**
@@ -1985,9 +1857,8 @@ auto inline co_threads_get_private_archived(snowflake channel_id, time_t before_
  * @return thread_map returned object on completion
  * \memberof dpp::cluster
  */
-auto inline co_threads_get_public_archived(snowflake channel_id, time_t before_timestamp, uint16_t limit)
-{
-    return dpp::awaitable(this, [&](auto cc) { this->threads_get_public_archived(channel_id, before_timestamp, limit, cc); });
+auto inline co_threads_get_public_archived(snowflake channel_id, time_t before_timestamp, uint16_t limit) {
+	return dpp::awaitable(this, [&] (auto cc) { this->threads_get_public_archived(channel_id, before_timestamp, limit, cc); }); 
 }
 
 /**
@@ -1999,9 +1870,8 @@ auto inline co_threads_get_public_archived(snowflake channel_id, time_t before_t
  * @return thread_member returned object on completion
  * \memberof dpp::cluster
  */
-auto inline co_thread_member_get(const snowflake thread_id, const snowflake user_id)
-{
-    return dpp::awaitable(this, [&](auto cc) { this->thread_member_get(thread_id, user_id, cc); });
+auto inline co_thread_member_get(const snowflake thread_id, const snowflake user_id) {
+	return dpp::awaitable(this, [&] (auto cc) { this->thread_member_get(thread_id, user_id, cc); }); 
 }
 
 /**
@@ -2012,9 +1882,8 @@ auto inline co_thread_member_get(const snowflake thread_id, const snowflake user
  * @return thread_member_map returned object on completion
  * \memberof dpp::cluster
  */
-auto inline co_thread_members_get(snowflake thread_id)
-{
-    return dpp::awaitable(this, [&](auto cc) { this->thread_members_get(thread_id, cc); });
+auto inline co_thread_members_get(snowflake thread_id) {
+	return dpp::awaitable(this, [&] (auto cc) { this->thread_members_get(thread_id, cc); }); 
 }
 
 /**
@@ -2032,9 +1901,8 @@ auto inline co_thread_members_get(snowflake thread_id)
  * @return thread returned object on completion
  * \memberof dpp::cluster
  */
-auto inline co_thread_create(const std::string& thread_name, snowflake channel_id, uint16_t auto_archive_duration, channel_type thread_type, bool invitable, uint16_t rate_limit_per_user)
-{
-    return dpp::awaitable(this, [&](auto cc) { this->thread_create(thread_name, channel_id, auto_archive_duration, thread_type, invitable, rate_limit_per_user, cc); });
+auto inline co_thread_create(const std::string& thread_name, snowflake channel_id, uint16_t auto_archive_duration, channel_type thread_type, bool invitable, uint16_t rate_limit_per_user) {
+	return dpp::awaitable(this, [&] (auto cc) { this->thread_create(thread_name, channel_id, auto_archive_duration, thread_type, invitable, rate_limit_per_user, cc); }); 
 }
 
 /**
@@ -2050,9 +1918,8 @@ auto inline co_thread_create(const std::string& thread_name, snowflake channel_i
  * @return thread returned object on completion
  * \memberof dpp::cluster
  */
-auto inline co_thread_create_with_message(const std::string& thread_name, snowflake channel_id, snowflake message_id, uint16_t auto_archive_duration, uint16_t rate_limit_per_user)
-{
-    return dpp::awaitable(this, [&](auto cc) { this->thread_create_with_message(thread_name, channel_id, message_id, auto_archive_duration, rate_limit_per_user, cc); });
+auto inline co_thread_create_with_message(const std::string& thread_name, snowflake channel_id, snowflake message_id, uint16_t auto_archive_duration, uint16_t rate_limit_per_user) {
+	return dpp::awaitable(this, [&] (auto cc) { this->thread_create_with_message(thread_name, channel_id, message_id, auto_archive_duration, rate_limit_per_user, cc); }); 
 }
 
 /**
@@ -2064,9 +1931,8 @@ auto inline co_thread_create_with_message(const std::string& thread_name, snowfl
  * @return confirmation returned object on completion
  * \memberof dpp::cluster
  */
-auto inline co_thread_member_add(snowflake thread_id, snowflake user_id)
-{
-    return dpp::awaitable(this, [&](auto cc) { this->thread_member_add(thread_id, user_id, cc); });
+auto inline co_thread_member_add(snowflake thread_id, snowflake user_id) {
+	return dpp::awaitable(this, [&] (auto cc) { this->thread_member_add(thread_id, user_id, cc); }); 
 }
 
 /**
@@ -2078,9 +1944,8 @@ auto inline co_thread_member_add(snowflake thread_id, snowflake user_id)
  * @return confirmation returned object on completion
  * \memberof dpp::cluster
  */
-auto inline co_thread_member_remove(snowflake thread_id, snowflake user_id)
-{
-    return dpp::awaitable(this, [&](auto cc) { this->thread_member_remove(thread_id, user_id, cc); });
+auto inline co_thread_member_remove(snowflake thread_id, snowflake user_id) {
+	return dpp::awaitable(this, [&] (auto cc) { this->thread_member_remove(thread_id, user_id, cc); }); 
 }
 
 /**
@@ -2094,12 +1959,11 @@ auto inline co_thread_member_remove(snowflake thread_id, snowflake user_id)
  * @param image_blob Avatar data to upload (NOTE: Very heavily rate limited!)
  * @param type Type of image for avatar
  * @return user returned object on completion
- * @throw dpp::exception Image data is larger than the maximum size of 256 kilobytes
+ 	 * @throw dpp::exception Image data is larger than the maximum size of 256 kilobytes
  * \memberof dpp::cluster
  */
-auto inline co_current_user_edit(const std::string& nickname, const std::string& image_blob, const image_type type)
-{
-    return dpp::awaitable(this, [&](auto cc) { this->current_user_edit(nickname, image_blob, type, cc); });
+auto inline co_current_user_edit(const std::string &nickname, const std::string& image_blob, const image_type type) {
+	return dpp::awaitable(this, [&] (auto cc) { this->current_user_edit(nickname, image_blob, type, cc); }); 
 }
 
 /**
@@ -2110,9 +1974,8 @@ auto inline co_current_user_edit(const std::string& nickname, const std::string&
  * @return application returned object on completion
  * \memberof dpp::cluster
  */
-auto inline co_current_application_get()
-{
-    return dpp::awaitable(this, [&](auto cc) { this->current_application_get(cc); });
+auto inline co_current_application_get() {
+	return dpp::awaitable(this, [&] (auto cc) { this->current_application_get(cc); }); 
 }
 
 /**
@@ -2125,18 +1988,17 @@ auto inline co_current_application_get()
  * If you do not have these scopes, these fields are empty. You can safely convert a user_identified to user with `dynamic_cast`.
  * \memberof dpp::cluster
  */
-auto inline co_current_user_get()
-{
-    return dpp::awaitable(this, [&](auto cc) { this->current_user_get(cc); });
+auto inline co_current_user_get() {
+	return dpp::awaitable(this, [&] (auto cc) { this->current_user_get(cc); }); 
 }
 
 /**
  * @brief Set the bot's voice state on a stage channel
- *
+ * 
  * **Caveats**
- *
+ * 
  * There are currently several caveats for this endpoint:
- *
+ * 
  * - `channel_id` must currently point to a stage channel.
  * - current user must already have joined `channel_id`.
  * - You must have the `MUTE_MEMBERS` permission to unsuppress yourself. You can always suppress yourself.
@@ -2144,7 +2006,7 @@ auto inline co_current_user_get()
  * - You are able to set `request_to_speak_timestamp` to any present or future time.
  *
  * @see dpp::cluster::current_user_set_voice_state
- * @see https://discord.com/developers/docs/resources/guild#modify-current-user-voice-state
+ * @see https://discord.com/developers/docs/resources/guild#modify-current-user-voice-state 
  * @param guild_id Guild to set voice state on
  * @param channel_id Stage channel to set voice state on
  * @return confirmation returned object on completion
@@ -2153,24 +2015,23 @@ auto inline co_current_user_get()
  * @throw std::logic_exception You attempted to set a request_to_speak_timestamp in the past which is not the value of 0.
  * \memberof dpp::cluster
  */
-auto inline co_current_user_set_voice_state(snowflake guild_id, snowflake channel_id, bool suppress, time_t request_to_speak_timestamp)
-{
-    return dpp::awaitable(this, [&](auto cc) { this->current_user_set_voice_state(guild_id, channel_id, suppress, request_to_speak_timestamp, cc); });
+auto inline co_current_user_set_voice_state(snowflake guild_id, snowflake channel_id, bool suppress, time_t request_to_speak_timestamp) {
+	return dpp::awaitable(this, [&] (auto cc) { this->current_user_set_voice_state(guild_id, channel_id, suppress, request_to_speak_timestamp, cc); }); 
 }
 
 /**
  * @brief Set a user's voice state on a stage channel
  *
  * **Caveats**
- *
+ * 
  * There are currently several caveats for this endpoint:
- *
+ * 
  * - `channel_id` must currently point to a stage channel.
  * - User must already have joined `channel_id`.
  * - You must have the `MUTE_MEMBERS` permission. (Since suppression is the only thing that is available currently)
  * - When unsuppressed, non-bot users will have their `request_to_speak_timestamp` set to the current time. Bot users will not.
  * - When suppressed, the user will have their `request_to_speak_timestamp` removed.
- *
+ * 
  * @see dpp::cluster::user_set_voice_state
  * @see https://discord.com/developers/docs/resources/guild#modify-user-voice-state
  * @param user_id The user to set the voice state of
@@ -2180,9 +2041,8 @@ auto inline co_current_user_set_voice_state(snowflake guild_id, snowflake channe
  * @param suppress True if the user's audio should be suppressed, false if it should not
  * \memberof dpp::cluster
  */
-auto inline co_user_set_voice_state(snowflake user_id, snowflake guild_id, snowflake channel_id, bool suppress)
-{
-    return dpp::awaitable(this, [&](auto cc) { this->user_set_voice_state(user_id, guild_id, channel_id, suppress, cc); });
+auto inline co_user_set_voice_state(snowflake user_id, snowflake guild_id, snowflake channel_id, bool suppress) {
+	return dpp::awaitable(this, [&] (auto cc) { this->user_set_voice_state(user_id, guild_id, channel_id, suppress, cc); }); 
 }
 
 /**
@@ -2194,9 +2054,8 @@ auto inline co_user_set_voice_state(snowflake user_id, snowflake guild_id, snowf
  * @return connection_map returned object on completion
  * \memberof dpp::cluster
  */
-auto inline co_current_user_connections_get()
-{
-    return dpp::awaitable(this, [&](auto cc) { this->current_user_connections_get(cc); });
+auto inline co_current_user_connections_get() {
+	return dpp::awaitable(this, [&] (auto cc) { this->current_user_connections_get(cc); }); 
 }
 
 /**
@@ -2206,9 +2065,8 @@ auto inline co_current_user_connections_get()
  * @return guild_map returned object on completion
  * \memberof dpp::cluster
  */
-auto inline co_current_user_get_guilds()
-{
-    return dpp::awaitable(this, [&](auto cc) { this->current_user_get_guilds(cc); });
+auto inline co_current_user_get_guilds() {
+	return dpp::awaitable(this, [&] (auto cc) { this->current_user_get_guilds(cc); }); 
 }
 
 /**
@@ -2219,9 +2077,8 @@ auto inline co_current_user_get_guilds()
  * @return confirmation returned object on completion
  * \memberof dpp::cluster
  */
-auto inline co_current_user_leave_guild(snowflake guild_id)
-{
-    return dpp::awaitable(this, [&](auto cc) { this->current_user_leave_guild(guild_id, cc); });
+auto inline co_current_user_leave_guild(snowflake guild_id) {
+	return dpp::awaitable(this, [&] (auto cc) { this->current_user_leave_guild(guild_id, cc); }); 
 }
 
 /**
@@ -2237,9 +2094,8 @@ auto inline co_current_user_leave_guild(snowflake guild_id)
  * Call `dpp::find_user` instead that looks up the user in the cache rather than a REST call.
  * \memberof dpp::cluster
  */
-auto inline co_user_get(snowflake user_id)
-{
-    return dpp::awaitable(this, [&](auto cc) { this->user_get(user_id, cc); });
+auto inline co_user_get(snowflake user_id) {
+	return dpp::awaitable(this, [&] (auto cc) { this->user_get(user_id, cc); }); 
 }
 
 /**
@@ -2249,14 +2105,13 @@ auto inline co_user_get(snowflake user_id)
  * @return voiceregion_map returned object on completion
  * \memberof dpp::cluster
  */
-auto inline co_get_voice_regions()
-{
-    return dpp::awaitable(this, [&](auto cc) { this->get_voice_regions(cc); });
+auto inline co_get_voice_regions() {
+	return dpp::awaitable(this, [&] (auto cc) { this->get_voice_regions(cc); }); 
 }
 
 /**
  * @brief Get guild voice regions.
- *
+ * 
  * Voice regions per guild are somewhat deprecated in preference of per-channel voice regions.
  * Returns a list of voice region objects for the guild. Unlike the similar /voice route, this returns VIP servers when
  * the guild is VIP-enabled.
@@ -2267,9 +2122,8 @@ auto inline co_get_voice_regions()
  * @return voiceregion_map returned object on completion
  * \memberof dpp::cluster
  */
-auto inline co_guild_get_voice_regions(snowflake guild_id)
-{
-    return dpp::awaitable(this, [&](auto cc) { this->guild_get_voice_regions(guild_id, cc); });
+auto inline co_guild_get_voice_regions(snowflake guild_id) {
+	return dpp::awaitable(this, [&] (auto cc) { this->guild_get_voice_regions(guild_id, cc); }); 
 }
 
 /**
@@ -2281,9 +2135,8 @@ auto inline co_guild_get_voice_regions(snowflake guild_id)
  * @return webhook returned object on completion
  * \memberof dpp::cluster
  */
-auto inline co_create_webhook(const class webhook& w)
-{
-    return dpp::awaitable(this, [&](auto cc) { this->create_webhook(w, cc); });
+auto inline co_create_webhook(const class webhook &w) {
+	return dpp::awaitable(this, [&] (auto cc) { this->create_webhook(w, cc); }); 
 }
 
 /**
@@ -2295,9 +2148,8 @@ auto inline co_create_webhook(const class webhook& w)
  * @return confirmation returned object on completion
  * \memberof dpp::cluster
  */
-auto inline co_delete_webhook(snowflake webhook_id)
-{
-    return dpp::awaitable(this, [&](auto cc) { this->delete_webhook(webhook_id, cc); });
+auto inline co_delete_webhook(snowflake webhook_id) {
+	return dpp::awaitable(this, [&] (auto cc) { this->delete_webhook(webhook_id, cc); }); 
 }
 
 /**
@@ -2311,9 +2163,8 @@ auto inline co_delete_webhook(snowflake webhook_id)
  * @return confirmation returned object on completion
  * \memberof dpp::cluster
  */
-auto inline co_delete_webhook_message(const class webhook& wh, snowflake message_id, snowflake thread_id)
-{
-    return dpp::awaitable(this, [&](auto cc) { this->delete_webhook_message(wh, message_id, thread_id, cc); });
+auto inline co_delete_webhook_message(const class webhook &wh, snowflake message_id, snowflake thread_id) {
+	return dpp::awaitable(this, [&] (auto cc) { this->delete_webhook_message(wh, message_id, thread_id, cc); }); 
 }
 
 /**
@@ -2325,9 +2176,8 @@ auto inline co_delete_webhook_message(const class webhook& wh, snowflake message
  * @return confirmation returned object on completion
  * \memberof dpp::cluster
  */
-auto inline co_delete_webhook_with_token(snowflake webhook_id, const std::string& token)
-{
-    return dpp::awaitable(this, [&](auto cc) { this->delete_webhook_with_token(webhook_id, token, cc); });
+auto inline co_delete_webhook_with_token(snowflake webhook_id, const std::string &token) {
+	return dpp::awaitable(this, [&] (auto cc) { this->delete_webhook_with_token(webhook_id, token, cc); }); 
 }
 
 /**
@@ -2339,9 +2189,8 @@ auto inline co_delete_webhook_with_token(snowflake webhook_id, const std::string
  * @return webhook returned object on completion
  * \memberof dpp::cluster
  */
-auto inline co_edit_webhook(const class webhook& wh)
-{
-    return dpp::awaitable(this, [&](auto cc) { this->edit_webhook(wh, cc); });
+auto inline co_edit_webhook(const class webhook& wh) {
+	return dpp::awaitable(this, [&] (auto cc) { this->edit_webhook(wh, cc); }); 
 }
 
 /**
@@ -2351,7 +2200,7 @@ auto inline co_edit_webhook(const class webhook& wh)
  * the new content. The allowed_mentions field of the edit request controls how this happens. If there is no explicit
  * allowed_mentions in the edit request, the content will be parsed with default allowances, that is, without regard to
  * whether or not an allowed_mentions was present in the request that originally created the message.
- *
+ * 
  * @see dpp::cluster::edit_webhook_message
  * @see https://discord.com/developers/docs/resources/webhook#edit-webhook-message
  * @note the attachments array must contain all attachments that should be present after edit, including retained and new attachments provided in the request body.
@@ -2361,9 +2210,8 @@ auto inline co_edit_webhook(const class webhook& wh)
  * @return message returned object on completion
  * \memberof dpp::cluster
  */
-auto inline co_edit_webhook_message(const class webhook& wh, const struct message& m, snowflake thread_id)
-{
-    return dpp::awaitable(this, [&](auto cc) { this->edit_webhook_message(wh, m, thread_id, cc); });
+auto inline co_edit_webhook_message(const class webhook &wh, const struct message& m, snowflake thread_id) {
+	return dpp::awaitable(this, [&] (auto cc) { this->edit_webhook_message(wh, m, thread_id, cc); }); 
 }
 
 /**
@@ -2374,9 +2222,8 @@ auto inline co_edit_webhook_message(const class webhook& wh, const struct messag
  * @return webhook returned object on completion
  * \memberof dpp::cluster
  */
-auto inline co_edit_webhook_with_token(const class webhook& wh)
-{
-    return dpp::awaitable(this, [&](auto cc) { this->edit_webhook_with_token(wh, cc); });
+auto inline co_edit_webhook_with_token(const class webhook& wh) {
+	return dpp::awaitable(this, [&] (auto cc) { this->edit_webhook_with_token(wh, cc); }); 
 }
 
 /**
@@ -2393,9 +2240,8 @@ auto inline co_edit_webhook_with_token(const class webhook& wh)
  * @note If the webhook channel is a forum channel, you must provide either `thread_id` or `thread_name`. If `thread_id` is provided, the message will send in that thread. If `thread_name` is provided, a thread with that name will be created in the forum channel.
  * \memberof dpp::cluster
  */
-auto inline co_execute_webhook(const class webhook& wh, const struct message& m, bool wait, snowflake thread_id, const std::string& thread_name)
-{
-    return dpp::awaitable(this, [&](auto cc) { this->execute_webhook(wh, m, wait, thread_id, thread_name, cc); });
+auto inline co_execute_webhook(const class webhook &wh, const struct message& m, bool wait, snowflake thread_id, const std::string& thread_name) {
+	return dpp::awaitable(this, [&] (auto cc) { this->execute_webhook(wh, m, wait, thread_id, thread_name, cc); }); 
 }
 
 /**
@@ -2406,9 +2252,8 @@ auto inline co_execute_webhook(const class webhook& wh, const struct message& m,
  * @return webhook_map returned object on completion
  * \memberof dpp::cluster
  */
-auto inline co_get_channel_webhooks(snowflake channel_id)
-{
-    return dpp::awaitable(this, [&](auto cc) { this->get_channel_webhooks(channel_id, cc); });
+auto inline co_get_channel_webhooks(snowflake channel_id) {
+	return dpp::awaitable(this, [&] (auto cc) { this->get_channel_webhooks(channel_id, cc); }); 
 }
 
 /**
@@ -2419,9 +2264,8 @@ auto inline co_get_channel_webhooks(snowflake channel_id)
  * @return webhook_map returned object on completion
  * \memberof dpp::cluster
  */
-auto inline co_get_guild_webhooks(snowflake guild_id)
-{
-    return dpp::awaitable(this, [&](auto cc) { this->get_guild_webhooks(guild_id, cc); });
+auto inline co_get_guild_webhooks(snowflake guild_id) {
+	return dpp::awaitable(this, [&] (auto cc) { this->get_guild_webhooks(guild_id, cc); }); 
 }
 
 /**
@@ -2432,9 +2276,8 @@ auto inline co_get_guild_webhooks(snowflake guild_id)
  * @return webhook returned object on completion
  * \memberof dpp::cluster
  */
-auto inline co_get_webhook(snowflake webhook_id)
-{
-    return dpp::awaitable(this, [&](auto cc) { this->get_webhook(webhook_id, cc); });
+auto inline co_get_webhook(snowflake webhook_id) {
+	return dpp::awaitable(this, [&] (auto cc) { this->get_webhook(webhook_id, cc); }); 
 }
 
 /**
@@ -2448,9 +2291,8 @@ auto inline co_get_webhook(snowflake webhook_id)
  * @return message returned object on completion
  * \memberof dpp::cluster
  */
-auto inline co_get_webhook_message(const class webhook& wh, snowflake message_id, snowflake thread_id)
-{
-    return dpp::awaitable(this, [&](auto cc) { this->get_webhook_message(wh, message_id, thread_id, cc); });
+auto inline co_get_webhook_message(const class webhook &wh, snowflake message_id, snowflake thread_id) {
+	return dpp::awaitable(this, [&] (auto cc) { this->get_webhook_message(wh, message_id, thread_id, cc); }); 
 }
 
 /**
@@ -2462,14 +2304,13 @@ auto inline co_get_webhook_message(const class webhook& wh, snowflake message_id
  * @return webhook returned object on completion
  * \memberof dpp::cluster
  */
-auto inline co_get_webhook_with_token(snowflake webhook_id, const std::string& token)
-{
-    return dpp::awaitable(this, [&](auto cc) { this->get_webhook_with_token(webhook_id, token, cc); });
+auto inline co_get_webhook_with_token(snowflake webhook_id, const std::string &token) {
+	return dpp::awaitable(this, [&] (auto cc) { this->get_webhook_with_token(webhook_id, token, cc); }); 
 }
 
 
 /* End of auto-generated definitions */
-auto inline co_request(const std::string& url, http_method method, const std::string& postdata = "", const std::string& mimetype = "text/plain", const std::multimap<std::string, std::string>& headers = {})
-{
-    return dpp::awaitable(this, [&](auto cc) { this->request(url, method, cc, mimetype, headers); });
+auto inline co_request(const std::string &url, http_method method, const std::string &postdata = "", const std::string &mimetype = "text/plain", const std::multimap<std::string, std::string> &headers = {}) {
+	return dpp::awaitable(this, [&] (auto cc) { this->request(url, method, cc, mimetype, headers); }); 
 }
+

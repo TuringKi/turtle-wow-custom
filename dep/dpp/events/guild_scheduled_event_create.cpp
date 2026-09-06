@@ -2,7 +2,7 @@
  *
  * D++, A Lightweight C++ library for Discord
  *
- * Copyright 2021 Craig Edwards and D++ contributors
+ * Copyright 2021 Craig Edwards and D++ contributors 
  * (https://github.com/brainboxdotcc/DPP/graphs/contributors)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,39 +18,33 @@
  * limitations under the License.
  *
  ************************************************************************************/
-#include <dpp/cluster.h>
 #include <dpp/discordevents.h>
-#include <dpp/nlohmann/json.hpp>
+#include <dpp/cluster.h>
 #include <dpp/scheduled_event.h>
 #include <dpp/stringops.h>
+#include <dpp/nlohmann/json.hpp>
 
 using json = nlohmann::json;
 
-namespace dpp
-{
-    namespace events
-    {
+namespace dpp { namespace events {
 
-        using namespace dpp;
+using namespace dpp;
 
 
-        /**
-         * @brief Handle event
-         *
-         * @param client Websocket client (current shard)
-         * @param j JSON data for the event
-         * @param raw Raw JSON string
-         */
-        void guild_scheduled_event_create::handle(discord_client* client, json& j, const std::string& raw)
-        {
-            json& d = j["d"];
-            if (!client->creator->on_guild_scheduled_event_create.empty())
-            {
-                dpp::guild_scheduled_event_create_t ec(client, raw);
-                ec.created.fill_from_json(&d);
-                client->creator->on_guild_scheduled_event_create.call(ec);
-            }
-        }
+/**
+ * @brief Handle event
+ * 
+ * @param client Websocket client (current shard)
+ * @param j JSON data for the event
+ * @param raw Raw JSON string
+ */
+void guild_scheduled_event_create::handle(discord_client* client, json &j, const std::string &raw) {
+	json& d = j["d"];
+	if (!client->creator->on_guild_scheduled_event_create.empty()) {
+		dpp::guild_scheduled_event_create_t ec(client, raw);
+		ec.created.fill_from_json(&d);
+		client->creator->on_guild_scheduled_event_create.call(ec);
+	}
+}
 
-    } // namespace events
-}; // namespace dpp
+}};

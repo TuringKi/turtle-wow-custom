@@ -1,28 +1,89 @@
 #include "scriptPCH.h"
 
+namespace
+{
+template <class T>
+SpellScript* GetSpellScript(SpellEntry const*)
+{
+    return new T();
+}
+
+void RegisterSpellScript(char const* name, SpellScript* (*getter)(SpellEntry const*))
+{
+    Script* script = new Script;
+    script->Name = name;
+    script->GetSpellScript = getter;
+    script->RegisterSelf();
+}
+
+struct spell_rift_feedback : public SpellScript
+{
+    bool OnEffectExecute(Spell* spell, SpellEffectIndex /*effIdx*/) const override
+    {
+        Unit* target = spell->GetUnitTarget();
+        if (!spell->m_casterUnit || !target || spell->m_casterUnit == target || target->HasAura(51196))
+            return false;
+
+        target->DealDamage(target, 12000, nullptr, DOT, SPELL_SCHOOL_MASK_ARCANE, spell->m_spellInfo, false, nullptr, false, false);
+        return false;
+    }
+};
+
+struct spell_overflowing_hatred : public SpellScript
+{
+    bool OnEffectExecute(Spell* spell, SpellEffectIndex /*effIdx*/) const override
+    {
+        Unit* target = spell->GetUnitTarget();
+        if (!spell->m_casterUnit || !target || spell->m_casterUnit == target || target->GetEntry() == 59974)
+            return false;
+
+        target->DealDamage(target, 6000, nullptr, DOT, SPELL_SCHOOL_MASK_FIRE, spell->m_spellInfo, false, nullptr, false, false);
+        return false;
+    }
+};
+
+struct spell_form_rift_elemental : public SpellScript
+{
+    bool OnEffectExecute(Spell* spell, SpellEffectIndex /*effIdx*/) const override
+    {
+        Unit* target = spell->GetUnitTarget();
+        if (!spell->m_casterUnit || !target || spell->m_casterUnit == target)
+            return false;
+
+        spell->m_casterUnit->SummonCreature(59974, 0, 0, 0, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 30000);
+        target->DoKillUnit();
+        spell->m_casterUnit->DoKillUnit();
+        return false;
+    }
+};
+}
+
 enum
 {
-    SPELL_RIFT_ENTANGLEMENT = 51194,
-    SPELL_NETHER_BANISHMENT = 51195,
-    SPELL_CURSE_OF_THE_RIFT = 51196,
-    SPELL_NETHERBOLT = 51198,
-    SPELL_OVERFLOWING_HATRED = 51204,
-    SPELL_RIFT_FEEDBACK = 51205,
-    SPELL_ENRAGE = 51206,
+    SPELL_RIFT_ENTANGLEMENT   = 51194,
+    SPELL_NETHER_BANISHMENT   = 51195,
+    SPELL_CURSE_OF_THE_RIFT   = 51196,
+    SPELL_NETHERBOLT          = 51198,
+    SPELL_OVERFLOWING_HATRED  = 51204,
+    SPELL_RIFT_FEEDBACK       = 51205,
+    SPELL_ENRAGE              = 51206,
     SPELL_LEADER_OF_THE_TRIBE = 51207,
-    SPELL_OPENING_THE_RIFT = 51209,
+    SPELL_OPENING_THE_RIFT    = 51209,
 
-    NPC_RIFT_PORTAL = 59973,
-    NPC_RIFT_LOST_DRAENEI = 59975,
-    NPC_DRAENEI_RIFTSTALKER = 59976,
-    NPC_DRAENEI_RIFTWALKER = 59977,
-    NPC_DRAENEI_NETHERWALKER = 59978,
-    NPC_SHADOW_LOST_DRAENEI = 59979,
+    NPC_RIFT_PORTAL           = 59973,
+    NPC_RIFT_LOST_DRAENEI     = 59975,
+    NPC_DRAENEI_RIFTSTALKER   = 59976,
+    NPC_DRAENEI_RIFTWALKER    = 59977,
+    NPC_DRAENEI_NETHERWALKER  = 59978,
+    NPC_SHADOW_LOST_DRAENEI   = 59979,
 };
 
 struct boss_sanv_tasdalAI : public ScriptedAI
 {
-    boss_sanv_tasdalAI(Creature* pCreature) : ScriptedAI(pCreature) { Reset(); }
+    boss_sanv_tasdalAI(Creature* pCreature) : ScriptedAI(pCreature)
+    {
+        Reset();
+    }
 
     uint32 m_phase;
     uint32 m_riftEntanglementTimer;
@@ -156,7 +217,7 @@ struct boss_sanv_tasdalAI : public ScriptedAI
             else
                 m_netherboltTimer -= uiDiff;
         }
-
+        
         if (m_phase > 0)
         {
             if (m_overflowingHatredTimer <= uiDiff)
@@ -184,18 +245,24 @@ struct boss_sanv_tasdalAI : public ScriptedAI
             else
                 m_riftFeedbackTimer -= uiDiff;
         }
-
+        
 
         DoMeleeAttackIfReady();
     }
 };
 
 
-CreatureAI* GetAI_boss_sanv_tasdal(Creature* pCreature) { return new boss_sanv_tasdalAI(pCreature); }
+CreatureAI* GetAI_boss_sanv_tasdal(Creature* pCreature)
+{
+    return new boss_sanv_tasdalAI(pCreature);
+}
 
 struct npc_rift_portalAI : public ScriptedAI
 {
-    npc_rift_portalAI(Creature* pCreature) : ScriptedAI(pCreature) { Reset(); }
+    npc_rift_portalAI(Creature* pCreature) : ScriptedAI(pCreature)
+    {
+        Reset();
+    }
 
     uint32 m_riftLostDraeneiTimer;
     uint32 m_riftDraeneiRiftguardTimer;
@@ -206,7 +273,10 @@ struct npc_rift_portalAI : public ScriptedAI
         m_riftDraeneiRiftguardTimer = urand(30000, 50000);
     }
 
-    void AttackStart(Unit* pVictim) override {}
+    void AttackStart(Unit* pVictim) override
+    {
+
+    }
 
     void UpdateAI(const uint32 uiDiff) override
     {
@@ -215,15 +285,15 @@ struct npc_rift_portalAI : public ScriptedAI
             uint32 entry;
             switch (urand(0, 9))
             {
-            case 0:
-                entry = NPC_SHADOW_LOST_DRAENEI;
-                break;
-            case 1:
-                entry = NPC_DRAENEI_NETHERWALKER;
-                break;
-            default:
-                entry = NPC_RIFT_LOST_DRAENEI;
-                break;
+                case 0:
+                    entry = NPC_SHADOW_LOST_DRAENEI;
+                    break;
+                case 1:
+                    entry = NPC_DRAENEI_NETHERWALKER;
+                    break;
+                default:
+                    entry = NPC_RIFT_LOST_DRAENEI;
+                    break;
             }
 
             if (Creature* pSummon = m_creature->SummonCreature(entry, 0, 0, 0, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 30000))
@@ -240,12 +310,12 @@ struct npc_rift_portalAI : public ScriptedAI
             uint32 entry;
             switch (urand(0, 1))
             {
-            case 0:
-                entry = NPC_DRAENEI_RIFTWALKER;
-                break;
-            default:
-                entry = NPC_DRAENEI_RIFTSTALKER;
-                break;
+                case 0:
+                    entry = NPC_DRAENEI_RIFTWALKER;
+                    break;
+                default:
+                    entry = NPC_DRAENEI_RIFTSTALKER;
+                    break;
             }
 
             if (Creature* pSummon = m_creature->SummonCreature(entry, 0, 0, 0, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 30000))
@@ -260,11 +330,14 @@ struct npc_rift_portalAI : public ScriptedAI
         if (!m_creature->SelectHostileTarget() || !m_creature->GetVictim())
             return;
 
-        // DoMeleeAttackIfReady();
+        //DoMeleeAttackIfReady();
     }
 };
 
-CreatureAI* GetAI_rift_portal(Creature* pCreature) { return new npc_rift_portalAI(pCreature); }
+CreatureAI* GetAI_rift_portal(Creature* pCreature)
+{
+    return new npc_rift_portalAI(pCreature);
+}
 
 void AddSC_boss_sanv_tasdal()
 {
@@ -279,4 +352,8 @@ void AddSC_boss_sanv_tasdal()
     newscript->Name = "npc_rift_portal";
     newscript->GetAI = &GetAI_rift_portal;
     newscript->RegisterSelf();
+
+    RegisterSpellScript("spell_rift_feedback", &GetSpellScript<spell_rift_feedback>);
+    RegisterSpellScript("spell_overflowing_hatred", &GetSpellScript<spell_overflowing_hatred>);
+    RegisterSpellScript("spell_form_rift_elemental", &GetSpellScript<spell_form_rift_elemental>);
 }

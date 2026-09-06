@@ -2,7 +2,7 @@
  *
  * D++, A Lightweight C++ library for Discord
  *
- * Copyright 2021 Craig Edwards and D++ contributors
+ * Copyright 2021 Craig Edwards and D++ contributors 
  * (https://github.com/brainboxdotcc/DPP/graphs/contributors)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,37 +18,30 @@
  * limitations under the License.
  *
  ************************************************************************************/
-#include <dpp/channel.h>
-#include <dpp/cluster.h>
 #include <dpp/discordevents.h>
-#include <dpp/nlohmann/json.hpp>
+#include <dpp/cluster.h>
+#include <dpp/channel.h>
 #include <dpp/stringops.h>
+#include <dpp/nlohmann/json.hpp>
 
 using json = nlohmann::json;
 
-namespace dpp
-{
-    namespace events
-    {
+namespace dpp { namespace events {
 
-        using namespace dpp;
-        void thread_update::handle(discord_client* client, json& j, const std::string& raw)
-        {
-            json& d = j["d"];
+using namespace dpp;
+void thread_update::handle(discord_client* client, json& j, const std::string& raw) {
+	json& d = j["d"];
 
-            dpp::thread t;
-            t.fill_from_json(&d);
-            dpp::guild* g = dpp::find_guild(t.guild_id);
-            if (g)
-            {
-                if (!client->creator->on_thread_update.empty())
-                {
-                    dpp::thread_update_t tu(client, raw);
-                    tu.updated = t;
-                    tu.updating_guild = g;
-                    client->creator->on_thread_update.call(tu);
-                }
-            }
-        }
-    } // namespace events
-}; // namespace dpp
+	dpp::thread t;
+	t.fill_from_json(&d);
+	dpp::guild* g = dpp::find_guild(t.guild_id);
+	if (g) {
+		if (!client->creator->on_thread_update.empty()) {
+			dpp::thread_update_t tu(client, raw);
+			tu.updated = t;
+			tu.updating_guild = g;
+			client->creator->on_thread_update.call(tu);
+		}
+	}
+}
+}};

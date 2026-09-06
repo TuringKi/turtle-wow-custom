@@ -10,13 +10,12 @@
 #include "re2/stringpiece.h"
 #include "util/util.h"
 
-namespace re2
-{
+namespace re2 {
 
-    std::string CEscape(const StringPiece& src);
-    void PrefixSuccessor(std::string* prefix);
-    std::string StringPrintf(const char* format, ...);
+std::string CEscape(const StringPiece& src);
+void PrefixSuccessor(std::string* prefix);
+std::string StringPrintf(const char* format, ...);
 
-} // namespace re2
+}  // namespace re2
 
-#endif // UTIL_STRUTIL_H_
+#endif  // UTIL_STRUTIL_H_

@@ -1,10 +1,10 @@
-#include "Channel.h"
-#include "ChannelMgr.h"
+#include "MasterPlayer.h"
 #include "Chat.h"
 #include "Language.h"
-#include "MasterPlayer.h"
-#include "Player.h"
 #include "World.h"
+#include "Channel.h"
+#include "ChannelMgr.h"
+#include "Player.h"
 
 // ######################## CHAT SYSTEM    ###########################
 void MasterPlayer::UpdateSpeakTime()
@@ -41,8 +41,8 @@ void MasterPlayer::UpdateSpeakTime()
 
 void MasterPlayer::Whisper(std::string const& text, uint32 language, MasterPlayer* receiver, bool allowWhisper)
 {
-    if (language != LANG_ADDON) // if not addon data
-        language = LANG_UNIVERSAL; // whispers should always be readable
+    if (language != LANG_ADDON)                             // if not addon data
+        language = LANG_UNIVERSAL;                          // whispers should always be readable
 
     WorldPacket data;
     if (allowWhisper)
@@ -69,7 +69,7 @@ void MasterPlayer::Whisper(std::string const& text, uint32 language, MasterPlaye
         data.clear();
         ChatHandler::BuildChatPacket(data, CHAT_MSG_DND, receiver->dndMsg.c_str(), LANG_UNIVERSAL, CHAT_TAG_NONE, receiver->GetObjectGuid());
         GetSession()->SendPacket(&data);
-    }
+    } 
     else if (receiver->IsAFK())
     {
         data.clear();
@@ -97,18 +97,24 @@ void MasterPlayer::ToggleAFK()
         m_chatTag = 1;
 }
 
-void MasterPlayer::JoinedChannel(Channel* c) { m_channels.push_back(c); }
+void MasterPlayer::JoinedChannel(Channel *c)
+{
+    m_channels.push_back(c);
+}
 
-void MasterPlayer::LeftChannel(Channel* c) { m_channels.remove(c); }
+void MasterPlayer::LeftChannel(Channel *c)
+{
+    m_channels.remove(c);
+}
 
 void MasterPlayer::CleanupChannels()
 {
     while (!m_channels.empty())
     {
         Channel* ch = *m_channels.begin();
-        m_channels.erase(m_channels.begin()); // remove from player's channel list
-        ch->Leave(GetObjectGuid(), false); // not send to client, not remove from player's channel list
+        m_channels.erase(m_channels.begin());               // remove from player's channel list
+        ch->Leave(GetObjectGuid(), false);                  // not send to client, not remove from player's channel list
         if (ChannelMgr* cMgr = channelMgr(GetTeam()))
-            cMgr->LeftChannel(ch->GetName()); // deleted channel if empty
+            cMgr->LeftChannel(ch->GetName());               // deleted channel if empty
     }
 }

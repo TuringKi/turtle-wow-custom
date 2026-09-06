@@ -19,13 +19,13 @@
 #ifndef _VMAPMANAGER2_H
 #define _VMAPMANAGER2_H
 
+#include "IVMapManager.h"
+#include <unordered_map>
+#include "Platform/Define.h"
 #include <G3D/Vector3.h>
 #include <atomic>
 #include <memory>
 #include <shared_mutex>
-#include <unordered_map>
-#include "IVMapManager.h"
-#include "Platform/Define.h"
 
 //===========================================================
 
@@ -52,64 +52,77 @@ namespace VMAP
     class ManagedModel : public std::weak_ptr<WorldModel>
     {
     public:
-        ManagedModel(const std::shared_ptr<WorldModel>& ptr, bool managed);
-
+        ManagedModel(const std::shared_ptr<WorldModel> &ptr, bool managed);
     private:
         std::shared_ptr<WorldModel> m_persistent;
     };
 
-    typedef std::unordered_map<uint32, StaticMapTree*> InstanceTreeMap;
+    typedef std::unordered_map<uint32 , StaticMapTree*> InstanceTreeMap;
     typedef std::unordered_map<std::string, ManagedModel> ModelFileMap;
 
     class VMapManager2 : public IVMapManager
     {
-    protected:
-        // Tree to check collision
-        ModelFileMap iLoadedModelFiles;
-        InstanceTreeMap iInstanceMapTrees;
+        protected:
+            // Tree to check collision
+            ModelFileMap iLoadedModelFiles;
+            InstanceTreeMap iInstanceMapTrees;
 
-        bool _loadMap(uint32 pMapId, std::string const& basePath, uint32 tileX, uint32 tileY);
-        /* void _unloadMap(uint32 pMapId, uint32 x, uint32 y); */
+            bool _loadMap(uint32 pMapId, std::string const& basePath, uint32 tileX, uint32 tileY);
+            /* void _unloadMap(uint32 pMapId, uint32 x, uint32 y); */
 
-        std::shared_mutex m_modelsLock;
+            std::shared_mutex m_modelsLock;
 
-    public:
-        // public for debug
-        G3D::Vector3 convertPositionToInternalRep(float x, float y, float z) const;
-        static std::string getMapFileName(unsigned int pMapId);
+            // Guards iInstanceMapTrees and the tiles hanging off it. The models
+            // lock above only covers the model file cache; the tree map itself
+            // was unsynchronised, while the playerbot travel search calls the
+            // query methods below from std::async worker threads and the world
+            // thread loads and unloads tiles underneath them. That raced, and
+            // it crashed in all three places - LoadMapTile, ~StaticMapTree and
+            // getAreaInfo. Mutable because the const query methods need it.
+            // Order is always this lock first, m_modelsLock second: _loadMap
+            // reaches acquireModelInstance through LoadMapTile, and nothing
+            // holding m_modelsLock ever touches the trees.
+            mutable std::shared_mutex m_treesLock;
+        public:
+            // public for debug
+            G3D::Vector3 convertPositionToInternalRep(float x, float y, float z) const;
+            static std::string getMapFileName(unsigned int pMapId);
 
-        VMapManager2();
-        ~VMapManager2();
+            VMapManager2();
+            ~VMapManager2();
 
-        VMAPLoadResult loadMap(const char* pBasePath, unsigned int pMapId, int x, int y) override;
+            VMAPLoadResult loadMap(const char* pBasePath, unsigned int pMapId, int x, int y) override;
 
-        void unloadMap(unsigned int pMapId, int x, int y) override;
-        void unloadMap(unsigned int pMapId) override;
+            void unloadMap(unsigned int pMapId, int x, int y) override;
+            void unloadMap(unsigned int pMapId) override;
 
-        bool isInLineOfSight(unsigned int pMapId, float x1, float y1, float z1, float x2, float y2, float z2) override;
-        ModelInstance* FindCollisionModel(unsigned int mapId, float x0, float y0, float z0, float x1, float y1, float z1) override;
-        /**
-        fill the hit pos and return true, if an object was hit
-        */
-        bool getObjectHitPos(unsigned int pMapId, float x1, float y1, float z1, float x2, float y2, float z2, float& rx, float& ry, float& rz, float pModifyDist) override;
-        float getHeight(unsigned int pMapId, float x, float y, float z, float maxSearchDist) override;
+            bool isInLineOfSight(unsigned int pMapId, float x1, float y1, float z1, float x2, float y2, float z2) override;
+            ModelInstance* FindCollisionModel(unsigned int mapId, float x0, float y0, float z0, float x1, float y1, float z1) override;
+            /**
+            fill the hit pos and return true, if an object was hit
+            */
+            bool getObjectHitPos(unsigned int pMapId, float x1, float y1, float z1, float x2, float y2, float z2, float& rx, float& ry, float& rz, float pModifyDist) override;
+            float getHeight(unsigned int pMapId, float x, float y, float z, float maxSearchDist) override;
 
-        bool processCommand(char* /*pCommand*/) override { return false; } // for debug and extensions
+            bool processCommand(char* /*pCommand*/) override { return false; }      // for debug and extensions
 
-        bool getAreaInfo(unsigned int pMapId, float x, float y, float& z, uint32& flags, int32& adtId, int32& rootId, int32& groupId) const override;
-        bool isUnderModel(unsigned int pMapId, float x, float y, float z, float* outDist = nullptr, float* inDist = nullptr) const override;
-        bool GetLiquidLevel(uint32 pMapId, float x, float y, float z, uint8 ReqLiquidType, float& level, float& floor, uint32& type) const override;
+            bool getAreaInfo(unsigned int pMapId, float x, float y, float& z, uint32& flags, int32& adtId, int32& rootId, int32& groupId) const override;
+            bool isUnderModel(unsigned int pMapId, float x, float y, float z, float* outDist = nullptr, float* inDist = nullptr) const override;
+            bool GetLiquidLevel(uint32 pMapId, float x, float y, float z, uint8 ReqLiquidType, float& level, float& floor, uint32& type) const override;
 
-        std::shared_ptr<WorldModel> acquireModelInstance(std::string const& basepath, std::string const& filename);
+            std::shared_ptr<WorldModel> acquireModelInstance(std::string const& basepath, std::string const& filename);
 
-        // what's the use of this? o.O
-        std::string getDirFileName(unsigned int pMapId, int /*x*/, int /*y*/) const override { return getMapFileName(pMapId); }
-        bool existsMap(const char* pBasePath, unsigned int pMapId, int x, int y) override;
+            // what's the use of this? o.O
+            std::string getDirFileName(unsigned int pMapId, int /*x*/, int /*y*/) const override
+            {
+                return getMapFileName(pMapId);
+            }
+            bool existsMap(const char* pBasePath, unsigned int pMapId, int x, int y) override;
 
 #ifdef MMAP_GENERATOR
-    public:
-        void getInstanceMapTree(InstanceTreeMap& instanceMapTree);
+        public:
+            void getInstanceMapTree(InstanceTreeMap& instanceMapTree);
 #endif
     };
-} // namespace VMAP
+}
 #endif

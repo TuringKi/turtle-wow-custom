@@ -20,16 +20,16 @@
  */
 
 #include "Corpse.h"
-#include "Database/DatabaseEnv.h"
-#include "GossipDef.h"
-#include "ObjectAccessor.h"
-#include "ObjectGuid.h"
-#include "ObjectMgr.h"
-#include "Opcodes.h"
-#include "PerfStats.h"
 #include "Player.h"
 #include "UpdateMask.h"
+#include "ObjectAccessor.h"
+#include "ObjectGuid.h"
+#include "Database/DatabaseEnv.h"
+#include "Opcodes.h"
+#include "GossipDef.h"
 #include "World.h"
+#include "ObjectMgr.h"
+#include "PerfStats.h"
 
 Corpse::Corpse(CorpseType type) : WorldObject(), loot(this), lootRecipient(nullptr), m_faction(nullptr)
 {
@@ -80,7 +80,7 @@ bool Corpse::Create(uint32 guidlow)
     return true;
 }
 
-bool Corpse::Create(uint32 guidlow, Player* owner)
+bool Corpse::Create(uint32 guidlow, Player *owner)
 {
     if (!owner)
         return false;
@@ -88,13 +88,14 @@ bool Corpse::Create(uint32 guidlow, Player* owner)
     WorldObject::_Create(guidlow, HIGHGUID_CORPSE);
     Relocate(owner->GetPositionX(), owner->GetPositionY(), owner->GetPositionZ(), owner->GetOrientation());
 
-    // we need to assign owner's map for corpse
-    // in other way we will get a crash in Corpse::SaveToDB()
+    //we need to assign owner's map for corpse
+    //in other way we will get a crash in Corpse::SaveToDB()
     SetMap(owner->GetMap());
 
     if (!IsPositionValid())
     {
-        sLog.outError("Corpse (guidlow %d, owner %s) not created. Suggested coordinates isn't valid (X: %f Y: %f)", guidlow, owner->GetName(), owner->GetPositionX(), owner->GetPositionY());
+        sLog.outError("Corpse (guidlow %d, owner %s) not created. Suggested coordinates isn't valid (X: %f Y: %f)",
+                      guidlow, owner->GetName(), owner->GetPositionX(), owner->GetPositionY());
         return false;
     }
 
@@ -116,7 +117,17 @@ void Corpse::SaveToDB()
     MANGOS_ASSERT(GetType() != CORPSE_BONES);
 
     std::ostringstream ss;
-    ss << "REPLACE INTO corpse (guid,player,position_x,position_y,position_z,orientation,map,time,corpse_type,instance) VALUES (" << GetGUIDLow() << ", " << GetOwnerGuid().GetCounter() << ", " << GetPositionX() << ", " << GetPositionY() << ", " << GetPositionZ() << ", " << GetOrientation() << ", " << GetMapId() << ", " << uint64(m_time) << ", " << uint32(GetType()) << ", " << int(GetInstanceId()) << ")";
+    ss  << "REPLACE INTO corpse (guid,player,position_x,position_y,position_z,orientation,map,time,corpse_type,instance) VALUES ("
+        << GetGUIDLow() << ", "
+        << GetOwnerGuid().GetCounter() << ", "
+        << GetPositionX() << ", "
+        << GetPositionY() << ", "
+        << GetPositionZ() << ", "
+        << GetOrientation() << ", "
+        << GetMapId() << ", "
+        << uint64(m_time) << ", "
+        << uint32(GetType()) << ", "
+        << int(GetInstanceId()) << ")";
     CharacterDatabase.Execute(ss.str().c_str());
 }
 
@@ -146,18 +157,18 @@ void Corpse::DeleteFromDB()
     stmt.PExecute(GetOwnerGuid().GetCounter());
 }
 
-bool Corpse::LoadFromDB(uint32 lowguid, Field* fields)
+bool Corpse::LoadFromDB(uint32 lowguid, Field *fields)
 {
     ////                                                    0            1       2                  3                  4                  5                   6
-    // QueryResult *result = CharacterDatabase.Query("SELECT corpse.guid, player, corpse.position_x, corpse.position_y, corpse.position_z, corpse.orientation, corpse.map,"
+    //QueryResult *result = CharacterDatabase.Query("SELECT corpse.guid, player, corpse.position_x, corpse.position_y, corpse.position_z, corpse.orientation, corpse.map,"
     ////   7     8            9         10      11    12     13           14            15              16       17
     //    "time, corpse_type, instance, gender, race, class, playerBytes, playerBytes2, equipmentCache, guildId, playerFlags FROM corpse"
     uint32 playerLowGuid = fields[1].GetUInt32();
-    float positionX = fields[2].GetFloat();
-    float positionY = fields[3].GetFloat();
-    float positionZ = fields[4].GetFloat();
-    float orientation = fields[5].GetFloat();
-    uint32 mapid = fields[6].GetUInt32();
+    float positionX     = fields[2].GetFloat();
+    float positionY     = fields[3].GetFloat();
+    float positionZ     = fields[4].GetFloat();
+    float orientation   = fields[5].GetFloat();
+    uint32 mapid        = fields[6].GetUInt32();
 
     Object::_Create(lowguid, 0, HIGHGUID_CORPSE);
 
@@ -170,14 +181,14 @@ bool Corpse::LoadFromDB(uint32 lowguid, Field* fields)
         return false;
     }
 
-    uint32 instanceid = fields[9].GetUInt32();
-    uint8 gender = fields[10].GetUInt8();
-    uint8 race = fields[11].GetUInt8();
-    uint8 _class = fields[12].GetUInt8();
-    uint32 playerBytes = fields[13].GetUInt32();
+    uint32 instanceid   = fields[9].GetUInt32();
+    uint8 gender        = fields[10].GetUInt8();
+    uint8 race          = fields[11].GetUInt8();
+    uint8 _class        = fields[12].GetUInt8();
+    uint32 playerBytes  = fields[13].GetUInt32();
     uint32 playerBytes2 = fields[14].GetUInt32();
-    uint32 guildId = fields[16].GetUInt32();
-    uint32 playerFlags = fields[17].GetUInt32();
+    uint32 guildId      = fields[16].GetUInt32();
+    uint32 playerFlags  = fields[17].GetUInt32();
 
     ObjectGuid guid = ObjectGuid(HIGHGUID_CORPSE, lowguid);
     ObjectGuid playerGuid = ObjectGuid(HIGHGUID_PLAYER, playerLowGuid);
@@ -188,7 +199,7 @@ bool Corpse::LoadFromDB(uint32 lowguid, Field* fields)
 
     SetObjectScale(DEFAULT_OBJECT_SCALE);
 
-    PlayerInfo const* info = sObjectMgr.GetPlayerInfo(race, _class);
+    PlayerInfo const *info = sObjectMgr.GetPlayerInfo(race, _class);
     if (!info)
     {
         sLog.outError("Player %u has incorrect race/class pair.", GetGUIDLow());
@@ -202,7 +213,7 @@ bool Corpse::LoadFromDB(uint32 lowguid, Field* fields)
     {
         uint32 visualbase = slot * 2;
         uint32 item_id = GetUInt32ValueFromArray(data, visualbase);
-        const ItemPrototype* proto = sObjectMgr.GetItemPrototype(item_id);
+        const ItemPrototype * proto = sObjectMgr.GetItemPrototype(item_id);
         if (!proto)
         {
             SetUInt32Value(CORPSE_FIELD_ITEM + slot, 0);
@@ -212,10 +223,10 @@ bool Corpse::LoadFromDB(uint32 lowguid, Field* fields)
         SetUInt32Value(CORPSE_FIELD_ITEM + slot, proto->DisplayInfoID | (proto->InventoryType << 24));
     }
 
-    uint8 skin = (uint8)(playerBytes);
-    uint8 face = (uint8)(playerBytes >> 8);
-    uint8 hairstyle = (uint8)(playerBytes >> 16);
-    uint8 haircolor = (uint8)(playerBytes >> 24);
+    uint8 skin       = (uint8)(playerBytes);
+    uint8 face       = (uint8)(playerBytes >> 8);
+    uint8 hairstyle  = (uint8)(playerBytes >> 16);
+    uint8 haircolor  = (uint8)(playerBytes >> 24);
     uint8 facialhair = (uint8)(playerBytes2);
     SetUInt32Value(CORPSE_FIELD_BYTES_1, ((0x00) | (race << 8) | (gender << 16) | (skin << 24)));
     SetUInt32Value(CORPSE_FIELD_BYTES_2, ((face) | (hairstyle << 8) | (haircolor << 16) | (facialhair << 24)));
@@ -239,7 +250,8 @@ bool Corpse::LoadFromDB(uint32 lowguid, Field* fields)
 
     if (!IsPositionValid())
     {
-        sLog.outError("%s Owner %s not created. Suggested coordinates isn't valid (X: %f Y: %f)", GetGuidStr().c_str(), GetOwnerGuid().GetString().c_str(), GetPositionX(), GetPositionY());
+        sLog.outError("%s Owner %s not created. Suggested coordinates isn't valid (X: %f Y: %f)",
+                      GetGuidStr().c_str(), GetOwnerGuid().GetString().c_str(), GetPositionX(), GetPositionY());
         return false;
     }
 
@@ -248,7 +260,10 @@ bool Corpse::LoadFromDB(uint32 lowguid, Field* fields)
     return true;
 }
 
-bool Corpse::IsVisibleForInState(WorldObject const* pDetector, WorldObject const* viewPoint, bool inVisibleList) const { return IsInWorld() && pDetector->IsInWorld() && IsWithinDist(viewPoint, std::max(pDetector->GetVisibilityDistance() + (inVisibleList ? World::GetVisibleObjectGreyDistance() : 0.0f), GetVisibilityModifier()), false); }
+bool Corpse::IsVisibleForInState(WorldObject const* pDetector, WorldObject const* viewPoint, bool inVisibleList) const
+{
+    return IsInWorld() && pDetector->IsInWorld() && IsWithinDist(viewPoint, std::max(pDetector->GetVisibilityDistance() + (inVisibleList ? World::GetVisibleObjectGreyDistance() : 0.0f), GetVisibilityModifier()), false);
+}
 
 ReputationRank Corpse::GetReactionTo(WorldObject const* target) const
 {
@@ -262,9 +277,15 @@ ReputationRank Corpse::GetReactionTo(WorldObject const* target) const
         return REP_NEUTRAL;
 }
 
-bool Corpse::IsHostileTo(WorldObject const* target) const { return GetReactionTo(target) <= REP_HOSTILE; }
+bool Corpse::IsHostileTo(WorldObject const* target) const
+{
+    return GetReactionTo(target) <= REP_HOSTILE;
+}
 
-bool Corpse::IsFriendlyTo(WorldObject const* target) const { return GetReactionTo(target) >= REP_FRIENDLY; }
+bool Corpse::IsFriendlyTo(WorldObject const* target) const
+{
+    return GetReactionTo(target) >= REP_FRIENDLY;
+}
 
 bool Corpse::IsExpired(time_t t) const
 {
@@ -273,13 +294,16 @@ bool Corpse::IsExpired(time_t t) const
 
     if (m_type == CORPSE_BONES)
         return m_time < t - sWorld.getConfig(CONFIG_UINT32_BONES_EXPIRE_MINUTES) * MINUTE;
-    else if (m_objectTypeId == TYPEID_PLAYER && GetLevel() < 5) // Decrease for low levels
+    else if (m_objectTypeId == TYPEID_PLAYER && GetLevel() < 5) //Decrease for low levels
         return m_time < t - 6 * MINUTE;
 
     return m_time < t - 3 * DAY;
 }
 
-uint32 Corpse::GetFactionTemplateId() const { return m_faction->ID; }
+uint32 Corpse::GetFactionTemplateId() const 
+{
+    return m_faction->ID;
+}
 
 uint32 Corpse::GetLevel() const
 {

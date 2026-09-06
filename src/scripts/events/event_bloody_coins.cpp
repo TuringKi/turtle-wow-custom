@@ -18,7 +18,7 @@ bool GossipSelect_npc_arena_ambassador(Player* p_Player, Creature* p_Creature, u
     return true;
 }
 
-bool GossipHello_npc_arena_vendor(Player* pPlayer, Creature* _Creature)
+bool GossipHello_npc_arena_vendor(Player *pPlayer, Creature *_Creature)
 {
     pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_TRAINER, "Speed (15 seconds): 1 Bloody Coin", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
     pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_TRAINER, "Stamina (30 minutes): 3 Bloody Coins", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
@@ -30,7 +30,7 @@ bool GossipHello_npc_arena_vendor(Player* pPlayer, Creature* _Creature)
     return true;
 }
 
-bool GossipSelect_npc_arena_vendor(Player* player, Creature* creature, uint32 sender, uint32 action)
+bool GossipSelect_npc_arena_vendor(Player *player, Creature *creature, uint32 sender, uint32 action)
 {
     if (action == GOSSIP_ACTION_INFO_DEF + 1) // Speed
     {
@@ -134,7 +134,7 @@ bool GossipSelect_npc_arena_vendor(Player* player, Creature* creature, uint32 se
 
 void AddSC_arena_tournament()
 {
-    Script* newscript;
+    Script *newscript;
 
     newscript = new Script;
     newscript->Name = "npc_arena_ambassador";

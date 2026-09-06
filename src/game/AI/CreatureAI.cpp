@@ -20,13 +20,21 @@
  */
 
 #include "CreatureAI.h"
+#include "Spell.h"
 #include "Creature.h"
 #include "DBCStores.h"
-#include "GridSearchers.h"
-#include "Spell.h"
+#include "Player.h"
 #include "Totem.h"
+#include "GridSearchers.h"
 
-CreatureAI::~CreatureAI() {}
+CreatureAI::~CreatureAI()
+{
+}
+
+// cmangos puts ReactState on AI; forward to Creature.
+ReactStates CreatureAI::GetReactState() const { return m_creature ? m_creature->GetReactState() : REACT_PASSIVE; }
+void CreatureAI::SetReactState(ReactStates st) { if (m_creature) m_creature->SetReactState(st); }
+bool CreatureAI::HasReactState(ReactStates st) const { return m_creature && m_creature->HasReactState(st); }
 
 void CreatureAI::JustRespawned()
 {
@@ -66,11 +74,11 @@ CanCastResult CreatureAI::CanCastSpell(Unit* pTarget, const SpellEntry* pSpell, 
             return CAST_FAIL_POWER;
     }
 
-    if (!bCanIgnoreLOS)
-    {
-        if (pSpell->Custom & SPELL_CUSTOM_BEHIND_TARGET && pTarget->HasInArc(m_creature))
-            return CAST_FAIL_OTHER;
-    }
+	if (!bCanIgnoreLOS)
+	{
+		if (pSpell->Custom & SPELL_CUSTOM_BEHIND_TARGET && pTarget->HasInArc(m_creature))
+			return CAST_FAIL_OTHER;
+	}
 
     // If the spell requires the target having a specific power type
     if (!pSpell->IsAreaOfEffectSpell() && !pSpell->IsTargetPowerTypeValid(pTarget->GetPowerType()))
@@ -93,13 +101,13 @@ CanCastResult CreatureAI::CanCastSpell(Unit* pTarget, const SpellEntry* pSpell, 
     if (pSpell->rangeIndex == SPELL_RANGE_IDX_SELF_ONLY)
         return CAST_OK;
 
-    if (!bCanIgnoreLOS)
-    {
-        if (!(pSpell->AttributesEx2 & SPELL_ATTR_EX2_IGNORE_LOS) && !m_creature->IsWithinLOSInMap(pTarget))
-            return CAST_FAIL_NOT_IN_LOS;
-    }
+	if (!bCanIgnoreLOS)
+	{
+		if (!(pSpell->AttributesEx2 & SPELL_ATTR_EX2_IGNORE_LOS) && !m_creature->IsWithinLOSInMap(pTarget))
+			return CAST_FAIL_NOT_IN_LOS;
+	}
 
-    if (const SpellRangeEntry* pSpellRange = sSpellRangeStore.LookupEntry(pSpell->rangeIndex))
+    if (const SpellRangeEntry *pSpellRange = sSpellRangeStore.LookupEntry(pSpell->rangeIndex))
     {
         if (pTarget != m_creature)
         {
@@ -140,6 +148,11 @@ CanCastResult CreatureAI::DoCastSpellIfCan(Unit* pTarget, uint32 uiSpell, uint32
                     return CAST_FAIL_TARGET_AURA;
             }
 
+            if ((uiCastFlags & CF_IGNORE_HARDCORE_TARGETS) && pSpell->IsCharmSpell())
+                if (Player* playerTarget = pTarget->ToPlayer())
+                    if (playerTarget->IsHardcore())
+                        return CAST_FAIL_OTHER;
+
             // Check if cannot cast spell
             if (!(uiCastFlags & CF_FORCE_CAST))
             {
@@ -177,10 +190,10 @@ void CreatureAI::SetSpellsList(uint32 entry)
         sLog.outError("CreatureAI: Attempt to set spells template of creature %u to non-existent entry %u.", m_creature->GetEntry(), entry);
 }
 
-void CreatureAI::SetSpellsList(const CreatureSpellsList* pSpellsList)
+void CreatureAI::SetSpellsList(const CreatureSpellsList *pSpellsList)
 {
     m_CreatureSpells.clear();
-    for (const auto& entry : *pSpellsList)
+    for (const auto & entry : *pSpellsList)
     {
         m_CreatureSpells.push_back(CreatureAISpellsEntry(entry));
     }
@@ -202,7 +215,7 @@ void CreatureAI::UpdateSpellsList(const uint32 uiDiff)
 void CreatureAI::DoSpellsListCasts(const uint32 uiDiff)
 {
     bool bDontCast = false;
-    for (auto& spell : m_CreatureSpells)
+    for (auto & spell : m_CreatureSpells)
     {
         if (spell.cooldown <= uiDiff)
         {
@@ -214,7 +227,7 @@ void CreatureAI::DoSpellsListCasts(const uint32 uiDiff)
             {
                 if (bDontCast || m_creature->IsNonMeleeSpellCasted(false))
                     continue;
-            }
+            } 
 
             // Checked on startup.
             const SpellEntry* pSpellInfo = sSpellMgr.GetSpellEntry(spell.spellId);
@@ -222,10 +235,10 @@ void CreatureAI::DoSpellsListCasts(const uint32 uiDiff)
             Unit* pTarget = ToUnit(GetTargetByType(m_creature, m_creature, m_creature->GetMap(), spell.castTarget, spell.targetParam1, spell.targetParam2, pSpellInfo));
 
             SpellCastResult result = m_creature->TryToCast(pTarget, pSpellInfo, spell.castFlags, spell.probability);
-
+            
             switch (result)
             {
-            case SPELL_CAST_OK:
+                case SPELL_CAST_OK:
                 {
                     bDontCast = !(spell.castFlags & CF_TRIGGERED);
                     spell.cooldown = urand(spell.delayRepeatMin, spell.delayRepeatMax);
@@ -244,13 +257,13 @@ void CreatureAI::DoSpellsListCasts(const uint32 uiDiff)
                         m_creature->GetMap()->ScriptsStart(sCreatureSpellScripts, spell.scriptId, m_creature->GetObjectGuid(), pTarget->GetObjectGuid());
                     break;
                 }
-            case SPELL_FAILED_FLEEING:
-            case SPELL_FAILED_SPELL_IN_PROGRESS:
+                case SPELL_FAILED_FLEEING:
+                case SPELL_FAILED_SPELL_IN_PROGRESS:
                 {
                     // Do nothing so it will try again on next update.
                     break;
                 }
-            case SPELL_FAILED_TRY_AGAIN:
+                case SPELL_FAILED_TRY_AGAIN:
                 {
                     // Chance roll failed, so we reset cooldown.
                     spell.cooldown = urand(spell.delayRepeatMin, spell.delayRepeatMax);
@@ -261,7 +274,7 @@ void CreatureAI::DoSpellsListCasts(const uint32 uiDiff)
                     }
                     break;
                 }
-            default:
+                default:
                 {
                     // other error
                     if (spell.castFlags & CF_MAIN_RANGED_SPELL)
@@ -302,7 +315,7 @@ void CreatureAI::ClearTargetIcon()
     }
 }
 
-void CreatureAI::SetGazeOn(Unit* target)
+void CreatureAI::SetGazeOn(Unit *target)
 {
     if (m_creature->CanAttack(target))
     {
@@ -311,7 +324,10 @@ void CreatureAI::SetGazeOn(Unit* target)
     }
 }
 
-Unit* CreatureAI::SelectTarget(SelectTargetMethod targetType, uint32 position, float dist, bool playerOnly, int32 aura) { return SelectTarget(targetType, position, DefaultTargetSelector(m_creature, dist, playerOnly, aura)); }
+Unit* CreatureAI::SelectTarget(SelectTargetMethod targetType, uint32 position, float dist, bool playerOnly, int32 aura)
+{
+    return SelectTarget(targetType, position, DefaultTargetSelector(m_creature, dist, playerOnly, aura));
+}
 
 
 bool CreatureAI::UpdateVictimWithGaze()
@@ -327,7 +343,7 @@ bool CreatureAI::UpdateVictimWithGaze()
     }
 
     if (m_creature->SelectHostileTarget())
-        if (Unit* victim = m_creature->GetVictim())
+        if (Unit *victim = m_creature->GetVictim())
             AttackStart(victim);
     return m_creature->GetVictim();
 }
@@ -340,7 +356,7 @@ bool CreatureAI::UpdateVictim()
     if (!m_creature->HasReactState(REACT_PASSIVE))
     {
         if (m_creature->SelectHostileTarget())
-            if (Unit* victim = m_creature->GetVictim())
+            if (Unit *victim = m_creature->GetVictim())
                 AttackStart(victim);
         return m_creature->GetVictim();
     }
@@ -371,7 +387,10 @@ void CreatureAI::DoCastAOE(uint32 spellId, bool triggered)
     m_creature->CastSpell((Unit*)nullptr, spellId, triggered);
 }
 
-bool CreatureAI::DoMeleeAttackIfReady() { return m_bMeleeAttack ? m_creature->UpdateMeleeAttackingState() : false; }
+bool CreatureAI::DoMeleeAttackIfReady()
+{
+    return m_bMeleeAttack ? m_creature->UpdateMeleeAttackingState() : false;
+}
 
 struct EnterEvadeModeHelper
 {

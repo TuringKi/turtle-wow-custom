@@ -19,9 +19,9 @@
 #define TRANSPORTMGR_H
 
 #include <G3D/Quat.h>
+#include "spline.h"
 #include <unordered_set>
 #include "DBCStores.h"
-#include "spline.h"
 
 struct KeyFrame;
 struct GameObjectInfo;
@@ -29,16 +29,20 @@ struct TransportTemplate;
 class Transport;
 class Map;
 
-typedef Movement::Spline<double> TransportSpline;
-typedef std::vector<KeyFrame> KeyFrameVec;
+typedef Movement::Spline<double>                 TransportSpline;
+typedef std::vector<KeyFrame>                    KeyFrameVec;
 typedef std::unordered_map<uint32, TransportTemplate> TransportTemplates;
-typedef std::set<Transport*> TransportSet;
-typedef std::unordered_map<uint32, TransportSet> TransportMap;
-typedef std::unordered_map<uint32, std::set<uint32>> TransportInstanceMap;
+typedef std::set<Transport*>                     TransportSet;
+typedef std::unordered_map<uint32, TransportSet>      TransportMap;
+typedef std::unordered_map<uint32, std::set<uint32> > TransportInstanceMap;
 
 struct KeyFrame
 {
-    explicit KeyFrame(TaxiPathNodeEntry const& _node) : Index(0), Node(&_node), InitialOrientation(0.0f), DistSinceStop(-1.0f), DistUntilStop(-1.0f), DistFromPrev(-1.0f), TimeFrom(0.0f), TimeTo(0.0f), Teleport(false), Update(false), ArriveTime(0), DepartureTime(0), Spline(nullptr), NextDistFromPrev(0.0f), NextArriveTime(0) {}
+    explicit KeyFrame(TaxiPathNodeEntry const& _node) : Index(0), Node(&_node), InitialOrientation(0.0f),
+        DistSinceStop(-1.0f), DistUntilStop(-1.0f), DistFromPrev(-1.0f), TimeFrom(0.0f), TimeTo(0.0f),
+        Teleport(false), Update(false), ArriveTime(0), DepartureTime(0), Spline(nullptr), NextDistFromPrev(0.0f), NextArriveTime(0)
+    {
+    }
 
     uint32 Index;
     TaxiPathNodeEntry const* Node;
@@ -65,7 +69,7 @@ struct KeyFrame
 
 struct TransportTemplate
 {
-    TransportTemplate() : inInstance(false), pathTime(0), accelTime(0.0f), accelDist(0.0f), entry(0) {}
+    TransportTemplate() : inInstance(false), pathTime(0), accelTime(0.0f), accelDist(0.0f), entry(0) { }
     ~TransportTemplate();
 
     std::set<uint32> mapsUsed;
@@ -78,49 +82,57 @@ struct TransportTemplate
 };
 
 
+struct TransportAnimation;  // Defined in src/modules/PlayerBots/cmangos-compat-shim.h.
+
 class TransportMgr
 {
-    friend void LoadDBCStores(std::string const&);
+        friend void LoadDBCStores(std::string const&);
 
-public:
-    void Unload();
+    public:
 
-    void LoadTransportTemplates();
+        // bot calls GetTransportAnimInfo for elevator pathing.
+        // Penqle has no TransportAnim.dbc; stub returns nullptr.
+        TransportAnimation const* GetTransportAnimInfo(uint32 /*entry*/) const { return nullptr; }
 
-    // Creates a transport using given GameObject template entry
-    Transport* CreateTransport(uint32 entry, uint32 guid = 0);
+        void Unload();
 
-    // Spawns all continent transports, used at core startup
-    void SpawnContinentTransports();
+        void LoadTransportTemplates();
 
-    TransportTemplate const* GetTransportTemplate(uint32 entry) const
-    {
-        TransportTemplates::const_iterator itr = _transportTemplates.find(entry);
-        if (itr != _transportTemplates.end())
-            return &itr->second;
-        return nullptr;
-    }
+        // Creates a transport using given GameObject template entry
+        Transport* CreateTransport(uint32 entry, uint32 guid = 0);
 
-    void Update(uint32 const diff);
+        // Spawns all continent transports, used at core startup
+        void SpawnContinentTransports();
 
-    TransportMgr();
-    ~TransportMgr();
+        TransportTemplate const* GetTransportTemplate(uint32 entry) const
+        {
+            TransportTemplates::const_iterator itr = _transportTemplates.find(entry);
+            if (itr != _transportTemplates.end())
+                return &itr->second;
+            return nullptr;
+        }
 
-private:
-    TransportMgr(TransportMgr const&);
-    TransportMgr& operator=(TransportMgr const&);
+        void Update(uint32 const diff);
 
-    // Generates and precaches a path for transport to avoid generation each time transport instance is created
-    void GeneratePath(GameObjectInfo const* goInfo, TransportTemplate* transport);
+		TransportMgr();
+		~TransportMgr();
 
-    // Container storing transport templates
-    TransportTemplates _transportTemplates;
+    private:
 
-    // Container storing transport entries to create for instanced maps
-    TransportInstanceMap _instanceTransports;
+        TransportMgr(TransportMgr const&);
+        TransportMgr& operator=(TransportMgr const&);
 
-    // Container for all ship transports
-    std::unordered_set<Transport*> m_shipTransports;
+        // Generates and precaches a path for transport to avoid generation each time transport instance is created
+        void GeneratePath(GameObjectInfo const* goInfo, TransportTemplate* transport);
+
+        // Container storing transport templates
+        TransportTemplates _transportTemplates;
+
+        // Container storing transport entries to create for instanced maps
+        TransportInstanceMap _instanceTransports;
+
+        // Container for all ship transports
+        std::unordered_set<Transport*> m_shipTransports;
 };
 
 extern TransportMgr sTransportMgr;

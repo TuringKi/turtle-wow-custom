@@ -27,25 +27,28 @@ EndScriptData */
 #define ZG_LOG sLog.outDebug
 //#define ZG_LOG sLog.outError(
 
-#define BOSS_GRILEK 15082
-#define BOSS_HAZZARAH 15083
-#define BOSS_RENATAKI 15084
-#define BOSS_WUSHOOLAY 15085
+#define BOSS_GRILEK                     15082
+#define BOSS_HAZZARAH                   15083
+#define BOSS_RENATAKI                   15084
+#define BOSS_WUSHOOLAY                  15085
 
 
 void instance_zulgurub::Initialize()
 {
     memset(&m_auiEncounter, 0, sizeof(m_auiEncounter));
 
-    m_uiLorKhanGUID = 0;
-    m_uiZathGUID = 0;
-    m_uiThekalGUID = 0;
-    m_uiJindoGUID = 0;
-    m_uiHakkarGUID = 0;
-    m_uiMarliGUID = 0;
+    m_uiLorKhanGUID   = 0;
+    m_uiZathGUID      = 0;
+    m_uiThekalGUID    = 0;
+    m_uiJindoGUID     = 0;
+    m_uiHakkarGUID    = 0;
+    m_uiMarliGUID     = 0;
     m_uiGahzrankaGUID = 0;
-
-    if (!sGameEventMgr.IsActiveEvent(EVENT_MADNESS_GRILEK) && !sGameEventMgr.IsActiveEvent(EVENT_MADNESS_HAZZARAH) && !sGameEventMgr.IsActiveEvent(EVENT_MADNESS_RENATAKI) && !sGameEventMgr.IsActiveEvent(EVENT_MADNESS_WUSHOOLAY))
+    
+    if (!sGameEventMgr.IsActiveEvent(EVENT_MADNESS_GRILEK) &&
+        !sGameEventMgr.IsActiveEvent(EVENT_MADNESS_HAZZARAH) &&
+        !sGameEventMgr.IsActiveEvent(EVENT_MADNESS_RENATAKI) &&
+        !sGameEventMgr.IsActiveEvent(EVENT_MADNESS_WUSHOOLAY))
     {
         sLog.outError("No madness event active! Force starting it.");
         sGameEventMgr.StartEvent(EVENT_MADNESS_GRILEK, true);
@@ -108,52 +111,52 @@ void instance_zulgurub::OnCreatureCreate(Creature* pCreature)
     uint64 nullGuid = 0;
     switch (pCreature->GetEntry())
     {
-    case NPC_LORKHAN:
-        HandleLoadCreature(TYPE_LORKHAN, m_uiLorKhanGUID, pCreature);
-        break;
-    case NPC_ZATH:
-        m_uiZathGUID = pCreature->GetGUID();
-        break;
-    case NPC_THEKAL:
-        HandleLoadCreature(TYPE_THEKAL, m_uiThekalGUID, pCreature);
-        UpdateHakkarPowerStacks();
-        break;
-    case NPC_JINDO:
-        m_uiJindoGUID = pCreature->GetGUID();
-        break;
-    case NPC_HAKKAR:
-        HandleLoadCreature(TYPE_HAKKAR, m_uiHakkarGUID, pCreature);
-        UpdateHakkarPowerStacks();
-        break;
-    case NPC_VENOXIS:
-        HandleLoadCreature(TYPE_VENOXIS, nullGuid, pCreature);
-        UpdateHakkarPowerStacks();
-        break;
-    case NPC_ARLOKK:
-        HandleLoadCreature(TYPE_ARLOKK, nullGuid, pCreature);
-        UpdateHakkarPowerStacks();
-        break;
-    case NPC_MARLI:
-        HandleLoadCreature(TYPE_MARLI, nullGuid, pCreature);
-        m_uiMarliGUID = pCreature->GetGUID();
-        UpdateHakkarPowerStacks();
-        break;
-    case NPC_JEKLIK:
-        UpdateHakkarPowerStacks();
-        break;
-    case NPC_RAZZASHI_SKITTERER:
-    case NPC_RAZZASHI_VENOMBROOD:
-    case NPC_HAKARI_SHADOWCASTER:
-    case NPC_RAZZASHI_BROODWIDOW:
-        m_lMarliTrashGUIDList.push_back(pCreature->GetGUID());
-        break;
-    case NPC_GAHZRANKA:
-        m_uiGahzrankaGUID = pCreature->GetGUID();
-        break;
+        case NPC_LORKHAN:
+            HandleLoadCreature(TYPE_LORKHAN, m_uiLorKhanGUID, pCreature);
+            break;
+        case NPC_ZATH:
+            m_uiZathGUID = pCreature->GetGUID();
+            break;
+        case NPC_THEKAL:
+            HandleLoadCreature(TYPE_THEKAL, m_uiThekalGUID, pCreature);
+            UpdateHakkarPowerStacks();
+            break;
+        case NPC_JINDO:
+            m_uiJindoGUID = pCreature->GetGUID();
+            break;
+        case NPC_HAKKAR:
+            HandleLoadCreature(TYPE_HAKKAR, m_uiHakkarGUID, pCreature);
+            UpdateHakkarPowerStacks();
+            break;
+        case NPC_VENOXIS:
+            HandleLoadCreature(TYPE_VENOXIS, nullGuid, pCreature);
+            UpdateHakkarPowerStacks();
+            break;
+        case NPC_ARLOKK:
+            HandleLoadCreature(TYPE_ARLOKK, nullGuid, pCreature);
+            UpdateHakkarPowerStacks();
+            break;
+        case NPC_MARLI:
+            HandleLoadCreature(TYPE_MARLI, nullGuid, pCreature);
+            m_uiMarliGUID = pCreature->GetGUID();
+            UpdateHakkarPowerStacks();
+            break;
+        case NPC_JEKLIK:
+            UpdateHakkarPowerStacks();
+            break;
+        case NPC_RAZZASHI_SKITTERER:
+        case NPC_RAZZASHI_VENOMBROOD:
+        case NPC_HAKARI_SHADOWCASTER:
+        case NPC_RAZZASHI_BROODWIDOW:
+            m_lMarliTrashGUIDList.push_back(pCreature->GetGUID());
+            break;
+        case NPC_GAHZRANKA:
+            m_uiGahzrankaGUID = pCreature->GetGUID();
+            break;
     }
 }
 
-void instance_zulgurub::HandleLoadCreature(uint32 dataType, uint64& storeGuid, Creature* pCrea)
+void instance_zulgurub::HandleLoadCreature(uint32 dataType, uint64 &storeGuid, Creature* pCrea)
 {
     if (GetData(dataType) == DONE)
     {
@@ -168,70 +171,70 @@ void instance_zulgurub::SetData(uint32 uiType, uint32 uiData)
 {
     switch (uiType)
     {
-    case TYPE_HAKKAR_POWER:
-        UpdateHakkarPowerStacks();
-        break;
-    case TYPE_ARLOKK:
-        m_auiEncounter[0] = uiData;
-        break;
-    case TYPE_JEKLIK:
-        m_auiEncounter[1] = uiData;
-        break;
-    case TYPE_VENOXIS:
-        m_auiEncounter[2] = uiData;
-        break;
-    case TYPE_MARLI:
-        m_auiEncounter[3] = uiData;
-        if (uiData == IN_PROGRESS)
-        {
-            Creature* Marli = instance->GetCreature(m_uiMarliGUID);
-            Unit* pVictim = Marli->GetVictim();
-            for (const auto& guid : m_lMarliTrashGUIDList)
+        case TYPE_HAKKAR_POWER:
+            UpdateHakkarPowerStacks();
+            break;
+        case TYPE_ARLOKK:
+            m_auiEncounter[0] = uiData;
+            break;
+        case TYPE_JEKLIK:
+            m_auiEncounter[1] = uiData;
+            break;
+        case TYPE_VENOXIS:
+            m_auiEncounter[2] = uiData;
+            break;
+        case TYPE_MARLI:
+            m_auiEncounter[3] = uiData;
+            if (uiData == IN_PROGRESS)
             {
-                if (Creature* MarliTrash = instance->GetCreature(guid))
-                    if (MarliTrash->IsAlive() && !MarliTrash->IsInCombat())
-                        if (MarliTrash->GetMapId() == 309 && MarliTrash->GetZoneId() == 1977 && MarliTrash->GetAreaId() == 3379)
-                            MarliTrash->AI()->AttackStart(pVictim);
+                Creature *Marli = instance->GetCreature(m_uiMarliGUID);
+                Unit* pVictim = Marli->GetVictim();
+                for (const auto& guid : m_lMarliTrashGUIDList)
+                {
+                    if (Creature* MarliTrash = instance->GetCreature(guid))
+                        if (MarliTrash->IsAlive() && !MarliTrash->IsInCombat())
+                            if (MarliTrash->GetMapId() == 309 && MarliTrash->GetZoneId() == 1977 && MarliTrash->GetAreaId() == 3379)
+                                MarliTrash->AI()->AttackStart(pVictim);
+                }
             }
-        }
-        break;
-    case TYPE_THEKAL:
-        m_auiEncounter[4] = uiData;
-        break;
-    case TYPE_LORKHAN:
-        m_auiEncounter[5] = uiData;
-        break;
-    case TYPE_ZATH:
-        m_auiEncounter[6] = uiData;
-        break;
-    case TYPE_OHGAN:
-        m_auiEncounter[7] = uiData;
-        break;
-    case TYPE_HAKKAR:
-        m_auiEncounter[8] = uiData;
-        break;
-    case TYPE_RANDOM_BOSS:
-        if (uiData == 0)
-        //                m_auiEncounter[9] = GenerateRandomBoss();
-        {
-            if (sGameEventMgr.IsActiveEvent(29))
-                m_auiEncounter[9] = BOSS_GRILEK;
-            else if (sGameEventMgr.IsActiveEvent(30))
-                m_auiEncounter[9] = BOSS_HAZZARAH;
-            else if (sGameEventMgr.IsActiveEvent(31))
-                m_auiEncounter[9] = BOSS_RENATAKI;
-            else if (sGameEventMgr.IsActiveEvent(32))
-                m_auiEncounter[9] = BOSS_WUSHOOLAY;
-        }
-        else
-            m_auiEncounter[9] = uiData;
-        break;
-    case TYPE_JINDO:
-        m_auiEncounter[10] = uiData;
-        break;
-    case TYPE_GAHZRANKA:
-        m_auiEncounter[11] = uiData;
-        break;
+            break;
+        case TYPE_THEKAL:
+            m_auiEncounter[4] = uiData;
+            break;
+        case TYPE_LORKHAN:
+            m_auiEncounter[5] = uiData;
+            break;
+        case TYPE_ZATH:
+            m_auiEncounter[6] = uiData;
+            break;
+        case TYPE_OHGAN:
+            m_auiEncounter[7] = uiData;
+            break;
+        case TYPE_HAKKAR:
+            m_auiEncounter[8] = uiData;
+            break;
+        case TYPE_RANDOM_BOSS:
+            if (uiData == 0)
+//                m_auiEncounter[9] = GenerateRandomBoss();
+            {
+                if (sGameEventMgr.IsActiveEvent(29))
+                    m_auiEncounter[9] = BOSS_GRILEK;
+                else if (sGameEventMgr.IsActiveEvent(30))
+                    m_auiEncounter[9] = BOSS_HAZZARAH;
+                else if (sGameEventMgr.IsActiveEvent(31))
+                    m_auiEncounter[9] = BOSS_RENATAKI;
+                else if (sGameEventMgr.IsActiveEvent(32))
+                    m_auiEncounter[9] = BOSS_WUSHOOLAY;
+            }
+            else
+                m_auiEncounter[9] = uiData;
+            break;
+        case TYPE_JINDO:
+            m_auiEncounter[10] = uiData;
+            break;
+        case TYPE_GAHZRANKA:
+            m_auiEncounter[11] = uiData;
+            break;
     }
 
     if (uiData == DONE)
@@ -243,7 +246,10 @@ void instance_zulgurub::SetData(uint32 uiType, uint32 uiData)
     }
 }
 
-const char* instance_zulgurub::Save() { return strInstData.c_str(); }
+const char* instance_zulgurub::Save()
+{
+    return strInstData.c_str();
+}
 
 void instance_zulgurub::Load(const char* chrIn)
 {
@@ -257,7 +263,7 @@ void instance_zulgurub::Load(const char* chrIn)
 
     LoadSaveData(chrIn, m_auiEncounter, 11);
 
-    for (uint32& i : m_auiEncounter)
+    for (uint32 & i : m_auiEncounter)
     {
         if (i == IN_PROGRESS)
             i = NOT_STARTED;
@@ -273,32 +279,32 @@ uint32 instance_zulgurub::GetData(uint32 uiType)
 {
     switch (uiType)
     {
-    case TYPE_ARLOKK:
-        return m_auiEncounter[0];
-    case TYPE_JEKLIK:
-        return m_auiEncounter[1];
-    case TYPE_VENOXIS:
-        return m_auiEncounter[2];
-    case TYPE_MARLI:
-        return m_auiEncounter[3];
-    case TYPE_THEKAL:
-        return m_auiEncounter[4];
-    case TYPE_LORKHAN:
-        return m_auiEncounter[5];
-    case TYPE_ZATH:
-        return m_auiEncounter[6];
-    case TYPE_OHGAN:
-        return m_auiEncounter[7];
-    case TYPE_HAKKAR:
-        return m_auiEncounter[8];
-    case TYPE_RANDOM_BOSS:
-        if (m_auiEncounter[9] >= 15080 && m_auiEncounter[9] <= 15085)
-            return m_auiEncounter[9];
-        return 0;
-    case TYPE_JINDO:
-        return m_auiEncounter[10];
-    case TYPE_GAHZRANKA:
-        return m_auiEncounter[11];
+        case TYPE_ARLOKK:
+            return m_auiEncounter[0];
+        case TYPE_JEKLIK:
+            return m_auiEncounter[1];
+        case TYPE_VENOXIS:
+            return m_auiEncounter[2];
+        case TYPE_MARLI:
+            return m_auiEncounter[3];
+        case TYPE_THEKAL:
+            return m_auiEncounter[4];
+        case TYPE_LORKHAN:
+            return m_auiEncounter[5];
+        case TYPE_ZATH:
+            return m_auiEncounter[6];
+        case TYPE_OHGAN:
+            return m_auiEncounter[7];
+        case TYPE_HAKKAR:
+            return m_auiEncounter[8];
+        case TYPE_RANDOM_BOSS:
+            if (m_auiEncounter[9] >= 15080 && m_auiEncounter[9] <= 15085)
+                return m_auiEncounter[9];
+            return 0;
+        case TYPE_JINDO:
+            return m_auiEncounter[10];
+        case TYPE_GAHZRANKA:
+            return m_auiEncounter[11];
     }
     return 0;
 }
@@ -307,18 +313,18 @@ uint64 instance_zulgurub::GetData64(uint32 uiData)
 {
     switch (uiData)
     {
-    case DATA_LORKHAN:
-        return m_uiLorKhanGUID;
-    case DATA_ZATH:
-        return m_uiZathGUID;
-    case DATA_THEKAL:
-        return m_uiThekalGUID;
-    case DATA_JINDO:
-        return m_uiJindoGUID;
-    case DATA_HAKKAR:
-        return m_uiHakkarGUID;
-    case DATA_GAHZRANKA:
-        return m_uiGahzrankaGUID;
+        case DATA_LORKHAN:
+            return m_uiLorKhanGUID;
+        case DATA_ZATH:
+            return m_uiZathGUID;
+        case DATA_THEKAL:
+            return m_uiThekalGUID;
+        case DATA_JINDO:
+            return m_uiJindoGUID;
+        case DATA_HAKKAR:
+            return m_uiHakkarGUID;
+        case DATA_GAHZRANKA:
+            return m_uiGahzrankaGUID;
     }
     return 0;
 }
@@ -332,17 +338,18 @@ void instance_zulgurub::Create()
         SpawnRandomBoss();
 }
 
-void instance_zulgurub::OnCreatureDeath(Creature* pCreature)
+void instance_zulgurub::OnCreatureDeath(Creature * pCreature)
 {
     ZG_LOG("OnCreatureDeath %u", pCreature->GetEntry());
     if (pCreature->GetEntry() >= 15082 && pCreature->GetEntry() <= 15085)
         SetData(TYPE_RANDOM_BOSS, DONE);
 
-    if (pCreature->GetEntry() == 15163)
+    if (pCreature->GetEntry() ==  15163)
     {
         pCreature->ForcedDespawn(3000);
         pCreature->SetRespawnTime(345600000);
     }
+
 }
 
 uint32 instance_zulgurub::GenerateRandomBoss()
@@ -372,23 +379,29 @@ void instance_zulgurub::SpawnRandomBoss()
 
 Unit* instance_zulgurub::Thekal_GetUnitThatCanRez()
 {
-    if (Unit* pLorKhan = instance->GetUnit(GetData64(DATA_LORKHAN)))
+    if (Unit *pLorKhan = instance->GetUnit(GetData64(DATA_LORKHAN)))
         if (pLorKhan->IsAlive())
             return pLorKhan;
-    if (Unit* pZath = instance->GetUnit(GetData64(DATA_ZATH)))
+    if (Unit *pZath = instance->GetUnit(GetData64(DATA_ZATH)))
         if (pZath->IsAlive())
             return pZath;
-    if (Unit* pThekal = instance->GetUnit(GetData64(DATA_THEKAL)))
+    if (Unit *pThekal = instance->GetUnit(GetData64(DATA_THEKAL)))
         if (pThekal->IsAlive())
             return pThekal;
     return nullptr;
 }
 
-InstanceData* GetInstanceData_instance_zulgurub(Map* pMap) { return new instance_zulgurub(pMap); }
-
-struct npc_brazierAI : public ScriptedAI
+InstanceData* GetInstanceData_instance_zulgurub(Map* pMap)
 {
-    npc_brazierAI(Creature* pCreature) : ScriptedAI(pCreature) { Reset(); }
+    return new instance_zulgurub(pMap);
+}
+
+struct npc_brazierAI: public ScriptedAI
+{
+    npc_brazierAI(Creature* pCreature) : ScriptedAI(pCreature)
+    {
+        Reset();
+    }
 
     uint32 Timer;
     uint32 Var;
@@ -437,83 +450,85 @@ struct npc_brazierAI : public ScriptedAI
             Var++;
             return;
         }
-        else
-            Timer -= uiDiff;
+        else Timer -= uiDiff;
     }
 };
 
-CreatureAI* GetAI_npc_brazier(Creature* pCreature) { return new npc_brazierAI(pCreature); }
+CreatureAI* GetAI_npc_brazier(Creature* pCreature)
+{
+    return new npc_brazierAI(pCreature);
+}
 
-#define TABLET_GRILEK1 180358
-#define TABLET_HAZZARAH1 180364
-#define TABLET_RENATAKI1 180365
-#define TABLET_WUSHOOLAY1 180393
-#define TABLET_GRILEK2 987654
-#define TABLET_HAZZARAH2 987655
-#define TABLET_RENATAKI2 987656
-#define TABLET_WUSHOOLAY2 987657
-#define TABLET_ALCHEMIST_SPELL 24266
+#define TABLET_GRILEK1			180358
+#define TABLET_HAZZARAH1		180364
+#define TABLET_RENATAKI1		180365
+#define TABLET_WUSHOOLAY1		180393
+#define TABLET_GRILEK2			987654
+#define TABLET_HAZZARAH2		987655
+#define TABLET_RENATAKI2		987656
+#define TABLET_WUSHOOLAY2		987657
+#define TABLET_ALCHEMIST_SPELL	24266
 
 bool OnGossipHello_go_table_madness(Player* pPlayer, GameObject* pGo)
 {
-    // Check if the player has the alchemist skill at 300 and if he doesn't know yet Mojo Madness recipe
-    if (pPlayer->HasSkill(171) && !pPlayer->HasSpell(24266))
-        if (pPlayer->GetSkillValue(171) >= 300)
-            pPlayer->LearnSpell(TABLET_ALCHEMIST_SPELL, false);
+    //Check if the player has the alchemist skill at 300 and if he doesn't know yet Mojo Madness recipe
+    if(pPlayer->HasSkill(171) && !pPlayer->HasSpell(24266))
+        if(pPlayer->GetSkillValue(171) >= 300)    
+            pPlayer->LearnSpell(TABLET_ALCHEMIST_SPELL,false);
 
     ScriptedInstance* m_pInstance = (ScriptedInstance*)pGo->GetInstanceData();
-    if (!m_pInstance)
+    if(!m_pInstance)
         return false;
 
     uint32 randomBoss = m_pInstance->GetData(TYPE_RANDOM_BOSS);
-    if (sGameEventMgr.IsActiveEvent(29))
-        randomBoss = BOSS_GRILEK;
-    else if (sGameEventMgr.IsActiveEvent(30))
-        randomBoss = BOSS_HAZZARAH;
-    else if (sGameEventMgr.IsActiveEvent(31))
-        randomBoss = BOSS_RENATAKI;
-    else if (sGameEventMgr.IsActiveEvent(32))
-        randomBoss = BOSS_WUSHOOLAY;
+                if (sGameEventMgr.IsActiveEvent(29))
+                    randomBoss = BOSS_GRILEK;
+                else if (sGameEventMgr.IsActiveEvent(30))
+                    randomBoss = BOSS_HAZZARAH;
+                else if (sGameEventMgr.IsActiveEvent(31))
+                    randomBoss = BOSS_RENATAKI;
+                else if (sGameEventMgr.IsActiveEvent(32))
+                    randomBoss = BOSS_WUSHOOLAY;
 
 
-    if (randomBoss < 0 || randomBoss > 16000)
+    if(randomBoss < 0 || randomBoss > 16000)
         return false;
 
-    // DEBUG
-    // char sMessage[200];
-    // sprintf(sMessage, "boss ID=%d",randomBoss);
-    // pPlayer->Say(sMessage,0);
-
-    switch (pGo->GetEntry())
+    //DEBUG
+    //char sMessage[200];
+    //sprintf(sMessage, "boss ID=%d",randomBoss);
+    //pPlayer->Say(sMessage,0);
+		
+    switch(pGo->GetEntry())
     {
-    case TABLET_GRILEK1:
-    case TABLET_GRILEK2:
-        if (randomBoss == BOSS_GRILEK)
-            pPlayer->SEND_GOSSIP_MENU(7669, pGo->GetGUID());
-        else
-            pPlayer->SEND_GOSSIP_MENU(7643, pGo->GetGUID());
-        break;
-    case TABLET_HAZZARAH1:
-    case TABLET_HAZZARAH2:
-        if (randomBoss == BOSS_HAZZARAH)
-            pPlayer->SEND_GOSSIP_MENU(7675, pGo->GetGUID());
-        else
-            pPlayer->SEND_GOSSIP_MENU(7670, pGo->GetGUID());
-        break;
-    case TABLET_RENATAKI1:
-    case TABLET_RENATAKI2:
-        if (randomBoss == BOSS_RENATAKI)
-            pPlayer->SEND_GOSSIP_MENU(7673, pGo->GetGUID());
-        else
-            pPlayer->SEND_GOSSIP_MENU(7672, pGo->GetGUID());
-        break;
-    case TABLET_WUSHOOLAY1:
-    case TABLET_WUSHOOLAY2:
-        if (randomBoss == BOSS_WUSHOOLAY)
-            pPlayer->SEND_GOSSIP_MENU(7682, pGo->GetGUID());
-        else
-            pPlayer->SEND_GOSSIP_MENU(7674, pGo->GetGUID());
-        break;
+        case TABLET_GRILEK1:
+        case TABLET_GRILEK2:
+            if (randomBoss == BOSS_GRILEK)
+                pPlayer->SEND_GOSSIP_MENU(7669, pGo->GetGUID());
+            else
+                pPlayer->SEND_GOSSIP_MENU(7643, pGo->GetGUID());			
+            break;
+	case TABLET_HAZZARAH1:
+	case TABLET_HAZZARAH2:
+            if (randomBoss == BOSS_HAZZARAH)
+                pPlayer->SEND_GOSSIP_MENU(7675, pGo->GetGUID());
+            else
+                pPlayer->SEND_GOSSIP_MENU(7670, pGo->GetGUID());			
+            break;
+	case TABLET_RENATAKI1:
+	case TABLET_RENATAKI2:
+            if (randomBoss == BOSS_RENATAKI)
+                pPlayer->SEND_GOSSIP_MENU(7673, pGo->GetGUID());
+            else
+                pPlayer->SEND_GOSSIP_MENU(7672, pGo->GetGUID());			
+            break;
+	case TABLET_WUSHOOLAY1:
+	case TABLET_WUSHOOLAY2:
+            if (randomBoss == BOSS_WUSHOOLAY)
+                pPlayer->SEND_GOSSIP_MENU(7682, pGo->GetGUID());
+            else
+                pPlayer->SEND_GOSSIP_MENU(7674, pGo->GetGUID());			
+            break;
     }
     return true;
 }

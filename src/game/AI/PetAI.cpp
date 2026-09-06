@@ -20,16 +20,16 @@
  */
 
 #include "PetAI.h"
-#include "Creature.h"
 #include "Errors.h"
-#include "Group.h"
 #include "Pet.h"
 #include "Player.h"
-#include "ScriptMgr.h"
 #include "Spell.h"
-#include "SpellAuraDefines.h"
 #include "SpellMgr.h"
+#include "ScriptMgr.h"
+#include "Creature.h"
 #include "Util.h"
+#include "Group.h"
+#include "SpellAuraDefines.h"
 
 int PetAI::Permissible(Creature const* creature)
 {
@@ -58,7 +58,8 @@ bool PetAI::NeedToStopAttacking() const
     Unit* pOwner = m_creature->GetCharmerOrOwnerOrSelf();
 
     // Turtle: Abort chase if enemy turns invisible. This is not blizzlike for vanilla.
-    if (!m_creature->GetVictim()->IsVisibleForOrDetect(m_creature, m_creature, true) && !(pOwner && pOwner->IsPlayer() && static_cast<Player*>(pOwner)->IsInVisibleList(m_creature->GetVictim())))
+    if (!m_creature->GetVictim()->IsVisibleForOrDetect(m_creature, m_creature, true) &&
+        !(pOwner && pOwner->IsPlayer() && static_cast<Player*>(pOwner)->IsInVisibleList(m_creature->GetVictim())))
         return true;
 
     Creature* pOwnerCreature = pOwner->ToCreature();
@@ -134,7 +135,8 @@ void PetAI::MoveInLineOfSight(Unit* pWho)
     if (m_creature->CanInitiateAttack() && m_creature->IsValidAttackTarget(pWho))
     {
         float const attackRadius = m_creature->GetAttackDistance(pWho);
-        if (m_creature->IsWithinDistInMap(pWho, attackRadius, true, SizeFactor::None) && m_creature->IsHostileTo(pWho) && m_creature->IsWithinLOSInMap(pWho))
+        if (m_creature->IsWithinDistInMap(pWho, attackRadius, true, SizeFactor::None) &&
+            m_creature->IsHostileTo(pWho) && m_creature->IsWithinLOSInMap(pWho))
             AttackStart(pWho);
     }
 }
@@ -202,7 +204,7 @@ void PetAI::UpdateAI(uint32 const diff)
 void PetAI::UpdateSpells()
 {
     Unit* owner = m_creature->GetCharmerOrOwner();
-    typedef std::vector<std::pair<Unit*, Spell*>> TargetSpellList;
+    typedef std::vector<std::pair<Unit*, Spell*> > TargetSpellList;
     TargetSpellList targetSpellStore;
 
     for (uint8 i = 0; i < m_creature->GetPetAutoSpellSize(); ++i)
@@ -277,10 +279,11 @@ void PetAI::UpdateSpells()
             }
 
 
+
             // No enemy, check friendly
             if (!spellUsed)
             {
-                std::vector<Unit*> alliesToCheck{m_creature};
+                std::vector<Unit*> alliesToCheck{ m_creature };
                 if (owner)
                     alliesToCheck.emplace_back(owner);
 
@@ -338,13 +341,13 @@ void PetAI::UpdateSpells()
         }
     }
 
-    // found units to cast on to
+    //found units to cast on to
     if (!targetSpellStore.empty())
     {
         uint32 index = urand(0, targetSpellStore.size() - 1);
 
-        Spell* spell = targetSpellStore[index].second;
-        Unit* target = targetSpellStore[index].first;
+        Spell* spell  = targetSpellStore[index].second;
+        Unit*  target = targetSpellStore[index].first;
 
         targetSpellStore.erase(targetSpellStore.begin() + index);
 
@@ -392,7 +395,7 @@ void PetAI::KilledUnit(Unit* victim)
     // next target selection
     m_creature->AttackStop();
     m_creature->InterruptNonMeleeSpells(false);
-    m_creature->SendMeleeAttackStop(victim); // Stops the pet's 'Attack' button from flashing
+    m_creature->SendMeleeAttackStop(victim);  // Stops the pet's 'Attack' button from flashing
 
     // Before returning to owner, see if there are more things to attack
     Unit* nextTarget;
@@ -404,9 +407,9 @@ void PetAI::KilledUnit(Unit* victim)
     {
         switch (reason)
         {
-        case PSTR_FAIL_DEFAULT:
-        case PSTR_FAIL_NOT_ENABLED:
-        case PSTR_FAIL_NO_OWNER:
+            case PSTR_FAIL_DEFAULT:
+            case PSTR_FAIL_NOT_ENABLED:
+            case PSTR_FAIL_NO_OWNER:
             {
                 if (m_creature->IsInCombat())
                     m_creature->CombatStop();
@@ -515,7 +518,7 @@ std::pair<Unit*, ePetSelectTargetReason> PetAI::SelectNextTarget() const
     Unit* owner = m_creature->GetCharmerOrOwner();
     if (!owner)
         return std::make_pair(nullptr, PSTR_FAIL_NO_OWNER);
-
+    
     if (Creature const* pOwnerCreature = owner->ToCreature())
     {
         // Owner is creature and is evading. We must not re-aggro.
@@ -544,7 +547,8 @@ std::pair<Unit*, ePetSelectTargetReason> PetAI::SelectNextTarget() const
     {
         if (Unit* pVictim = owner->GetVictim())
         {
-            if (!pVictim->HasAuraPetShouldAvoidBreaking() && (!m_creature->GetCharmInfo()->IsAtStay() || m_creature->CanReachWithMeleeAutoAttack(pVictim)))
+            if (!pVictim->HasAuraPetShouldAvoidBreaking() && 
+               (!m_creature->GetCharmInfo()->IsAtStay() || m_creature->CanReachWithMeleeAutoAttack(pVictim)))
                 return std::make_pair(pVictim, PSTR_SUCCESS_OWNER_VICTIM);
         }
 
@@ -593,7 +597,8 @@ void PetAI::HandleReturnMovement()
             ClearCharmInfoFlags();
             m_creature->GetCharmInfo()->SetIsReturning(true);
             m_creature->GetMotionMaster()->Clear(false);
-            m_creature->GetMotionMaster()->MoveFollow(m_creature->GetCharmerOrOwner(), PET_FOLLOW_DIST, m_creature->IsPet() ? static_cast<Pet*>(m_creature)->GetFollowAngle() : PET_FOLLOW_ANGLE);
+            m_creature->GetMotionMaster()->MoveFollow(m_creature->GetCharmerOrOwner(), PET_FOLLOW_DIST,
+                                                      m_creature->IsPet() ? static_cast<Pet*>(m_creature)->GetFollowAngle() : PET_FOLLOW_ANGLE);
         }
     }
 }
@@ -640,7 +645,8 @@ void PetAI::DoAttack(Unit* target, bool chase)
             // Make sure creature owner enters combat too
             if (Creature* pOwner = ToCreature(m_creature->GetCharmerOrOwner()))
             {
-                if (pOwner->IsAlive() && !pOwner->HasUnitState(UNIT_STAT_CAN_NOT_REACT) && pOwner->IsValidAttackTarget(target, false))
+                if (pOwner->IsAlive() && !pOwner->HasUnitState(UNIT_STAT_CAN_NOT_REACT) &&
+                    pOwner->IsValidAttackTarget(target, false))
                     pOwner->EnterCombatWithTarget(target);
             }
         }
@@ -652,7 +658,7 @@ void PetAI::MovementInform(uint32 moveType, uint32 data)
     // Receives notification when pet reaches stay or follow owner
     switch (moveType)
     {
-    case POINT_MOTION_TYPE:
+        case POINT_MOTION_TYPE:
         {
             // Pet is returning to where stay was clicked. data should be
             // pet's GUIDLow since we set that as the waypoint ID
@@ -665,7 +671,7 @@ void PetAI::MovementInform(uint32 moveType, uint32 data)
             }
             break;
         }
-    case FOLLOW_MOTION_TYPE:
+        case FOLLOW_MOTION_TYPE:
         {
             // If data is owner's GUIDLow then we've reached follow point,
             // otherwise we're probably chasing a creature
@@ -676,8 +682,8 @@ void PetAI::MovementInform(uint32 moveType, uint32 data)
             }
             break;
         }
-    default:
-        break;
+        default:
+            break;
     }
 }
 
@@ -694,7 +700,8 @@ bool PetAI::CanAttack(Unit* target)
         return false;
 
     constexpr uint32 infernoId = 89, doomguardId = 11859;
-    if ((m_creature->GetEntry() == infernoId || m_creature->GetEntry() == doomguardId) && target->IsPlayer() && target->ToPlayer()->IsHardcore())
+    if ((m_creature->GetEntry() == infernoId || m_creature->GetEntry() == doomguardId)
+        && target->IsPlayer() && target->ToPlayer()->IsHardcore())
         return false;
 
     if (!target->IsAlive())
@@ -798,3 +805,4 @@ void PetAI::AttackedBy(Unit* attacker)
     // Continue to evaluate and attack if necessary
     AttackStart(attacker);
 }
+

@@ -21,43 +21,43 @@ SDComment: Chromatic Mutation disabled due to lack of core support
 SDCategory: Blackwing Lair
 EndScriptData */
 
-#include "blackwing_lair.h"
 #include "scriptPCH.h"
+#include "blackwing_lair.h"
 
 enum
 {
-    EMOTE_GENERIC_FRENZY_KILL = 7797,
-    EMOTE_SHIMMER = -1469003,
+    EMOTE_GENERIC_FRENZY_KILL   = 7797,
+    EMOTE_SHIMMER               = -1469003,
 
     // These spells are actually called elemental shield
     // What they do is decrease all damage by 75% then they increase
     // One school of damage by 1100%
-    SPELL_FIRE_VULNERABILITY = 22277,
-    SPELL_FROST_VULNERABILITY = 22278,
-    SPELL_SHADOW_VULNERABILITY = 22279,
-    SPELL_NATURE_VULNERABILITY = 22280,
-    SPELL_ARCANE_VULNERABILITY = 22281,
-    SPELL_CHROMA_HEAL = 23168,
+    SPELL_FIRE_VULNERABILITY    = 22277,
+    SPELL_FROST_VULNERABILITY   = 22278,
+    SPELL_SHADOW_VULNERABILITY  = 22279,
+    SPELL_NATURE_VULNERABILITY  = 22280,
+    SPELL_ARCANE_VULNERABILITY  = 22281,
+    SPELL_CHROMA_HEAL           = 23168,
 
-    MAX_BREATHS = 5,
-    SPELL_INCINERATE = 23308, // Incinerate 23308,23309
-    SPELL_TIME_LAPSE = 23310, // Time lapse 23310, 23311(old threat mod that was removed in 2.01)
-    SPELL_CORROSIVE_ACID = 23313, // Corrosive Acid 23313, 23314
-    SPELL_IGNITE_FLESH = 23315, // Ignite Flesh 23315,23316
-    SPELL_FROST_BURN = 23187, // Frost burn 23187, 23189
+    MAX_BREATHS                 = 5,
+    SPELL_INCINERATE            = 23308,                    // Incinerate 23308,23309
+    SPELL_TIME_LAPSE            = 23310,                    // Time lapse 23310, 23311(old threat mod that was removed in 2.01)
+    SPELL_CORROSIVE_ACID        = 23313,                    // Corrosive Acid 23313, 23314
+    SPELL_IGNITE_FLESH          = 23315,                    // Ignite Flesh 23315,23316
+    SPELL_FROST_BURN            = 23187,                    // Frost burn 23187, 23189
 
     // Brood Affliction 23173 - Scripted Spell that cycles through all targets within 100 yards and has a chance to cast one of the afflictions on them
     // Since Scripted spells aren't coded I'll just write a function that does the same thing
-    SPELL_BROODAF_BLUE = 23153, // Blue affliction 23153
-    SPELL_BROODAF_BLACK = 23154, // Black affliction 23154
-    SPELL_BROODAF_RED = 23155, // Red affliction 23155 (23168 on death)
-    SPELL_BROODAF_BRONZE = 23170, // Bronze Affliction  23170
-    SPELL_BROODAF_GREEN = 23169, // Brood Affliction Green 23169
+    SPELL_BROODAF_BLUE          = 23153,                    // Blue affliction 23153
+    SPELL_BROODAF_BLACK         = 23154,                    // Black affliction 23154
+    SPELL_BROODAF_RED           = 23155,                    // Red affliction 23155 (23168 on death)
+    SPELL_BROODAF_BRONZE        = 23170,                    // Bronze Affliction  23170
+    SPELL_BROODAF_GREEN         = 23169,                    // Brood Affliction Green 23169
 
-    SPELL_CHROMATIC_MUT_1 = 23174, // Spell cast on player if they get all 5 debuffs
+    SPELL_CHROMATIC_MUT_1       = 23174,                    // Spell cast on player if they get all 5 debuffs
 
-    SPELL_FRENZY = 23128, // 28371 The frenzy spell may be wrong
-    SPELL_ENRAGE = 28747
+    SPELL_FRENZY                = 23128,                    // 28371 The frenzy spell may be wrong
+    SPELL_ENRAGE                = 28747
 };
 
 static uint32 const aPossibleBreaths[MAX_BREATHS] = {SPELL_INCINERATE, SPELL_TIME_LAPSE, SPELL_CORROSIVE_ACID, SPELL_IGNITE_FLESH, SPELL_FROST_BURN};
@@ -110,15 +110,15 @@ struct boss_chromaggusAI : public ScriptedAI
     {
         m_uiMovetoLeverTimer = 2000;
 
-        m_uiCurrentVulnerabilitySpell = 0; // We use this to store our last vulnerability spell so we can remove it later
+        m_uiCurrentVulnerabilitySpell = 0;                  // We use this to store our last vulnerability spell so we can remove it later
 
-        m_uiShimmerTimer = 0; // Vulnurability is applied at pull. Changes every 20 secs.
-        m_uiBreathOneTimer = 30000; // First breath happens in 30 secs. Repeats every 60 secs.
-        m_uiBreathTwoTimer = 60000; // Second breath happens in 60 secs. Repeats every 60 secs.
-        m_uiAfflictionTimer = 7500; // Afflictions are applied every 7.5 secs.
-        m_uiFrenzyTimer = 15000; // Frenzy happens every 15 secs.
+        m_uiShimmerTimer    = 0;        // Vulnurability is applied at pull. Changes every 20 secs.
+        m_uiBreathOneTimer  = 30000;    // First breath happens in 30 secs. Repeats every 60 secs.
+        m_uiBreathTwoTimer  = 60000;    // Second breath happens in 60 secs. Repeats every 60 secs.
+        m_uiAfflictionTimer = 7500;     // Afflictions are applied every 7.5 secs.
+        m_uiFrenzyTimer     = 15000;    // Frenzy happens every 15 secs.
 
-        m_bEnraged = false;
+        m_bEnraged          = false;
         m_lRedAfflictionPlayerGUID.clear();
 
         for (const auto& guid : m_lChromaticPlayerGUID)
@@ -141,12 +141,18 @@ struct boss_chromaggusAI : public ScriptedAI
         }
     }
 
-    void MoveInLineOfSight(Unit* pUnit) override
+    void MoveInLineOfSight(Unit *pUnit) override
     {
         if (!pUnit || m_creature->GetVictim())
             return;
 
-        if (m_bEngagedOnce && pUnit->IsPlayer() && !m_creature->IsInCombat() && m_creature->GetDistance2d(pUnit) < 55.0f && m_creature->IsWithinLOSInMap(pUnit) && m_creature->IsValidAttackTarget(pUnit) && pUnit->IsInAccessablePlaceFor(m_creature))
+        if (m_bEngagedOnce &&
+            pUnit->IsPlayer() &&
+           !m_creature->IsInCombat() &&
+            m_creature->GetDistance2d(pUnit) < 55.0f &&
+            m_creature->IsWithinLOSInMap(pUnit) &&
+            m_creature->IsValidAttackTarget(pUnit) &&
+            pUnit->IsInAccessablePlaceFor(m_creature))
             AttackStart(pUnit);
     }
 
@@ -192,17 +198,17 @@ struct boss_chromaggusAI : public ScriptedAI
 
         switch (uiPointId)
         {
-        case 0:
-            // walk to Flamegor's room on first pull of lever
-            m_creature->GetMotionMaster()->MovePoint(1, -7379.223f, -1002.1122f, 477.0402f, 0, 0.0f, 3.7662f);
-            break;
-        case 1:
-            // didn't find anyone! walk back to home position
-            m_creature->GetMotionMaster()->MovePoint(2, -7484.609385f, -1075.678101f, 477.144623f, 0, 0.0f, 0.616172f);
-            break;
-        case 2:
-            m_creature->GetMotionMaster()->MoveTargetedHome();
-            break;
+            case 0:
+                // walk to Flamegor's room on first pull of lever
+                m_creature->GetMotionMaster()->MovePoint(1, -7379.223f, -1002.1122f, 477.0402f, 0, 0.0f, 3.7662f);
+                break;
+            case 1:
+                // didn't find anyone! walk back to home position
+                m_creature->GetMotionMaster()->MovePoint(2, -7484.609385f, -1075.678101f, 477.144623f, 0, 0.0f, 0.616172f);
+                break;
+            case 2:
+                m_creature->GetMotionMaster()->MoveTargetedHome();
+                break;
         }
     }
 
@@ -218,8 +224,8 @@ struct boss_chromaggusAI : public ScriptedAI
                     {
                         float x = -7484.609385f;
                         float y = -1075.678101f;
-                        float z = 477.144623f;
-                        float o = 0.616172f;
+                        float z =   477.144623f;
+                        float o =     0.616172f;
                         m_creature->SetHomePosition(x, y, z, o);
                         m_creature->SetWalk(true);
                         m_creature->GetMotionMaster()->MovePoint(0, x, y, z, MOVE_PATHFINDING);
@@ -248,21 +254,21 @@ struct boss_chromaggusAI : public ScriptedAI
             uint32 uiSpell;
             switch (urand(0, 4))
             {
-            case 0:
-                uiSpell = SPELL_FIRE_VULNERABILITY;
-                break;
-            case 1:
-                uiSpell = SPELL_FROST_VULNERABILITY;
-                break;
-            case 2:
-                uiSpell = SPELL_SHADOW_VULNERABILITY;
-                break;
-            case 3:
-                uiSpell = SPELL_NATURE_VULNERABILITY;
-                break;
-            case 4:
-                uiSpell = SPELL_ARCANE_VULNERABILITY;
-                break;
+                case 0:
+                    uiSpell = SPELL_FIRE_VULNERABILITY;
+                    break;
+                case 1:
+                    uiSpell = SPELL_FROST_VULNERABILITY;
+                    break;
+                case 2:
+                    uiSpell = SPELL_SHADOW_VULNERABILITY;
+                    break;
+                case 3:
+                    uiSpell = SPELL_NATURE_VULNERABILITY;
+                    break;
+                case 4:
+                    uiSpell = SPELL_ARCANE_VULNERABILITY;
+                    break;
             }
 
             if (DoCastSpellIfCan(m_creature, uiSpell) == CAST_OK)
@@ -301,22 +307,22 @@ struct boss_chromaggusAI : public ScriptedAI
 
             switch (urand(0, 4))
             {
-            case 0:
-                m_uiSpellAfflict = SPELL_BROODAF_BLUE;
-                break;
-            case 1:
-                m_uiSpellAfflict = SPELL_BROODAF_BLACK;
-                break;
-            case 2:
-                m_uiSpellAfflict = SPELL_BROODAF_RED;
-                m_lRedAfflictionPlayerGUID.clear();
-                break;
-            case 3:
-                m_uiSpellAfflict = SPELL_BROODAF_BRONZE;
-                break;
-            case 4:
-                m_uiSpellAfflict = SPELL_BROODAF_GREEN;
-                break;
+                case 0:
+                    m_uiSpellAfflict = SPELL_BROODAF_BLUE;
+                    break;
+                case 1:
+                    m_uiSpellAfflict = SPELL_BROODAF_BLACK;
+                    break;
+                case 2:
+                    m_uiSpellAfflict = SPELL_BROODAF_RED;
+                    m_lRedAfflictionPlayerGUID.clear();
+                    break;
+                case 3:
+                    m_uiSpellAfflict = SPELL_BROODAF_BRONZE;
+                    break;
+                case 4:
+                    m_uiSpellAfflict = SPELL_BROODAF_GREEN;
+                    break;
             }
 
             for (int i = 0; i < urand(11, 15); ++i) // Affliction is applied 11-15 times per cast. Creatures such as pets can be targetted
@@ -333,7 +339,11 @@ struct boss_chromaggusAI : public ScriptedAI
                             m_lRedAfflictionPlayerGUID.push_back(afflictionTarget->GetObjectGuid());
                     }
                     // Chromatic mutation if target is effected by all afflictions
-                    if (afflictionTarget->HasAura(SPELL_BROODAF_BLUE) && afflictionTarget->HasAura(SPELL_BROODAF_BLACK) && afflictionTarget->HasAura(SPELL_BROODAF_RED) && afflictionTarget->HasAura(SPELL_BROODAF_BRONZE) && afflictionTarget->HasAura(SPELL_BROODAF_GREEN))
+                    if (afflictionTarget->HasAura(SPELL_BROODAF_BLUE)
+                            && afflictionTarget->HasAura(SPELL_BROODAF_BLACK)
+                            && afflictionTarget->HasAura(SPELL_BROODAF_RED)
+                            && afflictionTarget->HasAura(SPELL_BROODAF_BRONZE)
+                            && afflictionTarget->HasAura(SPELL_BROODAF_GREEN))
                     {
                         afflictionTarget->RemoveAurasDueToSpell(SPELL_BROODAF_BLUE);
                         afflictionTarget->RemoveAurasDueToSpell(SPELL_BROODAF_BLACK);
@@ -343,13 +353,14 @@ struct boss_chromaggusAI : public ScriptedAI
 
                         if (afflictionTarget->GetTypeId() == TYPEID_PLAYER) // Only players are mutated
                         {
-                            afflictionTarget->AddAura(SPELL_CHROMATIC_MUT_1, ADD_AURA_NO_OPTION, m_creature); // Main MC aura
-                            afflictionTarget->AddAura(23175); // Mod DMG 500% + Mod Haste Melee 100 + Mod Haste Spell 300
-                            afflictionTarget->AddAura(23177); // Max Health 10000 + Mod healing 1000%
-                            m_lChromaticPlayerGUID.push_back(afflictionTarget->GetObjectGuid());
+                                afflictionTarget->AddAura(SPELL_CHROMATIC_MUT_1, ADD_AURA_NO_OPTION, m_creature); // Main MC aura
+                                afflictionTarget->AddAura(23175); // Mod DMG 500% + Mod Haste Melee 100 + Mod Haste Spell 300
+                                afflictionTarget->AddAura(23177); // Max Health 10000 + Mod healing 1000%
+                                m_lChromaticPlayerGUID.push_back(afflictionTarget->GetObjectGuid());
                         }
-                        else // Pets die instantly
+                        else    // Pets die instantly
                             afflictionTarget->DealDamage(afflictionTarget, afflictionTarget->GetHealth(), nullptr, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, nullptr, false);
+
                     }
                 }
             }
@@ -370,7 +381,7 @@ struct boss_chromaggusAI : public ScriptedAI
 
             if (!pTarget || pTarget->IsDead())
             {
-                if (DoCastSpellIfCan(m_creature, SPELL_CHROMA_HEAL) == CAST_OK) // Heal 150000 HP
+                if (DoCastSpellIfCan(m_creature, SPELL_CHROMA_HEAL) == CAST_OK) //Heal 150000 HP
                     m_lRedAfflictionPlayerGUID.erase(itr);
                 break;
             }
@@ -386,7 +397,7 @@ struct boss_chromaggusAI : public ScriptedAI
                 {
                     pTarget->RemoveAurasDueToSpell(23175);
                     pTarget->RemoveAurasDueToSpell(23177);
-                    if (DoCastSpellIfCan(m_creature, 23168) == CAST_OK) // Heal 150000 HP
+                    if (DoCastSpellIfCan(m_creature, 23168) == CAST_OK) //Heal 150000 HP
                         itr = m_lChromaticPlayerGUID.erase(itr);
                     break;
                 }
@@ -416,7 +427,10 @@ struct boss_chromaggusAI : public ScriptedAI
     }
 };
 
-CreatureAI* GetAI_boss_chromaggus(Creature* pCreature) { return new boss_chromaggusAI(pCreature); }
+CreatureAI* GetAI_boss_chromaggus(Creature* pCreature)
+{
+    return new boss_chromaggusAI(pCreature);
+}
 
 void AddSC_boss_chromaggus()
 {

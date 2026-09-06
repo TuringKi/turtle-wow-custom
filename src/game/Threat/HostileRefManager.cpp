@@ -20,14 +20,20 @@
  */
 
 #include "HostileRefManager.h"
-#include "DBCStructure.h"
-#include "SpellEntry.h"
 #include "ThreatManager.h"
 #include "Unit.h"
+#include "DBCStructure.h"
+#include "SpellEntry.h"
 
-HostileRefManager::HostileRefManager(Unit* pOwner) : iOwner(pOwner) {}
+HostileRefManager::HostileRefManager(Unit *pOwner) : iOwner(pOwner)
+{
 
-HostileRefManager::~HostileRefManager() { deleteReferences(); }
+}
+
+HostileRefManager::~HostileRefManager()
+{
+    deleteReferences();
+}
 
 // Sorts par exemple 'oubli'
 void HostileRefManager::addTempThreat(float threat, bool apply)
@@ -53,12 +59,12 @@ void HostileRefManager::addTempThreat(float threat, bool apply)
 // the victim is hated by them as well
 // use for buffs and healing threat functionality
 
-void HostileRefManager::threatAssist(Unit* pVictim, float pThreat, SpellEntry const* pThreatSpell, bool pSingleTarget)
+void HostileRefManager::threatAssist(Unit *pVictim, float pThreat, SpellEntry const *pThreatSpell, bool pSingleTarget)
 {
     if (pThreatSpell && pThreatSpell->HasAttribute(SPELL_ATTR_EX4_NO_HELPFUL_THREAT))
         return;
 
-    uint32 size = pSingleTarget ? 1 : getSize(); // if pSingleTarget do not devide threat
+    uint32 size = pSingleTarget ? 1 : getSize();            // if pSingleTarget do not devide threat
     float threat = pThreat / size;
     HostileReference* ref = getFirst();
     while (ref)
@@ -146,7 +152,7 @@ void HostileRefManager::deleteReferencesForFaction(uint32 faction)
                 }
             }
         }
-
+        
         ref = nextRef;
     }
 }
@@ -154,7 +160,7 @@ void HostileRefManager::deleteReferencesForFaction(uint32 faction)
 //=================================================
 // delete one reference, defined by Unit
 
-void HostileRefManager::deleteReference(Unit* pCreature)
+void HostileRefManager::deleteReference(Unit *pCreature)
 {
     HostileReference* ref = getFirst();
     while (ref)
@@ -173,7 +179,7 @@ void HostileRefManager::deleteReference(Unit* pCreature)
 //=================================================
 // set state for one reference, defined by Unit
 
-void HostileRefManager::setOnlineOfflineState(Unit* pCreature, bool pIsOnline)
+void HostileRefManager::setOnlineOfflineState(Unit *pCreature, bool pIsOnline)
 {
     HostileReference* ref = getFirst();
     while (ref)

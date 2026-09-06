@@ -1,21 +1,27 @@
 #include "Database/DatabaseEnv.h"
+#include "World.h"
+#include "Util.h"
 #include "Log.h"
 #include "Policies/SingletonImp.h"
-#include "Util.h"
-#include "World.h"
 
 #include "AutoBroadCastMgr.h"
 
 AutoBroadCastMgr sAutoBroadCastMgr;
 
-AutoBroadCastMgr::AutoBroadCastMgr() { _current = 0; }
+AutoBroadCastMgr::AutoBroadCastMgr()
+{
+    _current = 0;
+}
 
-AutoBroadCastMgr::~AutoBroadCastMgr() { entries.clear(); }
+AutoBroadCastMgr::~AutoBroadCastMgr()
+{
+    entries.clear();
+}
 
 void AutoBroadCastMgr::Load()
 {
     entries.clear();
-    _constInterval = sWorld.getConfig(CONFIG_UINT32_AUTOBROADCAST_INTERVAL);
+	_constInterval = sWorld.getConfig(CONFIG_UINT32_AUTOBROADCAST_INTERVAL);
     std::unique_ptr<QueryResult> result(WorldDatabase.Query("SELECT `string_id` FROM `autobroadcast`"));
 
     if (!result)
@@ -25,7 +31,7 @@ void AutoBroadCastMgr::Load()
 
     uint32 count = 0;
 
-    Field* fields;
+    Field *fields;
     do
     {
         AutoBroadCastEntry e;

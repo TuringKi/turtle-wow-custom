@@ -20,14 +20,17 @@
  */
 
 #include "Item.h"
-#include "Database/DatabaseEnv.h"
-#include "GuildMgr.h"
-#include "ItemEnchantmentMgr.h"
-#include "ObjectGuid.h"
 #include "ObjectMgr.h"
-#include "PerfStats.h"
+#include "ObjectGuid.h"
 #include "WorldPacket.h"
+#include "Database/DatabaseEnv.h"
+#include "ItemEnchantmentMgr.h"
+#include "GuildMgr.h"
 #include "miscellaneous/feature_transmog.h"
+#include "PerfStats.h"
+#ifdef ENABLE_ELUNA
+#include "LuaEngine.h"
+#endif
 
 void AddItemsSetItem(Player* player, Item* item)
 {
@@ -237,7 +240,10 @@ Item::Item() : loot(nullptr)
     ++PerfStats::g_totalItems;
 }
 
-Item::~Item() { --PerfStats::g_totalItems; }
+Item::~Item()
+{
+    --PerfStats::g_totalItems;
+}
 
 bool Item::Create(uint32 guidlow, uint32 itemid, ObjectGuid ownerGuid)
 {
@@ -289,10 +295,14 @@ void Item::UpdateDuration(Player* owner, uint32 diff)
     if (!GetUInt32Value(ITEM_FIELD_DURATION))
         return;
 
-    // DEBUG_LOG("Item::UpdateDuration Item (Entry: %u Duration %u Diff %u)", GetEntry(), GetUInt32Value(ITEM_FIELD_DURATION), diff);
+    //DEBUG_LOG("Item::UpdateDuration Item (Entry: %u Duration %u Diff %u)", GetEntry(), GetUInt32Value(ITEM_FIELD_DURATION), diff);
 
     if (GetUInt32Value(ITEM_FIELD_DURATION) <= diff)
     {
+#ifdef ENABLE_ELUNA
+        if (Eluna* e = owner->GetEluna())
+            e->OnExpire(owner, GetProto());
+#endif
         owner->DestroyItem(GetBagSlot(), GetSlot(), true);
         return;
     }
@@ -321,7 +331,10 @@ void Item::SaveToDB(bool direct)
             static SqlStatementID insItem;
             static SqlStatementID updItem;
 
-            SqlStatement stmt = (uState == ITEM_NEW) ? CharacterDatabase.CreateStatement(insItem, "REPLACE INTO `item_instance` (`itemEntry`, `owner_guid`, `creatorGuid`, `giftCreatorGuid`, `count`, `duration`, `charges`, `flags`, `enchantments`, `randomPropertyId`, `transmogrifyId`, `durability`, `text`, `generated_loot`, `guid`) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)") : CharacterDatabase.CreateStatement(updItem, "UPDATE `item_instance` SET `itemEntry` = ?, `owner_guid` = ?, `creatorGuid` = ?, `giftCreatorGuid` = ?, `count` = ?, `duration` = ?, `charges` = ?, `flags` = ?, `enchantments` = ?, `randomPropertyId` = ?, `transmogrifyId` = ?, `durability` = ?, `text` = ?, `generated_loot` = ? WHERE `guid` = ?");
+            SqlStatement stmt = (uState == ITEM_NEW) ?
+                                CharacterDatabase.CreateStatement(insItem, "REPLACE INTO `item_instance` (`itemEntry`, `owner_guid`, `creatorGuid`, `giftCreatorGuid`, `count`, `duration`, `charges`, `flags`, `enchantments`, `randomPropertyId`, `transmogrifyId`, `durability`, `text`, `generated_loot`, `guid`) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")
+                                :
+                                CharacterDatabase.CreateStatement(updItem, "UPDATE `item_instance` SET `itemEntry` = ?, `owner_guid` = ?, `creatorGuid` = ?, `giftCreatorGuid` = ?, `count` = ?, `duration` = ?, `charges` = ?, `flags` = ?, `enchantments` = ?, `randomPropertyId` = ?, `transmogrifyId` = ?, `durability` = ?, `text` = ?, `generated_loot` = ? WHERE `guid` = ?");
             stmt.addUInt32(GetEntry());
             stmt.addUInt32(GetOwnerGuid().GetCounter());
             stmt.addUInt32(GetGuidValue(ITEM_FIELD_CREATOR).GetCounter());
@@ -360,9 +373,9 @@ void Item::SaveToDB(bool direct)
     case ITEM_REMOVED:
         {
             static SqlStatementID delItemText;
-            static SqlStatementID delInst;
-            static SqlStatementID delGifts;
-            static SqlStatementID delLoot;
+            static SqlStatementID delInst ;
+            static SqlStatementID delGifts ;
+            static SqlStatementID delLoot ;
 
             if (GetTransmogrification())
                 sObjectMgr.DeleteItemTransmogrifyTemplate(GetTransmogrification());
@@ -374,7 +387,7 @@ void Item::SaveToDB(bool direct)
             }
 
             SqlStatement stmt = CharacterDatabase.CreateStatement(delInst, "DELETE FROM `item_instance` WHERE `guid` = ?");
-            // sTransmog.DeleteTransmogItemFromDB(guid);
+            //sTransmog.DeleteTransmogItemFromDB(guid);
             stmt.PExecute(guid);
 
             if (HasFlag(ITEM_FIELD_FLAGS, ITEM_DYNFLAG_WRAPPED))
@@ -401,7 +414,7 @@ void Item::SaveToDB(bool direct)
 
     if (m_lootState == ITEM_LOOT_CHANGED || m_lootState == ITEM_LOOT_REMOVED)
     {
-        static SqlStatementID delLoot;
+        static SqlStatementID delLoot ;
 
         SqlStatement stmt = CharacterDatabase.CreateStatement(delLoot, "DELETE FROM `item_loot` WHERE `guid` = ?");
         stmt.PExecute(GetGUIDLow());
@@ -411,8 +424,8 @@ void Item::SaveToDB(bool direct)
     {
         if (auto ownerGuid = GetOwnerGuid())
         {
-            static SqlStatementID saveGold;
-            static SqlStatementID saveLoot;
+            static SqlStatementID saveGold ;
+            static SqlStatementID saveLoot ;
 
             // save money as 0 itemid data
             if (loot.gold)
@@ -445,6 +458,7 @@ void Item::SaveToDB(bool direct)
                 stmt.Execute();
             }
         }
+
     }
 
     if (m_lootState != ITEM_LOOT_NONE && m_lootState != ITEM_LOOT_TEMPORARY)
@@ -583,7 +597,7 @@ void Item::DeleteAllFromDB(uint32 guidLow)
         sGuildMgr.DeletePetition(petition);
 
     CharacterDatabase.PExecute("DELETE FROM `character_gifts` WHERE `item_guid` = '%u'", guidLow);
-    // sTransmog.DeleteTransmogItemFromDB(guidLow);
+    //sTransmog.DeleteTransmogItemFromDB(guidLow);
 }
 
 void Item::LoadLootFromDB(Field* fields)
@@ -618,31 +632,47 @@ void Item::LoadLootFromDB(Field* fields)
 
 void Item::DeleteFromDB()
 {
-    static SqlStatementID delItem;
+    static SqlStatementID delItem ;
 
     SqlStatement stmt = CharacterDatabase.CreateStatement(delItem, "DELETE FROM `item_instance` WHERE `guid` = ?");
     stmt.PExecute(GetGUIDLow());
-    // sTransmog.DeleteTransmogItemFromDB(GetGUIDLow());
+    //sTransmog.DeleteTransmogItemFromDB(GetGUIDLow());
 }
 
 void Item::DeleteFromInventoryDB()
 {
-    static SqlStatementID delInv;
+    static SqlStatementID delInv ;
 
     SqlStatement stmt = CharacterDatabase.CreateStatement(delInv, "DELETE FROM `character_inventory` WHERE `item` = ?");
     stmt.PExecute(GetGUIDLow());
-    // sTransmog.DeleteTransmogItemFromDB(GetGUIDLow());
+    //sTransmog.DeleteTransmogItemFromDB(GetGUIDLow());
 }
 
-ItemPrototype const* Item::GetProto() const { return sObjectMgr.GetItemPrototype(GetEntry()); }
+ItemPrototype const* Item::GetProto() const
+{
+    return sObjectMgr.GetItemPrototype(GetEntry());
+}
 
-Player* Item::GetOwner() const { return sObjectMgr.GetPlayer(GetOwnerGuid()); }
+Player* Item::GetOwner()const
+{
+    return sObjectMgr.GetPlayer(GetOwnerGuid());
+}
 
 uint32 ItemPrototype::GetProficiencySkill() const
 {
-    const static uint32 item_weapon_skills[MAX_ITEM_SUBCLASS_WEAPON] = {SKILL_AXES, SKILL_2H_AXES, SKILL_BOWS, SKILL_GUNS, SKILL_MACES, SKILL_2H_MACES, SKILL_POLEARMS, SKILL_SWORDS, SKILL_2H_SWORDS, 0, SKILL_STAVES, 0, 0, SKILL_UNARMED, 0, SKILL_DAGGERS, SKILL_THROWN, SKILL_ASSASSINATION, SKILL_CROSSBOWS, SKILL_WANDS, SKILL_FISHING};
+    const static uint32 item_weapon_skills[MAX_ITEM_SUBCLASS_WEAPON] =
+    {
+        SKILL_AXES,     SKILL_2H_AXES,  SKILL_BOWS,          SKILL_GUNS,      SKILL_MACES,
+        SKILL_2H_MACES, SKILL_POLEARMS, SKILL_SWORDS,        SKILL_2H_SWORDS, 0,
+        SKILL_STAVES,   0,              0,                   SKILL_UNARMED,   0,
+        SKILL_DAGGERS,  SKILL_THROWN,   SKILL_ASSASSINATION, SKILL_CROSSBOWS, SKILL_WANDS,
+        SKILL_FISHING
+    };
 
-    const static uint32 item_armor_skills[MAX_ITEM_SUBCLASS_ARMOR] = {0, SKILL_CLOTH, SKILL_LEATHER, SKILL_MAIL, SKILL_PLATE_MAIL, 0, SKILL_SHIELD, 0, 0, 0};
+    const static uint32 item_armor_skills[MAX_ITEM_SUBCLASS_ARMOR] =
+    {
+        0, SKILL_CLOTH, SKILL_LEATHER, SKILL_MAIL, SKILL_PLATE_MAIL, 0, SKILL_SHIELD, 0, 0, 0
+    };
 
     switch (Class)
     {
@@ -771,7 +801,7 @@ void Item::SetState(ItemUpdateState state, Player* forplayer)
 {
     if (uState == ITEM_NEW && state == ITEM_REMOVED)
     {
-        // sTransmog.DeleteTransmogItemFromDB(GetGUIDLow());
+        //sTransmog.DeleteTransmogItemFromDB(GetGUIDLow());
         //  pretend the item never existed
         RemoveFromUpdateQueueOf(forplayer);
         delete this;
@@ -781,8 +811,7 @@ void Item::SetState(ItemUpdateState state, Player* forplayer)
     if (state != ITEM_UNCHANGED)
     {
         // new items must stay in new state until saved
-        if (uState != ITEM_NEW)
-            uState = state;
+        if (uState != ITEM_NEW) uState = state;
         AddToUpdateQueueOf(forplayer);
     }
     else
@@ -804,14 +833,17 @@ void Item::AddToUpdateQueueOf(Player* player)
         player = GetOwner();
         if (!player)
         {
-            sLog.outError("Item::AddToUpdateQueueOf - %s current owner (%s) not in world!", GetGuidStr().c_str(), GetOwnerGuid().GetString().c_str());
+            if (!GetOwnerGuid().IsEmpty())
+                sLog.outError("Item::AddToUpdateQueueOf - %s current owner (%s) not in world!",
+                              GetGuidStr().c_str(), GetOwnerGuid().GetString().c_str());
             return;
         }
     }
 
     if (player->GetObjectGuid() != GetOwnerGuid())
     {
-        sLog.outError("Item::AddToUpdateQueueOf - %s current owner (%s) and inventory owner (%s) don't match!", GetGuidStr().c_str(), GetOwnerGuid().GetString().c_str(), player->GetGuidStr().c_str());
+        sLog.outError("Item::AddToUpdateQueueOf - %s current owner (%s) and inventory owner (%s) don't match!",
+                      GetGuidStr().c_str(), GetOwnerGuid().GetString().c_str(), player->GetGuidStr().c_str());
         return;
     }
 
@@ -832,14 +864,16 @@ void Item::RemoveFromUpdateQueueOf(Player* player)
         player = GetOwner();
         if (!player)
         {
-            sLog.outError("Item::RemoveFromUpdateQueueOf - %s current owner (%s) not in world!", GetGuidStr().c_str(), GetOwnerGuid().GetString().c_str());
+            sLog.outError("Item::RemoveFromUpdateQueueOf - %s current owner (%s) not in world!",
+                          GetGuidStr().c_str(), GetOwnerGuid().GetString().c_str());
             return;
         }
     }
 
     if (player->GetObjectGuid() != GetOwnerGuid())
     {
-        sLog.outError("Item::RemoveFromUpdateQueueOf - %s current owner (%s) and inventory owner (%s) don't match!", GetGuidStr().c_str(), GetOwnerGuid().GetString().c_str(), player->GetGuidStr().c_str());
+        sLog.outError("Item::RemoveFromUpdateQueueOf - %s current owner (%s) and inventory owner (%s) don't match!",
+                      GetGuidStr().c_str(), GetOwnerGuid().GetString().c_str(), player->GetGuidStr().c_str());
         return;
     }
 
@@ -850,9 +884,15 @@ void Item::RemoveFromUpdateQueueOf(Player* player)
     uQueuePos = -1;
 }
 
-uint8 Item::GetBagSlot() const { return m_container ? m_container->GetSlot() : uint8(INVENTORY_SLOT_BAG_0); }
+uint8 Item::GetBagSlot() const
+{
+    return m_container ? m_container->GetSlot() : uint8(INVENTORY_SLOT_BAG_0);
+}
 
-bool Item::IsEquipped() const { return !IsInBag() && m_slot < EQUIPMENT_SLOT_END; }
+bool Item::IsEquipped() const
+{
+    return !IsInBag() && m_slot < EQUIPMENT_SLOT_END;
+}
 
 void Item::ResetSoulBoundTradeData()
 {
@@ -864,7 +904,10 @@ void Item::ResetSoulBoundTradeData()
         SendCreateUpdateToPlayer(owner);
 }
 
-bool Item::CanBeTradedEvenIfSoulBound() const { return m_tradeAllowedUntil > sWorld.GetGameTime(); }
+bool Item::CanBeTradedEvenIfSoulBound() const
+{
+    return m_tradeAllowedUntil > sWorld.GetGameTime();
+}
 
 bool Item::CanBeTraded() const
 {
@@ -1029,7 +1072,7 @@ void Item::SendTimeUpdate(Player const* owner) const
 Item* Item::CreateItem(uint32 item, uint32 count, Player const* player)
 {
     if (count < 1)
-        return nullptr; // don't create item at zero count
+        return nullptr;                                        //don't create item at zero count
 
     if (ItemPrototype const* pProto = sObjectMgr.GetItemPrototype(item))
     {
@@ -1054,6 +1097,35 @@ Item* Item::CreateItem(uint32 item, uint32 count, Player const* player)
             delete pItem;
     }
     return nullptr;
+}
+
+Item* Item::CreateItem(uint32 item, uint32 count, ObjectGuid ownerGuid)
+{
+    if (count < 1)
+        return nullptr;
+
+    ItemPrototype const* proto = sObjectMgr.GetItemPrototype(item);
+    if (!proto)
+        return nullptr;
+
+    count = std::min(count, proto->GetMaxStackSize());
+    MANGOS_ASSERT(count != 0);
+
+    Item* created = NewItemOrBag(proto);
+    if (!created->Create(sObjectMgr.GenerateItemLowGuid(), item, ownerGuid))
+    {
+        delete created;
+        return nullptr;
+    }
+
+    created->SetCount(count);
+    return created;
+}
+
+bool Item::IsNotEmptyBag() const
+{
+    Bag const* bag = ToBag();
+    return bag && !bag->IsEmpty();
 }
 
 Item* Item::CloneItem(uint32 count, Player const* player) const
@@ -1228,7 +1300,7 @@ void Item::GetLocalizedNameWithSuffix(std::string& name, const ItemPrototype* pr
     // local name
     if (dbLocale >= 0)
     {
-        ItemLocale const* il = sObjectMgr.GetItemLocale(proto->ItemId);
+        ItemLocale const *il = sObjectMgr.GetItemLocale(proto->ItemId);
         if (il)
         {
             if (il->Name.size() > size_t(dbLocale) && !il->Name[dbLocale].empty())

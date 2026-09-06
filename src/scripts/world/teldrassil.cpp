@@ -42,9 +42,12 @@ enum MistData
 
 struct npc_mistAI : public FollowerAI
 {
-    npc_mistAI(Creature* pCreature) : FollowerAI(pCreature) { Reset(); }
+    npc_mistAI(Creature* pCreature) : FollowerAI(pCreature)
+    {
+        Reset();
+    }
 
-    void Reset() override {}
+    void Reset() override { }
 
     void JustRespawned() override
     {
@@ -52,7 +55,7 @@ struct npc_mistAI : public FollowerAI
         FollowerAI::JustRespawned();
     }
 
-    void MoveInLineOfSight(Unit* pWho) override
+    void MoveInLineOfSight(Unit *pWho) override
     {
         FollowerAI::MoveInLineOfSight(pWho);
 
@@ -76,18 +79,24 @@ struct npc_mistAI : public FollowerAI
                 pPlayer->GroupEventHappens(QUEST_MIST, m_creature);
         }
 
-        // The follow is over (and for later development, run off to the woods before really end)
+        //The follow is over (and for later development, run off to the woods before really end)
         SetFollowComplete();
     }
 };
 
-CreatureAI* GetAI_npc_mist(Creature* pCreature) { return new npc_mistAI(pCreature); }
+CreatureAI* GetAI_npc_mist(Creature* pCreature)
+{
+    return new npc_mistAI(pCreature);
+}
 
 struct npc_sethirAI : public ScriptedAI
 {
-    npc_sethirAI(Creature* pCreature) : ScriptedAI(pCreature) { Reset(); }
+    npc_sethirAI(Creature* pCreature) : ScriptedAI(pCreature)
+    {
+        Reset();
+    }
 
-    void Reset() override {}
+    void Reset() override { }
 
     void Aggro(Unit* pUnit) override
     {
@@ -109,7 +118,10 @@ struct npc_sethirAI : public ScriptedAI
     }
 };
 
-CreatureAI* GetAI_npc_sethir(Creature* pCreature) { return new npc_sethirAI(pCreature); }
+CreatureAI* GetAI_npc_sethir(Creature* pCreature)
+{
+    return new npc_sethirAI(pCreature);
+}
 
 bool QuestAccept_npc_mist(Player* pPlayer, Creature* pCreature, const Quest* pQuest)
 {
@@ -119,13 +131,13 @@ bool QuestAccept_npc_mist(Player* pPlayer, Creature* pCreature, const Quest* pQu
         {
             pCreature->SetFactionTemporary(FACTION_DARNASSUS, TEMPFACTION_RESTORE_RESPAWN);
             pMistAI->StartFollow(pPlayer, FACTION_DARNASSUS, pQuest);
-        }
+        } 
     }
 
     return true;
 }
 
-// Alita
+//Alita
 enum TreshalaFallowbrookData
 {
     QUEST_MORTALITY_WANES = 1142
@@ -141,12 +153,12 @@ bool QuestComplete_npc_treshala_fallowbrook(Player* pPlayer, Creature* pQuestGiv
         pQuestGiver->HandleEmoteCommand(EMOTE_ONESHOT_CRY);
     }
 
-    return false; // return false meaning let DB take over (probably)(nothing in db anyway)
+    return false;//return false meaning let DB take over (probably)(nothing in db anyway)
 }
 
 void AddSC_teldrassil()
 {
-    Script* newscript;
+    Script *newscript;
 
     newscript = new Script;
     newscript->Name = "npc_mist";

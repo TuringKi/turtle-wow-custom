@@ -26,22 +26,112 @@ mob_aquementas
 npc_marin_noggenfogger
 npc_tooga
 go_inconspicuous_landmark
+go_slickwick_control_panel
 EndContentData */
 
 #include "scriptPCH.h"
 
 /*######
+Disgusting hack for slickwick oil pumps
+Can likely be entirely db driven, will clean later
+######*/
+
+enum SlickwickControlPanel
+{
+    QUEST_A_DEAL_WORTH_TAKING       = 41762,
+    QUEST_OIL_BASED_GRIEVANCES      = 41764,
+    ITEM_KALKES_ENERGY_REGULATOR    = 41995,
+
+    GO_CONTROL_PANEL_ALPHA          = 2020225,
+    GO_CONTROL_PANEL_BETA           = 2020226,
+    GO_CONTROL_PANEL_GAMMA          = 2020227,
+    GO_CONTROL_PANEL_DELTA          = 2020228,
+
+    GOSSIP_TEXT_SLICKWICK_PANEL     = 2020225,
+
+    GOSSIP_ACTION_SABOTAGE_PANEL    = GOSSIP_ACTION_INFO_DEF + 1,
+    GOSSIP_ACTION_DEACTIVATE_PANEL  = GOSSIP_ACTION_INFO_DEF + 2
+};
+
+uint8 GetSlickwickControlPanelObjective(GameObject const* pGo)
+{
+    switch (pGo->GetEntry())
+    {
+        case GO_CONTROL_PANEL_ALPHA: return 0;
+        case GO_CONTROL_PANEL_BETA:  return 1;
+        case GO_CONTROL_PANEL_GAMMA: return 2;
+        case GO_CONTROL_PANEL_DELTA: return 3;
+        default:                    return QUEST_OBJECTIVES_COUNT;
+    }
+}
+
+bool HasIncompleteSlickwickPanelObjective(Player* pPlayer, GameObject const* pGo, uint32 questId)
+{
+    uint8 objective = GetSlickwickControlPanelObjective(pGo);
+    if (objective >= QUEST_OBJECTIVES_COUNT)
+        return false;
+
+    QuestStatusData const* questStatus = pPlayer->GetQuestStatusData(questId);
+    if (!questStatus || questStatus->m_status != QUEST_STATUS_INCOMPLETE)
+        return false;
+
+    Quest const* quest = sObjectMgr.GetQuestTemplate(questId);
+    if (!quest || quest->ReqCreatureOrGOId[objective] != -int32(pGo->GetEntry()))
+        return false;
+
+    return questStatus->m_creatureOrGOcount[objective] < quest->ReqCreatureOrGOCount[objective];
+}
+
+bool GOGossipHello_go_slickwick_control_panel(Player* pPlayer, GameObject* pGo)
+{
+    if (HasIncompleteSlickwickPanelObjective(pPlayer, pGo, QUEST_A_DEAL_WORTH_TAKING))
+        pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "<Sabotage the pump station.>", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_SABOTAGE_PANEL);
+
+    if (pPlayer->HasItemCount(ITEM_KALKES_ENERGY_REGULATOR, 1, false) &&
+        HasIncompleteSlickwickPanelObjective(pPlayer, pGo, QUEST_OIL_BASED_GRIEVANCES))
+        pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "<Deactivate the buzzing control panel.>", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_DEACTIVATE_PANEL);
+
+    pPlayer->SEND_GOSSIP_MENU(GOSSIP_TEXT_SLICKWICK_PANEL, pGo->GetGUID());
+    return true;
+}
+
+bool GOGossipSelect_go_slickwick_control_panel(Player* pPlayer, GameObject* pGo, uint32 /*sender*/, uint32 action)
+{
+    bool canComplete = false;
+
+    if (action == GOSSIP_ACTION_SABOTAGE_PANEL)
+        canComplete = HasIncompleteSlickwickPanelObjective(pPlayer, pGo, QUEST_A_DEAL_WORTH_TAKING);
+    else if (action == GOSSIP_ACTION_DEACTIVATE_PANEL)
+    {
+        canComplete = pPlayer->HasItemCount(ITEM_KALKES_ENERGY_REGULATOR, 1, false) &&
+            HasIncompleteSlickwickPanelObjective(pPlayer, pGo, QUEST_OIL_BASED_GRIEVANCES);
+    }
+
+    if (canComplete)
+    {
+        pPlayer->CastedCreatureOrGO(pGo->GetEntry(), pGo->GetObjectGuid(), 0);
+        pGo->SendGameObjectCustomAnim();
+    }
+
+    pPlayer->CLOSE_GOSSIP_MENU();
+    return true;
+}
+
+/*######
 ## mob_aquementas
 ######*/
 
-#define AGGRO_YELL_AQUE -1000168
+#define AGGRO_YELL_AQUE     -1000168
 
-#define SPELL_AQUA_JET 13586
-#define SPELL_FROST_SHOCK 15089
+#define SPELL_AQUA_JET      13586
+#define SPELL_FROST_SHOCK   15089
 
 struct mob_aquementasAI : public ScriptedAI
 {
-    mob_aquementasAI(Creature* pCreature) : ScriptedAI(pCreature) { Reset(); }
+    mob_aquementasAI(Creature* pCreature) : ScriptedAI(pCreature)
+    {
+        Reset();
+    }
 
     uint32 SendItem_Timer;
     uint32 SwitchFaction_Timer;
@@ -63,7 +153,10 @@ struct mob_aquementasAI : public ScriptedAI
 
     void SendItem(Unit* receiver)
     {
-        if (((Player*)receiver)->HasItemCount(11169, 1, false) && ((Player*)receiver)->HasItemCount(11172, 11, false) && ((Player*)receiver)->HasItemCount(11173, 1, false) && !((Player*)receiver)->HasItemCount(11522, 1, true))
+        if (((Player*)receiver)->HasItemCount(11169, 1, false) &&
+                ((Player*)receiver)->HasItemCount(11172, 11, false) &&
+                ((Player*)receiver)->HasItemCount(11173, 1, false) &&
+                !((Player*)receiver)->HasItemCount(11522, 1, true))
         {
             ItemPosCountVec dest;
             uint8 msg = ((Player*)receiver)->CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, 11522, 1, nullptr);
@@ -72,7 +165,10 @@ struct mob_aquementasAI : public ScriptedAI
         }
     }
 
-    void Aggro(Unit* who) override { DoScriptText(AGGRO_YELL_AQUE, m_creature, who); }
+    void Aggro(Unit* who) override
+    {
+        DoScriptText(AGGRO_YELL_AQUE, m_creature, who);
+    }
 
     void UpdateAI(const uint32 diff) override
     {
@@ -83,8 +179,7 @@ struct mob_aquementasAI : public ScriptedAI
                 m_creature->SetFactionTemplateId(91);
                 isFriendly = false;
             }
-            else
-                SwitchFaction_Timer -= diff;
+            else SwitchFaction_Timer -= diff;
         }
 
         if (!m_creature->SelectHostileTarget() || !m_creature->GetVictim())
@@ -98,8 +193,7 @@ struct mob_aquementasAI : public ScriptedAI
                     SendItem(m_creature->GetVictim());
                 SendItem_Timer = 5000;
             }
-            else
-                SendItem_Timer -= diff;
+            else SendItem_Timer -= diff;
         }
 
         if (FrostShock_Timer < diff)
@@ -107,41 +201,45 @@ struct mob_aquementasAI : public ScriptedAI
             DoCastSpellIfCan(m_creature->GetVictim(), SPELL_FROST_SHOCK);
             FrostShock_Timer = 15000;
         }
-        else
-            FrostShock_Timer -= diff;
+        else FrostShock_Timer -= diff;
 
         if (AquaJet_Timer < diff)
         {
             DoCastSpellIfCan(m_creature, SPELL_AQUA_JET);
             AquaJet_Timer = 15000;
         }
-        else
-            AquaJet_Timer -= diff;
+        else AquaJet_Timer -= diff;
 
         DoMeleeAttackIfReady();
     }
 };
-CreatureAI* GetAI_mob_aquementas(Creature* pCreature) { return new mob_aquementasAI(pCreature); }
+CreatureAI* GetAI_mob_aquementas(Creature* pCreature)
+{
+    return new mob_aquementasAI(pCreature);
+}
 
 
-#define WHISPER_CUSTODIAN_1 -1000217
-#define WHISPER_CUSTODIAN_2 -1000218
-#define WHISPER_CUSTODIAN_3 -1000219
-#define WHISPER_CUSTODIAN_4 -1000220
-#define WHISPER_CUSTODIAN_5 -1000221
-#define WHISPER_CUSTODIAN_6 -1000222
-#define WHISPER_CUSTODIAN_7 -1000223
-#define WHISPER_CUSTODIAN_8 -1000224
-#define WHISPER_CUSTODIAN_9 -1000225
-#define WHISPER_CUSTODIAN_10 -1000226
-#define WHISPER_CUSTODIAN_11 -1000227
-#define WHISPER_CUSTODIAN_12 -1000228
-#define WHISPER_CUSTODIAN_13 -1000229
-#define WHISPER_CUSTODIAN_14 -1000230
+#define WHISPER_CUSTODIAN_1     -1000217
+#define WHISPER_CUSTODIAN_2     -1000218
+#define WHISPER_CUSTODIAN_3     -1000219
+#define WHISPER_CUSTODIAN_4     -1000220
+#define WHISPER_CUSTODIAN_5     -1000221
+#define WHISPER_CUSTODIAN_6     -1000222
+#define WHISPER_CUSTODIAN_7     -1000223
+#define WHISPER_CUSTODIAN_8     -1000224
+#define WHISPER_CUSTODIAN_9     -1000225
+#define WHISPER_CUSTODIAN_10    -1000226
+#define WHISPER_CUSTODIAN_11    -1000227
+#define WHISPER_CUSTODIAN_12    -1000228
+#define WHISPER_CUSTODIAN_13    -1000229
+#define WHISPER_CUSTODIAN_14    -1000230
 
 struct npc_custodian_of_timeAI : public npc_escortAI
 {
-    npc_custodian_of_timeAI(Creature* pCreature) : npc_escortAI(pCreature) { Reset(); }
+    npc_custodian_of_timeAI(Creature* pCreature) : npc_escortAI(pCreature)
+    {
+        Reset();
+    }
 
     void WaypointReached(uint32 i) override
     {
@@ -152,67 +250,67 @@ struct npc_custodian_of_timeAI : public npc_escortAI
 
         switch (i)
         {
-        case 0:
-            DoScriptText(WHISPER_CUSTODIAN_1, m_creature, pPlayer);
-            break;
-        case 1:
-            DoScriptText(WHISPER_CUSTODIAN_2, m_creature, pPlayer);
-            break;
-        case 2:
-            DoScriptText(WHISPER_CUSTODIAN_3, m_creature, pPlayer);
-            break;
-        case 3:
-            DoScriptText(WHISPER_CUSTODIAN_4, m_creature, pPlayer);
-            break;
-        case 5:
-            DoScriptText(WHISPER_CUSTODIAN_5, m_creature, pPlayer);
-            break;
-        case 6:
-            DoScriptText(WHISPER_CUSTODIAN_6, m_creature, pPlayer);
-            break;
-        case 7:
-            DoScriptText(WHISPER_CUSTODIAN_7, m_creature, pPlayer);
-            break;
-        case 8:
-            DoScriptText(WHISPER_CUSTODIAN_8, m_creature, pPlayer);
-            break;
-        case 9:
-            DoScriptText(WHISPER_CUSTODIAN_9, m_creature, pPlayer);
-            break;
-        case 10:
-            DoScriptText(WHISPER_CUSTODIAN_4, m_creature, pPlayer);
-            break;
-        case 13:
-            DoScriptText(WHISPER_CUSTODIAN_10, m_creature, pPlayer);
-            break;
-        case 14:
-            DoScriptText(WHISPER_CUSTODIAN_4, m_creature, pPlayer);
-            break;
-        case 16:
-            DoScriptText(WHISPER_CUSTODIAN_11, m_creature, pPlayer);
-            break;
-        case 17:
-            DoScriptText(WHISPER_CUSTODIAN_12, m_creature, pPlayer);
-            break;
-        case 18:
-            DoScriptText(WHISPER_CUSTODIAN_4, m_creature, pPlayer);
-            break;
-        case 22:
-            DoScriptText(WHISPER_CUSTODIAN_13, m_creature, pPlayer);
-            break;
-        case 23:
-            DoScriptText(WHISPER_CUSTODIAN_4, m_creature, pPlayer);
-            break;
-        case 24:
-            DoScriptText(WHISPER_CUSTODIAN_14, m_creature, pPlayer);
-            DoCastSpellIfCan(pPlayer, 34883);
-            // below here is temporary workaround, to be removed when spell works properly
-            pPlayer->AreaExploredOrEventHappens(10277);
-            break;
+            case 0:
+                DoScriptText(WHISPER_CUSTODIAN_1, m_creature, pPlayer);
+                break;
+            case 1:
+                DoScriptText(WHISPER_CUSTODIAN_2, m_creature, pPlayer);
+                break;
+            case 2:
+                DoScriptText(WHISPER_CUSTODIAN_3, m_creature, pPlayer);
+                break;
+            case 3:
+                DoScriptText(WHISPER_CUSTODIAN_4, m_creature, pPlayer);
+                break;
+            case 5:
+                DoScriptText(WHISPER_CUSTODIAN_5, m_creature, pPlayer);
+                break;
+            case 6:
+                DoScriptText(WHISPER_CUSTODIAN_6, m_creature, pPlayer);
+                break;
+            case 7:
+                DoScriptText(WHISPER_CUSTODIAN_7, m_creature, pPlayer);
+                break;
+            case 8:
+                DoScriptText(WHISPER_CUSTODIAN_8, m_creature, pPlayer);
+                break;
+            case 9:
+                DoScriptText(WHISPER_CUSTODIAN_9, m_creature, pPlayer);
+                break;
+            case 10:
+                DoScriptText(WHISPER_CUSTODIAN_4, m_creature, pPlayer);
+                break;
+            case 13:
+                DoScriptText(WHISPER_CUSTODIAN_10, m_creature, pPlayer);
+                break;
+            case 14:
+                DoScriptText(WHISPER_CUSTODIAN_4, m_creature, pPlayer);
+                break;
+            case 16:
+                DoScriptText(WHISPER_CUSTODIAN_11, m_creature, pPlayer);
+                break;
+            case 17:
+                DoScriptText(WHISPER_CUSTODIAN_12, m_creature, pPlayer);
+                break;
+            case 18:
+                DoScriptText(WHISPER_CUSTODIAN_4, m_creature, pPlayer);
+                break;
+            case 22:
+                DoScriptText(WHISPER_CUSTODIAN_13, m_creature, pPlayer);
+                break;
+            case 23:
+                DoScriptText(WHISPER_CUSTODIAN_4, m_creature, pPlayer);
+                break;
+            case 24:
+                DoScriptText(WHISPER_CUSTODIAN_14, m_creature, pPlayer);
+                DoCastSpellIfCan(pPlayer, 34883);
+                //below here is temporary workaround, to be removed when spell works properly
+                pPlayer->AreaExploredOrEventHappens(10277);
+                break;
         }
     }
 
-    void MoveInLineOfSight(Unit* who) override
+    void MoveInLineOfSight(Unit *who) override
     {
         if (HasEscortState(STATE_ESCORT_ESCORTING))
             return;
@@ -229,10 +327,13 @@ struct npc_custodian_of_timeAI : public npc_escortAI
         }
     }
 
-    void Reset() override {}
+    void Reset() override { }
 };
 
-CreatureAI* GetAI_npc_custodian_of_time(Creature* pCreature) { return new npc_custodian_of_timeAI(pCreature); }
+CreatureAI* GetAI_npc_custodian_of_time(Creature* pCreature)
+{
+    return new npc_custodian_of_timeAI(pCreature);
+}
 
 /*####
 # npc_tooga
@@ -240,26 +341,29 @@ CreatureAI* GetAI_npc_custodian_of_time(Creature* pCreature) { return new npc_cu
 
 enum
 {
-    SAY_TOOG_THIRST = -1000391,
-    SAY_TOOG_WORRIED = -1000392,
-    SAY_TOOG_POST_1 = -1000393,
-    SAY_TORT_POST_2 = -1000394,
-    SAY_TOOG_POST_3 = -1000395,
-    SAY_TORT_POST_4 = -1000396,
-    SAY_TOOG_POST_5 = -1000397,
-    SAY_TORT_POST_6 = -1000398,
+    SAY_TOOG_THIRST             = -1000391,
+    SAY_TOOG_WORRIED            = -1000392,
+    SAY_TOOG_POST_1             = -1000393,
+    SAY_TORT_POST_2             = -1000394,
+    SAY_TOOG_POST_3             = -1000395,
+    SAY_TORT_POST_4             = -1000396,
+    SAY_TOOG_POST_5             = -1000397,
+    SAY_TORT_POST_6             = -1000398,
 
-    QUEST_TOOGA = 1560,
-    NPC_TORTA = 6015,
+    QUEST_TOOGA                 = 1560,
+    NPC_TORTA                   = 6015,
 
-    POINT_ID_TO_WATER = 1
+    POINT_ID_TO_WATER           = 1
 };
 
-const float m_afToWaterLoc[] = {-7032.664551f, -4906.199219f, -1.606446f};
+const float m_afToWaterLoc[] = { -7032.664551f, -4906.199219f, -1.606446f};
 
 struct npc_toogaAI : public FollowerAI
 {
-    npc_toogaAI(Creature* pCreature) : FollowerAI(pCreature) { Reset(); }
+    npc_toogaAI(Creature* pCreature) : FollowerAI(pCreature)
+    {
+        Reset();
+    }
 
     uint32 m_uiCheckSpeechTimer;
     uint32 m_uiPostEventTimer;
@@ -312,7 +416,7 @@ struct npc_toogaAI : public FollowerAI
     {
         if (!m_creature->SelectHostileTarget() || !m_creature->GetVictim())
         {
-            // we are doing the post-event, or...
+            //we are doing the post-event, or...
             if (HasFollowState(STATE_FOLLOW_POSTEVENT))
             {
                 if (m_uiPostEventTimer < uiDiff)
@@ -322,32 +426,32 @@ struct npc_toogaAI : public FollowerAI
 
                     if (!pTorta || !pTorta->IsAlive())
                     {
-                        // something happened, so just complete
+                        //something happened, so just complete
                         SetFollowComplete();
                         return;
                     }
 
                     switch (m_uiPhasePostEvent)
                     {
-                    case 1:
-                        DoScriptText(SAY_TOOG_POST_1, m_creature);
-                        break;
-                    case 2:
-                        DoScriptText(SAY_TORT_POST_2, pTorta);
-                        break;
-                    case 3:
-                        DoScriptText(SAY_TOOG_POST_3, m_creature);
-                        break;
-                    case 4:
-                        DoScriptText(SAY_TORT_POST_4, pTorta);
-                        break;
-                    case 5:
-                        DoScriptText(SAY_TOOG_POST_5, m_creature);
-                        break;
-                    case 6:
-                        DoScriptText(SAY_TORT_POST_6, pTorta);
-                        m_creature->GetMotionMaster()->MovePoint(POINT_ID_TO_WATER, m_afToWaterLoc[0], m_afToWaterLoc[1], m_afToWaterLoc[2]);
-                        break;
+                        case 1:
+                            DoScriptText(SAY_TOOG_POST_1, m_creature);
+                            break;
+                        case 2:
+                            DoScriptText(SAY_TORT_POST_2, pTorta);
+                            break;
+                        case 3:
+                            DoScriptText(SAY_TOOG_POST_3, m_creature);
+                            break;
+                        case 4:
+                            DoScriptText(SAY_TORT_POST_4, pTorta);
+                            break;
+                        case 5:
+                            DoScriptText(SAY_TOOG_POST_5, m_creature);
+                            break;
+                        case 6:
+                            DoScriptText(SAY_TORT_POST_6, pTorta);
+                            m_creature->GetMotionMaster()->MovePoint(POINT_ID_TO_WATER, m_afToWaterLoc[0], m_afToWaterLoc[1], m_afToWaterLoc[2]);
+                            break;
                     }
 
                     ++m_uiPhasePostEvent;
@@ -364,12 +468,12 @@ struct npc_toogaAI : public FollowerAI
 
                     switch (urand(0, 50))
                     {
-                    case 10:
-                        DoScriptText(SAY_TOOG_THIRST, m_creature);
-                        break;
-                    case 25:
-                        DoScriptText(SAY_TOOG_WORRIED, m_creature);
-                        break;
+                        case 10:
+                            DoScriptText(SAY_TOOG_THIRST, m_creature);
+                            break;
+                        case 25:
+                            DoScriptText(SAY_TOOG_WORRIED, m_creature);
+                            break;
                     }
                 }
                 else
@@ -383,7 +487,10 @@ struct npc_toogaAI : public FollowerAI
     }
 };
 
-CreatureAI* GetAI_npc_tooga(Creature* pCreature) { return new npc_toogaAI(pCreature); }
+CreatureAI* GetAI_npc_tooga(Creature* pCreature)
+{
+    return new npc_toogaAI(pCreature);
+}
 
 bool QuestAccept_npc_tooga(Player* pPlayer, Creature* pCreature, const Quest* pQuest)
 {
@@ -408,7 +515,7 @@ enum
     GO_PIRATES_TREASURE = 142194
 };
 
-struct go_inconspicuous_landmarkAI : public GameObjectAI
+struct go_inconspicuous_landmarkAI: public GameObjectAI
 {
     go_inconspicuous_landmarkAI(GameObject* pGo) : GameObjectAI(pGo)
     {
@@ -416,7 +523,7 @@ struct go_inconspicuous_landmarkAI : public GameObjectAI
         state = 0;
     }
     uint32 timer;
-    bool state; // 0 = usual, can launch. //1 = in use, cannot launch
+    bool state;//0 = usual, can launch. //1 = in use, cannot launch
 
     void UpdateAI(const uint32 uiDiff) override
     {
@@ -432,7 +539,10 @@ struct go_inconspicuous_landmarkAI : public GameObjectAI
                 timer -= uiDiff;
         }
     }
-    bool CheckCanStartEvent() { return !state; }
+    bool CheckCanStartEvent()
+    {
+        return !state;
+    }
 
     void SetInUse()
     {
@@ -442,7 +552,10 @@ struct go_inconspicuous_landmarkAI : public GameObjectAI
         timer = 600000;
     }
 };
-GameObjectAI* GetAIgo_inconspicuous_landmark(GameObject* pGo) { return new go_inconspicuous_landmarkAI(pGo); }
+GameObjectAI* GetAIgo_inconspicuous_landmark(GameObject *pGo)
+{
+    return new go_inconspicuous_landmarkAI(pGo);
+}
 bool GOHello_go_inconspicuous_landmark(Player* pPlayer, GameObject* pGo)
 {
     if (go_inconspicuous_landmarkAI* pMarkAI = dynamic_cast<go_inconspicuous_landmarkAI*>(pGo->AI()))
@@ -480,19 +593,19 @@ bool GOHello_go_inconspicuous_landmark(Player* pPlayer, GameObject* pGo)
                         pirate3->SetRespawnDelay(350000);
                     }
 
-                    for (int& pirateEntry : extraPirateType)
+                    for (int & pirateEntry : extraPirateType)
                     {
                         switch (urand(0, 2))
                         {
-                        case 0:
-                            pirateEntry = NPC_PIRATES_1;
-                            break;
-                        case 1:
-                            pirateEntry = NPC_PIRATES_2;
-                            break;
-                        case 2:
-                            pirateEntry = NPC_PIRATES_3;
-                            break;
+                            case 0:
+                                pirateEntry = NPC_PIRATES_1;
+                                break;
+                            case 1:
+                                pirateEntry = NPC_PIRATES_2;
+                                break;
+                            case 2:
+                                pirateEntry = NPC_PIRATES_3;
+                                break;
                         }
                     }
                     if (pirate4 = pGo->SummonCreature(extraPirateType[0], -10113.952148f, -4040.484375f, 5.174251f, 4.300828f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 310000))
@@ -520,12 +633,15 @@ bool GOHello_go_inconspicuous_landmark(Player* pPlayer, GameObject* pGo)
 #define SPELL_AV_VISUALTRANSFORM 24085
 struct npc_yehkinyaAI : public npc_escortAI
 {
-    npc_yehkinyaAI(Creature* pCreature) : npc_escortAI(pCreature) { Reset(); }
-
+    npc_yehkinyaAI(Creature* pCreature) : npc_escortAI(pCreature)
+    {
+        Reset();
+    }
+    
     uint32 Event_Timer;
-    bool isEventStarted;
-    uint32 Point;
-
+    bool   isEventStarted;
+    uint32 Point;   
+ 
     void Reset() override
     {
         isEventStarted = false;
@@ -540,16 +656,16 @@ struct npc_yehkinyaAI : public npc_escortAI
     {
         switch (i)
         {
-        case 1:
-            m_creature->SetWalk(false);
-            isEventStarted = true;
-            m_creature->LoadEquipment(0, true);
-            Event_Timer = 3000;
-            DoCastSpellIfCan(m_creature, SPELL_AV_VISUALTRANSFORM);
-            m_creature->SetDisplayId(1336);
-            m_creature->SetFly(true);
-            SetEscortPaused(true);
-            break;
+            case 1:
+                m_creature->SetWalk(false);
+                isEventStarted = true;
+                m_creature->LoadEquipment(0, true);
+                Event_Timer = 3000;
+                DoCastSpellIfCan(m_creature, SPELL_AV_VISUALTRANSFORM);
+                m_creature->SetDisplayId(1336);
+                m_creature->SetFly(true);
+                SetEscortPaused(true);
+                break;
         }
     }
 
@@ -557,7 +673,7 @@ struct npc_yehkinyaAI : public npc_escortAI
     {
         if (Event_Timer <= diff)
         {
-            if (isEventStarted)
+            if(isEventStarted)
             {
                 SetEscortPaused(false);
                 m_creature->MonsterYell(QUEST_YELL_HAKKAR_EVENT, LANG_UNIVERSAL, 0);
@@ -570,7 +686,10 @@ struct npc_yehkinyaAI : public npc_escortAI
     }
 };
 
-CreatureAI* GetAI_npc_yehkinya(Creature* pCreature) { return new npc_yehkinyaAI(pCreature); }
+CreatureAI* GetAI_npc_yehkinya(Creature* pCreature)
+{
+    return new npc_yehkinyaAI(pCreature);
+}
 
 #define QUEST_HAKKAR_EVENT 8181
 #define QUEST_TEXT_HAKKAR_EVENT -1108999
@@ -592,7 +711,7 @@ bool QuestRewarded_npc_yehkinya(Player* pPlayer, Creature* pCreature, Quest cons
 
 void AddSC_tanaris()
 {
-    Script* newscript;
+    Script *newscript;
 
     newscript = new Script;
     newscript->Name = "npc_yehkinya";
@@ -615,5 +734,11 @@ void AddSC_tanaris()
     newscript->Name = "go_inconspicuous_landmark";
     newscript->GOGetAI = &GetAIgo_inconspicuous_landmark;
     newscript->pGOHello = &GOHello_go_inconspicuous_landmark;
+    newscript->RegisterSelf();
+
+    newscript = new Script;
+    newscript->Name = "go_slickwick_control_panel";
+    newscript->pGOGossipHello = &GOGossipHello_go_slickwick_control_panel;
+    newscript->pGOGossipSelect = &GOGossipSelect_go_slickwick_control_panel;
     newscript->RegisterSelf();
 }

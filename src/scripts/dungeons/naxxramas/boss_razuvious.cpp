@@ -21,35 +21,36 @@ SDComment: TODO: Timers and sounds need confirmation
 SDCategory: Naxxramas
 EndScriptData */
 
-#include "naxxramas.h"
 #include "scriptPCH.h"
+#include "naxxramas.h"
 
 enum
 {
-    SAY_AGGRO1 = -1533120,
-    SAY_AGGRO2 = -1533121,
-    SAY_AGGRO3 = -1533122,
-    SAY_SLAY1 = -1533123,
-    SAY_SLAY2 = -1533124,
-    SAY_COMMAND1 = -1533125,
-    SAY_COMMAND2 = -1533126,
-    SAY_COMMAND3 = -1533127,
-    SAY_COMMAND4 = -1533128,
-    SAY_DEATH = -1533129,
+    SAY_AGGRO1               = -1533120,
+    SAY_AGGRO2               = -1533121,
+    SAY_AGGRO3               = -1533122,
+    SAY_SLAY1                = -1533123,
+    SAY_SLAY2                = -1533124,
+    SAY_COMMAND1             = -1533125,
+    SAY_COMMAND2             = -1533126,
+    SAY_COMMAND3             = -1533127,
+    SAY_COMMAND4             = -1533128,
+    SAY_DEATH                = -1533129,
 
-    EMOTE_SHOUT = -1533159,
+    EMOTE_SHOUT              = -1533159,
 
     SPELL_UNBALANCING_STRIKE = 26613,
-    SPELL_DISRUPTING_SHOUT = 29107,
-    SPELL_HOPELESS = 29125,
+    SPELL_DISRUPTING_SHOUT   = 29107,
+    SPELL_HOPELESS           = 29125,
 
-    NPC_DK_UNDERSTUDY = 16803,
+    NPC_DK_UNDERSTUDY   = 16803,
 };
 
-static constexpr float addPositions[4][4] = {
-    {2757.48f, -3111.52f, 267.768f, 3.92699f},
-    {2762.05f, -3084.47f, 267.768f, 2.1293f},
-    {2778.91f, -3114.14f, 267.768f, 5.28835f},
+static constexpr float addPositions[4][4] =
+{
+    {2757.48f, -3111.52f, 267.768f, 3.92699f },
+    {2762.05f, -3084.47f, 267.768f, 2.1293f  },
+    {2778.91f, -3114.14f, 267.768f, 5.28835f },
     {2781.87f, -3088.19f, 267.768f, 0.907571f},
 };
 
@@ -138,15 +139,23 @@ struct boss_razuviousAI : public ScriptedAI
 
     EventMap rpEvents;
     ObjectGuid rpBuddy;
-
-    void Reset() override { events.Reset(); }
-
+    
+    void Reset() override
+    {
+        events.Reset();
+    }
+    
     void MoveInLineOfSight(Unit* pWho) override
     {
         if (!pWho)
             return;
 
-        if (pWho->GetTypeId() == TYPEID_PLAYER && !m_creature->IsInCombat() && m_creature->IsWithinDistInMap(pWho, 33.0f) && m_creature->IsWithinLOSInMap(pWho) && !pWho->HasAuraType(SPELL_AURA_FEIGN_DEATH) && !pWho->HasAuraType(SPELL_AURA_MOD_UNATTACKABLE))
+        if (pWho->GetTypeId() == TYPEID_PLAYER
+            && !m_creature->IsInCombat()
+            && m_creature->IsWithinDistInMap(pWho, 33.0f)
+            && m_creature->IsWithinLOSInMap(pWho)
+            && !pWho->HasAuraType(SPELL_AURA_FEIGN_DEATH)
+            && !pWho->HasAuraType(SPELL_AURA_MOD_UNATTACKABLE))
         {
             if (!m_creature->GetVictim())
                 AttackStart(pWho);
@@ -168,8 +177,7 @@ struct boss_razuviousAI : public ScriptedAI
         {
             if (Creature* cg = m_pInstance->GetCreature(add.first))
             {
-                if (TemporarySummon* tmpSumm = static_cast<TemporarySummon*>(cg))
-                {
+                if (TemporarySummon* tmpSumm = static_cast<TemporarySummon*>(cg)) {
                     tmpSumm->UnSummon();
                 }
             }
@@ -179,7 +187,8 @@ struct boss_razuviousAI : public ScriptedAI
         // respawn all 4 adds
         for (int i = 0; i < 4; i++)
         {
-            if (Creature* pAdd = m_creature->SummonCreature(NPC_DK_UNDERSTUDY, addPositions[i][0], addPositions[i][1], addPositions[i][2], addPositions[i][3], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 60000))
+            if (Creature* pAdd = m_creature->SummonCreature(NPC_DK_UNDERSTUDY, addPositions[i][0], addPositions[i][1], addPositions[i][2], addPositions[i][3],
+                TEMPSUMMON_CORPSE_TIMED_DESPAWN, 60000))
             {
                 if (i == 1)
                     rpBuddy = pAdd->GetObjectGuid();
@@ -219,7 +228,7 @@ struct boss_razuviousAI : public ScriptedAI
 
         if (m_pInstance)
             m_pInstance->SetData(TYPE_RAZUVIOUS, IN_PROGRESS);
-
+        
         events.Reset();
         rpEvents.Reset();
         m_creature->CallForHelp(30.0f);
@@ -231,22 +240,25 @@ struct boss_razuviousAI : public ScriptedAI
 
     void MovementInform(uint32 movementType, uint32 id) override
     {
-        if (movementType != WAYPOINT_MOTION_TYPE)
-            return;
+        if (movementType != WAYPOINT_MOTION_TYPE) return;
         if (id == 6)
         {
             rpEvents.Reset();
             rpEvents.ScheduleEvent(EVENT_TURN_TO_TRAINEE, Seconds(0));
-            rpEvents.ScheduleEvent(EVENT_EMOTE_SHOUT, Seconds(1));
-            rpEvents.ScheduleEvent(EVENT_ADD_TURN_RAZUV, Milliseconds(1750));
-            rpEvents.ScheduleEvent(EVENT_ADD_TALK, Milliseconds(3500));
-            rpEvents.ScheduleEvent(EVENT_ADD_SALUTE, Seconds(8));
-            rpEvents.ScheduleEvent(EVENT_ADD_TURN_BACK, Seconds(12));
-            rpEvents.ScheduleEvent(EVENT_ADD_ATTACK, Milliseconds(12500));
+            rpEvents.ScheduleEvent(EVENT_EMOTE_SHOUT,     Seconds(1));
+            rpEvents.ScheduleEvent(EVENT_ADD_TURN_RAZUV,  Milliseconds(1750));
+            rpEvents.ScheduleEvent(EVENT_ADD_TALK,        Milliseconds(3500));
+            rpEvents.ScheduleEvent(EVENT_ADD_SALUTE,      Seconds(8));
+            rpEvents.ScheduleEvent(EVENT_ADD_TURN_BACK,   Seconds(12));
+            rpEvents.ScheduleEvent(EVENT_ADD_ATTACK,      Milliseconds(12500));
         }
     }
 
-    Creature* getRPBuddy() { return m_pInstance->GetCreature(rpBuddy); }
+    Creature* getRPBuddy()
+    {
+        return m_pInstance->GetCreature(rpBuddy);
+
+    }
 
     void UpdateRP(uint32 diff)
     {
@@ -313,7 +325,7 @@ struct boss_razuviousAI : public ScriptedAI
 
         if (!m_creature->SelectHostileTarget() || !m_creature->GetVictim())
             return;
-
+        
         if (!m_pInstance->HandleEvadeOutOfHome(m_creature))
             return;
 
@@ -333,12 +345,12 @@ struct boss_razuviousAI : public ScriptedAI
                 break;
             case EVENT_COMMAND:
                 DoScriptText(urand(SAY_COMMAND1, SAY_COMMAND4), m_creature);
-                events.Repeat(Seconds(urand(30, 60)));
+                events.Repeat(Seconds(urand(30,60)));
                 break;
             }
         }
 
-        // Check if add was mind controlled
+        // Check if add was mind controlled 
         // to cast mind exhaustion and reset threat when mind control ends
         for (auto& add : summonedAdds)
             if (Creature* dk = m_pInstance->GetCreature(add.first))
@@ -348,21 +360,28 @@ struct boss_razuviousAI : public ScriptedAI
 
                 if (dk->IsCharmed())
                     add.second = true; // was mind controlled
-                else if (add.second)
-                {
-                    if (mob_deathknightUnderstudyAI* dkAI = dynamic_cast<mob_deathknightUnderstudyAI*>(dk->AI()))
-                        dkAI->CastMindExhaustionAndResetThreat();
-                    add.second = false;
-                }
+                else
+                    if (add.second)
+                    {
+                        if (mob_deathknightUnderstudyAI* dkAI = dynamic_cast<mob_deathknightUnderstudyAI*>(dk->AI()))
+                            dkAI->CastMindExhaustionAndResetThreat();
+                        add.second = false;
+                    }
             }
 
         DoMeleeAttackIfReady();
     }
 };
 
-CreatureAI* GetAI_boss_razuvious(Creature* pCreature) { return new boss_razuviousAI(pCreature); }
+CreatureAI* GetAI_boss_razuvious(Creature* pCreature)
+{
+    return new boss_razuviousAI(pCreature);
+}
 
-CreatureAI* GetAI_mob_deathknightUnderstudy(Creature* pCreature) { return new mob_deathknightUnderstudyAI(pCreature); }
+CreatureAI* GetAI_mob_deathknightUnderstudy(Creature* pCreature)
+{
+    return new mob_deathknightUnderstudyAI(pCreature);
+}
 
 void AddSC_boss_razuvious()
 {

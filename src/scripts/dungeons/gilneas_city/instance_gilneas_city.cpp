@@ -1,10 +1,13 @@
+#include "scriptPCH.h"
 #include "instance_gilneas_city.h"
 #include <random>
-#include "scriptPCH.h"
 
 struct instance_gilneas_city : public ScriptedInstance
 {
-    explicit instance_gilneas_city(Map* p_Map) : ScriptedInstance(p_Map) { Initialize(); };
+    explicit instance_gilneas_city(Map* p_Map) : ScriptedInstance(p_Map)
+    {
+        Initialize();
+    };
 
     uint64 m_uiCeliaGUID;
     uint64 m_uiLordMortimerGUID;
@@ -14,11 +17,11 @@ struct instance_gilneas_city : public ScriptedInstance
 
     void Initialize()
     {
-        randomPlayers.clear();
+		randomPlayers.clear();
         m_uiCeliaGUID = 0;
         m_uiLordMortimerGUID = 0;
         m_uiHarlowFamilyChestGUID = 0;
-    }
+	}
 
     void OnPlayerEnter(Player* pPlayer)
     {
@@ -98,12 +101,12 @@ struct instance_gilneas_city : public ScriptedInstance
     {
         switch (pCreature->GetEntry())
         {
-        case NPC_CELIA_HARLOW:
-            m_uiCeliaGUID = pCreature->GetGUID();
-            break;
-        case NPC_LORD_MORTIMER:
-            m_uiLordMortimerGUID = pCreature->GetGUID();
-            break;
+            case NPC_CELIA_HARLOW:
+			    m_uiCeliaGUID = pCreature->GetGUID();
+			    break;
+            case NPC_LORD_MORTIMER:
+                m_uiLordMortimerGUID = pCreature->GetGUID();
+                break;
         }
     }
 
@@ -111,12 +114,12 @@ struct instance_gilneas_city : public ScriptedInstance
     {
         switch (uiType)
         {
-        case DATA_CELIA:
-            return m_uiCeliaGUID;
-        case DATA_LORD_MORTIMER:
-            return m_uiLordMortimerGUID;
-        default:
-            return 0;
+            case DATA_CELIA:
+                return m_uiCeliaGUID;
+            case DATA_LORD_MORTIMER:
+                return m_uiLordMortimerGUID;
+            default:
+                return 0;
         }
     }
 
@@ -124,11 +127,11 @@ struct instance_gilneas_city : public ScriptedInstance
     {
         switch (pGo->GetEntry())
         {
-        case GO_HARLOW_FAMILY_CHEST:
-            m_uiHarlowFamilyChestGUID = pGo->GetGUID();
-            break;
-        }
-    }
+			case GO_HARLOW_FAMILY_CHEST:
+				m_uiHarlowFamilyChestGUID = pGo->GetGUID();
+				break;
+		}
+	}
 
     std::vector<Player*> GetRandomPlayers(int8 count)
     {
@@ -165,7 +168,10 @@ InstanceData* GetInstanceData_instance_gilneas_city(Map* p_Map) { return new ins
 
 struct genn_greymaneAI : public ScriptedAI
 {
-    genn_greymaneAI(Creature* pCreature) : ScriptedAI(pCreature) { Reset(); }
+    genn_greymaneAI(Creature* pCreature) : ScriptedAI(pCreature)
+    {
+        Reset();
+    }
 
     bool event50PercentHP;
     uint32 m_DrainLifeTimer;
@@ -228,11 +234,17 @@ struct genn_greymaneAI : public ScriptedAI
     }
 };
 
-CreatureAI* GetAI_genn_greymane(Creature* pCreature) { return new genn_greymaneAI(pCreature); }
+CreatureAI* GetAI_genn_greymane(Creature* pCreature)
+{
+    return new genn_greymaneAI(pCreature);
+}
 
 struct greymane_knightAI : public ScriptedAI
 {
-    greymane_knightAI(Creature* pCreature) : ScriptedAI(pCreature) { Reset(); }
+    greymane_knightAI(Creature* pCreature) : ScriptedAI(pCreature)
+    {
+        Reset();
+    }
 
     uint32 m_hammerOfJusticeTimer;
     uint32 m_strikeTimer;
@@ -273,11 +285,17 @@ struct greymane_knightAI : public ScriptedAI
     }
 };
 
-CreatureAI* GetAI_greymane_knight(Creature* pCreature) { return new greymane_knightAI(pCreature); }
+CreatureAI* GetAI_greymane_knight(Creature* pCreature)
+{
+    return new greymane_knightAI(pCreature);
+}
 
 struct greymane_nobleAI : public ScriptedAI
 {
-    greymane_nobleAI(Creature* pCreature) : ScriptedAI(pCreature) { Reset(); }
+    greymane_nobleAI(Creature* pCreature) : ScriptedAI(pCreature)
+    {
+        Reset();
+    }
 
     uint32 m_mindFlayTimer;
     uint32 m_mindBlastTimer;
@@ -318,7 +336,10 @@ struct greymane_nobleAI : public ScriptedAI
     }
 };
 
-CreatureAI* GetAI_greymane_noble(Creature* pCreature) { return new greymane_nobleAI(pCreature); }
+CreatureAI* GetAI_greymane_noble(Creature* pCreature)
+{
+    return new greymane_nobleAI(pCreature);
+}
 
 void AddSC_instance_gilneas_city()
 {

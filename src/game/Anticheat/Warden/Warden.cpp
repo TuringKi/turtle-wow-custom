@@ -5,28 +5,28 @@
  * absent permission of namreeb.
  */
 
-#include "../Config.hpp"
-#include "WardenKeyGeneration.h"
 #include "WardenModule.hpp"
+#include "WardenKeyGeneration.h"
+#include "../Config.hpp"
 
-#include "Auth/BigNumber.h"
-#include "ByteBuffer.h"
 #include "Common.h"
-#include "Database/DatabaseEnv.h"
-#include "Log.h"
-#include "Opcodes.h"
 #include "Player.h"
-#include "Policies/SingletonImp.h"
-#include "Util.h"
-#include "Warden.hpp"
-#include "WardenMac.hpp"
-#include "WardenModuleMgr.hpp"
-#include "WardenScanMgr.hpp"
-#include "WardenWin.hpp"
-#include "World.h"
 #include "WorldPacket.h"
 #include "WorldSession.h"
+#include "World.h"
+#include "Log.h"
+#include "Opcodes.h"
+#include "ByteBuffer.h"
+#include "Database/DatabaseEnv.h"
+#include "Policies/SingletonImp.h"
+#include "Auth/BigNumber.h"
+#include "Warden.hpp"
+#include "WardenModuleMgr.hpp"
+#include "Util.h"
 #include "libanticheat.hpp"
+#include "WardenWin.hpp"
+#include "WardenMac.hpp"
+#include "WardenScanMgr.hpp"
 
 #include <openssl/md5.h>
 #include <openssl/sha.h>
@@ -53,9 +53,12 @@ void Warden::LoadScriptedScans()
     sLog.outBasic("%u scripted Warden scans loaded from anticheat module.", sWardenScanMgr.Count() - start);
 }
 
-Warden::Warden(WorldSession* session, const WardenModule* module, const BigNumber& K, SessionAnticheatInterface* anticheat) : _session(session), _inputCrypto(KeyLength), _outputCrypto(KeyLength), _initialized(false), _module(module), _crk(nullptr), _timeoutClock(0), _scanClock(0), _anticheat(reinterpret_cast<SessionAnticheat*>(anticheat)), _moduleSendPending(false)
+Warden::Warden(WorldSession *session, const WardenModule *module, const BigNumber &K, SessionAnticheatInterface *anticheat) :
+    _session(session), _inputCrypto(KeyLength), _outputCrypto(KeyLength), _initialized(false), _module(module), _crk(nullptr),
+    _timeoutClock(0), _scanClock(0), _anticheat(reinterpret_cast<SessionAnticheat *>(anticheat)), _moduleSendPending(false)
 {
-    MANGOS_ASSERT(!!_module || session->GetPlatform() != CLIENT_PLATFORM_X86);
+    if (session->GetPlatform() == CLIENT_PLATFORM_X86)
+        MANGOS_ASSERT(!!_module || !sConfig.GetBoolDefault("Warden.WinEnabled", false));
     MANGOS_ASSERT(!!_anticheat);
 
     auto const kBytes = K.AsByteArray();
@@ -113,7 +116,7 @@ void Warden::RequestChallenge()
     BeginTimeoutClock();
 }
 
-void Warden::HandleChallengeResponse(ByteBuffer& buff)
+void Warden::HandleChallengeResponse(ByteBuffer &buff)
 {
     buff.rpos(buff.wpos());
 
@@ -151,7 +154,7 @@ void Warden::SendModuleToClient()
 
     StopTimeoutClock();
 
-    for (auto pos = 0u; pos < _module->binary.size();)
+    for (auto pos = 0u; pos < _module->binary.size(); )
     {
         const std::uint16_t sizeLeft = _module->binary.size() - pos;
         const std::uint16_t len = std::min(sizeLeft, static_cast<decltype(sizeLeft)>(500));
@@ -173,15 +176,18 @@ void Warden::SendModuleToClient()
     sLog.out(LOG_ANTICHEAT_DEBUG, "WARDEN: Module transfer complete");
 }
 
-std::vector<std::shared_ptr<const Scan>> Warden::SelectScans(ScanFlags flags) const { return std::move(sWardenScanMgr.GetRandomScans(static_cast<ScanFlags>(flags | GetScanFlags()))); }
+std::vector<std::shared_ptr<const Scan>> Warden::SelectScans(ScanFlags flags) const
+{
+    return std::move(sWardenScanMgr.GetRandomScans(static_cast<ScanFlags>(flags | GetScanFlags())));
+}
 
-void Warden::EnqueueScans(std::vector<std::shared_ptr<const Scan>>&& scans)
+void Warden::EnqueueScans(std::vector<std::shared_ptr<const Scan>> &&scans)
 {
     // append the requested scans to the queue
     _enqueuedScans.insert(_enqueuedScans.end(), scans.cbegin(), scans.cend());
 }
 
-void Warden::RequestScans(std::vector<std::shared_ptr<const Scan>>&& scans)
+void Warden::RequestScans(std::vector<std::shared_ptr<const Scan>> &&scans)
 {
     // start by appending the requested scans to the queue, which will usually be empty when this is called
     _enqueuedScans.insert(_enqueuedScans.end(), scans.cbegin(), scans.cend());
@@ -206,7 +212,8 @@ void Warden::RequestScans(std::vector<std::shared_ptr<const Scan>>&& scans)
     for (auto i = _enqueuedScans.begin(); i != _enqueuedScans.end(); ++i)
     {
         // too many or too big? keep the current scan, as well as all following it, in the queue, and halt
-        if (request + (*i)->requestSize > MaxRequest || reply + (*i)->replySize > MaxReply || _pendingScans.size() >= sAnticheatConfig.GetWardenScanCount())
+        if (request + (*i)->requestSize > MaxRequest || reply + (*i)->replySize > MaxReply ||
+            _pendingScans.size() >= sAnticheatConfig.GetWardenScanCount())
         {
             _enqueuedScans = std::move(turtle_vector<std::shared_ptr<const Scan>, Category_Anticheat>(i, _enqueuedScans.end()));
             queueUpdated = true;
@@ -267,16 +274,16 @@ void Warden::RequestScans(std::vector<std::shared_ptr<const Scan>>&& scans)
     SendPacket(buff);
 }
 
-void Warden::ReadScanResults(ByteBuffer& buff)
+void Warden::ReadScanResults(ByteBuffer &buff)
 {
     // move the scans to the stack because the check handlers we call may enqueue additional scans
     auto const scans = std::move(_pendingScans);
 
     auto const inWorld = _session->GetPlayer() && _session->GetPlayer()->IsInWorld();
 
-    for (auto const& s : scans)
+    for (auto const &s : scans)
     {
-        // checks return true when they have discovered a hack
+        // checks return true when they have discovered a hack 
         if (s->Check(this, buff))
         {
             // if this scan requires being in the world and they are not in the world (meaning they left
@@ -294,21 +301,27 @@ void Warden::ReadScanResults(ByteBuffer& buff)
         RequestScans({});
 }
 
-void Warden::SendPacket(const ByteBuffer& buff)
+void Warden::SendPacket(const ByteBuffer &buff)
 {
     WorldPacket pkt(SMSG_WARDEN_DATA, buff.wpos());
     pkt.append(buff);
 
     // we specifically append the packet copy, rather than the input copy, to avoid
     // creating side-effects for this function
-    EncryptData(const_cast<uint8*>(pkt.contents()), pkt.wpos());
+    EncryptData(const_cast<uint8 *>(pkt.contents()), pkt.wpos());
 
     _session->SendPacket(&pkt);
 }
 
-void Warden::DecryptData(uint8* buffer, size_t size) { _inputCrypto.UpdateData(size, buffer); }
+void Warden::DecryptData(uint8* buffer, size_t size)
+{
+    _inputCrypto.UpdateData(size, buffer);
+}
 
-void Warden::EncryptData(uint8* buffer, size_t size) { _outputCrypto.UpdateData(size, buffer); }
+void Warden::EncryptData(uint8* buffer, size_t size)
+{
+    _outputCrypto.UpdateData(size, buffer);
+}
 
 void Warden::BeginTimeoutClock()
 {
@@ -320,11 +333,20 @@ void Warden::BeginTimeoutClock()
 #endif
 }
 
-void Warden::StopTimeoutClock() { _timeoutClock = 0; }
+void Warden::StopTimeoutClock()
+{
+    _timeoutClock = 0;
+}
 
-void Warden::BeginScanClock() { _scanClock = WorldTimer::getMSTime() + 1000 * sAnticheatConfig.GetWardenScanFrequency(); }
+void Warden::BeginScanClock()
+{
+    _scanClock = WorldTimer::getMSTime() + 1000 * sAnticheatConfig.GetWardenScanFrequency();
+}
 
-void Warden::StopScanClock() { _scanClock = 0; }
+void Warden::StopScanClock()
+{
+    _scanClock = 0;
+}
 
 uint32 Warden::BuildChecksum(const uint8* data, size_t size)
 {
@@ -334,15 +356,15 @@ uint32 Warden::BuildChecksum(const uint8* data, size_t size)
     uint32 checkSum = 0;
 
     for (auto i = 0u; i < sizeof(hash) / sizeof(uint32); ++i)
-        checkSum ^= *reinterpret_cast<uint32*>(&hash[i * 4]);
+        checkSum ^= *reinterpret_cast<uint32 *>(&hash[i * 4]);
 
     return checkSum;
 }
 
 void Warden::HandlePacket(WorldPacket& recvData)
 {
-    // initialize decrypt packet
-    DecryptData(const_cast<uint8*>(recvData.contents()), recvData.size());
+	// initialize decrypt packet
+	DecryptData(const_cast<uint8*>(recvData.contents()), recvData.size());
 
     uint8 opcode;
     recvData >> opcode;
@@ -358,7 +380,7 @@ void Warden::HandlePacket(WorldPacket& recvData)
 
     switch (opcode)
     {
-    case WARDEN_CMSG_MODULE_MISSING:
+        case WARDEN_CMSG_MODULE_MISSING:
         {
             if (!_module)
             {
@@ -380,7 +402,7 @@ void Warden::HandlePacket(WorldPacket& recvData)
             break;
         }
 
-    case WARDEN_CMSG_MODULE_OK:
+        case WARDEN_CMSG_MODULE_OK:
         {
             if (!_module)
             {
@@ -395,7 +417,7 @@ void Warden::HandlePacket(WorldPacket& recvData)
             break;
         }
 
-    case WARDEN_CMSG_CHEAT_CHECKS_RESULT:
+        case WARDEN_CMSG_CHEAT_CHECKS_RESULT:
         {
             if (_session->GetOS() == CLIENT_OS_WIN)
             {
@@ -422,14 +444,14 @@ void Warden::HandlePacket(WorldPacket& recvData)
             break;
         }
 
-    // FIXME: Find when/why/how this actually happens and how to handle it
-    case WARDEN_CMSG_MEM_CHECKS_RESULT:
+        // FIXME: Find when/why/how this actually happens and how to handle it
+        case WARDEN_CMSG_MEM_CHECKS_RESULT:
         {
             sLog.out(LOG_ANTICHEAT_DEBUG, "WARDEN: Account - %u received opcode 03", _session->GetAccountId());
             break;
         }
 
-    case WARDEN_CMSG_HASH_RESULT:
+        case WARDEN_CMSG_HASH_RESULT:
         {
             sLog.out(LOG_ANTICHEAT_DEBUG, "WARDEN: Account - %u received opcode 04", _session->GetAccountId());
 
@@ -452,14 +474,14 @@ void Warden::HandlePacket(WorldPacket& recvData)
             break;
         }
 
-    case WARDEN_CMSG_MODULE_FAILED:
+        case WARDEN_CMSG_MODULE_FAILED:
         {
             sLog.out(LOG_ANTICHEAT_BASIC, "WARDEN: Account - %u received opcode 05 - Module load failed!", _session->GetAccountId());
             _session->KickPlayer();
             break;
         }
 
-    default:
+        default:
         {
             _anticheat->RecordCheatInternal(CheatType::CHEAT_TYPE_WARDEN, "Received unknown opcode %02X of size %u.", opcode, recvData.size() - 1);
             _session->KickPlayer();

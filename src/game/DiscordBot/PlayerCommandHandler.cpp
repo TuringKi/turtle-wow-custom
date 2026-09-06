@@ -1,10 +1,10 @@
 #include "PlayerCommandHandler.hpp"
-#include "DiscordBot/QrCodeGen.hpp"
 #include "DiscordBot/toojpeg.hpp"
+#include "DiscordBot/QrCodeGen.hpp"
 
 #include "DiscordBot/AuthManager.hpp"
-#include "DiscordBot/MiscUtil.hpp"
 #include "Util.h"
+#include "DiscordBot/MiscUtil.hpp"
 
 #include "Auth/base32.h"
 
@@ -25,7 +25,10 @@ namespace DiscordBot
 
     void PlayerCommandHandler::RegisterCommands(commandhandler& registrar)
     {
-        Register("twofactor", {}, MakeCommandHandler(&PlayerCommandHandler::TwoFactorCommand), "Sets two-factor authentication for your account.");
+        Register("twofactor", {},
+            MakeCommandHandler(&PlayerCommandHandler::TwoFactorCommand),
+            "Sets two-factor authentication for your account.");
+
 
 
         _commHandler = &registrar;
@@ -40,7 +43,7 @@ namespace DiscordBot
 
         std::string accountName = authInfo->gameAccountName;
 
-        // format : otpauth://totp/AccountName?secret=Secret&issuer=Turtle-WoW
+        //format : otpauth://totp/AccountName?secret=Secret&issuer=Turtle-WoW
 
         constexpr uint16_t KeyLength = 20;
 
@@ -59,17 +62,18 @@ namespace DiscordBot
         base32_encode((const uint8_t*)generatedSecret.data(), KeyLength, (uint8_t*)output.data(), output.size());
 
 
+
         std::ostringstream ss;
         ss << "otpauth://totp/" << accountName << "?secret=" << output << "&issuer=Turtle-WoW";
 
         const QrCode qr = QrCode::encodeText(ss.str().c_str(), QrCode::Ecc::LOW, 1);
         std::vector<uint8_t> data;
 
-        for (int y = 0; y < qr.getSize(); y++)
+        for (int y = 0; y < qr.getSize(); y++) 
         {
-            for (int x = 0; x < qr.getSize(); x++)
+            for (int x = 0; x < qr.getSize(); x++) 
             {
-                if (qr.getModule(x, y))
+                if (qr.getModule(x, y)) 
                     data.push_back(255);
                 else
                     data.push_back(0);
@@ -86,7 +90,10 @@ namespace DiscordBot
         std::ofstream of;
         of.open("qr.jpg", std::ios::trunc | std::ios::binary);
 
-        std::function<void(unsigned char)> writeCallback = [&of](unsigned char byte) { of.write((char*)&byte, 1); };
+        std::function<void(unsigned char)> writeCallback = [&of](unsigned char byte)
+        {
+            of.write((char*)&byte, 1);
+        };
 
         if (TooJpeg::writeJpeg(writeCallback, data.data(), newWidth, newHeight, false))
         {
@@ -110,4 +117,4 @@ namespace DiscordBot
                 src.message_event.value().reply(msg);
         }
     }
-} // namespace DiscordBot
+}

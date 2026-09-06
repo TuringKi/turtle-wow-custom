@@ -19,36 +19,38 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#include "BattleGroundAB.h"
-#include "BattleGround.h"
-#include "BattleGroundMgr.h"
-#include "Creature.h"
-#include "GameObject.h"
-#include "Language.h"
-#include "MapManager.h"
 #include "Object.h"
 #include "Player.h"
+#include "BattleGround.h"
+#include "BattleGroundAB.h"
+#include "Creature.h"
+#include "GameObject.h"
+#include "BattleGroundMgr.h"
+#include "Language.h"
 #include "Util.h"
 #include "WorldPacket.h"
+#include "MapManager.h"
 
 BattleGroundAB::BattleGroundAB()
 {
     m_BuffChange = true;
     m_BgObjects.resize(BG_AB_OBJECT_MAX);
 
-    m_StartMessageIds[BG_STARTING_EVENT_FIRST] = 0;
+    m_StartMessageIds[BG_STARTING_EVENT_FIRST]  = 0;
     m_StartMessageIds[BG_STARTING_EVENT_SECOND] = LANG_BG_AB_START_ONE_MINUTE;
-    m_StartMessageIds[BG_STARTING_EVENT_THIRD] = LANG_BG_AB_START_HALF_MINUTE;
+    m_StartMessageIds[BG_STARTING_EVENT_THIRD]  = LANG_BG_AB_START_HALF_MINUTE;
     m_StartMessageIds[BG_STARTING_EVENT_FOURTH] = LANG_BG_AB_HAS_BEGUN;
 }
 
-BattleGroundAB::~BattleGroundAB() {}
+BattleGroundAB::~BattleGroundAB()
+{
+}
 
 void BattleGroundAB::Update(uint32 diff)
 {
     if (GetStatus() == STATUS_IN_PROGRESS)
     {
-        int team_points[BG_TEAMS_COUNT] = {0, 0};
+        int team_points[BG_TEAMS_COUNT] = { 0, 0 };
 
         for (int node = 0; node < BG_AB_NODES_MAX; ++node)
         {
@@ -174,52 +176,55 @@ void BattleGroundAB::StartingEventOpenDoors()
 {
     for (int i = 0; i < BG_AB_NODES_MAX; ++i)
     {
-        // randomly select buff to spawn
+        //randomly select buff to spawn
         uint8 buff = urand(0, 2);
         SpawnObject(m_BgObjects[BG_AB_OBJECT_SPEEDBUFF_STABLES + buff + i * 3], RESPAWN_IMMEDIATELY);
     }
     OpenDoorEvent(BG_EVENT_DOOR);
 }
 
-void BattleGroundAB::AddPlayer(Player* plr)
+void BattleGroundAB::AddPlayer(Player *plr)
 {
     BattleGround::AddPlayer(plr);
-    // create score and add it to map, default values are set in the constructor
+    //create score and add it to map, default values are set in the constructor
     BattleGroundABScore* sc = new BattleGroundABScore;
 
     m_PlayerScores[plr->GetObjectGuid()] = sc;
 }
 
-void BattleGroundAB::RemovePlayer(Player* /*plr*/, ObjectGuid /*guid*/) {}
+void BattleGroundAB::RemovePlayer(Player * /*plr*/, ObjectGuid /*guid*/)
+{
 
-void BattleGroundAB::HandleAreaTrigger(Player* Source, uint32 Trigger)
+}
+
+void BattleGroundAB::HandleAreaTrigger(Player *Source, uint32 Trigger)
 {
     switch (Trigger)
     {
-    case 3948: // Arathi Basin Alliance Exit.
-        if (Source->GetTeam() != ALLIANCE)
-            Source->GetSession()->SendNotification(LANG_BATTLEGROUND_ONLY_ALLIANCE_USE);
-        else
-            Source->LeaveBattleground();
-        break;
-    case 3949: // Arathi Basin Horde Exit.
-        if (Source->GetTeam() != HORDE)
-            Source->GetSession()->SendNotification(LANG_BATTLEGROUND_ONLY_HORDE_USE);
-        else
-            Source->LeaveBattleground();
-        break;
-    case 3866: // Stables
-    case 3869: // Gold Mine
-    case 3867: // Farm
-    case 3868: // Lumber Mill
-    case 3870: // Black Smith
-    case 4020: // Unk1
-    case 4021: // Unk2
-    // break;
-    default:
-        // sLog.outError("WARNING: Unhandled AreaTrigger in Battleground: %u", Trigger);
-        // Source->GetSession()->SendAreaTriggerMessage("Warning: Unhandled AreaTrigger in Battleground: %u", Trigger);
-        break;
+        case 3948:                                          // Arathi Basin Alliance Exit.
+            if (Source->GetTeam() != ALLIANCE)
+                Source->GetSession()->SendNotification(LANG_BATTLEGROUND_ONLY_ALLIANCE_USE);
+            else
+                Source->LeaveBattleground();
+            break;
+        case 3949:                                          // Arathi Basin Horde Exit.
+            if (Source->GetTeam() != HORDE)
+                Source->GetSession()->SendNotification(LANG_BATTLEGROUND_ONLY_HORDE_USE);
+            else
+                Source->LeaveBattleground();
+            break;
+        case 3866:                                          // Stables
+        case 3869:                                          // Gold Mine
+        case 3867:                                          // Farm
+        case 3868:                                          // Lumber Mill
+        case 3870:                                          // Black Smith
+        case 4020:                                          // Unk1
+        case 4021:                                          // Unk2
+        //break;
+        default:
+            //sLog.outError("WARNING: Unhandled AreaTrigger in Battleground: %u", Trigger);
+            //Source->GetSession()->SendAreaTriggerMessage("Warning: Unhandled AreaTrigger in Battleground: %u", Trigger);
+            break;
     }
 }
 
@@ -228,8 +233,7 @@ void BattleGroundAB::HandleAreaTrigger(Player* Source, uint32 Trigger)
 void BattleGroundAB::_CreateBanner(uint8 node, uint8 type, uint8 teamIndex)
 {
     uint32 delay = 0;
-    switch (type)
-    {
+    switch (type){
     case BG_AB_NODE_TYPE_CONTESTED:
         delay = 1;
         break;
@@ -244,25 +248,25 @@ void BattleGroundAB::_CreateBanner(uint8 node, uint8 type, uint8 teamIndex)
         type += teamIndex;
 
 
-    SpawnEvent(node, type, true, true, delay); // will automaticly despawn other events
+    SpawnEvent(node, type, true, true, delay);                           // will automaticly despawn other events
 }
 
 int32 BattleGroundAB::_GetNodeNameId(uint8 node)
 {
     switch (node)
     {
-    case BG_AB_NODE_STABLES:
-        return LANG_BG_AB_NODE_STABLES;
-    case BG_AB_NODE_BLACKSMITH:
-        return LANG_BG_AB_NODE_BLACKSMITH;
-    case BG_AB_NODE_FARM:
-        return LANG_BG_AB_NODE_FARM;
-    case BG_AB_NODE_LUMBER_MILL:
-        return LANG_BG_AB_NODE_LUMBER_MILL;
-    case BG_AB_NODE_GOLD_MINE:
-        return LANG_BG_AB_NODE_GOLD_MINE;
-    default:
-        MANGOS_ASSERT(0);
+        case BG_AB_NODE_STABLES:
+            return LANG_BG_AB_NODE_STABLES;
+        case BG_AB_NODE_BLACKSMITH:
+            return LANG_BG_AB_NODE_BLACKSMITH;
+        case BG_AB_NODE_FARM:
+            return LANG_BG_AB_NODE_FARM;
+        case BG_AB_NODE_LUMBER_MILL:
+            return LANG_BG_AB_NODE_LUMBER_MILL;
+        case BG_AB_NODE_GOLD_MINE:
+            return LANG_BG_AB_NODE_GOLD_MINE;
+        default:
+            MANGOS_ASSERT(0);
     }
     return 0;
 }
@@ -294,13 +298,13 @@ void BattleGroundAB::FillInitialWorldStates(WorldPacket& data, uint32& count)
     FillInitialWorldState(data, count, BG_AB_OP_OCCUPIED_BASES_HORDE, horde);
 
     // Team scores
-    FillInitialWorldState(data, count, BG_AB_OP_RESOURCES_MAX, BG_AB_MAX_TEAM_SCORE);
-    FillInitialWorldState(data, count, BG_AB_OP_RESOURCES_WARNING, BG_AB_WARNING_NEAR_VICTORY_SCORE);
-    FillInitialWorldState(data, count, BG_AB_OP_RESOURCES_ALLY, m_TeamScores[BG_TEAM_ALLIANCE]);
-    FillInitialWorldState(data, count, BG_AB_OP_RESOURCES_HORDE, m_TeamScores[BG_TEAM_HORDE]);
+    FillInitialWorldState(data, count, BG_AB_OP_RESOURCES_MAX,      BG_AB_MAX_TEAM_SCORE);
+    FillInitialWorldState(data, count, BG_AB_OP_RESOURCES_WARNING,  BG_AB_WARNING_NEAR_VICTORY_SCORE);
+    FillInitialWorldState(data, count, BG_AB_OP_RESOURCES_ALLY,     m_TeamScores[BG_TEAM_ALLIANCE]);
+    FillInitialWorldState(data, count, BG_AB_OP_RESOURCES_HORDE,    m_TeamScores[BG_TEAM_HORDE]);
 
     // other unknown
-    FillInitialWorldState(data, count, 0x745, 0x2); // 37 1861 unk
+    FillInitialWorldState(data, count, 0x745, 0x2);         // 37 1861 unk
 }
 
 void BattleGroundAB::_SendNodeUpdate(uint8 node)
@@ -344,13 +348,13 @@ void BattleGroundAB::_NodeOccupied(uint8 node, Team team)
 }
 
 /* Invoked if a player used a banner as a gameobject */
-void BattleGroundAB::EventPlayerClickedOnFlag(Player* source, GameObject* target_obj)
+void BattleGroundAB::EventPlayerClickedOnFlag(Player *source, GameObject* target_obj)
 {
     if (GetStatus() != STATUS_IN_PROGRESS)
         return;
 
     uint8 event = (sBattleGroundMgr.GetGameObjectEventIndex(target_obj->GetGUIDLow())).event1;
-    if (event >= BG_AB_NODES_MAX) // not a node
+    if (event >= BG_AB_NODES_MAX)                           // not a node
         return;
 
     BG_AB_Nodes node = BG_AB_Nodes(event);
@@ -361,7 +365,12 @@ void BattleGroundAB::EventPlayerClickedOnFlag(Player* source, GameObject* target
     if (!(m_Nodes[node] == 0 || teamIndex == m_Nodes[node] % 2))
         return;
 
-    uint32 killCredits[BG_AB_NODES_MAX] = {BG_AB_NODE_STABLES_CREDIT, BG_AB_NODE_BLACKSMITH_CREDIT, BG_AB_NODE_FARM_CREDIT, BG_AB_NODE_LUMBER_MILL_CREDIT, BG_AB_NODE_GOLD_MINE_CREDIT};
+    uint32 killCredits[BG_AB_NODES_MAX] = {
+        BG_AB_NODE_STABLES_CREDIT,
+        BG_AB_NODE_BLACKSMITH_CREDIT,
+        BG_AB_NODE_FARM_CREDIT,
+        BG_AB_NODE_LUMBER_MILL_CREDIT,
+        BG_AB_NODE_GOLD_MINE_CREDIT};
     source->KilledMonsterCredit(killCredits[node]);
 
     source->RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_ENTER_PVP_COMBAT);
@@ -458,10 +467,13 @@ void BattleGroundAB::EventPlayerClickedOnFlag(Player* source, GameObject* target
 
 bool BattleGroundAB::SetupBattleGround()
 {
-    // buffs
+    //buffs
     for (int i = 0; i < BG_AB_NODES_MAX; ++i)
     {
-        if (!AddObject(BG_AB_OBJECT_SPEEDBUFF_STABLES + 3 * i, Buff_Entries[0], BG_AB_BuffPositions[i][0], BG_AB_BuffPositions[i][1], BG_AB_BuffPositions[i][2], BG_AB_BuffPositions[i][3], 0, 0, sin(BG_AB_BuffPositions[i][3] / 2), cos(BG_AB_BuffPositions[i][3] / 2)) || !AddObject(BG_AB_OBJECT_SPEEDBUFF_STABLES + 3 * i + 1, Buff_Entries[1], BG_AB_BuffPositions[i][0], BG_AB_BuffPositions[i][1], BG_AB_BuffPositions[i][2], BG_AB_BuffPositions[i][3], 0, 0, sin(BG_AB_BuffPositions[i][3] / 2), cos(BG_AB_BuffPositions[i][3] / 2)) || !AddObject(BG_AB_OBJECT_SPEEDBUFF_STABLES + 3 * i + 2, Buff_Entries[2], BG_AB_BuffPositions[i][0], BG_AB_BuffPositions[i][1], BG_AB_BuffPositions[i][2], BG_AB_BuffPositions[i][3], 0, 0, sin(BG_AB_BuffPositions[i][3] / 2), cos(BG_AB_BuffPositions[i][3] / 2)))
+        if (!AddObject(BG_AB_OBJECT_SPEEDBUFF_STABLES + 3 * i, Buff_Entries[0], BG_AB_BuffPositions[i][0], BG_AB_BuffPositions[i][1], BG_AB_BuffPositions[i][2], BG_AB_BuffPositions[i][3], 0, 0, sin(BG_AB_BuffPositions[i][3] / 2), cos(BG_AB_BuffPositions[i][3] / 2))
+                || !AddObject(BG_AB_OBJECT_SPEEDBUFF_STABLES + 3 * i + 1, Buff_Entries[1], BG_AB_BuffPositions[i][0], BG_AB_BuffPositions[i][1], BG_AB_BuffPositions[i][2], BG_AB_BuffPositions[i][3], 0, 0, sin(BG_AB_BuffPositions[i][3] / 2), cos(BG_AB_BuffPositions[i][3] / 2))
+                || !AddObject(BG_AB_OBJECT_SPEEDBUFF_STABLES + 3 * i + 2, Buff_Entries[2], BG_AB_BuffPositions[i][0], BG_AB_BuffPositions[i][1], BG_AB_BuffPositions[i][2], BG_AB_BuffPositions[i][3], 0, 0, sin(BG_AB_BuffPositions[i][3] / 2), cos(BG_AB_BuffPositions[i][3] / 2))
+           )
             sLog.outErrorDb("BatteGroundAB: Failed to spawn buff object!");
     }
 
@@ -470,18 +482,18 @@ bool BattleGroundAB::SetupBattleGround()
 
 void BattleGroundAB::Reset()
 {
-    // call parent's class reset
+    //call parent's class reset
     BattleGround::Reset();
 
     for (uint8 i = 0; i < BG_TEAMS_COUNT; ++i)
     {
-        m_TeamScores[i] = 0;
-        m_lastTick[i] = 0;
-        m_HonorScoreTics[i] = 0;
+        m_TeamScores[i]          = 0;
+        m_lastTick[i]            = 0;
+        m_HonorScoreTics[i]      = 0;
         m_ReputationScoreTics[i] = 0;
     }
 
-    m_IsInformedNearVictory = false;
+    m_IsInformedNearVictory                 = false;
     bool isBGWeekend = BattleGroundMgr::IsBGWeekend(GetTypeID());
     m_HonorTics = (isBGWeekend) ? AB_WEEKEND_HONOR_INTERVAL : AB_NORMAL_HONOR_INTERVAL;
     m_ReputationTics = (isBGWeekend) ? AB_WEEKEND_REPUTATION_INTERVAL : AB_NORMAL_REPUTATION_INTERVAL;
@@ -495,12 +507,13 @@ void BattleGroundAB::Reset()
         // all nodes owned by neutral team at beginning
         m_ActiveEvents[i] = BG_AB_NODE_TYPE_NEUTRAL;
     }
+
 }
 
 void BattleGroundAB::EndBattleGround(Team winner)
 {
     bool isBGWeekend = BattleGroundMgr::IsBGWeekend(GetTypeID());
-    // win reward
+    //win reward
     if (winner == ALLIANCE)
     {
         if (isBGWeekend)
@@ -520,9 +533,14 @@ void BattleGroundAB::EndBattleGround(Team winner)
 WorldSafeLocsEntry const* BattleGroundAB::GetClosestGraveYard(Player* player)
 {
     // repop players at the entrance GY if BG is not started yet
+    // IDs 889/890 are standard vanilla WorldSafeLocs.dbc IDs, but this
+    // server's DBC (Turtle WoW 1.18 client, only 174 entries total) doesn't
+    // have them - confirmed live 2026-07-27/28, same root cause as the WSG
+    // graveyard fix. Real entries exist under IDs 113 (Horde)/114 (Alliance),
+    // found by matching map_id=529 coordinates against the two base corners.
     if (GetStatus() != STATUS_IN_PROGRESS && !player->IsGameMaster())
     {
-        if (WorldSafeLocsEntry const* gEntry = sWorldSafeLocsStore.LookupEntry(player->GetTeam() == ALLIANCE ? 890 : 889))
+        if (WorldSafeLocsEntry const* gEntry = sWorldSafeLocsStore.LookupEntry(player->GetTeam() == ALLIANCE ? 114 : 113))
             return gEntry;
     }
 
@@ -544,7 +562,7 @@ WorldSafeLocsEntry const* BattleGroundAB::GetClosestGraveYard(Player* player)
         float mindist = 999999.0f;
         for (uint8 node : nodes)
         {
-            WorldSafeLocsEntry const* entry = sWorldSafeLocsStore.LookupEntry(BG_AB_GraveyardIds[node]);
+            WorldSafeLocsEntry const*entry = sWorldSafeLocsStore.LookupEntry(BG_AB_GraveyardIds[node]);
             if (!entry)
                 continue;
 
@@ -565,22 +583,22 @@ WorldSafeLocsEntry const* BattleGroundAB::GetClosestGraveYard(Player* player)
     return good_entry;
 }
 
-void BattleGroundAB::UpdatePlayerScore(Player* Source, uint32 type, uint32 value)
+void BattleGroundAB::UpdatePlayerScore(Player *Source, uint32 type, uint32 value)
 {
     BattleGroundScoreMap::iterator itr = m_PlayerScores.find(Source->GetObjectGuid());
-    if (itr == m_PlayerScores.end()) // player not found...
+    if (itr == m_PlayerScores.end())                          // player not found...
         return;
 
     switch (type)
     {
-    case SCORE_BASES_ASSAULTED:
-        ((BattleGroundABScore*)itr->second)->BasesAssaulted += value;
-        break;
-    case SCORE_BASES_DEFENDED:
-        ((BattleGroundABScore*)itr->second)->BasesDefended += value;
-        break;
-    default:
-        BattleGround::UpdatePlayerScore(Source, type, value);
-        break;
+        case SCORE_BASES_ASSAULTED:
+            ((BattleGroundABScore*)itr->second)->BasesAssaulted += value;
+            break;
+        case SCORE_BASES_DEFENDED:
+            ((BattleGroundABScore*)itr->second)->BasesDefended += value;
+            break;
+        default:
+            BattleGround::UpdatePlayerScore(Source, type, value);
+            break;
     }
 }

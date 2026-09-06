@@ -3,16 +3,16 @@
 
 enum AzsoshSpells
 {
-    SPELL_POSSESS_VISUAL = 23014, // Used on dead NPC
-    SPELL_DRAIN_LIFE = 27994, // 11700,
-    SPELL_MIND_BLAST = 10947,
-    SPELL_CORRUPTION = 18656,
-    SPELL_BALNAZZAR_STUN = 17398, // Stuns all players
+    SPELL_POSSESS_VISUAL        = 23014, // Used on dead NPC
+    SPELL_DRAIN_LIFE            = 27994, //11700,
+    SPELL_MIND_BLAST            = 10947,
+    SPELL_CORRUPTION            = 18656,
+    SPELL_BALNAZZAR_STUN        = 17398, // Stuns all players
 
-    SPELL_ROOT_SELF = 20548,
-    SPELL_KELTHUZAD_CHANNEL = 29423,
+    SPELL_ROOT_SELF             = 20548,
+    SPELL_KELTHUZAD_CHANNEL     = 29423,
 
-    SPELL_DARK_CHANNELING = 21157,
+    SPELL_DARK_CHANNELING       = 21157,
 };
 
 enum Events
@@ -27,13 +27,13 @@ enum EventStates
     EVENT_DRAIN_LIFE_PERCENT_60 = 2,
     EVENT_DRAIN_LIFE_PERCENT_20 = 4,
 
-    EVENT_REANIMATE_DEAD = 8,
+    EVENT_REANIMATE_DEAD        = 8,
 };
 
 enum NPCs
 {
-    NPC_VAULT_GUARD = 80828,
-    NPC_RISEN_GUARD = 30005,
+    NPC_VAULT_GUARD     = 80828,
+    NPC_RISEN_GUARD     = 30005,
 };
 
 std::vector<ObjectGuid> m_vaultGuards;
@@ -43,7 +43,10 @@ struct boss_aszosh_grimflameAI : public ScriptedAI
     uint8 eventStates;
     uint8 LastHealthPercentage;
 
-    boss_aszosh_grimflameAI(Creature* c) : ScriptedAI(c) { Reset(); }
+    boss_aszosh_grimflameAI(Creature* c) : ScriptedAI(c)
+    {
+        Reset();
+    }
 
     void ResetGuards()
     {
@@ -79,7 +82,10 @@ struct boss_aszosh_grimflameAI : public ScriptedAI
             DoCast(me, SPELL_POSSESS_VISUAL);
     }
 
-    void JustReachedHome() override { DoCast(me, SPELL_POSSESS_VISUAL); }
+    void JustReachedHome() override
+    {
+        DoCast(me, SPELL_POSSESS_VISUAL);
+    }
 
     void KilledUnit(Unit* unit) override
     {
@@ -96,7 +102,10 @@ struct boss_aszosh_grimflameAI : public ScriptedAI
         me->MonsterYell("I was amongst the first you know... Nothing will stop me from claiming my vengeance!");
     }
 
-    void JustDied(Unit* killer) override { me->MonsterSay("Your will... is not... your own..."); }
+    void JustDied(Unit* killer) override
+    {
+        me->MonsterSay("Your will... is not... your own...");
+    }
 
     void UpdateAI(uint32 diff) override
     {
@@ -135,11 +144,11 @@ struct boss_aszosh_grimflameAI : public ScriptedAI
         {
             switch (eventId)
             {
-            case EVENT_SPELL_CORRUPTION:
-                DoCast(me->GetVictim(), SPELL_CORRUPTION);
-                m_events.Repeat(Seconds(60), Seconds(75));
-                break;
-            case EVENT_GUARDS_ANIMATED:
+                case EVENT_SPELL_CORRUPTION:
+                    DoCast(me->GetVictim(), SPELL_CORRUPTION);
+                    m_events.Repeat(Seconds(60), Seconds(75));
+                    break;
+                case EVENT_GUARDS_ANIMATED:
                 {
                     for (auto& guardGuid : m_vaultGuards)
                     {
@@ -214,7 +223,10 @@ struct boss_aszosh_grimflameAI : public ScriptedAI
 
 struct mob_vault_guardAI : public ScriptedAI
 {
-    mob_vault_guardAI(Creature* c) : ScriptedAI(c) { Reset(); }
+    mob_vault_guardAI(Creature* c) : ScriptedAI(c)
+    {
+        Reset();
+    }
 
     void Reset() override
     {
@@ -248,13 +260,19 @@ struct mob_vault_guardAI : public ScriptedAI
     }
 };
 
-CreatureAI* GetAI_boss_aszosh_grimflame(Creature* pCreature) { return new boss_aszosh_grimflameAI(pCreature); }
+CreatureAI* GetAI_boss_aszosh_grimflame(Creature* pCreature)
+{
+    return new boss_aszosh_grimflameAI(pCreature);
+}
 
-CreatureAI* GetAI_mob_vault_guard(Creature* pCreature) { return new mob_vault_guardAI(pCreature); }
+CreatureAI* GetAI_mob_vault_guard(Creature* pCreature)
+{
+    return new mob_vault_guardAI(pCreature);
+}
 
 void AddSC_boss_aszosh_grimflame()
 {
-    Script* newscript;
+    Script *newscript;
     newscript = new Script;
     newscript->Name = "boss_aszosh_grimflame";
     newscript->GetAI = &GetAI_boss_aszosh_grimflame;

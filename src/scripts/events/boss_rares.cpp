@@ -6,51 +6,51 @@ enum RaresSpells
 {
     /* boss_tarangos */
     SPELL_ICE_BREATH = 16350,
-    SPELL_REND = 17153,
+    SPELL_REND       = 17153,
     /* boss_blademaster_kargron */
-    SPELL_THRASH = 21919,
-    SPELL_PARRY = 5256,
-    SPELL_ENRAGE = 28131,
+    SPELL_THRASH     = 21919,
+    SPELL_PARRY      = 5256,
+    SPELL_ENRAGE     = 28131,
 
     SPELL_TRANSFORM_VISUAL = 24085,
-    SPELL_MOONFIRE_AOE = 27737,
-    SPELL_WRATH = 27737,
-    SPELL_REGROWTH = 27637,
-    SPELL_HEALING_TOUCH = 25297,
+    SPELL_MOONFIRE_AOE     = 27737,
+    SPELL_WRATH            = 27737,
+    SPELL_REGROWTH         = 27637,
+    SPELL_HEALING_TOUCH    = 25297,
     /**/
-    SPELL_LIGHTNING_BOLT = 15207,
+    SPELL_LIGHTNING_BOLT   = 15207,
     SPELL_LIGHTNING_SHIELD = 10432,
-    SPELL_HEALING_TOTEM = 10463,
+    SPELL_HEALING_TOTEM    = 10463,
     /**/
-    SPELL_AOE_FEAR = 5246,
-    SPELL_POISON_BOLT = 22937,
+    SPELL_AOE_FEAR         = 5246,
+    SPELL_POISON_BOLT      = 22937,
     /**/
-    SPELL_BIG_FIREBALL = 20678,
-    SPELL_IMMOLATE = 20294,
-    SPELL_FIRE_NOVA = 23462,
+    SPELL_BIG_FIREBALL     = 20678,
+    SPELL_IMMOLATE         = 20294,
+    SPELL_FIRE_NOVA        = 23462,
     /**/
-    SPELL_CLEAVE = 26350,
-    SPELL_SHIELD_BLOCK = 12169,
-    SPELL_SPELLSTONE = 128,
+    SPELL_CLEAVE           = 26350,
+    SPELL_SHIELD_BLOCK     = 12169,
+    SPELL_SPELLSTONE       = 128,
     /**/
-    SPELL_DEVOTION_AURA = 10293,
-    SPELL_HOLY_STRIKE = 17284,
+    SPELL_DEVOTION_AURA    = 10293,
+    SPELL_HOLY_STRIKE      = 17284,
     SPELL_HAMMER_OF_JUSTICE = 10308,
-    SPELL_HOLY_LIGHT = 25292,
-    SPELL_HAMMER_OF_WRATH = 24239,
+    SPELL_HOLY_LIGHT       = 25292,
+    SPELL_HAMMER_OF_WRATH  = 24239,
     /**/
-    SPELL_RAGE = 12686,
-    SPELL_SUNDER_ARMOR = 11596,
+    SPELL_RAGE             = 12686,
+    SPELL_SUNDER_ARMOR     = 11596,
     /**/
-    SPELL_FIRE_SHIELD = 19626,
-    SPELL_EVASION = 15087,
-    SPELL_SLICE_AND_DICE = 6434,
+    SPELL_FIRE_SHIELD      = 19626,
+    SPELL_EVASION          = 15087,
+    SPELL_SLICE_AND_DICE   = 6434,
     SPELL_SWEEPING_STRIKES = 12292,
-    SPELL_IMMOLATE1 = 25309,
+    SPELL_IMMOLATE1        = 25309,
     /**/
-    SPELL_THUNDER_CLAP = 11581,
-    SPELL_KNOCKBACK = 19813,
-    SPELL_DEM_SHOUT = 11556,
+    SPELL_THUNDER_CLAP     = 11581,
+    SPELL_KNOCKBACK        = 19813,
+    SPELL_DEM_SHOUT        = 11556,
 };
 
 enum RaresEvents
@@ -100,21 +100,25 @@ enum RaresEvents
 
 struct boss_tarangosAI : public ScriptedAI
 {
-    boss_tarangosAI(Creature* pCreature) : ScriptedAI(pCreature) { Reset(); }
+    boss_tarangosAI(Creature* pCreature) : ScriptedAI(pCreature)
+    {
+        Reset();
+    }
 
     EventMap m_events;
 
-    void Reset() override { m_events.Reset(); }
+    void Reset() override
+    {
+        m_events.Reset();
+    }
 
     void Aggro(Unit* pWho) override
     {
-        m_creature->SetInCombatWithZone();
-
         m_events.ScheduleEvent(EVENT_ICE_BREATH, Seconds(urand(15, 60)));
         m_events.ScheduleEvent(EVENT_REND, Seconds(urand(10, 45)));
     }
 
-    void UpdateAI(uint32 const uiDiff) override
+    void UpdateAI(uint32 const uiDiff)  override
     {
         if (!m_creature->SelectHostileTarget() || !m_creature->GetVictim())
             return;
@@ -124,7 +128,7 @@ struct boss_tarangosAI : public ScriptedAI
         {
             switch (l_EventId)
             {
-            case EVENT_ICE_BREATH:
+                case EVENT_ICE_BREATH:
                 {
                     if (DoCastSpellIfCan(m_creature->GetVictim(), SPELL_ICE_BREATH) == CAST_OK)
                         m_events.Repeat(Seconds(60));
@@ -133,7 +137,7 @@ struct boss_tarangosAI : public ScriptedAI
 
                     break;
                 }
-            case EVENT_REND:
+                case EVENT_REND:
                 {
                     if (DoCastSpellIfCan(m_creature->GetVictim(), SPELL_REND) == CAST_OK)
                         m_events.Repeat(Seconds(45));
@@ -151,7 +155,10 @@ struct boss_tarangosAI : public ScriptedAI
 
 struct boss_blademaster_kargronAI : public ScriptedAI
 {
-    boss_blademaster_kargronAI(Creature* pCreature) : ScriptedAI(pCreature) { Reset(); }
+    boss_blademaster_kargronAI(Creature* pCreature) : ScriptedAI(pCreature)
+    {
+        Reset();
+    }
 
     EventMap m_events;
     bool m_bEnraged;
@@ -164,12 +171,10 @@ struct boss_blademaster_kargronAI : public ScriptedAI
 
     void Aggro(Unit* pWho) override
     {
-        m_creature->SetInCombatWithZone();
-
         m_events.ScheduleEvent(EVENT_THRASH, Seconds(urand(5, 30)));
     }
 
-    void UpdateAI(uint32 const uiDiff) override
+    void UpdateAI(uint32 const uiDiff)  override
     {
         if (!m_creature->SelectHostileTarget() || !m_creature->GetVictim())
             return;
@@ -189,7 +194,7 @@ struct boss_blademaster_kargronAI : public ScriptedAI
         {
             switch (l_EventId)
             {
-            case EVENT_THRASH:
+                case EVENT_THRASH:
                 {
                     if (DoCastSpellIfCan(m_creature->GetVictim(), SPELL_THRASH) == CAST_OK)
                         m_events.Repeat(Seconds(30));
@@ -213,7 +218,10 @@ enum Phases
 
 struct boss_mallon_the_moontouchedAI : public ScriptedAI
 {
-    boss_mallon_the_moontouchedAI(Creature* pCreature) : ScriptedAI(pCreature) { Reset(); }
+    boss_mallon_the_moontouchedAI(Creature* pCreature) : ScriptedAI(pCreature)
+    {
+        Reset();
+    }
 
     EventMap m_events;
     Phases phase;
@@ -229,13 +237,11 @@ struct boss_mallon_the_moontouchedAI : public ScriptedAI
 
     void Aggro(Unit* pWho) override
     {
-        m_creature->SetInCombatWithZone();
-
         m_events.ScheduleEvent(EVENT_MOONFIRE_AOE, Seconds(15));
         m_events.ScheduleEvent(EVENT_WRATH, Seconds(urand(5, 20)));
     }
 
-    void UpdateAI(uint32 const uiDiff) override
+    void UpdateAI(uint32 const uiDiff)  override
     {
         if (!m_creature->SelectHostileTarget() || !m_creature->GetVictim())
             return;
@@ -266,7 +272,7 @@ struct boss_mallon_the_moontouchedAI : public ScriptedAI
         {
             switch (l_EventId)
             {
-            case EVENT_MOONFIRE_AOE:
+                case EVENT_MOONFIRE_AOE:
                 {
                     if (DoCastSpellIfCan(m_creature, SPELL_MOONFIRE_AOE) == CAST_OK)
                         m_events.Repeat(Seconds(50));
@@ -275,7 +281,7 @@ struct boss_mallon_the_moontouchedAI : public ScriptedAI
 
                     break;
                 }
-            case EVENT_WRATH:
+                case EVENT_WRATH:
                 {
                     if (DoCastSpellIfCan(m_creature->GetVictim(), SPELL_WRATH) == CAST_OK)
                         m_events.Repeat(Seconds(20));
@@ -284,7 +290,7 @@ struct boss_mallon_the_moontouchedAI : public ScriptedAI
 
                     break;
                 }
-            case EVENT_HEALING_TOUCH:
+                case EVENT_HEALING_TOUCH:
                 {
                     if (DoCastSpellIfCan(m_creature, SPELL_HEALING_TOUCH) == CAST_OK)
                         m_events.Repeat(Seconds(70));
@@ -293,7 +299,7 @@ struct boss_mallon_the_moontouchedAI : public ScriptedAI
 
                     break;
                 }
-            case EVENT_TRANSFORM:
+                case EVENT_TRANSFORM:
                 {
                     m_creature->SetDisplayId(18750);
                     break;
@@ -307,22 +313,26 @@ struct boss_mallon_the_moontouchedAI : public ScriptedAI
 
 struct boss_grugthok_the_seerAI : public ScriptedAI
 {
-    boss_grugthok_the_seerAI(Creature* pCreature) : ScriptedAI(pCreature) { Reset(); }
+    boss_grugthok_the_seerAI(Creature* pCreature) : ScriptedAI(pCreature)
+    {
+        Reset();
+    }
 
     EventMap m_events;
 
-    void Reset() override { m_events.Reset(); }
+    void Reset() override
+    {
+        m_events.Reset();
+    }
 
     void Aggro(Unit* pWho) override
     {
-        m_creature->SetInCombatWithZone();
-
         m_events.ScheduleEvent(EVENT_LIGHTNING_BOLT, Seconds(urand(2, 10)));
         m_events.ScheduleEvent(EVENT_LIGHTNING_SHIELD, Seconds(urand(10, 30)));
         m_events.ScheduleEvent(EVENT_HEALING_TOTEM, Seconds(urand(30, 60)));
     }
 
-    void UpdateAI(uint32 const uiDiff) override
+    void UpdateAI(uint32 const uiDiff)  override
     {
         if (!m_creature->SelectHostileTarget() || !m_creature->GetVictim())
             return;
@@ -332,7 +342,7 @@ struct boss_grugthok_the_seerAI : public ScriptedAI
         {
             switch (l_EventId)
             {
-            case EVENT_LIGHTNING_BOLT:
+                case EVENT_LIGHTNING_BOLT:
                 {
                     if (DoCastSpellIfCan(m_creature->GetVictim(), SPELL_LIGHTNING_BOLT) == CAST_OK)
                         m_events.Repeat(Seconds(10));
@@ -341,7 +351,7 @@ struct boss_grugthok_the_seerAI : public ScriptedAI
 
                     break;
                 }
-            case EVENT_LIGHTNING_SHIELD:
+                case EVENT_LIGHTNING_SHIELD:
                 {
                     if (DoCastSpellIfCan(m_creature, SPELL_LIGHTNING_SHIELD) == CAST_OK)
                         m_events.Repeat(Seconds(30));
@@ -350,7 +360,7 @@ struct boss_grugthok_the_seerAI : public ScriptedAI
 
                     break;
                 }
-            case EVENT_HEALING_TOTEM:
+                case EVENT_HEALING_TOTEM:
                 {
                     if (DoCastSpellIfCan(m_creature, SPELL_HEALING_TOTEM, CF_FORCE_CAST) == CAST_OK)
                         m_events.Repeat(Seconds(60));
@@ -368,22 +378,26 @@ struct boss_grugthok_the_seerAI : public ScriptedAI
 
 struct boss_twilight_watcher_crendusAI : public ScriptedAI
 {
-    boss_twilight_watcher_crendusAI(Creature* pCreature) : ScriptedAI(pCreature) { Reset(); }
+    boss_twilight_watcher_crendusAI(Creature* pCreature) : ScriptedAI(pCreature)
+    {
+        Reset();
+    }
 
     EventMap m_events;
 
-    void Reset() override { m_events.Reset(); }
+    void Reset() override
+    {
+        m_events.Reset();
+    }
 
     void Aggro(Unit* pWho) override
     {
-        m_creature->SetInCombatWithZone();
-
         m_events.ScheduleEvent(EVENT_BIG_FIREBALL, Seconds(urand(20, 40)));
         m_events.ScheduleEvent(EVENT_IMMOLATE, Seconds(urand(5, 25)));
         m_events.ScheduleEvent(EVENT_FIRE_NOVA, Seconds(urand(10, 15)));
     }
 
-    void UpdateAI(uint32 const uiDiff) override
+    void UpdateAI(uint32 const uiDiff)  override
     {
         if (!m_creature->SelectHostileTarget() || !m_creature->GetVictim())
             return;
@@ -393,7 +407,7 @@ struct boss_twilight_watcher_crendusAI : public ScriptedAI
         {
             switch (l_EventId)
             {
-            case EVENT_BIG_FIREBALL:
+                case EVENT_BIG_FIREBALL:
                 {
                     if (DoCastSpellIfCan(m_creature->GetVictim(), SPELL_BIG_FIREBALL) == CAST_OK)
                         m_events.Repeat(Seconds(40));
@@ -402,7 +416,7 @@ struct boss_twilight_watcher_crendusAI : public ScriptedAI
 
                     break;
                 }
-            case EVENT_IMMOLATE:
+                case EVENT_IMMOLATE:
                 {
                     if (DoCastSpellIfCan(m_creature->GetVictim(), SPELL_IMMOLATE) == CAST_OK)
                         m_events.Repeat(Seconds(25));
@@ -411,7 +425,7 @@ struct boss_twilight_watcher_crendusAI : public ScriptedAI
 
                     break;
                 }
-            case EVENT_FIRE_NOVA:
+                case EVENT_FIRE_NOVA:
                 {
                     if (DoCastSpellIfCan(m_creature, SPELL_FIRE_NOVA, CF_FORCE_CAST) == CAST_OK)
                         m_events.Repeat(Seconds(15));
@@ -429,7 +443,10 @@ struct boss_twilight_watcher_crendusAI : public ScriptedAI
 
 struct boss_the_wandering_knightAI : public ScriptedAI
 {
-    boss_the_wandering_knightAI(Creature* pCreature) : ScriptedAI(pCreature) { Reset(); }
+    boss_the_wandering_knightAI(Creature* pCreature) : ScriptedAI(pCreature)
+    {
+        Reset();
+    }
 
     EventMap m_events;
     bool m_bEnraged;
@@ -442,14 +459,12 @@ struct boss_the_wandering_knightAI : public ScriptedAI
 
     void Aggro(Unit* pWho) override
     {
-        m_creature->SetInCombatWithZone();
-
         m_events.ScheduleEvent(EVENT_CLEAVE, Seconds(urand(10, 20)));
         m_events.ScheduleEvent(EVENT_SHIELD_BLOCK, Seconds(urand(5, 15)));
         m_events.ScheduleEvent(EVENT_SPELLSTONE, Seconds(urand(20, 45)));
     }
 
-    void UpdateAI(uint32 const uiDiff) override
+    void UpdateAI(uint32 const uiDiff)  override
     {
         if (!m_creature->SelectHostileTarget() || !m_creature->GetVictim())
             return;
@@ -468,7 +483,7 @@ struct boss_the_wandering_knightAI : public ScriptedAI
         {
             switch (l_EventId)
             {
-            case EVENT_CLEAVE:
+                case EVENT_CLEAVE:
                 {
                     if (DoCastSpellIfCan(m_creature->GetVictim(), SPELL_CLEAVE) == CAST_OK)
                         m_events.Repeat(Seconds(20));
@@ -477,7 +492,7 @@ struct boss_the_wandering_knightAI : public ScriptedAI
 
                     break;
                 }
-            case EVENT_SHIELD_BLOCK:
+                case EVENT_SHIELD_BLOCK:
                 {
                     if (DoCastSpellIfCan(m_creature, SPELL_SHIELD_BLOCK) == CAST_OK)
                         m_events.Repeat(Seconds(15));
@@ -486,7 +501,7 @@ struct boss_the_wandering_knightAI : public ScriptedAI
 
                     break;
                 }
-            case EVENT_SPELLSTONE:
+                case EVENT_SPELLSTONE:
                 {
                     if (DoCastSpellIfCan(m_creature, SPELL_SPELLSTONE) == CAST_OK)
                         m_events.Repeat(Seconds(45));
@@ -504,7 +519,10 @@ struct boss_the_wandering_knightAI : public ScriptedAI
 
 struct boss_crusader_larsariusAI : public ScriptedAI
 {
-    boss_crusader_larsariusAI(Creature* pCreature) : ScriptedAI(pCreature) { Reset(); }
+    boss_crusader_larsariusAI(Creature* pCreature) : ScriptedAI(pCreature)
+    {
+        Reset();
+    }
 
     EventMap m_events;
 
@@ -516,7 +534,6 @@ struct boss_crusader_larsariusAI : public ScriptedAI
 
     void Aggro(Unit* pWho) override
     {
-        m_creature->SetInCombatWithZone();
         DoCast(m_creature, SPELL_DEVOTION_AURA, true);
 
         m_events.ScheduleEvent(EVENT_HOLY_STRIKE, Seconds(urand(8, 20)));
@@ -552,7 +569,7 @@ struct boss_crusader_larsariusAI : public ScriptedAI
         return nullptr;
     }
 
-    void UpdateAI(uint32 const uiDiff) override
+    void UpdateAI(uint32 const uiDiff)  override
     {
         if (!m_creature->SelectHostileTarget() || !m_creature->GetVictim())
             return;
@@ -562,7 +579,7 @@ struct boss_crusader_larsariusAI : public ScriptedAI
         {
             switch (l_EventId)
             {
-            case EVENT_HOLY_STRIKE:
+                case EVENT_HOLY_STRIKE:
                 {
                     if (DoCastSpellIfCan(m_creature->GetVictim(), SPELL_HOLY_STRIKE) == CAST_OK)
                         m_events.Repeat(Seconds(20));
@@ -571,7 +588,7 @@ struct boss_crusader_larsariusAI : public ScriptedAI
 
                     break;
                 }
-            case EVENT_HAMMER_OF_JUSTICE:
+                case EVENT_HAMMER_OF_JUSTICE:
                 {
                     if (DoCastSpellIfCan(m_creature->GetVictim(), SPELL_HAMMER_OF_JUSTICE) == CAST_OK)
                         m_events.Repeat(Seconds(30));
@@ -580,7 +597,7 @@ struct boss_crusader_larsariusAI : public ScriptedAI
 
                     break;
                 }
-            case EVENT_HOLY_LIGHT:
+                case EVENT_HOLY_LIGHT:
                 {
                     if (DoCastSpellIfCan(m_creature, SPELL_HOLY_LIGHT) == CAST_OK)
                         m_events.Repeat(Seconds(40));
@@ -589,7 +606,7 @@ struct boss_crusader_larsariusAI : public ScriptedAI
 
                     break;
                 }
-            case EVENT_HAMMER_OF_WRATH:
+                case EVENT_HAMMER_OF_WRATH:
                 {
                     if (Unit* target = GetTargetHammerOfWrath())
                     {
@@ -610,7 +627,10 @@ struct boss_crusader_larsariusAI : public ScriptedAI
 
 struct boss_kintozoAI : public ScriptedAI
 {
-    boss_kintozoAI(Creature* pCreature) : ScriptedAI(pCreature) { Reset(); }
+    boss_kintozoAI(Creature* pCreature) : ScriptedAI(pCreature)
+    {
+        Reset();
+    }
 
     EventMap m_events;
     bool m_bEnraged;
@@ -623,13 +643,11 @@ struct boss_kintozoAI : public ScriptedAI
 
     void Aggro(Unit* pWho) override
     {
-        m_creature->SetInCombatWithZone();
-
         m_events.ScheduleEvent(EVENT_RAGE, Seconds(urand(20, 45)));
         m_events.ScheduleEvent(EVENT_SUNDER_ARMOR, Seconds(urand(10, 20)));
     }
 
-    void UpdateAI(uint32 const uiDiff) override
+    void UpdateAI(uint32 const uiDiff)  override
     {
         if (!m_creature->SelectHostileTarget() || !m_creature->GetVictim())
             return;
@@ -648,7 +666,7 @@ struct boss_kintozoAI : public ScriptedAI
         {
             switch (l_EventId)
             {
-            case EVENT_RAGE:
+                case EVENT_RAGE:
                 {
                     if (DoCastSpellIfCan(m_creature, SPELL_RAGE) == CAST_OK)
                         m_events.Repeat(Seconds(45));
@@ -657,7 +675,7 @@ struct boss_kintozoAI : public ScriptedAI
 
                     break;
                 }
-            case EVENT_SUNDER_ARMOR:
+                case EVENT_SUNDER_ARMOR:
                 {
                     if (DoCastSpellIfCan(m_creature->GetVictim(), SPELL_SUNDER_ARMOR) == CAST_OK)
                         m_events.Repeat(Seconds(20));
@@ -675,7 +693,10 @@ struct boss_kintozoAI : public ScriptedAI
 
 struct boss_zareth_terrorbladeAI : public ScriptedAI
 {
-    boss_zareth_terrorbladeAI(Creature* pCreature) : ScriptedAI(pCreature) { Reset(); }
+    boss_zareth_terrorbladeAI(Creature* pCreature) : ScriptedAI(pCreature)
+    {
+        Reset();
+    }
 
     EventMap m_events;
 
@@ -687,8 +708,6 @@ struct boss_zareth_terrorbladeAI : public ScriptedAI
 
     void Aggro(Unit* pWho) override
     {
-        m_creature->SetInCombatWithZone();
-
         m_creature->AddAura(SPELL_FIRE_SHIELD);
         m_events.ScheduleEvent(EVENT_EVASION, Seconds(urand(20, 45)));
         m_events.ScheduleEvent(EVENT_SLICE_AND_DICE, Seconds(urand(15, 30)));
@@ -696,7 +715,7 @@ struct boss_zareth_terrorbladeAI : public ScriptedAI
         m_events.ScheduleEvent(EVENT_IMMOLATE, Seconds(urand(5, 20)));
     }
 
-    void UpdateAI(uint32 const uiDiff) override
+    void UpdateAI(uint32 const uiDiff)  override
     {
         if (!m_creature->SelectHostileTarget() || !m_creature->GetVictim())
             return;
@@ -706,7 +725,7 @@ struct boss_zareth_terrorbladeAI : public ScriptedAI
         {
             switch (l_EventId)
             {
-            case EVENT_EVASION:
+                case EVENT_EVASION:
                 {
                     if (DoCastSpellIfCan(m_creature, SPELL_EVASION) == CAST_OK)
                         m_events.Repeat(Seconds(40));
@@ -715,7 +734,7 @@ struct boss_zareth_terrorbladeAI : public ScriptedAI
 
                     break;
                 }
-            case EVENT_SLICE_AND_DICE:
+                case EVENT_SLICE_AND_DICE:
                 {
                     if (DoCastSpellIfCan(m_creature, SPELL_SLICE_AND_DICE) == CAST_OK)
                         m_events.Repeat(Seconds(30));
@@ -724,7 +743,7 @@ struct boss_zareth_terrorbladeAI : public ScriptedAI
 
                     break;
                 }
-            case EVENT_SWEEPING_STRIKES:
+                case EVENT_SWEEPING_STRIKES:
                 {
                     if (DoCastSpellIfCan(m_creature, SPELL_SWEEPING_STRIKES, CF_FORCE_CAST) == CAST_OK)
                         m_events.Repeat(Seconds(45));
@@ -733,7 +752,7 @@ struct boss_zareth_terrorbladeAI : public ScriptedAI
 
                     break;
                 }
-            case EVENT_IMMOLATE:
+                case EVENT_IMMOLATE:
                 {
                     if (Unit* target = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 0, SELECT_FLAG_NO_TOTEM | SELECT_FLAG_NO_PET))
                     {
@@ -754,7 +773,10 @@ struct boss_zareth_terrorbladeAI : public ScriptedAI
 
 struct boss_jalakarAI : public ScriptedAI
 {
-    boss_jalakarAI(Creature* pCreature) : ScriptedAI(pCreature) { Reset(); }
+    boss_jalakarAI(Creature* pCreature) : ScriptedAI(pCreature)
+    {
+        Reset();
+    }
 
     EventMap m_events;
     bool m_bEnraged;
@@ -767,14 +789,12 @@ struct boss_jalakarAI : public ScriptedAI
 
     void Aggro(Unit* pWho) override
     {
-        m_creature->SetInCombatWithZone();
-
         m_events.ScheduleEvent(EVENT_THUNDER_CLAP, Seconds(urand(5, 15)));
         m_events.ScheduleEvent(EVENT_KNOCKBACK, Seconds(urand(10, 20)));
         m_events.ScheduleEvent(EVENT_DEM_SHOUT, Seconds(urand(15, 35)));
     }
 
-    void UpdateAI(uint32 const uiDiff) override
+    void UpdateAI(uint32 const uiDiff)  override
     {
         if (!m_creature->SelectHostileTarget() || !m_creature->GetVictim())
             return;
@@ -793,7 +813,7 @@ struct boss_jalakarAI : public ScriptedAI
         {
             switch (l_EventId)
             {
-            case EVENT_THUNDER_CLAP:
+                case EVENT_THUNDER_CLAP:
                 {
                     if (DoCastSpellIfCan(m_creature, SPELL_THUNDER_CLAP) == CAST_OK)
                         m_events.Repeat(Seconds(15));
@@ -802,7 +822,7 @@ struct boss_jalakarAI : public ScriptedAI
 
                     break;
                 }
-            case EVENT_KNOCKBACK:
+                case EVENT_KNOCKBACK:
                 {
                     if (DoCastSpellIfCan(m_creature->GetVictim(), SPELL_KNOCKBACK) == CAST_OK)
                         m_events.Repeat(Seconds(20));
@@ -811,7 +831,7 @@ struct boss_jalakarAI : public ScriptedAI
 
                     break;
                 }
-            case EVENT_DEM_SHOUT:
+                case EVENT_DEM_SHOUT:
                 {
                     if (DoCastSpellIfCan(m_creature->GetVictim(), SPELL_DEM_SHOUT) == CAST_OK)
                         m_events.Repeat(Seconds(35));
@@ -829,7 +849,10 @@ struct boss_jalakarAI : public ScriptedAI
 
 struct boss_explorer_ashbeardAI : public ScriptedAI
 {
-    boss_explorer_ashbeardAI(Creature* pCreature) : ScriptedAI(pCreature) { Reset(); }
+    boss_explorer_ashbeardAI(Creature* pCreature) : ScriptedAI(pCreature)
+    {
+        Reset();
+    }
 
     EventMap m_events;
     bool m_bEnraged;
@@ -842,12 +865,10 @@ struct boss_explorer_ashbeardAI : public ScriptedAI
 
     void Aggro(Unit* pWho) override
     {
-        m_creature->SetInCombatWithZone();
-
         m_events.ScheduleEvent(EVENT_DEM_SHOUT, Seconds(urand(15, 35)));
     }
 
-    void UpdateAI(uint32 const uiDiff) override
+    void UpdateAI(uint32 const uiDiff)  override
     {
         if (!m_creature->SelectHostileTarget() || !m_creature->GetVictim())
             return;
@@ -866,7 +887,7 @@ struct boss_explorer_ashbeardAI : public ScriptedAI
         {
             switch (l_EventId)
             {
-            case EVENT_DEM_SHOUT:
+                case EVENT_DEM_SHOUT:
                 {
                     if (DoCastSpellIfCan(m_creature->GetVictim(), SPELL_DEM_SHOUT) == CAST_OK)
                         m_events.Repeat(Seconds(35));
@@ -882,38 +903,71 @@ struct boss_explorer_ashbeardAI : public ScriptedAI
     }
 };
 
-CreatureAI* GetAI_boss_tarangos(Creature* pCreature) { return new boss_tarangosAI(pCreature); }
-
-CreatureAI* GetAI_boss_blademaster_kargron(Creature* pCreature) { return new boss_blademaster_kargronAI(pCreature); }
-
-CreatureAI* GetAI_boss_mallon_the_moontouched(Creature* pCreature) { return new boss_mallon_the_moontouchedAI(pCreature); }
-
-CreatureAI* GetAI_boss_grugthok_the_seer(Creature* pCreature) { return new boss_grugthok_the_seerAI(pCreature); }
-
-CreatureAI* GetAI_boss_twilight_watcher_crendus(Creature* pCreature) { return new boss_twilight_watcher_crendusAI(pCreature); }
-
-CreatureAI* GetAI_boss_the_wandering_knight(Creature* pCreature) { return new boss_the_wandering_knightAI(pCreature); }
-
-CreatureAI* GetAI_boss_crusader_larsarius(Creature* pCreature) { return new boss_crusader_larsariusAI(pCreature); }
-
-CreatureAI* GetAI_boss_kintozo(Creature* pCreature) { return new boss_kintozoAI(pCreature); }
-
-CreatureAI* GetAI_boss_zareth_terrorblade(Creature* pCreature) { return new boss_zareth_terrorbladeAI(pCreature); }
-
-CreatureAI* GetAI_boss_jalakar(Creature* pCreature) { return new boss_jalakarAI(pCreature); }
-
-CreatureAI* GetAI_boss_explorer_ashbeard(Creature* pCreature) { return new boss_explorer_ashbeardAI(pCreature); }
-
-namespace nsMobMollyWinterveil
+CreatureAI* GetAI_boss_tarangos(Creature* pCreature)
 {
+    return new boss_tarangosAI(pCreature);
+}
+
+CreatureAI* GetAI_boss_blademaster_kargron(Creature* pCreature)
+{
+    return new boss_blademaster_kargronAI(pCreature);
+}
+
+CreatureAI* GetAI_boss_mallon_the_moontouched(Creature* pCreature)
+{
+    return new boss_mallon_the_moontouchedAI(pCreature);
+}
+
+CreatureAI* GetAI_boss_grugthok_the_seer(Creature* pCreature)
+{
+    return new boss_grugthok_the_seerAI(pCreature);
+}
+
+CreatureAI* GetAI_boss_twilight_watcher_crendus(Creature* pCreature)
+{
+    return new boss_twilight_watcher_crendusAI(pCreature);
+}
+
+CreatureAI* GetAI_boss_the_wandering_knight(Creature* pCreature)
+{
+    return new boss_the_wandering_knightAI(pCreature);
+}
+
+CreatureAI* GetAI_boss_crusader_larsarius(Creature* pCreature)
+{
+    return new boss_crusader_larsariusAI(pCreature);
+}
+
+CreatureAI* GetAI_boss_kintozo(Creature* pCreature)
+{
+    return new boss_kintozoAI(pCreature);
+}
+
+CreatureAI* GetAI_boss_zareth_terrorblade(Creature* pCreature)
+{
+    return new boss_zareth_terrorbladeAI(pCreature);
+}
+
+CreatureAI* GetAI_boss_jalakar(Creature* pCreature)
+{
+    return new boss_jalakarAI(pCreature);
+}
+
+CreatureAI* GetAI_boss_explorer_ashbeard(Creature* pCreature)
+{
+    return new boss_explorer_ashbeardAI(pCreature);
+}
+
+namespace nsMobMollyWinterveil {
     static constexpr uint32 SPELL_1 = 11976;
     static constexpr uint32 SPELL_2 = 46266;
-} // namespace nsMobMollyWinterveil
+}
 
-class mob_molly_winterveilAI : public ScriptedAI
-{
+class mob_molly_winterveilAI : public ScriptedAI {
 public:
-    explicit mob_molly_winterveilAI(Creature* pCreature) : ScriptedAI(pCreature) { Reset(); }
+    explicit mob_molly_winterveilAI(Creature* pCreature) : ScriptedAI(pCreature) {
+        Reset();
+    }
 
 private:
     uint32 m_spell1Timer = 0; // Timer for SPELL_1 cast
@@ -921,51 +975,41 @@ private:
     bool m_spell2FirstCast = true;
 
 public:
-    void Reset() override
-    {
+    void Reset() override {
         m_spell1Timer = 0;
         m_spell2Timer = 3000;
         m_spell2FirstCast = true;
     }
 
-    void UpdateAI(const uint32 diff) override
-    {
+    void UpdateAI(const uint32 diff) override {
         if (!m_creature->SelectHostileTarget() || !m_creature->GetVictim())
             return;
 
         // Cast SPELL_1 every 8 seconds
-        if (m_spell1Timer < diff)
-        {
+        if (m_spell1Timer < diff) {
             DoCastSpellIfCan(m_creature->GetVictim(), nsMobMollyWinterveil::SPELL_1);
             m_spell1Timer = 8000; // Reset the timer
         }
-        else
-        {
+        else {
             m_spell1Timer -= diff; // Decrement the timer
         }
 
         // Cast SPELL_2 first 3 seconds into the encounter, then every 24 seconds
-        if (m_spell2FirstCast)
-        {
-            if (m_spell2Timer < diff)
-            {
+        if (m_spell2FirstCast) {
+            if (m_spell2Timer < diff) {
                 DoCastSpellIfCan(m_creature->GetVictim(), nsMobMollyWinterveil::SPELL_2);
                 m_spell2FirstCast = false; // Set to false after the first cast
             }
-            else
-            {
+            else {
                 m_spell2Timer -= diff; // Decrement the timer
             }
         }
-        else
-        {
-            if (m_spell2Timer < diff)
-            {
+        else {
+            if (m_spell2Timer < diff) {
                 DoCastSpellIfCan(m_creature->GetVictim(), nsMobMollyWinterveil::SPELL_2);
                 m_spell2Timer = 24000; // Reset the timer
             }
-            else
-            {
+            else {
                 m_spell2Timer -= diff; // Decrement the timer
             }
         }
@@ -974,7 +1018,9 @@ public:
     }
 };
 
-CreatureAI* GetAI_mob_molly_winterveilAI(Creature* pCreature) { return new mob_molly_winterveilAI(pCreature); }
+CreatureAI* GetAI_mob_molly_winterveilAI(Creature* pCreature) {
+    return new mob_molly_winterveilAI(pCreature);
+}
 
 void AddSC_boss_rares()
 {

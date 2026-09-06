@@ -1,8 +1,13 @@
 #include "npc_arcanist_nozzlespring.h"
 
-npc_arcanist_nozzlespring::npc_arcanist_nozzlespring(Creature* pCreature) : ScriptedAI(pCreature) { npc_arcanist_nozzlespring::Reset(); }
+npc_arcanist_nozzlespring::npc_arcanist_nozzlespring(Creature* pCreature): ScriptedAI(pCreature)
+{
+    npc_arcanist_nozzlespring::Reset();
+}
 
-void npc_arcanist_nozzlespring::Reset() {}
+void npc_arcanist_nozzlespring::Reset()
+{
+}
 
 void npc_arcanist_nozzlespring::UpdateAI(const uint32 delta)
 {
@@ -33,7 +38,10 @@ void npc_arcanist_nozzlespring::UpdateAI(const uint32 delta)
     DoMeleeAttackIfReady();
 }
 
-CreatureAI* npc_arcanist_nozzlespring::GetAI(Creature* pCreature) { return new npc_arcanist_nozzlespring(pCreature); }
+CreatureAI* npc_arcanist_nozzlespring::GetAI(Creature* pCreature)
+{
+    return new npc_arcanist_nozzlespring(pCreature);
+}
 
 void npc_arcanist_nozzlespring::RegisterScript()
 {

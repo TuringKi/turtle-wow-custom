@@ -15,7 +15,10 @@ FileLoader::FileLoader()
     version = 0;
 }
 
-FileLoader::~FileLoader() { free(); }
+FileLoader::~FileLoader()
+{
+    free();
+}
 
 bool FileLoader::loadFile(char* filename, bool log)
 {
@@ -30,7 +33,7 @@ bool FileLoader::loadFile(char* filename, bool log)
 
     data_size = mf.getSize();
 
-    data = new uint8[data_size];
+    data = new uint8 [data_size];
     mf.read(data, data_size);
     mf.close();
     if (prepareLoadedData())
@@ -45,19 +48,18 @@ bool FileLoader::loadFile(char* filename, bool log)
 bool FileLoader::prepareLoadedData()
 {
     // Check version
-    version = (file_MVER*)data;
+    version = (file_MVER*) data;
     if (!strncmp(version->fcc_txt, "MVER", 4))
         return false;
-    //  if (version->ver != FILE_FORMAT_VERSION) F
-    //      return false; O
-    // X
+  //  if (version->ver != FILE_FORMAT_VERSION) F
+  //      return false; O
+  // X
     return true;
 }
 
 void FileLoader::free()
 {
-    if (data)
-        delete[] data;
+    if (data) delete[] data;
     data = 0;
     data_size = 0;
     version = 0;

@@ -23,12 +23,12 @@
 #define MANGOS_GAMEEVENT_MGR_H
 
 #include "Common.h"
+#include "SharedDefines.h"
 #include "Platform/Define.h"
 #include "Policies/Singleton.h"
-#include "SharedDefines.h"
 
-#define max_ge_check_delay 86400 // 1 day in seconds
-#define default_year_length 525600 // 365 days in minutes
+#define max_ge_check_delay 86400                            // 1 day in seconds
+#define default_year_length 525600                          // 365 days in minutes
 
 class Creature;
 class GameObject;
@@ -36,24 +36,26 @@ class MapPersistentState;
 
 enum SilithusPVPEventState
 {
-    SILITHUS_PVP_EVENT_OFF = 0,
-    SILITHUS_PVP_EVENT_ON = 103
+    SILITHUS_PVP_EVENT_OFF    = 0,
+    SILITHUS_PVP_EVENT_ON     = 103
 };
 
 struct GameEventData
 {
-    GameEventData() : start(1), end(0), occurence(0), length(0), holiday_id(HOLIDAY_NONE), hardcoded(0), disabled(0), leapDays(0) {}
+    GameEventData() : start(1), end(0), occurence(0), length(0), holiday_id(HOLIDAY_NONE), hardcoded(0), disabled(0), leapDays(0)
+    {
+    }
 
     time_t start;
     time_t end;
-    uint32 occurence; // Delay in minutes between occurences of the event
-    uint32 length; // Length in minutes of the event
+    uint32 occurence;                                       // Delay in minutes between occurences of the event
+    uint32 length;                                          // Length in minutes of the event
     HolidayIds holiday_id;
     std::string description;
     uint8 hardcoded;
     uint8 disabled;
     uint8 requiredPhase;
-    uint8 leapDays; // Leap days between current and start date
+    uint8 leapDays;                                         // Leap days between current and start date
 
     bool isValid() const { return length > 0; }
 };
@@ -70,10 +72,11 @@ struct GameEventCreatureData
 struct GameEventMail
 {
     GameEventMail() : raceMask(0), questId(0), mailTemplateId(0), senderEntry(0) {}
-    GameEventMail(uint32 _raceMask, uint32 _quest, uint32 _mailTemplateId, uint32 _senderEntry) : raceMask(_raceMask), questId(_quest), mailTemplateId(_mailTemplateId), senderEntry(_senderEntry) {}
+    GameEventMail(uint32 _raceMask, uint32 _quest, uint32 _mailTemplateId, uint32 _senderEntry)
+        : raceMask(_raceMask), questId(_quest), mailTemplateId(_mailTemplateId), senderEntry(_senderEntry) {}
 
     uint32 raceMask;
-    uint32 questId; // quest must be rewarded if set
+    uint32 questId;                                         // quest must be rewarded if set
     uint32 mailTemplateId;
     uint32 senderEntry;
 };
@@ -96,93 +99,91 @@ typedef std::vector<WorldEvent*> HardcodedEventList;
 
 class GameEventMgr
 {
-public:
-    GameEventMgr();
-    ~GameEventMgr() {}
-    typedef std::set<uint16> ActiveEvents;
-    typedef std::vector<GameEventData> GameEventDataMap;
-    ActiveEvents const& GetActiveEventList() const { return m_ActiveEvents; } // not thread-safe to use outside of world update
-    GameEventDataMap const& GetEventMap() const { return mGameEvent; }
-    bool CheckOneGameEvent(uint16 entry, time_t currenttime) const;
-    uint32 NextCheck(uint16 entry) const;
-    void LoadFromDB();
-    void Initialize(MapPersistentState* state); // called at new MapPersistentState object create
-    uint32 Update(ActiveEvents const* activeAtShutdown = nullptr);
+    public:
+        GameEventMgr();
+        ~GameEventMgr() {}
+        typedef std::set<uint16> ActiveEvents;
+        typedef std::vector<GameEventData> GameEventDataMap;
+        ActiveEvents const& GetActiveEventList() const { return m_ActiveEvents; } // not thread-safe to use outside of world update
+        GameEventDataMap const& GetEventMap() const { return mGameEvent; }
+        bool CheckOneGameEvent(uint16 entry, time_t currenttime) const;
+        uint32 NextCheck(uint16 entry) const;
+        void LoadFromDB();
+        void Initialize(MapPersistentState* state);         // called at new MapPersistentState object create
+        uint32 Update(ActiveEvents const* activeAtShutdown = nullptr);
 
-    void UpdateSilithusPVP(); // TODO - check this event
-    void SetSilithusPVPEventCompleted(bool state);
-    bool GetSilithusPVPEventCompleted() const;
+        void UpdateSilithusPVP(); // TODO - check this event
+        void SetSilithusPVPEventCompleted(bool state);
+        bool GetSilithusPVPEventCompleted() const;
 
-    bool IsValidEvent(uint16 event_id) const { return event_id < mGameEvent.size() && mGameEvent[event_id].isValid(); }
-    bool IsActiveEvent(uint16 event_id) const { return m_ActiveEvents.find(event_id) != m_ActiveEvents.end(); }
-    bool IsActiveHoliday(HolidayIds id);
-    uint32 Initialize();
-    void StartEvent(uint16 event_id, bool overwrite = false, bool resume = false);
-    void StopEvent(uint16 event_id, bool overwrite = false);
-    void EnableEvent(uint16 event_id, bool enable, bool updateDB = true);
-    bool IsEnabled(uint16 event_id);
-    template <typename T>
-    int16 GetGameEventId(uint32 guid_or_poolid);
+        bool IsValidEvent(uint16 event_id) const { return event_id < mGameEvent.size() && mGameEvent[event_id].isValid(); }
+        bool IsActiveEvent(uint16 event_id) const { return m_ActiveEvents.find(event_id) != m_ActiveEvents.end(); }
+        bool IsActiveHoliday(HolidayIds id);
+        uint32 Initialize();
+        void StartEvent(uint16 event_id, bool overwrite = false, bool resume = false);
+        void StopEvent(uint16 event_id, bool overwrite = false);
+        void EnableEvent(uint16 event_id, bool enable, bool updateDB = true);
+        bool IsEnabled(uint16 event_id);
+        template<typename T>
+        int16 GetGameEventId(uint32 guid_or_poolid);
 
-    GameEventCreatureData const* GetCreatureUpdateDataForActiveEvent(uint32 lowguid) const;
-    HardcodedEventList mGameEventHardcodedList;
+        GameEventCreatureData const* GetCreatureUpdateDataForActiveEvent(uint32 lowguid) const;       
+        HardcodedEventList mGameEventHardcodedList;
 
-    template <typename RequestedEventType>
-    RequestedEventType* GetHardcodedEvent();
+		template<typename RequestedEventType>
+		RequestedEventType* GetHardcodedEvent();
 
-    void LoadHardcodedEvents(HardcodedEventList& eventList);
+        void LoadHardcodedEvents(HardcodedEventList& eventList);
+    private:
+        bool m_IsSilithusEventCompleted;
+        void ApplyNewEvent(uint16 event_id, bool resume);
+        void UnApplyEvent(uint16 event_id);
+        void GameEventSpawn(int16 event_id);
+        void GameEventUnspawn(int16 event_id);
+        void UpdateCreatureData(int16 event_id, bool activate);
+        void UpdateEventQuests(uint16 event_id, bool activate);
+        void SendEventMails(int16 event_id);
+    protected:
+        typedef std::vector<uint32> GuidList;
+        typedef std::vector<uint16> IdList;
+        typedef std::vector<GuidList> GameEventGuidMap;
+        typedef std::vector<IdList> GameEventIdMap;
+        typedef std::vector<GameEventCreatureDataPair> GameEventCreatureDataList;
+        typedef std::vector<GameEventCreatureDataList> GameEventCreatureDataMap;
+        typedef std::multimap<uint32, uint32> GameEventCreatureDataPerGuidMap;
+        typedef std::pair<GameEventCreatureDataPerGuidMap::const_iterator,GameEventCreatureDataPerGuidMap::const_iterator> GameEventCreatureDataPerGuidBounds;        
 
-private:
-    bool m_IsSilithusEventCompleted;
-    void ApplyNewEvent(uint16 event_id, bool resume);
-    void UnApplyEvent(uint16 event_id);
-    void GameEventSpawn(int16 event_id);
-    void GameEventUnspawn(int16 event_id);
-    void UpdateCreatureData(int16 event_id, bool activate);
-    void UpdateEventQuests(uint16 event_id, bool activate);
-    void SendEventMails(int16 event_id);
+        typedef std::vector<uint32> QuestList;
+        typedef std::vector<QuestList> GameEventQuestMap;
+        GameEventQuestMap mGameEventQuests;                 // events size, only positive event case
 
-protected:
-    typedef std::vector<uint32> GuidList;
-    typedef std::vector<uint16> IdList;
-    typedef std::vector<GuidList> GameEventGuidMap;
-    typedef std::vector<IdList> GameEventIdMap;
-    typedef std::vector<GameEventCreatureDataPair> GameEventCreatureDataList;
-    typedef std::vector<GameEventCreatureDataList> GameEventCreatureDataMap;
-    typedef std::multimap<uint32, uint32> GameEventCreatureDataPerGuidMap;
-    typedef std::pair<GameEventCreatureDataPerGuidMap::const_iterator, GameEventCreatureDataPerGuidMap::const_iterator> GameEventCreatureDataPerGuidBounds;
+        GameEventCreatureDataMap mGameEventCreatureData;    // events size, only positive event case
+        GameEventCreatureDataPerGuidMap mGameEventCreatureDataPerGuid;
 
-    typedef std::vector<uint32> QuestList;
-    typedef std::vector<QuestList> GameEventQuestMap;
-    GameEventQuestMap mGameEventQuests; // events size, only positive event case
-
-    GameEventCreatureDataMap mGameEventCreatureData; // events size, only positive event case
-    GameEventCreatureDataPerGuidMap mGameEventCreatureDataPerGuid;
-
-    typedef std::vector<GameEventMail> MailList;
-    typedef std::vector<MailList> GameEventMailMap;
-    GameEventMailMap mGameEventMails; // events*2-1
-
-    GameEventGuidMap mGameEventCreatureGuids; // events*2-1
-    GameEventGuidMap mGameEventGameobjectGuids; // events*2-1
-    GameEventIdMap mGameEventSpawnPoolIds; // events size, only positive event case
-    GameEventDataMap mGameEvent;
-    ActiveEvents m_ActiveEvents;
-    bool m_IsGameEventsInit;
+        typedef std::vector<GameEventMail> MailList;
+        typedef std::vector<MailList> GameEventMailMap;
+        GameEventMailMap  mGameEventMails;                  // events*2-1
+        
+        GameEventGuidMap  mGameEventCreatureGuids;          // events*2-1
+        GameEventGuidMap  mGameEventGameobjectGuids;        // events*2-1
+        GameEventIdMap    mGameEventSpawnPoolIds;           // events size, only positive event case
+        GameEventDataMap  mGameEvent;
+        ActiveEvents m_ActiveEvents;
+        bool m_IsGameEventsInit;
 };
 
-template <typename RequestedEventType>
+template<typename RequestedEventType>
 RequestedEventType* GameEventMgr::GetHardcodedEvent()
 {
-    for (WorldEvent* event : mGameEventHardcodedList)
-    {
-        if (RequestedEventType* TargetType = dynamic_cast<RequestedEventType*>(event))
-        {
-            return TargetType;
-        }
-    }
+	for (WorldEvent* event : mGameEventHardcodedList)
+	{
+		if (RequestedEventType* TargetType = dynamic_cast<RequestedEventType*>(event))
+		{
+			return TargetType;
+		}
+	}
 
-    return nullptr;
+	return nullptr;
 }
 
 extern GameEventMgr sGameEventMgr;

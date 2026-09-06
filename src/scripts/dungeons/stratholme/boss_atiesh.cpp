@@ -22,10 +22,10 @@ enum eSpells
     SPELL_THRASH = 12787, // 35% chance on attack. 8876 for 15%, 3417 for 10%
     SPELL_SHADOW_BOLT = 19729,
     SPELL_UNHOLY_AURA = 28340,
-    // SPELL_BREATH_OF_SARGERAS		= 28342, // Used by SPELL_BREATH_OF_SARGERAS_SCRIPT script-effect
+    //SPELL_BREATH_OF_SARGERAS		= 28342, // Used by SPELL_BREATH_OF_SARGERAS_SCRIPT script-effect
     SPELL_BREATH_OF_SARGERAS_SCRIPT = 28352,
     SPELL_REAPER_OF_SOULS_DND = 28355, // summon the sword gobj
-    // SPELL_ANTIMAGIC_PULSE			= 29463, // Can't seem to see this being used in any videos
+    //SPELL_ANTIMAGIC_PULSE			= 29463, // Can't seem to see this being used in any videos
 };
 
 enum eEvents
@@ -41,7 +41,7 @@ struct boss_atiesh : public ScriptedAI
     EventMap events;
     bool hasBeenDisarmed;
     bool hasDoneSpawnCast;
-
+    
     boss_atiesh(Creature* pCreature) : ScriptedAI(pCreature)
     {
         hasDoneSpawnCast = false;
@@ -120,7 +120,10 @@ struct boss_atiesh : public ScriptedAI
     }
 };
 
-CreatureAI* GetAI_boss_atiesh(Creature* pCreature) { return new boss_atiesh(pCreature); }
+CreatureAI* GetAI_boss_atiesh(Creature* pCreature)
+{
+    return new boss_atiesh(pCreature);
+}
 
 void AddSC_boss_atiesh()
 {

@@ -32,7 +32,10 @@ enum
 
 struct boss_shadowvoshAI : public ScriptedAI
 {
-    boss_shadowvoshAI(Creature* pCreature) : ScriptedAI(pCreature) { Reset(); }
+    boss_shadowvoshAI(Creature* pCreature) : ScriptedAI(pCreature)
+    {
+        Reset();
+    }
 
     uint32 m_uiCurseOfBloodTimer;
     uint32 m_uiHexTimer;
@@ -93,7 +96,10 @@ struct boss_shadowvoshAI : public ScriptedAI
     }
 };
 
-CreatureAI* GetAI_boss_shadowvosh(Creature* pCreature) { return new boss_shadowvoshAI(pCreature); }
+CreatureAI* GetAI_boss_shadowvosh(Creature* pCreature)
+{
+    return new boss_shadowvoshAI(pCreature);
+}
 
 void AddSC_boss_shadowvosh()
 {

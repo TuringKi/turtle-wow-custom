@@ -5,11 +5,11 @@
 #ifndef SC_CREATURE_H
 #define SC_CREATURE_H
 
-#include "Creature.h"
 #include "CreatureAI.h"
+#include "Creature.h"
 #include "ScriptMgr.h"
 
-#define CAST_AI(a, b) (dynamic_cast<a*>(b))
+#define CAST_AI(a,b)    (dynamic_cast<a*>(b))
 
 enum SCEquip
 {
@@ -23,7 +23,7 @@ struct ScriptedAI : CreatureAI
     ~ScriptedAI() override {}
 
     //*************
-    // CreatureAI Functions
+    //CreatureAI Functions
     //*************
 
     // Called when an unit moves within visibility distance
@@ -82,7 +82,7 @@ struct ScriptedAI : CreatureAI
     //*************
 
     //*************
-    // Pure virtual functions
+    //Pure virtual functions
     //*************
 
     // Called at creature reset either by death or evade
@@ -95,7 +95,7 @@ struct ScriptedAI : CreatureAI
     virtual void Aggro(Unit*);
 
     //*************
-    // AI Helper Functions
+    //AI Helper Functions
     //*************
 
     // Start movement toward victim
@@ -156,12 +156,13 @@ struct ScriptedAI : CreatureAI
     void DoTeleportAll(float fX, float fY, float fZ, float fO);
     Creature* me;
 
-private:
-    uint32 m_uiEvadeCheckCooldown;
+    private:
+        uint32 m_uiEvadeCheckCooldown;
 
 
-    bool m_bEvadeOutOfHomeArea;
-    uint32 m_uiHomeArea;
+
+        bool m_bEvadeOutOfHomeArea;
+        uint32 m_uiHomeArea;
 };
 
 struct Scripted_NoMovementAI : ScriptedAI

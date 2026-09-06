@@ -14,26 +14,26 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#include "WardenWin.h"
-#include <openssl/md5.h>
-#include "Anticheat.h"
 #include "Auth/HMACSHA1.h"
-#include "ByteBuffer.h"
-#include "Common.h"
-#include "Database/DatabaseEnv.h"
-#include "Log.h"
-#include "Opcodes.h"
-#include "Player.h"
-#include "Util.h"
 #include "WardenKeyGen.h"
-#include "WardenMgr.h"
-#include "World.h"
+#include "Common.h"
 #include "WorldPacket.h"
 #include "WorldSession.h"
+#include "Log.h"
+#include "Opcodes.h"
+#include "ByteBuffer.h"
+#include <openssl/md5.h>
+#include "Database/DatabaseEnv.h"
+#include "World.h"
+#include "Player.h"
+#include "Util.h"
+#include "WardenWin.h"
+#include "WardenMgr.h"
+#include "Anticheat.h"
 
 WardenWin::WardenWin() : Warden(), _serverTicks(0) {}
 
-WardenWin::~WardenWin() {}
+WardenWin::~WardenWin() { }
 
 void WardenWin::Init(WorldSession* session, BigNumber* k)
 {
@@ -46,7 +46,7 @@ void WardenWin::Init(WorldSession* session, BigNumber* k)
     WK.Generate(m_outputKey, 16);
 
     m_selectedModule = sWardenMgr->GetRandomWardenModule(true);
-
+    
     memcpy(m_seed, m_selectedModule->challengeData[0].seed, 16);
 
     m_inputCrypto.Init(m_inputKey);
@@ -66,7 +66,7 @@ void WardenWin::Init(WorldSession* session, BigNumber* k)
 
 ClientWardenModule* WardenWin::GetModuleForClient()
 {
-    ClientWardenModule* mod = new ClientWardenModule;
+    ClientWardenModule *mod = new ClientWardenModule;
 
     uint32 length = m_selectedModule->binaryData.size();
 
@@ -126,7 +126,7 @@ void WardenWin::InitializeModule()
     Warden::InitializeModule();
 }
 
-void WardenWin::HandleHashResult(ByteBuffer& buff)
+void WardenWin::HandleHashResult(ByteBuffer &buff)
 {
     buff.rpos(buff.wpos());
 
@@ -206,14 +206,14 @@ void WardenWin::RequestData()
         {
             switch (wd->Type)
             {
-            case MPQ_CHECK:
-            case LUA_STR_CHECK:
-            case DRIVER_CHECK:
-                buff << uint8(wd->Str.size());
-                buff.append(wd->Str.c_str(), wd->Str.size());
-                break;
-            default:
-                break;
+                case MPQ_CHECK:
+                case LUA_STR_CHECK:
+                case DRIVER_CHECK:
+                    buff << uint8(wd->Str.size());
+                    buff.append(wd->Str.c_str(), wd->Str.size());
+                    break;
+                default:
+                    break;
             }
         }
     }
@@ -223,45 +223,45 @@ void WardenWin::RequestData()
     // Add TIMING_CHECK
     buff << uint8(0x00);
     buff << uint8(m_selectedModule->scanTypes[TIMING_CHECK] ^ xorByte);
-
+    
     uint8 index = 1;
 
     for (std::list<uint16>::iterator itr = _currentChecks.begin(); itr != _currentChecks.end(); ++itr)
     {
         wd = sWardenMgr->GetWardenDataById(build, *itr);
-
+        
         uint8 scanOpcode = m_selectedModule->scanTypes[wd->Type];
         buff << uint8(scanOpcode ^ xorByte);
         switch (wd->Type)
         {
-        case MEM_CHECK:
+            case MEM_CHECK:
             {
                 buff << uint8(0x00);
                 buff << uint32(wd->Address);
                 buff << uint8(wd->Length);
                 break;
             }
-        case PAGE_CHECK_A:
-        case PAGE_CHECK_B:
+            case PAGE_CHECK_A:
+            case PAGE_CHECK_B:
             {
                 buff.append(wd->Data.AsByteArray(0, false).data(), wd->Data.GetNumBytes());
                 buff << uint32(wd->Address);
                 buff << uint8(wd->Length);
                 break;
             }
-        case MPQ_CHECK:
-        case LUA_STR_CHECK:
+            case MPQ_CHECK:
+            case LUA_STR_CHECK:
             {
                 buff << uint8(index++);
                 break;
             }
-        case DRIVER_CHECK:
+            case DRIVER_CHECK:
             {
                 buff.append(wd->Data.AsByteArray(0, false).data(), wd->Data.GetNumBytes());
                 buff << uint8(index++);
                 break;
             }
-        case MODULE_CHECK:
+            case MODULE_CHECK:
             {
                 uint32 seed = static_cast<uint32>(rand32());
                 buff << uint32(seed);
@@ -271,8 +271,8 @@ void WardenWin::RequestData()
                 buff.append(hmac.GetDigest(), hmac.GetLength());
                 break;
             }
-        default:
-            break; // Should never happen
+            default:
+                break; // Should never happen
         }
     }
     buff << uint8(xorByte);
@@ -295,7 +295,7 @@ void WardenWin::RequestData()
     Warden::RequestData();
 }
 
-void WardenWin::HandleData(ByteBuffer& buff)
+void WardenWin::HandleData(ByteBuffer &buff)
 {
     sLog.outWardenDebug("Handle data");
 
@@ -328,12 +328,13 @@ void WardenWin::HandleData(ByteBuffer& buff)
         uint32 ticksNow = WorldTimer::getMSTime();
         uint32 ourTicks = newClientTicks + (ticksNow - _serverTicks);
 
-        sLog.outWardenDebug("ServerTicks %u, RequestTicks %u, ClientTicks %u", ticksNow, _serverTicks, newClientTicks); // Now, At request, At response
+        sLog.outWardenDebug("ServerTicks %u, RequestTicks %u, ClientTicks %u", ticksNow, _serverTicks, newClientTicks);  // Now, At request, At response
         sLog.outWardenDebug("Waittime %u", ourTicks - newClientTicks);
+
     }
 
     WardenCheckResult* rs;
-    WardenCheck* rd;
+    WardenCheck *rd;
     uint8 type;
     uint16 checkFailed = 0;
 
@@ -345,7 +346,7 @@ void WardenWin::HandleData(ByteBuffer& buff)
         type = rd->Type;
         switch (type)
         {
-        case MEM_CHECK:
+            case MEM_CHECK:
             {
                 uint8 Mem_Result;
                 buff >> Mem_Result;
@@ -368,10 +369,10 @@ void WardenWin::HandleData(ByteBuffer& buff)
                 sLog.outWardenDebug("RESULT MEM_CHECK passed CheckId %u account Id %u", *itr, m_session->GetAccountId());
                 break;
             }
-        case PAGE_CHECK_A:
-        case PAGE_CHECK_B:
-        case DRIVER_CHECK:
-        case MODULE_CHECK:
+            case PAGE_CHECK_A:
+            case PAGE_CHECK_B:
+            case DRIVER_CHECK:
+            case MODULE_CHECK:
             {
                 const uint8 byte = 0xE9;
                 if (memcmp(buff.contents() + buff.rpos(), &byte, sizeof(uint8)) != 0)
@@ -396,7 +397,7 @@ void WardenWin::HandleData(ByteBuffer& buff)
                     sLog.outWardenDebug("RESULT DRIVER_CHECK passed CheckId %u account Id %u", *itr, m_session->GetAccountId());
                 break;
             }
-        case LUA_STR_CHECK:
+            case LUA_STR_CHECK:
             {
                 uint8 Lua_Result;
                 buff >> Lua_Result;
@@ -413,7 +414,7 @@ void WardenWin::HandleData(ByteBuffer& buff)
 
                 if (luaStrLen != 0)
                 {
-                    char* str = new char[luaStrLen + 1];
+                    char *str = new char[luaStrLen + 1];
                     memcpy(str, buff.contents() + buff.rpos(), luaStrLen);
                     str[luaStrLen] = '\0'; // Null terminator
                     sLog.outWardenDebug("Lua string: %s", str);
@@ -423,7 +424,7 @@ void WardenWin::HandleData(ByteBuffer& buff)
                 sLog.outWardenDebug("RESULT LUA_STR_CHECK passed, CheckId %u account Id %u", *itr, m_session->GetAccountId());
                 break;
             }
-        case MPQ_CHECK:
+            case MPQ_CHECK:
             {
                 uint8 Mpq_Result;
                 buff >> Mpq_Result;
@@ -447,14 +448,14 @@ void WardenWin::HandleData(ByteBuffer& buff)
                 sLog.outWardenDebug("RESULT MPQ_CHECK passed, CheckId %u account Id %u", *itr, m_session->GetAccountId());
                 break;
             }
-        default: // Should never happen
-            break;
+            default: // Should never happen
+                break;
         }
     }
 
     if (checkFailed > 0)
     {
-        WardenCheck* check = sWardenMgr->GetWardenDataById(m_session->GetGameBuild(), checkFailed); // note it IS NOT NULL here
+        WardenCheck* check = sWardenMgr->GetWardenDataById(m_session->GetGameBuild(), checkFailed);   //note it IS NOT NULL here
         ApplyPenalty(std::string("failed Warden check ") + std::to_string(checkFailed), check);
         LogPositiveToDB(check);
     }

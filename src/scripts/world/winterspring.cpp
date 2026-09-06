@@ -50,30 +50,30 @@ bool GossipSelect_npc_lorax(Player* pPlayer, Creature* pCreature, uint32 uiSende
 {
     switch (uiAction)
     {
-    case GOSSIP_ACTION_INFO_DEF:
-        pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "What do you do here?", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-        pPlayer->SEND_GOSSIP_MENU(3759, pCreature->GetGUID());
-        break;
-    case GOSSIP_ACTION_INFO_DEF + 1:
-        pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "I can help you", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
-        pPlayer->SEND_GOSSIP_MENU(3760, pCreature->GetGUID());
-        break;
-    case GOSSIP_ACTION_INFO_DEF + 2:
-        pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "What deal?", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 3);
-        pPlayer->SEND_GOSSIP_MENU(3761, pCreature->GetGUID());
-        break;
-    case GOSSIP_ACTION_INFO_DEF + 3:
-        pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Then what happened?", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 4);
-        pPlayer->SEND_GOSSIP_MENU(3762, pCreature->GetGUID());
-        break;
-    case GOSSIP_ACTION_INFO_DEF + 4:
-        pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "He is not safe, i'll make sure of that.", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 5);
-        pPlayer->SEND_GOSSIP_MENU(3763, pCreature->GetGUID());
-        break;
-    case GOSSIP_ACTION_INFO_DEF + 5:
-        pPlayer->CLOSE_GOSSIP_MENU();
-        pPlayer->AreaExploredOrEventHappens(5126);
-        break;
+        case GOSSIP_ACTION_INFO_DEF:
+            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "What do you do here?", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+            pPlayer->SEND_GOSSIP_MENU(3759, pCreature->GetGUID());
+            break;
+        case GOSSIP_ACTION_INFO_DEF+1:
+            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "I can help you", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
+            pPlayer->SEND_GOSSIP_MENU(3760, pCreature->GetGUID());
+            break;
+        case GOSSIP_ACTION_INFO_DEF+2:
+            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "What deal?", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 3);
+            pPlayer->SEND_GOSSIP_MENU(3761, pCreature->GetGUID());
+            break;
+        case GOSSIP_ACTION_INFO_DEF+3:
+            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Then what happened?", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 4);
+            pPlayer->SEND_GOSSIP_MENU(3762, pCreature->GetGUID());
+            break;
+        case GOSSIP_ACTION_INFO_DEF+4:
+            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "He is not safe, i'll make sure of that.", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 5);
+            pPlayer->SEND_GOSSIP_MENU(3763, pCreature->GetGUID());
+            break;
+        case GOSSIP_ACTION_INFO_DEF+5:
+            pPlayer->CLOSE_GOSSIP_MENU();
+            pPlayer->AreaExploredOrEventHappens(5126);
+            break;
     }
     return true;
 }
@@ -136,22 +136,22 @@ bool GossipSelect_npc_witch_doctor_mauari(Player* pPlayer, Creature* pCreature, 
 
 enum
 {
-    SPELL_FOOLS_PLIGHT = 23504,
+    SPELL_FOOLS_PLIGHT              = 23504,
+        
+    SPELL_DEMONIC_FRENZY            = 23257,
+    SPELL_DEMONIC_DOOM              = 23298,
+    SPELL_STINGING_TRAUMA           = 23299,
+    
+    EMOTE_POISON                    = -1000651,
 
-    SPELL_DEMONIC_FRENZY = 23257,
-    SPELL_DEMONIC_DOOM = 23298,
-    SPELL_STINGING_TRAUMA = 23299,
-
-    EMOTE_POISON = -1000651,
-
-    NPC_ARTORIUS_THE_AMIABLE = 14531,
-    NPC_ARTORIUS_THE_DOOMBRINGER = 14535,
-    NPC_THE_CLEANER = 14503,
-
-    QUEST_STAVE_OF_THE_ANCIENTS = 7636
+    NPC_ARTORIUS_THE_AMIABLE        = 14531,
+    NPC_ARTORIUS_THE_DOOMBRINGER    = 14535,
+    NPC_THE_CLEANER                 = 14503,
+    
+    QUEST_STAVE_OF_THE_ANCIENTS     = 7636
 };
 
-#define GOSSIP_ITEM "Show me your real face, demon."
+#define GOSSIP_ITEM                 "Show me your real face, demon."
 
 /*######
 ## npc_artorius_the_amiable
@@ -165,7 +165,7 @@ struct npc_artoriusAI : public ScriptedAI
 {
     npc_artoriusAI(Creature* pCreature) : ScriptedAI(pCreature)
     {
-        m_bTransform = false;
+        m_bTransform      = false;
         m_uiDespawn_Timer = 0;
         Reset();
     }
@@ -183,30 +183,30 @@ struct npc_artoriusAI : public ScriptedAI
     {
         switch (m_creature->GetEntry())
         {
-        case NPC_ARTORIUS_THE_AMIABLE:
-            m_creature->SetHomePosition(7909.71f, -4598.67f, 710.008f, 0.606013f);
-            m_creature->NearTeleportTo(7909.71f, -4598.67f, 710.008f, 0.606013f);
-            if (m_creature->GetMotionMaster()->GetCurrentMovementGeneratorType() != WAYPOINT_MOTION_TYPE)
-            {
-                m_creature->SetDefaultMovementType(WAYPOINT_MOTION_TYPE);
-                m_creature->GetMotionMaster()->Initialize();
-            }
+            case NPC_ARTORIUS_THE_AMIABLE:
+                m_creature->SetHomePosition(7909.71f, -4598.67f, 710.008f, 0.606013f);
+                m_creature->NearTeleportTo(7909.71f, -4598.67f, 710.008f, 0.606013f);
+                if (m_creature->GetMotionMaster()->GetCurrentMovementGeneratorType() != WAYPOINT_MOTION_TYPE) 
+                { 
+                    m_creature->SetDefaultMovementType(WAYPOINT_MOTION_TYPE); 
+                    m_creature->GetMotionMaster()->Initialize(); 
+                }
+            
+                m_creature->SetUInt32Value(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
 
-            m_creature->SetUInt32Value(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                m_uiTransform_Timer      = 10000;
+                m_uiTransformEmote_Timer = 5000;
+                m_bTransform             = false;
+                m_uiDespawn_Timer        = 0;
+                break;
+            case NPC_ARTORIUS_THE_DOOMBRINGER:
+                 if (!m_uiDespawn_Timer)
+                    m_uiDespawn_Timer = 20*MINUTE*IN_MILLISECONDS;
 
-            m_uiTransform_Timer = 10000;
-            m_uiTransformEmote_Timer = 5000;
-            m_bTransform = false;
-            m_uiDespawn_Timer = 0;
-            break;
-        case NPC_ARTORIUS_THE_DOOMBRINGER:
-            if (!m_uiDespawn_Timer)
-                m_uiDespawn_Timer = 20 * MINUTE * IN_MILLISECONDS;
-
-            m_hunterGuid.Clear();
-            m_uiDemonic_Doom_Timer = 7500;
-            m_uiDemonic_Frenzy_Timer = urand(5000, 8000);
-            break;
+                m_hunterGuid.Clear();
+                m_uiDemonic_Doom_Timer   = 7500;
+                m_uiDemonic_Frenzy_Timer = urand(5000, 8000);
+                break;
         }
     }
 
@@ -219,40 +219,43 @@ struct npc_artoriusAI : public ScriptedAI
         m_creature->GetMotionMaster()->Initialize();
         Reset();
     }
-
+    
     void BeginEvent(ObjectGuid playerGuid)
     {
-        m_hunterGuid = playerGuid;
+		m_hunterGuid = playerGuid;
         m_creature->GetMotionMaster()->Clear(false);
         m_creature->GetMotionMaster()->MoveIdle();
         m_creature->SetUInt32Value(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_NONE);
-        m_bTransform = true;
+        m_bTransform = true;        
     }
 
     /** Artorius the Doombringer */
-    void Aggro(Unit* pWho) override
+    void Aggro(Unit* pWho)  override
     {
-        if (pWho->GetClass() == CLASS_HUNTER && (m_hunterGuid.IsEmpty() || m_hunterGuid == pWho->GetObjectGuid()) /*&& pWho->GetQuestStatus(QUEST_STAVE_OF_THE_ANCIENTS) == QUEST_STATUS_INCOMPLETE*/)
+        if (pWho->GetClass() == CLASS_HUNTER && (m_hunterGuid.IsEmpty() || m_hunterGuid == pWho->GetObjectGuid())/*&& pWho->GetQuestStatus(QUEST_STAVE_OF_THE_ANCIENTS) == QUEST_STATUS_INCOMPLETE*/)
         {
             m_hunterGuid = pWho->GetObjectGuid();
         }
         else
             DemonDespawn();
+    }    
+    
+    void JustDied(Unit* /*pKiller*/) override
+    {
+        m_creature->SetHomePosition(7909.71f, -4598.67f, 710.008f, 0.606013f);
     }
-
-    void JustDied(Unit* /*pKiller*/) override { m_creature->SetHomePosition(7909.71f, -4598.67f, 710.008f, 0.606013f); }
-
+    
     void DemonDespawn(bool triggered = true)
     {
         m_creature->SetHomePosition(7909.71f, -4598.67f, 710.008f, 0.606013f);
-
+        
         if (triggered)
         {
-            Creature* pCleaner = m_creature->SummonCreature(NPC_THE_CLEANER, m_creature->GetPositionX(), m_creature->GetPositionY(), m_creature->GetPositionZ(), m_creature->GetAngle(m_creature), TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 20 * MINUTE * IN_MILLISECONDS);
+            Creature* pCleaner = m_creature->SummonCreature(NPC_THE_CLEANER, m_creature->GetPositionX(), m_creature->GetPositionY(), m_creature->GetPositionZ(), m_creature->GetAngle(m_creature), TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 20*MINUTE*IN_MILLISECONDS);
             if (pCleaner)
             {
                 ThreatList const& tList = m_creature->GetThreatManager().getThreatList();
-
+                
                 for (const auto itr : tList)
                 {
                     if (Unit* pUnit = m_creature->GetMap()->GetUnit(itr->getUnitGuid()))
@@ -267,13 +270,13 @@ struct npc_artoriusAI : public ScriptedAI
                 }
             }
         }
-
+        
         m_creature->ForcedDespawn();
     }
-
+    
     void SpellHit(WorldObject* pCaster, const SpellEntry* pSpell) override
     {
-        if (pSpell->Id == 13555 || pSpell->Id == 25295) // Serpent Sting (Rank 8 or Rank 9)
+        if (pSpell->Id == 13555 || pSpell->Id == 25295)             // Serpent Sting (Rank 8 or Rank 9)
         {
             if (DoCastSpellIfCan(m_creature, SPELL_STINGING_TRAUMA, CF_TRIGGERED) == CAST_OK)
                 DoScriptText(EMOTE_POISON, m_creature);
@@ -316,7 +319,7 @@ struct npc_artoriusAI : public ScriptedAI
             else
                 m_uiDespawn_Timer -= uiDiff;
         }
-
+    
         if (!m_creature->SelectHostileTarget() || !m_creature->GetVictim())
             return;
 
@@ -329,7 +332,7 @@ struct npc_artoriusAI : public ScriptedAI
                 m_uiDemonic_Frenzy_Timer = urand(15000, 20000);
         }
         else
-            m_uiDemonic_Frenzy_Timer -= uiDiff;
+            m_uiDemonic_Frenzy_Timer -= uiDiff;    
 
         if (m_uiDemonic_Doom_Timer < uiDiff)
         {
@@ -348,21 +351,25 @@ struct npc_artoriusAI : public ScriptedAI
 
 bool GossipHello_npc_artorius(Player* pPlayer, Creature* pCreature)
 {
-    if (pPlayer->GetQuestStatus(QUEST_STAVE_OF_THE_ANCIENTS) == QUEST_STATUS_INCOMPLETE || (pPlayer->GetLevel() >= 60 && pPlayer->GetClass() == CLASS_HUNTER && pPlayer->HasItemCount(51636, 1)))
-        pPlayer->ADD_GOSSIP_ITEM(0, GOSSIP_ITEM, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
-
+    if (pPlayer->GetQuestStatus(QUEST_STAVE_OF_THE_ANCIENTS) == QUEST_STATUS_INCOMPLETE ||
+        (pPlayer->GetLevel() >= 60 && pPlayer->GetClass() == CLASS_HUNTER && pPlayer->HasItemCount(51636, 1)))
+        pPlayer->ADD_GOSSIP_ITEM(0, GOSSIP_ITEM , GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
+    
     pPlayer->SEND_GOSSIP_MENU(pPlayer->GetGossipTextId(pCreature), pCreature->GetObjectGuid());
     return true;
 }
 
-bool GossipSelect_npc_artorius(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
+bool GossipSelect_npc_artorius(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction )
 {
     pPlayer->CLOSE_GOSSIP_MENU();
-    ((npc_artoriusAI*)pCreature->AI())->BeginEvent(pPlayer->GetObjectGuid());
+    ((npc_artoriusAI*)pCreature->AI())->BeginEvent(pPlayer->GetObjectGuid());    
     return true;
 }
 
-CreatureAI* GetAI_npc_artorius(Creature* pCreature) { return new npc_artoriusAI(pCreature); }
+CreatureAI* GetAI_npc_artorius(Creature* pCreature)
+{
+    return new npc_artoriusAI(pCreature);
+}
 
 
 enum
@@ -372,11 +379,18 @@ enum
 
 struct npc_umi_yetiAI : public ScriptedAI
 {
-    npc_umi_yetiAI(Creature* pCreature) : ScriptedAI(pCreature) { Reset(); }
+    npc_umi_yetiAI(Creature* pCreature) : ScriptedAI(pCreature)
+    {
+        Reset();
+    }
 
-    void Reset() override {}
+    void Reset() override
+    {
+    }
 
-    void MoveInLineOfSight(Unit*) override {}
+    void MoveInLineOfSight(Unit *) override
+    {
+    }
 
     void SpellHit(WorldObject* pCaster, const SpellEntry* pSpell) override
     {
@@ -387,40 +401,45 @@ struct npc_umi_yetiAI : public ScriptedAI
         }
     }
 
-    void UpdateAI(const uint32 uiDiff) override {}
+    void UpdateAI(const uint32 uiDiff) override
+    {
+    }
 };
 
-CreatureAI* GetAI_npc_umi_yeti(Creature* pCreature) { return new npc_umi_yetiAI(pCreature); }
+CreatureAI* GetAI_npc_umi_yeti(Creature* pCreature)
+{
+    return new npc_umi_yetiAI(pCreature);
+}
 
 void AddSC_winterspring()
 {
-    Script* newscript;
+    Script *newscript;
 
     newscript = new Script;
     newscript->Name = "npc_lorax";
-    newscript->pGossipHello = &GossipHello_npc_lorax;
+    newscript->pGossipHello =  &GossipHello_npc_lorax;
     newscript->pGossipSelect = &GossipSelect_npc_lorax;
     newscript->RegisterSelf();
 
     newscript = new Script;
     newscript->Name = "npc_rivern_frostwind";
-    newscript->pGossipHello = &GossipHello_npc_rivern_frostwind;
+    newscript->pGossipHello =  &GossipHello_npc_rivern_frostwind;
     newscript->pGossipSelect = &GossipSelect_npc_rivern_frostwind;
     newscript->RegisterSelf();
 
     newscript = new Script;
     newscript->Name = "npc_witch_doctor_mauari";
-    newscript->pGossipHello = &GossipHello_npc_witch_doctor_mauari;
+    newscript->pGossipHello =  &GossipHello_npc_witch_doctor_mauari;
     newscript->pGossipSelect = &GossipSelect_npc_witch_doctor_mauari;
     newscript->RegisterSelf();
 
     newscript = new Script;
     newscript->Name = "npc_artorius";
     newscript->GetAI = &GetAI_npc_artorius;
-    newscript->pGossipHello = &GossipHello_npc_artorius;
+    newscript->pGossipHello =  &GossipHello_npc_artorius;
     newscript->pGossipSelect = &GossipSelect_npc_artorius;
     newscript->RegisterSelf();
-
+    
     newscript = new Script;
     newscript->Name = "npc_umi_yeti";
     newscript->GetAI = &GetAI_npc_umi_yeti;

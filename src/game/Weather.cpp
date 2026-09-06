@@ -22,35 +22,41 @@
  * and lore are copyrighted by Blizzard Entertainment, Inc.
  */
 
-#include "Weather.h"
-#include "Log.h"
-#include "Map.h"
-#include "Player.h"
 #include "Policies/SingletonImp.h"
-#include "Util.h"
+#include "Weather.h"
+#include "WorldSession.h"
+#include "Player.h"
+#include "Map.h"
 #include "World.h"
 #include "WorldPacket.h"
-#include "WorldSession.h"
+#include "Log.h"
+#include "ScriptObjects.h"
+#include "Util.h"
 
 WeatherMgr sWeatherMgr;
 
 /// Weather sound defines ( only for 1.12 )
 enum WeatherSounds
 {
-    WEATHER_NOSOUND = 0,
-    WEATHER_RAINLIGHT = 8533,
-    WEATHER_RAINMEDIUM = 8534,
-    WEATHER_RAINHEAVY = 8535,
-    WEATHER_SNOWLIGHT = 8536,
-    WEATHER_SNOWMEDIUM = 8537,
-    WEATHER_SNOWHEAVY = 8538,
-    WEATHER_SANDSTORMLIGHT = 8556,
-    WEATHER_SANDSTORMMEDIUM = 8557,
-    WEATHER_SANDSTORMHEAVY = 8558
+    WEATHER_NOSOUND                = 0,
+    WEATHER_RAINLIGHT              = 8533,
+    WEATHER_RAINMEDIUM             = 8534,
+    WEATHER_RAINHEAVY              = 8535,
+    WEATHER_SNOWLIGHT              = 8536,
+    WEATHER_SNOWMEDIUM             = 8537,
+    WEATHER_SNOWHEAVY              = 8538,
+    WEATHER_SANDSTORMLIGHT         = 8556,
+    WEATHER_SANDSTORMMEDIUM        = 8557,
+    WEATHER_SANDSTORMHEAVY         = 8558
 };
 
 /// Create the Weather object
-Weather::Weather(uint32 zone, WeatherZoneChances const* weatherChances) : m_zone(zone), m_type(WEATHER_TYPE_FINE), m_grade(0.0f), m_weatherChances(weatherChances), m_isPermanentWeather(false)
+Weather::Weather(uint32 zone, WeatherZoneChances const* weatherChances) :
+    m_zone(zone),
+    m_type(WEATHER_TYPE_FINE),
+    m_grade(0.0f),
+    m_weatherChances(weatherChances),
+    m_isPermanentWeather(false)
 {
     m_timer.SetInterval(sWorld.getConfig(CONFIG_UINT32_INTERVAL_CHANGEWEATHER));
     DETAIL_FILTER_LOG(LOG_FILTER_WEATHER, "WORLD: Starting weather system for zone %u (change every %u minutes).", m_zone, (m_timer.GetInterval() / (MINUTE * IN_MILLISECONDS)));
@@ -110,23 +116,23 @@ bool Weather::ReGenerate()
     struct tm* ltime = localtime(&gtime);
     uint32 season = ((ltime->tm_yday - 78 + 365) / 91) % 4;
 
-    static char const* seasonName[WEATHER_SEASONS] = {"spring", "summer", "fall", "winter"};
+    static char const* seasonName[WEATHER_SEASONS] = { "spring", "summer", "fall", "winter" };
 
     DEBUG_FILTER_LOG(LOG_FILTER_WEATHER, "Generating a change in %s weather for zone %u.", seasonName[season], m_zone);
 
-    if ((u < 60) && (m_grade < 0.33333334f)) // Get fair
+    if ((u < 60) && (m_grade < 0.33333334f))                // Get fair
     {
         m_type = WEATHER_TYPE_FINE;
         m_grade = 0.0f;
     }
 
-    if ((u < 60) && (m_type != WEATHER_TYPE_FINE)) // Get better
+    if ((u < 60) && (m_type != WEATHER_TYPE_FINE))          // Get better
     {
         m_grade -= 0.33333334f;
         return true;
     }
 
-    if ((u < 90) && (m_type != WEATHER_TYPE_FINE)) // Get worse
+    if ((u < 90) && (m_type != WEATHER_TYPE_FINE))          // Get worse
     {
         m_grade += 0.33333334f;
         return true;
@@ -141,7 +147,7 @@ bool Weather::ReGenerate()
 
         if (m_grade < 0.33333334f)
         {
-            m_grade = 0.9999f; // go nuts
+            m_grade = 0.9999f;                              // go nuts
             return true;
         }
         else
@@ -156,13 +162,13 @@ bool Weather::ReGenerate()
                     return true;
                 }
             }
-            m_type = WEATHER_TYPE_FINE; // clear up
+            m_type = WEATHER_TYPE_FINE;                     // clear up
             m_grade = 0;
         }
     }
 
     // At this point, only weather that isn't doing anything remains but that have weather data
-    uint32 chance1 = m_weatherChances->data[season].rainChance;
+    uint32 chance1 =          m_weatherChances->data[season].rainChance;
     uint32 chance2 = chance1 + m_weatherChances->data[season].snowChance;
     uint32 chance3 = chance2 + m_weatherChances->data[season].stormChance;
 
@@ -210,7 +216,7 @@ void Weather::SendWeatherUpdateToPlayer(Player* player)
     data << uint32(m_type);
     data << float(m_grade);
     data << uint32(GetSound()); // 1.12 soundid
-    data << uint8(0); // 1 = instant change, 0 = smooth change
+    data << uint8(0);           // 1 = instant change, 0 = smooth change
 
     player->GetSession()->SendPacket(&data);
 }
@@ -224,7 +230,7 @@ bool Weather::SendWeatherForPlayersInZone(Map const* _map)
     data << uint32(m_type);
     data << float(m_grade);
     data << uint32(GetSound()); // 1.12 soundid
-    data << uint8(0); // 1 = instant change, 0 = smooth change
+    data << uint8(0);           // 1 = instant change, 0 = smooth change
 
     ///- Send the weather packet to all players in this zone
     if (!_map->SendToPlayersInZone(&data, m_zone))
@@ -247,6 +253,11 @@ void Weather::SetWeather(WeatherType type, float grade, Map const* _map, bool is
     m_type = type;
     m_grade = grade;
     SendWeatherForPlayersInZone(_map);
+
+    ScriptRegistry<WeatherScript>::ForEach([&](WeatherScript* script)
+    {
+        script->OnChange(this, uint32(GetWeatherState()), m_grade);
+    });
 }
 
 // Get the sound number associated with the current weather
@@ -257,30 +268,30 @@ WeatherState Weather::GetWeatherState() const
 
     switch (m_type)
     {
-    case WEATHER_TYPE_RAIN:
-        if (m_grade < 0.40f)
-            return WEATHER_STATE_LIGHT_RAIN;
-        else if (m_grade < 0.70f)
-            return WEATHER_STATE_MEDIUM_RAIN;
-        else
-            return WEATHER_STATE_HEAVY_RAIN;
-    case WEATHER_TYPE_SNOW:
-        if (m_grade < 0.40f)
-            return WEATHER_STATE_LIGHT_SNOW;
-        else if (m_grade < 0.70f)
-            return WEATHER_STATE_MEDIUM_SNOW;
-        else
-            return WEATHER_STATE_HEAVY_SNOW;
-    case WEATHER_TYPE_STORM:
-        if (m_grade < 0.40f)
-            return WEATHER_STATE_LIGHT_SANDSTORM;
-        else if (m_grade < 0.70f)
-            return WEATHER_STATE_MEDIUM_SANDSTORM;
-        else
-            return WEATHER_STATE_HEAVY_SANDSTORM;
-    case WEATHER_TYPE_FINE:
-    default:
-        return WEATHER_STATE_FINE;
+        case WEATHER_TYPE_RAIN:
+            if (m_grade < 0.40f)
+                return WEATHER_STATE_LIGHT_RAIN;
+            else if (m_grade < 0.70f)
+                return WEATHER_STATE_MEDIUM_RAIN;
+            else
+                return WEATHER_STATE_HEAVY_RAIN;
+        case WEATHER_TYPE_SNOW:
+            if (m_grade < 0.40f)
+                return WEATHER_STATE_LIGHT_SNOW;
+            else if (m_grade < 0.70f)
+                return WEATHER_STATE_MEDIUM_SNOW;
+            else
+                return WEATHER_STATE_HEAVY_SNOW;
+        case WEATHER_TYPE_STORM:
+            if (m_grade < 0.40f)
+                return WEATHER_STATE_LIGHT_SANDSTORM;
+            else if (m_grade < 0.70f)
+                return WEATHER_STATE_MEDIUM_SANDSTORM;
+            else
+                return WEATHER_STATE_HEAVY_SANDSTORM;
+        case WEATHER_TYPE_FINE:
+        default:
+            return WEATHER_STATE_FINE;
     }
 }
 
@@ -298,37 +309,37 @@ void Weather::LogWeatherState(WeatherState state) const
     char const* wthstr;
     switch (state)
     {
-    case WEATHER_STATE_LIGHT_RAIN:
-        wthstr = "light rain";
-        break;
-    case WEATHER_STATE_MEDIUM_RAIN:
-        wthstr = "medium rain";
-        break;
-    case WEATHER_STATE_HEAVY_RAIN:
-        wthstr = "heavy rain";
-        break;
-    case WEATHER_STATE_LIGHT_SNOW:
-        wthstr = "light snow";
-        break;
-    case WEATHER_STATE_MEDIUM_SNOW:
-        wthstr = "medium snow";
-        break;
-    case WEATHER_STATE_HEAVY_SNOW:
-        wthstr = "heavy snow";
-        break;
-    case WEATHER_STATE_LIGHT_SANDSTORM:
-        wthstr = "light sandstorm";
-        break;
-    case WEATHER_STATE_MEDIUM_SANDSTORM:
-        wthstr = "medium sandstorm";
-        break;
-    case WEATHER_STATE_HEAVY_SANDSTORM:
-        wthstr = "heavy sandstorm";
-        break;
-    case WEATHER_STATE_FINE:
-    default:
-        wthstr = "fine";
-        break;
+        case WEATHER_STATE_LIGHT_RAIN:
+            wthstr = "light rain";
+            break;
+        case WEATHER_STATE_MEDIUM_RAIN:
+            wthstr = "medium rain";
+            break;
+        case WEATHER_STATE_HEAVY_RAIN:
+            wthstr = "heavy rain";
+            break;
+        case WEATHER_STATE_LIGHT_SNOW:
+            wthstr = "light snow";
+            break;
+        case WEATHER_STATE_MEDIUM_SNOW:
+            wthstr = "medium snow";
+            break;
+        case WEATHER_STATE_HEAVY_SNOW:
+            wthstr = "heavy snow";
+            break;
+        case WEATHER_STATE_LIGHT_SANDSTORM:
+            wthstr = "light sandstorm";
+            break;
+        case WEATHER_STATE_MEDIUM_SANDSTORM:
+            wthstr = "medium sandstorm";
+            break;
+        case WEATHER_STATE_HEAVY_SANDSTORM:
+            wthstr = "heavy sandstorm";
+            break;
+        case WEATHER_STATE_FINE:
+        default:
+            wthstr = "fine";
+            break;
     }
 
     DETAIL_FILTER_LOG(LOG_FILTER_WEATHER, "Change the weather of zone %u (type %u, grade %f) to state %s.", m_zone, m_type, m_grade, wthstr);
@@ -338,7 +349,8 @@ void Weather::LogWeatherState(WeatherState state) const
 //                  Weather System
 // ---------------------------------------------------------
 
-WeatherSystem::WeatherSystem(Map const* _map) : m_map(_map) {}
+WeatherSystem::WeatherSystem(Map const* _map) : m_map(_map)
+{}
 
 WeatherSystem::~WeatherSystem()
 {
@@ -386,40 +398,40 @@ uint32 Weather::GetSound()
     uint32 sound;
     switch (m_type)
     {
-    case WEATHER_TYPE_RAIN: // rain
-        if (m_grade < 0.3f)
+        case WEATHER_TYPE_RAIN:                                             //rain
+            if (m_grade < 0.3f)
+                sound = WEATHER_NOSOUND;
+            else if (m_grade < 0.6f)
+                sound = WEATHER_RAINLIGHT;
+            else if (m_grade < 0.9f)
+                sound = WEATHER_RAINMEDIUM;
+            else
+                sound = WEATHER_RAINHEAVY;
+            break;
+        case WEATHER_TYPE_SNOW:                                             //snow
+            if (m_grade < 0.3f)
+                sound = WEATHER_NOSOUND;
+            else if (m_grade < 0.6f)
+                sound = WEATHER_SNOWLIGHT;
+            else if (m_grade < 0.9f)
+                sound = WEATHER_SNOWMEDIUM;
+            else
+                sound = WEATHER_SNOWHEAVY;
+            break;
+        case WEATHER_TYPE_STORM:                                             //storm
+            if (m_grade < 0.3f)
+                sound = WEATHER_NOSOUND;
+            else if (m_grade < 0.6f)
+                sound = WEATHER_SANDSTORMLIGHT;
+            else if (m_grade < 0.9f)
+                sound = WEATHER_SANDSTORMMEDIUM;
+            else
+                sound = WEATHER_SANDSTORMHEAVY;
+            break;
+        case WEATHER_TYPE_FINE:                                             //fine
+        default:
             sound = WEATHER_NOSOUND;
-        else if (m_grade < 0.6f)
-            sound = WEATHER_RAINLIGHT;
-        else if (m_grade < 0.9f)
-            sound = WEATHER_RAINMEDIUM;
-        else
-            sound = WEATHER_RAINHEAVY;
-        break;
-    case WEATHER_TYPE_SNOW: // snow
-        if (m_grade < 0.3f)
-            sound = WEATHER_NOSOUND;
-        else if (m_grade < 0.6f)
-            sound = WEATHER_SNOWLIGHT;
-        else if (m_grade < 0.9f)
-            sound = WEATHER_SNOWMEDIUM;
-        else
-            sound = WEATHER_SNOWHEAVY;
-        break;
-    case WEATHER_TYPE_STORM: // storm
-        if (m_grade < 0.3f)
-            sound = WEATHER_NOSOUND;
-        else if (m_grade < 0.6f)
-            sound = WEATHER_SANDSTORMLIGHT;
-        else if (m_grade < 0.9f)
-            sound = WEATHER_SANDSTORMMEDIUM;
-        else
-            sound = WEATHER_SANDSTORMHEAVY;
-        break;
-    case WEATHER_TYPE_FINE: // fine
-    default:
-        sound = WEATHER_NOSOUND;
-        break;
+            break;
     }
     return sound;
 }
@@ -427,7 +439,7 @@ uint32 Weather::GetSound()
 /// Load Weather chanced from table game_weather
 void WeatherMgr::LoadWeatherZoneChances()
 {
-    //                                                               0		1					 2                     3                      4                     5                     6                      7                   8                   9                    10                    11                    12
+    //                                                               0		1					 2                     3                      4                     5                     6                      7                   8                   9                    10                    11                    12					 
     std::unique_ptr<QueryResult> result(WorldDatabase.Query("SELECT `zone`, `spring_rain_chance`, `spring_snow_chance`, `spring_storm_chance`, `summer_rain_chance`, `summer_snow_chance`, `summer_storm_chance`, `fall_rain_chance`, `fall_snow_chance`, `fall_storm_chance`, `winter_rain_chance`, `winter_snow_chance`, `winter_storm_chance` FROM `game_weather`"));
 
     if (!result)

@@ -16,14 +16,14 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#include "MapBuilder.h"
 #include <list>
-#include "DetourCommon.h"
-#include "DetourNavMeshBuilder.h"
 #include "MMapCommon.h"
+#include "MapBuilder.h"
 #include "MapTree.h"
-#include "Maps/GridMapDefines.h"
 #include "ModelInstance.h"
+#include "Maps/GridMapDefines.h"
+#include "DetourNavMeshBuilder.h"
+#include "DetourCommon.h"
 
 using namespace VMAP;
 
@@ -33,7 +33,9 @@ namespace MMAP
 {
     MapBuilderConfig gMMapBuilderConfig;
 
-    MapBuilder::MapBuilder(bool skipLiquid, bool skipContinents, bool skipJunkMaps, bool skipBattlegrounds, bool debugOutput, bool bigBaseUnit, bool quick, const char* offMeshFilePath) : m_terrainBuilder(nullptr), m_debugOutput(debugOutput), m_offMeshFilePath(offMeshFilePath), m_skipContinents(skipContinents), m_skipJunkMaps(skipJunkMaps), m_skipBattlegrounds(skipBattlegrounds), m_quick(quick), m_bigBaseUnit(bigBaseUnit), m_rcContext(nullptr), m_cancel(false)
+    MapBuilder::MapBuilder(bool skipLiquid, bool skipContinents, bool skipJunkMaps, bool skipBattlegrounds, bool debugOutput, bool bigBaseUnit, bool quick, const char* offMeshFilePath) :
+        m_terrainBuilder(nullptr), m_debugOutput(debugOutput), m_offMeshFilePath(offMeshFilePath), m_skipContinents(skipContinents), m_skipJunkMaps(skipJunkMaps),
+        m_skipBattlegrounds(skipBattlegrounds), m_quick(quick), m_bigBaseUnit(bigBaseUnit), m_rcContext(nullptr), m_cancel(false)
     {
         m_terrainBuilder = new TerrainBuilder(skipLiquid, quick);
 
@@ -133,7 +135,10 @@ namespace MMAP
     }
 
     /**************************************************************************/
-    bool MapBuilder::IsBusy() { return !m_tileQueue.Empty(); }
+    bool MapBuilder::IsBusy()
+    {
+        return !m_tileQueue.Empty();
+    }
 
     void MapBuilder::buildAllMaps()
     {
@@ -151,26 +156,26 @@ namespace MMAP
         printf("Done.");
     }
 
-    void MapBuilder::WaitForAllTilesToBeBuild()
-    {
-        while (!m_tileQueue.Empty())
-        {
-            std::this_thread::sleep_for(std::chrono::milliseconds(1000));
-        }
-    }
+	void MapBuilder::WaitForAllTilesToBeBuild()
+	{
+		while (!m_tileQueue.Empty())
+		{
+			std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+		}
+	}
 
-    void MapBuilder::ShutdownAsyncBuilders()
-    {
-        m_cancel.store(true);
-        m_tileQueue.Cancel();
-        for (TileBuilder* th : workers)
-        {
-            delete th;
-        }
+	void MapBuilder::ShutdownAsyncBuilders()
+	{
+		m_cancel.store(true);
+		m_tileQueue.Cancel();
+		for (TileBuilder* th : workers)
+		{
+			delete th;
+		}
         workers.clear();
-    }
+	}
 
-    /**************************************************************************/
+	/**************************************************************************/
     void MapBuilder::getGridBounds(uint32 mapID, uint32& minX, uint32& minY, uint32& maxX, uint32& maxY)
     {
         maxX = INT_MAX;
@@ -178,10 +183,10 @@ namespace MMAP
         minX = INT_MIN;
         minY = INT_MIN;
 
-        float bmin[3] = {0, 0, 0};
-        float bmax[3] = {0, 0, 0};
-        float lmin[3] = {0, 0, 0};
-        float lmax[3] = {0, 0, 0};
+        float bmin[3] = { 0, 0, 0 };
+        float bmax[3] = { 0, 0, 0 };
+        float lmin[3] = { 0, 0, 0 };
+        float lmax[3] = { 0, 0, 0 };
         MeshData meshData;
 
         // make sure we process maps which don't have tiles
@@ -216,7 +221,7 @@ namespace MMAP
     /**************************************************************************/
     void MapBuilder::buildSingleTile(uint32 mapID, uint32 tileX, uint32 tileY)
     {
-
+        
         // make sure we process maps which don't have tiles
         set<uint32>* tiles = getTileList(mapID);
         if (!tiles->size())
@@ -427,35 +432,35 @@ namespace MMAP
         if (m_skipContinents)
             switch (mapID)
             {
-            case 0:
-            case 1:
-                return true;
-            default:
-                break;
+                case 0:
+                case 1:
+                    return true;
+                default:
+                    break;
             }
 
         if (m_skipJunkMaps)
             switch (mapID)
             {
-            // case 13:    // test.wdt
-            // case 25:    // ScottTest.wdt
-            // case 29:    // Test.wdt
-            case 42: // Colin.wdt
-            case 169: // EmeraldDream.wdt (unused, and very large)
-                // case 451:   // development.wdt
-                return true;
+                //case 13:    // test.wdt
+                //case 25:    // ScottTest.wdt
+                //case 29:    // Test.wdt
+                case 42:    // Colin.wdt
+                case 169:   // EmeraldDream.wdt (unused, and very large)
+                //case 451:   // development.wdt
+                    return true;
             }
 
         if (m_skipBattlegrounds)
             switch (mapID)
             {
-            case 30: // AV
-            case 37: // ?
-            case 489: // WSG
-            case 529: // AB
-                return true;
-            default:
-                break;
+                case 30:    // AV
+                case 37:    // ?
+                case 489:   // WSG
+                case 529:   // AB
+                    return true;
+                default:
+                    break;
             }
 
         return false;
@@ -464,14 +469,14 @@ namespace MMAP
     /**************************************************************************/
     bool MapBuilder::isTransportMap(uint32 mapID)
     {
-#if 0
+    #if 0
         switch (mapID)
         {
             // no transport maps
             default:
                 return false;
         }
-#endif
+    #endif
         return false;
     }
 
@@ -554,7 +559,7 @@ namespace MMAP
         config.minRegionArea = (int)rcSqr(30);
         config.mergeRegionArea = (int)rcSqr(10);
         config.maxVertsPerPoly = 6;
-        config.detailSampleDist = config.cs * 6.0f; // sampling distance to use when generating the detail mesh
+        config.detailSampleDist = config.cs*6.0f; // sampling distance to use when generating the detail mesh
         config.detailSampleMaxError = 0.0f;
 
         // this sets the dimensions of the heightfield - should maybe happen before border padding
@@ -569,7 +574,7 @@ namespace MMAP
             return;
         }
         unsigned char* m_triareas = new unsigned char[ntris];
-        memset(m_triareas, 0, ntris * sizeof(unsigned char));
+        memset(m_triareas, 0, ntris*sizeof(unsigned char));
         rcMarkWalkableTriangles(m_rcContext, config.walkableSlopeAngle, verts, nverts, tris, ntris, m_triareas);
         rcRasterizeTriangles(m_rcContext, verts, nverts, tris, m_triareas, ntris, *tile.solid, config.walkableClimb);
         rcFilterLowHangingWalkableObstacles(m_rcContext, config.walkableClimb, *tile.solid);
@@ -620,7 +625,7 @@ namespace MMAP
             printf("Failed building polymesh detail!        \n");
             return;
         }
-
+    
         rcFreeHeightField(tile.solid);
         tile.solid = nullptr;
         rcFreeCompactHeightfield(tile.chf);
@@ -664,9 +669,9 @@ namespace MMAP
         params.detailTris = iv.polyMeshDetail->tris;
         params.detailTriCount = iv.polyMeshDetail->ntris;
 
-        params.walkableHeight = agentHeight; // agent height
-        params.walkableRadius = agentRadius; // agent radius
-        params.walkableClimb = agentMaxClimb; // keep less that walkableHeight (aka agent height)!
+        params.walkableHeight = agentHeight;  // agent height
+        params.walkableRadius = agentRadius;  // agent radius
+        params.walkableClimb = agentMaxClimb;    // keep less that walkableHeight (aka agent height)!
         rcVcopy(params.bmin, iv.polyMesh->bmin);
         rcVcopy(params.bmax, iv.polyMesh->bmax);
         params.cs = config.cs;
@@ -675,7 +680,9 @@ namespace MMAP
 
         unsigned char* navData = nullptr;
         int navDataSize = 0;
-        printf("* Building navmesh tile [%f %f %f to %f %f %f]\n", params.bmin[0], params.bmin[1], params.bmin[2], params.bmax[0], params.bmax[1], params.bmax[2]);
+        printf("* Building navmesh tile [%f %f %f to %f %f %f]\n",
+                params.bmin[0], params.bmin[1], params.bmin[2],
+                params.bmax[0], params.bmax[1], params.bmax[2]);
         printf(" %u triangles (%u vertices)\n", params.polyCount, params.vertCount);
         printf(" %u polygons (%u vertices)\n", params.detailTriCount, params.detailVertsCount);
 
@@ -761,31 +768,31 @@ namespace MMAP
         buildGameObject("Transport_Zeppelin.wmo.vmo", 3031);
     }
 
-    void MapBuilder::StartupAsyncBuilders()
-    {
-        printf("Using %u threads to generate mmaps\n", std::thread::hardware_concurrency());
-        m_cancel.store(false);
+	void MapBuilder::StartupAsyncBuilders()
+	{
+		printf("Using %u threads to generate mmaps\n", std::thread::hardware_concurrency());
+		m_cancel.store(false);
+		
+		for (unsigned int i = 0; i < std::thread::hardware_concurrency(); ++i)
+		{
+			workers.push_back(new TileBuilder(this, false, m_quick, m_bigBaseUnit, m_debugOutput));
+		}
+	}
 
-        for (unsigned int i = 0; i < std::thread::hardware_concurrency(); ++i)
-        {
-            workers.push_back(new TileBuilder(this, false, m_quick, m_bigBaseUnit, m_debugOutput));
-        }
-    }
-
-    void MapBuilderConfig::LoadConfigIfExist()
-    {
+	void MapBuilderConfig::LoadConfigIfExist()
+	{
         if (!gMapSettingsFilename.empty())
         {
-            FILE* fp = fopen(gMapSettingsFilename.c_str(), "rb");
-            if (!fp)
-            {
-                printf(" MapBuilderConfig::LoadConfigIfExist:: input file %s not found!\n", gMapSettingsFilename.c_str());
-                return;
-            }
+			FILE* fp = fopen(gMapSettingsFilename.c_str(), "rb");
+			if (!fp)
+			{
+				printf(" MapBuilderConfig::LoadConfigIfExist:: input file %s not found!\n", gMapSettingsFilename.c_str());
+				return;
+			}
 
             char buf[512];
-            while (fgets(buf, 512, fp))
-            {
+			while (fgets(buf, 512, fp))
+			{
                 if (buf[0] == '#')
                 {
                     continue;
@@ -797,7 +804,13 @@ namespace MMAP
                 int RawIncludeLimitsOnRasterizeTriangles = 0;
                 bool bIncludeLimitsOnRasterizeTriangles = false;
 
-                int ParamsParsed = sscanf(buf, "%d, %f, %f, %f, %d", &MapId, &agentMaxClimbModelTerrainTransition, &agentMaxClimbTerrain, &WalkableSlopeAngle, &RawIncludeLimitsOnRasterizeTriangles);
+                int ParamsParsed = sscanf(buf, "%d, %f, %f, %f, %d", 
+                    &MapId, 
+                    &agentMaxClimbModelTerrainTransition, 
+                    &agentMaxClimbTerrain, 
+                    &WalkableSlopeAngle,
+                    &RawIncludeLimitsOnRasterizeTriangles
+                    );
 
                 if (ParamsParsed != 5)
                 {
@@ -805,15 +818,15 @@ namespace MMAP
                     continue;
                 }
                 bIncludeLimitsOnRasterizeTriangles = !!RawIncludeLimitsOnRasterizeTriangles;
-                SettingCollection.insert_or_assign(MapId, MapSettings{agentMaxClimbModelTerrainTransition, agentMaxClimbTerrain, WalkableSlopeAngle, bIncludeLimitsOnRasterizeTriangles});
-            }
+                SettingCollection.insert_or_assign(MapId, MapSettings{ agentMaxClimbModelTerrainTransition , agentMaxClimbTerrain, WalkableSlopeAngle, bIncludeLimitsOnRasterizeTriangles });
+			}
 
-            fclose(fp);
+			fclose(fp);
         }
-    }
+	}
 
-    const MMAP::MapSettings* MapBuilderConfig::GetSettingsForMap(int MapID) const
-    {
+	const MMAP::MapSettings* MapBuilderConfig::GetSettingsForMap(int MapID) const
+	{
         std::map<int, MapSettings>::const_iterator iter = SettingCollection.find(MapID);
         if (iter != SettingCollection.cend())
         {
@@ -822,6 +835,6 @@ namespace MMAP
         }
 
         return nullptr;
-    }
+	}
 
-} // namespace MMAP
+}

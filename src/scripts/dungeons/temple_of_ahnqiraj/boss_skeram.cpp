@@ -31,31 +31,31 @@ EndScriptData */
 #define SPELL_SUMMON_IMAGES 747
 
 /**
- * Source videos for Skeram behaviour:
- * https://www.youtube.com/watch?v=K-A9l8bL_Fw
- * https://www.youtube.com/watch?v=q9XHXbFEniw
- * https://www.youtube.com/watch?v=xh5wbv3yRH4
- * https://www.youtube.com/watch?v=YpQwYIr1wFY
- *
- * Skeram's maximum health is 556509
- * Skeram's illusions gain health each subsequent split
- * Skeram mind controls the CLOSEST target, including tanks
- * Skeram only casts Arcane Explosion if more than 4 targets are in melee range of him
- * Earthshock is spammed on his current target if they are not in melee range
- * Earthshock has a slight delay after teleports and splits before it is casted
- * *** There is possibly a mechanic where Skeram is pacified for ~500ms after teleporting,
- * however in the above videos he is seen to sometimes move immediately, and sometimes
- * remain stationary ***
- *
- * ILLUSION HEALTH:
- * https://www.youtube.com/watch?v=0-8zXfKmPvY (From 4.x when exact HP values were networked)
- * This video puts the image percentages around 7.27%, 9.87% and 11.6% (or 7.5, 10 and 12.5)
- * Estimating health from Vanilla based on % changes and spell damage, we can
- * get values approximately 5% higher. eg. a Frostbolt damage of 700 reduces
- * slightly less than 1% in the 2nd split, indicating it has slightly more than
- * 70k health.
- * From this, we can estimate that the illusions have 12.5%, 15% and 17.5% per split
- */
+* Source videos for Skeram behaviour:
+* https://www.youtube.com/watch?v=K-A9l8bL_Fw
+* https://www.youtube.com/watch?v=q9XHXbFEniw
+* https://www.youtube.com/watch?v=xh5wbv3yRH4
+* https://www.youtube.com/watch?v=YpQwYIr1wFY
+*
+* Skeram's maximum health is 556509
+* Skeram's illusions gain health each subsequent split
+* Skeram mind controls the CLOSEST target, including tanks
+* Skeram only casts Arcane Explosion if more than 4 targets are in melee range of him
+* Earthshock is spammed on his current target if they are not in melee range
+* Earthshock has a slight delay after teleports and splits before it is casted
+* *** There is possibly a mechanic where Skeram is pacified for ~500ms after teleporting,
+* however in the above videos he is seen to sometimes move immediately, and sometimes
+* remain stationary ***
+*
+* ILLUSION HEALTH:
+* https://www.youtube.com/watch?v=0-8zXfKmPvY (From 4.x when exact HP values were networked)
+* This video puts the image percentages around 7.27%, 9.87% and 11.6% (or 7.5, 10 and 12.5)
+* Estimating health from Vanilla based on % changes and spell damage, we can
+* get values approximately 5% higher. eg. a Frostbolt damage of 700 reduces
+* slightly less than 1% in the 2nd split, indicating it has slightly more than
+* 70k health.
+* From this, we can estimate that the illusions have 12.5%, 15% and 17.5% per split
+*/
 struct boss_skeramAI : public ScriptedAI
 {
     boss_skeramAI(Creature* pCreature) : ScriptedAI(pCreature)
@@ -116,7 +116,11 @@ struct boss_skeramAI : public ScriptedAI
 
     void MoveInLineOfSight(Unit* pWho) override
     {
-        if (pWho->GetTypeId() == TYPEID_PLAYER && !m_creature->IsInCombat() && m_creature->IsWithinDistInMap(pWho, 28.0f, true) && !pWho->HasAuraType(SPELL_AURA_FEIGN_DEATH) && !pWho->HasAuraType(SPELL_AURA_MOD_UNATTACKABLE))
+        if (pWho->GetTypeId() == TYPEID_PLAYER
+            && !m_creature->IsInCombat()
+            && m_creature->IsWithinDistInMap(pWho, 28.0f, true)
+            && !pWho->HasAuraType(SPELL_AURA_FEIGN_DEATH)
+            && !pWho->HasAuraType(SPELL_AURA_MOD_UNATTACKABLE))
         {
             AttackStart(pWho);
         }
@@ -125,17 +129,11 @@ struct boss_skeramAI : public ScriptedAI
 
     void KilledUnit(Unit* victim) override
     {
-        switch (urand(0, 8))
+        switch (urand(0,8))
         {
-        case 0:
-            DoScriptText(SAY_SLAY_1, m_creature);
-            break;
-        case 1:
-            DoScriptText(SAY_SLAY_2, m_creature);
-            break;
-        case 2:
-            DoScriptText(SAY_SLAY_3, m_creature);
-            break;
+            case 0: DoScriptText(SAY_SLAY_1, m_creature); break;
+            case 1: DoScriptText(SAY_SLAY_2, m_creature); break;
+            case 2: DoScriptText(SAY_SLAY_3, m_creature); break;
         }
     }
 
@@ -158,7 +156,7 @@ struct boss_skeramAI : public ScriptedAI
             m_pInstance->SetData(TYPE_SKERAM, DONE);
     }
 
-    void Aggro(Unit* who) override
+    void Aggro(Unit *who) override
     {
         if (IsImage)
             return;
@@ -166,17 +164,11 @@ struct boss_skeramAI : public ScriptedAI
         if (m_pInstance && m_pInstance->GetData(TYPE_SKERAM) == IN_PROGRESS)
             return;
 
-        switch (urand(0, 2))
+        switch (urand(0,2))
         {
-        case 0:
-            DoScriptText(SAY_AGGRO_1, m_creature);
-            break;
-        case 1:
-            DoScriptText(SAY_AGGRO_2, m_creature);
-            break;
-        case 2:
-            DoScriptText(SAY_AGGRO_3, m_creature);
-            break;
+            case 0: DoScriptText(SAY_AGGRO_1, m_creature); break;
+            case 1: DoScriptText(SAY_AGGRO_2, m_creature); break;
+            case 2: DoScriptText(SAY_AGGRO_3, m_creature); break;
         }
 
         if (m_pInstance)
@@ -203,7 +195,7 @@ struct boss_skeramAI : public ScriptedAI
         if (IsImage && m_pInstance && m_pInstance->GetData(TYPE_SKERAM) == DONE)
             m_creature->DoKillUnit();
 
-        // Return since we have no target
+        //Return since we have no target
         if (!m_creature->SelectHostileTarget() || !m_creature->GetVictim())
             return;
 
@@ -258,8 +250,7 @@ struct boss_skeramAI : public ScriptedAI
                 }
             }
         }
-        else
-            FullFillment_Timer -= diff;
+        else FullFillment_Timer -= diff;
 
         if (Blink_Timer < diff)
         {
@@ -309,8 +300,7 @@ struct boss_skeramAI : public ScriptedAI
             maxHealthPct = 0.10f;
 
         // Set the same health percent as the original boss
-        skeramImage->SetMaxHealth(skeramImage->GetMaxHealth() * maxHealthPct);
-        ;
+        skeramImage->SetMaxHealth(skeramImage->GetMaxHealth() * maxHealthPct);;
         skeramImage->SetHealthPercent(healthPct);
         skeramImage->SetInCombatWithZone();
         skeramImage->SetVisibility(VISIBILITY_OFF);
@@ -359,39 +349,34 @@ struct boss_skeramAI : public ScriptedAI
     // Teleport to a random position in mask
     // Can teleport to any position if mask = 0x7
     {
-        uint32 position = urand(0, 2);
+        uint32 position = urand(0,2);
 
-        while (!(1 << position & choiceMask)) // Bogo select
+        while (!(1 << position & choiceMask))                       // Bogo select
             position = urand(0, 2);
 
-        choiceMask &= ~(1 << position); // Remove used position from mask
+        choiceMask &= ~(1 << position);                             // Remove used position from mask
 
         DoStopAttack();
 
         // Blink to one of the three platforms
         switch (position)
         {
-        case 0:
-            caster->CastSpell(caster, SPELL_BLINK_0, true);
-            break;
-        case 1:
-            caster->CastSpell(caster, SPELL_BLINK_1, true);
-            break;
-        case 2:
-            caster->CastSpell(caster, SPELL_BLINK_2, true);
-            break;
+            case 0: caster->CastSpell(caster, SPELL_BLINK_0, true); break;
+            case 1: caster->CastSpell(caster, SPELL_BLINK_1, true); break;
+            case 2: caster->CastSpell(caster, SPELL_BLINK_2, true); break;
         }
 
         DoResetThreat();
         caster->SetVisibility(VISIBILITY_ON);
     }
+
 };
 
 CreatureAI* GetAI_boss_skeram(Creature* pCreature) { return new boss_skeramAI(pCreature); }
 
 void AddSC_boss_skeram()
 {
-    Script* newscript;
+    Script *newscript;
     newscript = new Script;
     newscript->Name = "boss_skeram";
     newscript->GetAI = &GetAI_boss_skeram;

@@ -59,14 +59,14 @@
  */
 
 #ifndef HEADER_KRB5_ASN_H
-#define HEADER_KRB5_ASN_H
+# define HEADER_KRB5_ASN_H
 
 /*
  * #include <krb5.h>
  */
-#include <openssl/safestack.h>
+# include <openssl/safestack.h>
 
-#ifdef __cplusplus
+#ifdef  __cplusplus
 extern "C" {
 #endif
 
@@ -80,11 +80,10 @@ extern "C" {
  *              cipher[2]                     OCTET STRING -- ciphertext
  *      }
  */
-typedef struct krb5_encdata_st
-{
-    ASN1_INTEGER* etype;
-    ASN1_INTEGER* kvno;
-    ASN1_OCTET_STRING* cipher;
+typedef struct krb5_encdata_st {
+    ASN1_INTEGER *etype;
+    ASN1_INTEGER *kvno;
+    ASN1_OCTET_STRING *cipher;
 } KRB5_ENCDATA;
 
 DECLARE_STACK_OF(KRB5_ENCDATA)
@@ -94,10 +93,9 @@ DECLARE_STACK_OF(KRB5_ENCDATA)
  *              name-string[1]                SEQUENCE OF GeneralString
  *      }
  */
-typedef struct krb5_princname_st
-{
-    ASN1_INTEGER* nametype;
-    STACK_OF(ASN1_GENERALSTRING) * namestring;
+typedef struct krb5_princname_st {
+    ASN1_INTEGER *nametype;
+    STACK_OF(ASN1_GENERALSTRING) *namestring;
 } KRB5_PRINCNAME;
 
 DECLARE_STACK_OF(KRB5_PRINCNAME)
@@ -109,12 +107,11 @@ DECLARE_STACK_OF(KRB5_PRINCNAME)
  *              enc-part[3]                   EncryptedData
  *      }
  */
-typedef struct krb5_tktbody_st
-{
-    ASN1_INTEGER* tktvno;
-    ASN1_GENERALSTRING* realm;
-    KRB5_PRINCNAME* sname;
-    KRB5_ENCDATA* encdata;
+typedef struct krb5_tktbody_st {
+    ASN1_INTEGER *tktvno;
+    ASN1_GENERALSTRING *realm;
+    KRB5_PRINCNAME *sname;
+    KRB5_ENCDATA *encdata;
 } KRB5_TKTBODY;
 
 typedef STACK_OF(KRB5_TKTBODY) KRB5_TICKET;
@@ -131,13 +128,12 @@ DECLARE_STACK_OF(KRB5_TKTBODY)
  *      APOptions ::=   BIT STRING {
  *              reserved(0), use-session-key(1), mutual-required(2) }
  */
-typedef struct krb5_ap_req_st
-{
-    ASN1_INTEGER* pvno;
-    ASN1_INTEGER* msgtype;
-    ASN1_BIT_STRING* apoptions;
-    KRB5_TICKET* ticket;
-    KRB5_ENCDATA* authenticator;
+typedef struct krb5_ap_req_st {
+    ASN1_INTEGER *pvno;
+    ASN1_INTEGER *msgtype;
+    ASN1_BIT_STRING *apoptions;
+    KRB5_TICKET *ticket;
+    KRB5_ENCDATA *authenticator;
 } KRB5_APREQBODY;
 
 typedef STACK_OF(KRB5_APREQBODY) KRB5_APREQ;
@@ -150,10 +146,9 @@ DECLARE_STACK_OF(KRB5_APREQBODY)
  *              checksum[1]                   OCTET STRING
  *      }
  */
-typedef struct krb5_checksum_st
-{
-    ASN1_INTEGER* ctype;
-    ASN1_OCTET_STRING* checksum;
+typedef struct krb5_checksum_st {
+    ASN1_INTEGER *ctype;
+    ASN1_OCTET_STRING *checksum;
 } KRB5_CHECKSUM;
 
 DECLARE_STACK_OF(KRB5_CHECKSUM)
@@ -163,10 +158,9 @@ DECLARE_STACK_OF(KRB5_CHECKSUM)
  *              keyvalue[1]                   OCTET STRING
  *      }
  */
-typedef struct krb5_encryptionkey_st
-{
-    ASN1_INTEGER* ktype;
-    ASN1_OCTET_STRING* keyvalue;
+typedef struct krb5_encryptionkey_st {
+    ASN1_INTEGER *ktype;
+    ASN1_OCTET_STRING *keyvalue;
 } KRB5_ENCKEY;
 
 DECLARE_STACK_OF(KRB5_ENCKEY)
@@ -176,10 +170,9 @@ DECLARE_STACK_OF(KRB5_ENCKEY)
  *              ad-data[1]                    OCTET STRING
  *      }
  */
-typedef struct krb5_authorization_st
-{
-    ASN1_INTEGER* adtype;
-    ASN1_OCTET_STRING* addata;
+typedef struct krb5_authorization_st {
+    ASN1_INTEGER *adtype;
+    ASN1_OCTET_STRING *addata;
 } KRB5_AUTHDATA;
 
 DECLARE_STACK_OF(KRB5_AUTHDATA)
@@ -197,17 +190,16 @@ DECLARE_STACK_OF(KRB5_AUTHDATA)
  *              authorization-data[8]         AuthorizationData OPTIONAL
  *      }
  */
-typedef struct krb5_authenticator_st
-{
-    ASN1_INTEGER* avno;
-    ASN1_GENERALSTRING* crealm;
-    KRB5_PRINCNAME* cname;
-    KRB5_CHECKSUM* cksum;
-    ASN1_INTEGER* cusec;
-    ASN1_GENERALIZEDTIME* ctime;
-    KRB5_ENCKEY* subkey;
-    ASN1_INTEGER* seqnum;
-    KRB5_AUTHDATA* authorization;
+typedef struct krb5_authenticator_st {
+    ASN1_INTEGER *avno;
+    ASN1_GENERALSTRING *crealm;
+    KRB5_PRINCNAME *cname;
+    KRB5_CHECKSUM *cksum;
+    ASN1_INTEGER *cusec;
+    ASN1_GENERALIZEDTIME *ctime;
+    KRB5_ENCKEY *subkey;
+    ASN1_INTEGER *seqnum;
+    KRB5_AUTHDATA *authorization;
 } KRB5_AUTHENTBODY;
 
 typedef STACK_OF(KRB5_AUTHENTBODY) KRB5_AUTHENT;
@@ -242,7 +234,7 @@ DECLARE_ASN1_FUNCTIONS(KRB5_AUTHENT)
  * made after this point may be overwritten when the script is next run.
  */
 
-#ifdef __cplusplus
+#ifdef  __cplusplus
 }
 #endif
 #endif

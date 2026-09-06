@@ -21,7 +21,6 @@ add_subdirectory(extractor)
 add_subdirectory(vmap_assembler)
 add_subdirectory(vmap_extractor)
 add_subdirectory(mmap)
-add_subdirectory(TurtleLauncherBackend)
 endif()
 
 if (USE_REALMMERGE)

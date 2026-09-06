@@ -25,31 +25,30 @@ namespace G3D
     class Matrix3;
     class AABox;
     class Ray;
-} // namespace G3D
+}
 class GameObjectModel;
 
 class DynamicMapTree
 {
-public:
-    DynamicMapTree();
-    ~DynamicMapTree();
+    public:
+        DynamicMapTree();
+        ~DynamicMapTree();
 
-    bool isInLineOfSight(float x1, float y1, float z1, float x2, float y2, float z2) const;
-    bool getIntersectionTime(const G3D::Ray& ray, const G3D::Vector3& endPos, float& maxDist) const;
-    bool getObjectHitPos(const G3D::Vector3& pPos1, const G3D::Vector3& pPos2, G3D::Vector3& pResultHitPos, float pModifyDist) const;
-    bool getObjectHitPos(float x1, float y1, float z1, float x2, float y2, float z2, float& rx, float& ry, float& rz, float pModifyDist) const;
-    float getHeight(float x, float y, float z, float maxSearchDist) const;
+        bool isInLineOfSight(float x1, float y1, float z1, float x2, float y2, float z2) const;
+        bool getIntersectionTime(const G3D::Ray& ray, const G3D::Vector3& endPos, float& maxDist) const;
+        bool getObjectHitPos(const G3D::Vector3& pPos1, const G3D::Vector3& pPos2, G3D::Vector3& pResultHitPos, float pModifyDist) const;
+        bool getObjectHitPos(float x1, float y1, float z1, float x2, float y2, float z2, float& rx, float& ry, float& rz, float pModifyDist) const;
+        float getHeight(float x, float y, float z, float maxSearchDist) const;
 
-    void insert(const GameObjectModel&);
-    void remove(const GameObjectModel&);
-    bool contains(const GameObjectModel&) const;
-    int size() const;
+        void insert(const GameObjectModel&);
+        void remove(const GameObjectModel&);
+        bool contains(const GameObjectModel&) const;
+        int size() const;
 
-    void balance();
-    void update(uint32 t_diff);
-
-private:
-    struct DynTreeImpl& impl;
+        void balance();
+        void update(uint32 t_diff);
+    private:
+        struct DynTreeImpl& impl;
 };
 
 #endif

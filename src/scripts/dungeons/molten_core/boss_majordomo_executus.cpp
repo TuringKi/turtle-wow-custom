@@ -1,63 +1,63 @@
-#include "molten_core.h"
 #include "scriptPCH.h"
+#include "molten_core.h"
 
 enum
 {
-    SAY_AGGRO = -1409003,
-    SAY_SPAWN = -1409004,
-    SAY_SLAY = -1409005,
-    SAY_SPECIAL = -1409006,
-    SAY_DEFEAT = -1409007,
+    SAY_AGGRO                   = -1409003,
+    SAY_SPAWN                   = -1409004,
+    SAY_SLAY                    = -1409005,
+    SAY_SPECIAL                 = -1409006,
+    SAY_DEFEAT                  = -1409007,
 
-    SAY_LAST_ADD = -1409020, // When only one add remaining - From SD2
-    SAY_MAJ = -1409019,
-    SAY_SUMMON_MAJ = -1409008,
-    SAY_ARRIVAL1_RAG = -1409009,
-    SAY_ARRIVAL2_MAJ = -1409010,
-    SAY_ARRIVAL3_RAG = -1409011,
+    SAY_LAST_ADD                = -1409020,                     // When only one add remaining - From SD2
+    SAY_MAJ                     = -1409019,
+    SAY_SUMMON_MAJ              = -1409008,
+    SAY_ARRIVAL1_RAG            = -1409009,
+    SAY_ARRIVAL2_MAJ            = -1409010,
+    SAY_ARRIVAL3_RAG            = -1409011,
 
-    SPELL_MAGIC_REFLECTION = 20619,
-    SPELL_DAMAGE_REFLECTION = 21075,
-    SPELL_BLASTWAVE = 20229,
-    SPELL_AEGIS = 20620, // This is self casted whenever we are below 50%
-    SPELL_TELEPORT = 20618,
-    SPELL_SUMMON_RAGNAROS = 19774,
-    SPELL_RAGNAROS_EMERGE = 20568,
-    SPELL_ELEMENTAL_FIRE = 19773,
+    SPELL_MAGIC_REFLECTION      = 20619,
+    SPELL_DAMAGE_REFLECTION     = 21075,
+    SPELL_BLASTWAVE             = 20229,
+    SPELL_AEGIS                 = 20620,                   //This is self casted whenever we are below 50%
+    SPELL_TELEPORT              = 20618,
+    SPELL_SUMMON_RAGNAROS       = 19774,
+    SPELL_RAGNAROS_EMERGE       = 20568,
+    SPELL_ELEMENTAL_FIRE        = 19773,
 
-    SPELL_VISUAL_TELEPORT = 19484,
+    SPELL_VISUAL_TELEPORT       = 19484, 
 
-    NPC_FLAMEWAKER_HEALER = 11663,
-    NPC_FLAMEWAKER_ELITE = 11664,
+    NPC_FLAMEWAKER_HEALER       = 11663,
+    NPC_FLAMEWAKER_ELITE        = 11664,
     // NPC_RAGNAROS                = 11502, // Already defined in instance script
 
-    GOSSIP_TEXTID_DOMO_1 = 4995,
-    GOSSIP_TEXTID_DOMO_2 = 5011,
-    GOSSIP_TEXTID_DOMO_3 = 5012,
+    GOSSIP_TEXTID_DOMO_1        = 4995,
+    GOSSIP_TEXTID_DOMO_2        = 5011,
+    GOSSIP_TEXTID_DOMO_3        = 5012,
 };
 
-#define GOSSIP_ITEM_1 "Tell me more."
-#define GOSSIP_ITEM_2 "What else do you have to say?"
-#define GOSSIP_ITEM_3 "You challenged us and and we have come. Where is this master that you speak of?"
+#define GOSSIP_ITEM_1                "Tell me more."
+#define GOSSIP_ITEM_2                "What else do you have to say?"
+#define GOSSIP_ITEM_3                "You challenged us and and we have come. Where is this master that you speak of?"
 
-#define POINT_RESPAWN 1
-#define POINT_SUMMON1 2
-#define POINT_SUMMON2 3
-#define POINT_SUMMON3 4
+#define POINT_RESPAWN               1
+#define POINT_SUMMON1               2
+#define POINT_SUMMON2               3
+#define POINT_SUMMON3               4
 
-#define POINT_RESPAWN_X 748.208f
-#define POINT_RESPAWN_Y -1179.98f
-#define POINT_RESPAWN_Z -119.861f
-#define POINT_RESPAWN_O 2.91086f
+#define POINT_RESPAWN_X             748.208f
+#define POINT_RESPAWN_Y             -1179.98f
+#define POINT_RESPAWN_Z             -119.861f
+#define POINT_RESPAWN_O             2.91086f
 
-#define POINT_SUMMON1_X 839.1729f
-#define POINT_SUMMON1_Y -811.2748f
-#define POINT_SUMMON1_Z -229.5895f
+#define POINT_SUMMON1_X             839.1729f
+#define POINT_SUMMON1_Y             -811.2748f
+#define POINT_SUMMON1_Z             -229.5895f
 
-#define POINT_SUMMON2_X 830.4840f
-#define POINT_SUMMON2_Y -814.4016f
-#define POINT_SUMMON2_Z -228.9452f
-#define POINT_SUMMON2_O 5.1210f
+#define POINT_SUMMON2_X             830.4840f
+#define POINT_SUMMON2_Y             -814.4016f
+#define POINT_SUMMON2_Z             -228.9452f
+#define POINT_SUMMON2_O             5.1210f
 
 struct sSpawnLocation
 {
@@ -65,7 +65,17 @@ struct sSpawnLocation
     float m_fX, m_fY, m_fZ, m_fO;
 };
 
-static sSpawnLocation m_aBosspawnLocs[8] = {{NPC_FLAMEWAKER_ELITE, 737.945f, -1156.48f, -118.945f, 4.46804f}, {NPC_FLAMEWAKER_ELITE, 752.520f, -1191.02f, -118.218f, 2.49582f}, {NPC_FLAMEWAKER_ELITE, 752.953f, -1163.94f, -118.869f, 3.70010f}, {NPC_FLAMEWAKER_ELITE, 738.814f, -1197.40f, -118.018f, 1.83260f}, {NPC_FLAMEWAKER_HEALER, 746.939f, -1194.87f, -118.016f, 2.21657f}, {NPC_FLAMEWAKER_HEALER, 747.132f, -1158.87f, -118.897f, 4.03171f}, {NPC_FLAMEWAKER_HEALER, 757.116f, -1170.12f, -118.793f, 3.40339f}, {NPC_FLAMEWAKER_HEALER, 755.910f, -1184.46f, -118.449f, 2.80998f}};
+static sSpawnLocation m_aBosspawnLocs[8] =
+{
+    {NPC_FLAMEWAKER_ELITE,  737.945f, -1156.48f, -118.945f, 4.46804f},
+    {NPC_FLAMEWAKER_ELITE,  752.520f, -1191.02f, -118.218f, 2.49582f},
+    {NPC_FLAMEWAKER_ELITE,  752.953f, -1163.94f, -118.869f, 3.70010f},
+    {NPC_FLAMEWAKER_ELITE,  738.814f, -1197.40f, -118.018f, 1.83260f},
+    {NPC_FLAMEWAKER_HEALER, 746.939f, -1194.87f, -118.016f, 2.21657f},
+    {NPC_FLAMEWAKER_HEALER, 747.132f, -1158.87f, -118.897f, 4.03171f},
+    {NPC_FLAMEWAKER_HEALER, 757.116f, -1170.12f, -118.793f, 3.40339f},
+    {NPC_FLAMEWAKER_HEALER, 755.910f, -1184.46f, -118.449f, 2.80998f}
+};
 
 struct boss_majordomoAI : public ScriptedAI
 {
@@ -94,9 +104,9 @@ struct boss_majordomoAI : public ScriptedAI
     void Reset() override
     {
         m_creature->SetDefaultMovementType(IDLE_MOTION_TYPE);
-        Reflection_Timer = 30000;
+        Reflection_Timer =  30000;
         Blastwave_Timer = 10000;
-        for (uint32& i : TPDomo_Timer)
+        for (uint32 & i : TPDomo_Timer)
             i = 10000 + rand() % 20000;
         AddSpawn = false;
         AddVivant = 8;
@@ -210,7 +220,7 @@ struct boss_majordomoAI : public ScriptedAI
             DoScriptText(SAY_SLAY, m_creature);
     }
 
-    void Aggro(Unit* who) override
+    void Aggro(Unit *who) override
     {
         if (m_creature->GetFactionTemplateId() != 35)
             DoScriptText(SAY_AGGRO, m_creature);
@@ -274,50 +284,50 @@ struct boss_majordomoAI : public ScriptedAI
     {
         switch (DialogRagnaros_M)
         {
-        case 6:
-            m_creature->GetMotionMaster()->MovePoint(POINT_SUMMON1, (float)POINT_SUMMON1_X, (float)POINT_SUMMON1_Y, (float)POINT_SUMMON1_Z);
-            m_creature->SummonGameObject(178108, 842.237488f, -833.683105f, -231.916498f, 3.000000f, 0, 0, 0, 0, 0);
-            m_creature->CastSpell(m_creature, 19774, false);
-            DoScriptText(SAY_MAJ, m_creature);
-            break;
-        case 15:
-            m_creature->SetOrientation(5.231960f);
-            break;
-        case 21:
-            DoScriptText(SAY_SUMMON_MAJ, m_creature);
-            break;
-        case 28:
-            if (Creature* Ragnaros = m_creature->SummonCreature(NPC_RAGNAROS, 842.237488f, -833.683105f, -231.916498f, M_PI + m_creature->GetAngle(842.237488f, -833.683105f), TEMPSUMMON_MANUAL_DESPAWN, 2 * HOUR * IN_MILLISECONDS)) // Ragnaros reste spawn 2heures
-            {
-                Ragnaros->SetUInt64Value(UNIT_FIELD_FLAGS, UNIT_FLAG_SPAWNING);
-                m_creature->SetFacingToObject(Ragnaros);
-                Ragnaros->CastSpell(Ragnaros, SPELL_RAGNAROS_EMERGE, false);
+            case 6:
+                m_creature->GetMotionMaster()->MovePoint(POINT_SUMMON1, (float)POINT_SUMMON1_X, (float)POINT_SUMMON1_Y, (float)POINT_SUMMON1_Z);
+                m_creature->SummonGameObject(178108, 842.237488f, -833.683105f, -231.916498f, 3.000000f, 0, 0, 0, 0, 0);
+                m_creature->CastSpell(m_creature, 19774, false);
+                DoScriptText(SAY_MAJ, m_creature);
+                break;
+            case 15:
+                m_creature->SetOrientation(5.231960f);
+                break;
+            case 21:
+                DoScriptText(SAY_SUMMON_MAJ, m_creature);
+                break;
+            case 28:
+                if (Creature* Ragnaros = m_creature->SummonCreature(NPC_RAGNAROS, 842.237488f, -833.683105f, -231.916498f, M_PI + m_creature->GetAngle(842.237488f, -833.683105f), TEMPSUMMON_MANUAL_DESPAWN, 2 * HOUR * IN_MILLISECONDS))   // Ragnaros reste spawn 2heures
+                {
+                    Ragnaros->SetUInt64Value(UNIT_FIELD_FLAGS, UNIT_FLAG_SPAWNING);
+                    m_creature->SetFacingToObject(Ragnaros);
+                    Ragnaros->CastSpell(Ragnaros, SPELL_RAGNAROS_EMERGE, false);
+                }
+                break;
+            case 34:
+                if (Creature* Ragnaros = m_creature->FindNearestCreature(NPC_RAGNAROS, 100.0f, true))
+                {
+                    DoScriptText(SAY_ARRIVAL1_RAG, Ragnaros);
+                    Ragnaros->HandleEmote(EMOTE_ONESHOT_ROAR);
+                }
+                break;
+            case 47:
+                DoScriptText(SAY_ARRIVAL2_MAJ, m_creature);
+                break;
+            case 55:
+                if (Creature* Ragnaros = m_creature->FindNearestCreature(NPC_RAGNAROS, 100.0f, true))
+                {
+                    Ragnaros->SetTargetGuid(m_creature->GetGUID());
+                    DoScriptText(SAY_ARRIVAL3_RAG, Ragnaros);
+                    Ragnaros->HandleEmote(EMOTE_ONESHOT_ROAR);
+                }
+                break;
+            case 70:
+                if (Creature* Ragnaros = m_creature->FindNearestCreature(NPC_RAGNAROS, 100.0f, true))
+                    Ragnaros->CastSpell(m_creature, SPELL_ELEMENTAL_FIRE, false);  // 20565
+                // Handle rest in Ragnaros script
+                break;
             }
-            break;
-        case 34:
-            if (Creature* Ragnaros = m_creature->FindNearestCreature(NPC_RAGNAROS, 100.0f, true))
-            {
-                DoScriptText(SAY_ARRIVAL1_RAG, Ragnaros);
-                Ragnaros->HandleEmote(EMOTE_ONESHOT_ROAR);
-            }
-            break;
-        case 47:
-            DoScriptText(SAY_ARRIVAL2_MAJ, m_creature);
-            break;
-        case 55:
-            if (Creature* Ragnaros = m_creature->FindNearestCreature(NPC_RAGNAROS, 100.0f, true))
-            {
-                Ragnaros->SetTargetGuid(m_creature->GetGUID());
-                DoScriptText(SAY_ARRIVAL3_RAG, Ragnaros);
-                Ragnaros->HandleEmote(EMOTE_ONESHOT_ROAR);
-            }
-            break;
-        case 70:
-            if (Creature* Ragnaros = m_creature->FindNearestCreature(NPC_RAGNAROS, 100.0f, true))
-                Ragnaros->CastSpell(m_creature, SPELL_ELEMENTAL_FIRE, false); // 20565
-            // Handle rest in Ragnaros script
-            break;
-        }
     }
 
     void UpdateAI(const uint32 diff) override
@@ -374,11 +384,11 @@ struct boss_majordomoAI : public ScriptedAI
             return;
         }
 
-        // Cast Ageis if less than 50% hp
+        //Cast Ageis if less than 50% hp
         if (m_creature->GetHealthPercent() < 50.0f)
             DoCastSpellIfCan(m_creature, SPELL_AEGIS);
 
-        // MagicReflection_Timer
+        //MagicReflection_Timer
         if (Reflection_Timer < diff)
         {
             uint32 Reflect = rand() % 2 ? SPELL_MAGIC_REFLECTION : SPELL_DAMAGE_REFLECTION;
@@ -387,10 +397,9 @@ struct boss_majordomoAI : public ScriptedAI
                 m_creature->CastSpell(m_creature, Reflect, true);
             Reflection_Timer = 30000;
         }
-        else
-            Reflection_Timer -= diff;
+        else Reflection_Timer -= diff;
 
-        // Blastwave_Timer
+        //Blastwave_Timer
         if (Blastwave_Timer < diff)
         {
             if (DoCastSpellIfCan(m_creature, SPELL_BLASTWAVE) == CAST_OK)
@@ -439,7 +448,7 @@ bool GossipSelect_event_domo(Player* pPlayer, Creature* pCreature, uint32 uiSend
         if (boss_majordomoAI* pDomoEventAI = dynamic_cast<boss_majordomoAI*>(pCreature->AI()))
         {
             pDomoEventAI->RagnarosEventStart = true;
-            pCreature->SetUInt32Value(UNIT_NPC_FLAGS, 0); // disable gossip
+            pCreature->SetUInt32Value(UNIT_NPC_FLAGS, 0);            // disable gossip
             char sMessage[200];
             sprintf(sMessage, "Very well, %s.", pPlayer->GetName());
             pCreature->MonsterSay(sMessage, 0, 0);
@@ -460,11 +469,14 @@ bool GossipHello_event_domo(Player* pPlayer, Creature* pCreature)
     return true;
 }
 
-CreatureAI* GetAI_boss_majordomo(Creature* pCreature) { return new boss_majordomoAI(pCreature); }
+CreatureAI* GetAI_boss_majordomo(Creature* pCreature)
+{
+    return new boss_majordomoAI(pCreature);
+}
 
 void AddSC_boss_majordomo()
 {
-    Script* newscript;
+    Script *newscript;
     newscript = new Script;
     newscript->Name = "boss_majordomo";
     newscript->GetAI = &GetAI_boss_majordomo;

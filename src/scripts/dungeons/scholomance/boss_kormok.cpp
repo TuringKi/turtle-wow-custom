@@ -28,7 +28,10 @@ EndScriptData */
 
 struct boss_kormokAI : public ScriptedAI
 {
-    boss_kormokAI(Creature* pCreature) : ScriptedAI(pCreature) { Reset(); }
+    boss_kormokAI(Creature* pCreature) : ScriptedAI(pCreature)
+    {
+        Reset();
+    }
 
     uint32 ShadowVolley_Timer;
     uint32 BoneShield_Timer;
@@ -64,7 +67,7 @@ struct boss_kormokAI : public ScriptedAI
         if (!m_creature->SelectHostileTarget() || !m_creature->GetVictim())
             return;
 
-        // ShadowVolley_Timer
+        //ShadowVolley_Timer
         if (ShadowVolley_Timer < diff)
         {
             if (DoCastSpellIfCan(m_creature->GetVictim(), SPELL_SHADOWBOLTVOLLEY) == CAST_OK)
@@ -73,7 +76,7 @@ struct boss_kormokAI : public ScriptedAI
         else
             ShadowVolley_Timer -= diff;
 
-        // BoneShield_Timer
+        //BoneShield_Timer
         if (BoneShield_Timer < diff)
         {
             if (DoCastSpellIfCan(m_creature->GetVictim(), SPELL_BONESHIELD) == CAST_OK)
@@ -82,10 +85,10 @@ struct boss_kormokAI : public ScriptedAI
         else
             BoneShield_Timer -= diff;
 
-        // Minion_Timer
+        //Minion_Timer
         if (Minion_Timer < diff)
         {
-            // Cast
+            //Cast
             for (int i = 0; i < 4; ++i)
                 SummonMinion(m_creature->GetVictim());
 
@@ -94,10 +97,10 @@ struct boss_kormokAI : public ScriptedAI
         else
             Minion_Timer -= diff;
 
-        // Summon 2 Bone Mages
+        //Summon 2 Bone Mages
         if (!Mages && m_creature->GetHealthPercent() < 26.0f)
         {
-            // Cast
+            //Cast
             SummonMages(m_creature->GetVictim());
             SummonMages(m_creature->GetVictim());
             Mages = true;
@@ -106,11 +109,14 @@ struct boss_kormokAI : public ScriptedAI
         DoMeleeAttackIfReady();
     }
 };
-CreatureAI* GetAI_boss_kormok(Creature* pCreature) { return new boss_kormokAI(pCreature); }
+CreatureAI* GetAI_boss_kormok(Creature* pCreature)
+{
+    return new boss_kormokAI(pCreature);
+}
 
 void AddSC_boss_kormok()
 {
-    Script* newscript;
+    Script *newscript;
     newscript = new Script;
     newscript->Name = "boss_kormok";
     newscript->GetAI = &GetAI_boss_kormok;

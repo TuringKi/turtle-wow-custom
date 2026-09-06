@@ -26,66 +26,69 @@
 #ifdef HAVE_CONFIG_H
 #ifdef PACKAGE
 #undef PACKAGE
-#endif // PACKAGE
+#endif //PACKAGE
 #ifdef PACKAGE_BUGREPORT
 #undef PACKAGE_BUGREPORT
-#endif // PACKAGE_BUGREPORT
+#endif //PACKAGE_BUGREPORT
 #ifdef PACKAGE_NAME
 #undef PACKAGE_NAME
-#endif // PACKAGE_NAME
+#endif //PACKAGE_NAME
 #ifdef PACKAGE_STRING
 #undef PACKAGE_STRING
-#endif // PACKAGE_STRING
+#endif //PACKAGE_STRING
 #ifdef PACKAGE_TARNAME
 #undef PACKAGE_TARNAME
-#endif // PACKAGE_TARNAME
+#endif //PACKAGE_TARNAME
 #ifdef PACKAGE_VERSION
 #undef PACKAGE_VERSION
-#endif // PACKAGE_VERSION
+#endif //PACKAGE_VERSION
 
-#include "config.h"
+# include "config.h"
 #undef PACKAGE
 #undef PACKAGE_BUGREPORT
 #undef PACKAGE_NAME
 #undef PACKAGE_STRING
 #undef PACKAGE_TARNAME
 #undef PACKAGE_VERSION
-#endif // HAVE_CONFIG_H
+#endif //HAVE_CONFIG_H
 
 #include "Platform/Define.h"
 
 #if COMPILER == COMPILER_MICROSOFT
-#pragma warning(disable : 4996) // 'function': was declared deprecated
+#  pragma warning(disable:4996)                             // 'function': was declared deprecated
 #ifndef __SHOW_STUPID_WARNINGS__
-#pragma warning(disable : 4244) // 'argument' : conversion from 'type1' to 'type2', possible loss of data
-#pragma warning(disable : 4355) // 'this' : used in base member initializer list
+#  pragma warning(disable:4244)                             // 'argument' : conversion from 'type1' to 'type2', possible loss of data
+#  pragma warning(disable:4355)                             // 'this' : used in base member initializer list
 #endif // __SHOW_STUPID_WARNINGS__
 #endif // __GNUC__
 
-#include <assert.h>
-#include <errno.h>
-#include <math.h>
-#include <signal.h>
+#include "Platform/CompilerDefs.h"
+#include "Platform/Define.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
-#include "Platform/CompilerDefs.h"
-#include "Platform/Define.h"
+#include <math.h>
+#include <errno.h>
+#include <signal.h>
+#include <assert.h>
 
 #if defined(__sun__)
 #include <ieeefp.h> // finite() on Solaris
 #endif
 
+#include <set>
+#include <list>
+#include <string>
+#include <map>
+#include <unordered_map>
+#include <queue>
+#include <sstream>
 #include <algorithm>
 #include <array>
-#include <list>
-#include <map>
-#include <queue>
-#include <set>
-#include <sstream>
-#include <string>
-#include <unordered_map>
+
+#include "Errors.h"
+#include "LockedQueue.h"
 
 #include <ace/Basic_Types.h>
 #include <ace/Guard_T.h>
@@ -93,47 +96,47 @@
 
 // Old ACE versions (pre-ACE-5.5.4) not have this type (add for allow use at Unix side external old ACE versions)
 #if PLATFORM != PLATFORM_WINDOWS
-#ifndef ACE_OFF_T
+#  ifndef ACE_OFF_T
 typedef off_t ACE_OFF_T;
-#endif
+#  endif
 #endif
 
 #if PLATFORM == PLATFORM_WINDOWS
-#if !defined(FD_SETSIZE)
-#define FD_SETSIZE 4096
-#endif
-#include <ace/config-all.h>
-#include <ws2tcpip.h>
+#  if !defined (FD_SETSIZE)
+#    define FD_SETSIZE 4096
+#  endif
+#  include <ace/config-all.h>
+#  include <ws2tcpip.h>
 #else
-#include <netdb.h>
-#include <netinet/in.h>
-#include <sys/ioctl.h>
-#include <sys/socket.h>
-#include <sys/types.h>
-#include <unistd.h>
+#  include <sys/types.h>
+#  include <sys/ioctl.h>
+#  include <sys/socket.h>
+#  include <netinet/in.h>
+#  include <unistd.h>
+#  include <netdb.h>
 #endif
 
 #if COMPILER == COMPILER_MICROSOFT
 
-#include <float.h>
+#  include <float.h>
 
-#define I32FMT "%08I32X"
-#define I64FMT "%016I64X"
+#  define I32FMT "%08I32X"
+#  define I64FMT "%016I64X"
 //#  define snprintf _snprintf
-#define vsnprintf _vsnprintf
-#define finite(X) _finite(X)
+#  define vsnprintf _vsnprintf
+#  define finite(X) _finite(X)
 
 #else
 
-#define stricmp strcasecmp
-#define strnicmp strncasecmp
+#  define stricmp strcasecmp
+#  define strnicmp strncasecmp
 
-#define I32FMT "%08X"
-#if ACE_SIZEOF_LONG == 8
-#define I64FMT "%016lX"
-#else
-#define I64FMT "%016llX"
-#endif /* ACE_SIZEOF_LONG == 8 */
+#  define I32FMT "%08X"
+#  if ACE_SIZEOF_LONG == 8
+#    define I64FMT "%016lX"
+#  else
+#    define I64FMT "%016llX"
+#  endif /* ACE_SIZEOF_LONG == 8 */
 
 #endif
 
@@ -147,34 +150,34 @@ typedef off_t ACE_OFF_T;
 
 inline float finiteAlways(float f) { return finite(f) ? f : 0.0f; }
 
-#define atol(a) strtoul(a, nullptr, 10)
+#define atol(a) strtoul( a, nullptr, 10)
 
 #define STRINGIZE(a) #a
 
 // used for creating values for respawn for example
-#define MAKE_PAIR64(l, h) uint64(uint32(l) | (uint64(h) << 32))
+#define MAKE_PAIR64(l, h)  uint64( uint32(l) | ( uint64(h) << 32 ) )
 #define PAIR64_HIPART(x) (uint32)((uint64(x) >> 32) & UI64LIT(0x00000000FFFFFFFF))
 #define PAIR64_LOPART(x) (uint32)(uint64(x) & UI64LIT(0x00000000FFFFFFFF))
 
-#define MAKE_PAIR32(l, h) uint32(uint16(l) | (uint32(h) << 16))
+#define MAKE_PAIR32(l, h)  uint32( uint16(l) | ( uint32(h) << 16 ) )
 #define PAIR32_HIPART(x) (uint16)((uint32(x) >> 16) & 0x0000FFFF)
 #define PAIR32_LOPART(x) (uint16)(uint32(x) & 0x0000FFFF)
 
 enum MoneyConstants
 {
     COPPER = 1,
-    SILVER = COPPER * 100,
-    GOLD = SILVER * 100
+    SILVER = COPPER*100,
+    GOLD   = SILVER*100
 };
 
 enum TimeConstants
 {
     MINUTE = 60,
-    HOUR = MINUTE * 60,
-    DAY = HOUR * 24,
-    WEEK = DAY * 7,
-    MONTH = DAY * 30,
-    YEAR = MONTH * 12,
+    HOUR   = MINUTE*60,
+    DAY    = HOUR*24,
+    WEEK   = DAY*7,
+    MONTH  = DAY*30,
+    YEAR   = MONTH*12,
     IN_MILLISECONDS = 1000
 };
 
@@ -251,35 +254,41 @@ struct LocaleNameStr
 // used for iterate all names including alternative
 extern LocaleNameStr const fullLocaleNameList[];
 
-// operator new[] based version of strdup() function! Release memory by using operator delete[] !
-inline char* mangos_strdup(const char* source)
+//operator new[] based version of strdup() function! Release memory by using operator delete[] !
+inline char * mangos_strdup(const char * source)
 {
-    char* dest = new char[strlen(source) + 1];
+    char * dest = new char[strlen(source) + 1];
     strcpy(dest, source);
     return dest;
 }
 
 template <typename... T>
-constexpr auto make_array(T&&... values) -> std::array<typename std::decay<typename std::common_type<T...>::type>::type, sizeof...(T)>
-{
-    return std::array<typename std::decay<typename std::common_type<T...>::type>::type, sizeof...(T)>{std::forward<T>(values)...};
+constexpr auto make_array(T&&... values) ->
+std::array<
+    typename std::decay<
+    typename std::common_type<T...>::type>::type,
+    sizeof...(T)> {
+    return std::array<
+        typename std::decay<
+        typename std::common_type<T...>::type>::type,
+        sizeof...(T)>{std::forward<T>(values)...};
 }
 
 // we always use stdlibc++ std::max/std::min, undefine some not C++ standard defines (Win API and some pother platforms)
 #ifdef max
-#undef max
+#  undef max
 #endif
 
 #ifdef min
-#undef min
+#  undef min
 #endif
 
 #ifndef M_PI
-#define M_PI 3.14159265358979323846
+#  define M_PI          3.14159265358979323846
 #endif
 
 #ifndef M_PI_F
-#define M_PI_F float(M_PI)
+#  define M_PI_F        float(M_PI)
 #endif
 
 #ifndef countof

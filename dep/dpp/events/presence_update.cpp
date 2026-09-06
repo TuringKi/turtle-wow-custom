@@ -2,7 +2,7 @@
  *
  * D++, A Lightweight C++ library for Discord
  *
- * Copyright 2021 Craig Edwards and D++ contributors
+ * Copyright 2021 Craig Edwards and D++ contributors 
  * (https://github.com/brainboxdotcc/DPP/graphs/contributors)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,37 +18,31 @@
  * limitations under the License.
  *
  ************************************************************************************/
-#include <dpp/cluster.h>
 #include <dpp/discordevents.h>
-#include <dpp/nlohmann/json.hpp>
+#include <dpp/cluster.h>
 #include <dpp/stringops.h>
+#include <dpp/nlohmann/json.hpp>
 
 using json = nlohmann::json;
 
-namespace dpp
-{
-    namespace events
-    {
+namespace dpp { namespace events {
 
-        using namespace dpp;
+using namespace dpp;
 
-        /**
-         * @brief Handle event
-         *
-         * @param client Websocket client (current shard)
-         * @param j JSON data for the event
-         * @param raw Raw JSON string
-         */
-        void presence_update::handle(discord_client* client, json& j, const std::string& raw)
-        {
-            if (!client->creator->on_presence_update.empty())
-            {
-                json& d = j["d"];
-                dpp::presence_update_t pu(client, raw);
-                pu.rich_presence = dpp::presence().fill_from_json(&d);
-                client->creator->on_presence_update.call(pu);
-            }
-        }
+/**
+ * @brief Handle event
+ * 
+ * @param client Websocket client (current shard)
+ * @param j JSON data for the event
+ * @param raw Raw JSON string
+ */
+void presence_update::handle(discord_client* client, json &j, const std::string &raw) {
+	if (!client->creator->on_presence_update.empty()) {
+		json& d = j["d"];
+		dpp::presence_update_t pu(client, raw);
+		pu.rich_presence = dpp::presence().fill_from_json(&d);
+		client->creator->on_presence_update.call(pu);
+	}
+}
 
-    } // namespace events
-}; // namespace dpp
+}};

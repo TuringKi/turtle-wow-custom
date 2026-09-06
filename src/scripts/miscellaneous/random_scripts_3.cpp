@@ -1,12 +1,12 @@
-#include "CompanionManager.hpp"
+#include "scriptPCH.h"
+#include "Utilities/EventProcessor.h"
 #include "GuardAI.h"
+#include "PetAI.h"
 #include "Language.h"
 #include "MountManager.hpp"
-#include "PetAI.h"
-#include "Shop/ShopMgr.h"
+#include "CompanionManager.hpp"
 #include "ToyManager.hpp"
-#include "Utilities/EventProcessor.h"
-#include "scriptPCH.h"
+#include "Shop/ShopMgr.h"
 
 template <typename Functor>
 void DoAfterTime(Player* player, const uint32 p_time, Functor&& function)
@@ -139,14 +139,12 @@ bool GossipSelect_the_cow_king(Player* pPlayer, Creature* pCreature, uint32 uiSe
 {
     if (uiAction == GOSSIP_ACTION_INFO_DEF + 1)
     {
-        DoAfterTime(pPlayer, 3 * IN_MILLISECONDS,
-                    [player = pPlayer, creature = pCreature]()
-                    {
-                        creature->MonsterSayToPlayer(66638, player);
-                        creature->SetFactionTemporary(14, TEMPFACTION_RESTORE_COMBAT_STOP);
-                        creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_SPAWNING);
-                        creature->HandleEmote(EMOTE_ONESHOT_ATTACK1H);
-                    });
+        DoAfterTime(pPlayer, 3 * IN_MILLISECONDS, [player = pPlayer, creature = pCreature]() {
+            creature->MonsterSayToPlayer(66638, player);
+            creature->SetFactionTemporary(14, TEMPFACTION_RESTORE_COMBAT_STOP);
+            creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_SPAWNING);
+            creature->HandleEmote(EMOTE_ONESHOT_ATTACK1H);
+            });
     }
     pPlayer->CLOSE_GOSSIP_MENU();
     return true;
@@ -280,21 +278,25 @@ bool QuestAccept_npc_wendo_wobblefizz(Player* pPlayer, Creature* pQuestGiver, Qu
     if (!pPlayer)
         return false;
 
-    if (pQuest->GetQuestId() == 40068) // Wobblefree Fizz-gear
+    if (pQuest->GetQuestId() == 40068) //Wobblefree Fizz-gear
     {
         pQuestGiver->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
 
-        DoAfterTime(pPlayer, 1 * IN_MILLISECONDS, [player = pPlayer, npc = pQuestGiver]() { npc->HandleEmote(EMOTE_STATE_WORK); });
-        DoAfterTime(pPlayer, 5 * IN_MILLISECONDS, [player = pPlayer, npc = pQuestGiver]() { npc->MonsterSayToPlayer(66821, player); });
-        DoAfterTime(pPlayer, 9 * IN_MILLISECONDS, [player = pPlayer, npc = pQuestGiver]() { npc->MonsterSayToPlayer(66822, player); });
-        DoAfterTime(pPlayer, 13 * IN_MILLISECONDS,
-                    [player = pPlayer, npc = pQuestGiver]()
-                    {
-                        npc->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                        npc->HandleEmote(EMOTE_STATE_NONE);
-                        if (CreatureInfo const* cInfo = sObjectMgr.GetCreatureTemplate(60319))
-                            player->KilledMonster(cInfo, ObjectGuid());
-                    });
+        DoAfterTime(pPlayer, 1 * IN_MILLISECONDS, [player = pPlayer, npc = pQuestGiver]() {
+            npc->HandleEmote(EMOTE_STATE_WORK);
+            });
+        DoAfterTime(pPlayer, 5 * IN_MILLISECONDS, [player = pPlayer, npc = pQuestGiver]() {
+            npc->MonsterSayToPlayer(66821, player);
+            });
+        DoAfterTime(pPlayer, 9 * IN_MILLISECONDS, [player = pPlayer, npc = pQuestGiver]() {
+            npc->MonsterSayToPlayer(66822, player);
+            });
+        DoAfterTime(pPlayer, 13 * IN_MILLISECONDS, [player = pPlayer, npc = pQuestGiver]() {
+            npc->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+            npc->HandleEmote(EMOTE_STATE_NONE);
+            if (CreatureInfo const* cInfo = sObjectMgr.GetCreatureTemplate(60319))
+                player->KilledMonster(cInfo, ObjectGuid());
+            });
     }
     return false;
 }
@@ -320,7 +322,7 @@ bool GOSelect_go_grain_sacks(Player* pPlayer, GameObject* pGo, uint32 sender, ui
             if (CreatureInfo const* cInfo = sObjectMgr.GetCreatureTemplate(60323))
                 pPlayer->KilledMonster(cInfo, ObjectGuid());
             pGo->Deactivate(150);
-            // Purple smoke effect:
+            // Purple smoke effect: 
             pPlayer->SummonGameObject(2000560, pGo->GetPositionX(), pGo->GetPositionY(), pGo->GetPositionZ(), 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 150, true);
         }
     }
@@ -353,278 +355,246 @@ bool GossipSelect_npc_torble_and_kex(Player* pPlayer, Creature* pCreature, uint3
     {
         switch (pCreature->GetEntry())
         {
-        case 60441: // Torble Sparksprocket
-            DoAfterTime(pCreature, 1 * IN_MILLISECONDS,
-                        [npc = pCreature]()
-                        {
-                            npc->MonsterSay(66372);
-                            npc->HandleEmote(EMOTE_ONESHOT_TALK);
-                            if (Creature* analyzer_x51 = npc->FindNearestCreature(60444, 30.0F))
-                            {
-                                analyzer_x51->SetVisibility(VISIBILITY_ON);
-                            }
-                        });
-            DoAfterTime(pCreature, 5 * IN_MILLISECONDS,
-                        [npc = pCreature]()
-                        {
-                            if (Creature* analyzer_x51 = npc->FindNearestCreature(60444, 30.0F))
-                            {
-                                analyzer_x51->MonsterSay(66373);
-                                analyzer_x51->HandleEmote(EMOTE_ONESHOT_TALK);
-                            }
-                        });
-            DoAfterTime(pCreature, 7 * IN_MILLISECONDS,
-                        [npc = pCreature]()
-                        {
-                            if (Creature* analyzer_x51 = npc->FindNearestCreature(60444, 30.0F))
-                            {
-                                analyzer_x51->MonsterSay(66374);
-                                analyzer_x51->HandleEmote(EMOTE_ONESHOT_TALK);
-                            }
-                        });
-            DoAfterTime(pCreature, 9 * IN_MILLISECONDS,
-                        [npc = pCreature]()
-                        {
-                            if (Creature* analyzer_x51 = npc->FindNearestCreature(60444, 30.0F))
-                            {
-                                analyzer_x51->MonsterSay(66374);
-                                analyzer_x51->HandleEmote(EMOTE_ONESHOT_TALK);
-                            }
-                        });
-            DoAfterTime(pCreature, 11 * IN_MILLISECONDS,
-                        [npc = pCreature]()
-                        {
-                            if (Creature* analyzer_x51 = npc->FindNearestCreature(60444, 30.0F))
-                            {
-                                analyzer_x51->MonsterSay(66375);
-                                analyzer_x51->HandleEmote(EMOTE_ONESHOT_TALK);
-                            }
-                        });
-            DoAfterTime(pCreature, 15 * IN_MILLISECONDS,
-                        [npc = pCreature]()
-                        {
-                            if (Creature* analyzer_x51 = npc->FindNearestCreature(60444, 30.0F))
-                            {
-                                analyzer_x51->MonsterSay(66376);
-                                analyzer_x51->HandleEmote(EMOTE_ONESHOT_TALK);
-                            }
-                        });
-            DoAfterTime(pCreature, 20 * IN_MILLISECONDS,
-                        [npc = pCreature]()
-                        {
-                            npc->MonsterSay(66377);
-                            npc->HandleEmote(EMOTE_ONESHOT_TALK);
-                        });
-            DoAfterTime(pCreature, 25 * IN_MILLISECONDS,
-                        [npc = pCreature]()
-                        {
-                            if (Creature* analyzer_x51 = npc->FindNearestCreature(60444, 30.0F))
-                            {
-                                analyzer_x51->MonsterSay(66378);
-                                analyzer_x51->HandleEmote(EMOTE_ONESHOT_TALK);
-                            }
-                        });
-            DoAfterTime(pCreature, 30 * IN_MILLISECONDS,
-                        [npc = pCreature]()
-                        {
-                            npc->MonsterSay(66379);
-                            npc->HandleEmote(EMOTE_ONESHOT_TALK);
-                        });
-            DoAfterTime(pCreature, 35 * IN_MILLISECONDS,
-                        [npc = pCreature]()
-                        {
-                            if (Creature* analyzer_x51 = npc->FindNearestCreature(60444, 30.0F))
-                            {
-                                analyzer_x51->MonsterSay(66380);
-                                analyzer_x51->HandleEmote(EMOTE_ONESHOT_TALK);
-                            }
-                        });
-            DoAfterTime(pCreature, 40 * IN_MILLISECONDS,
-                        [npc = pCreature]()
-                        {
-                            npc->MonsterSay(66381);
-                            npc->HandleEmote(EMOTE_ONESHOT_TALK);
-                        });
-            DoAfterTime(pCreature, 45 * IN_MILLISECONDS,
-                        [npc = pCreature]()
-                        {
-                            if (Creature* analyzer_x51 = npc->FindNearestCreature(60444, 30.0F))
-                            {
-                                analyzer_x51->MonsterSay(66382);
-                                analyzer_x51->HandleEmote(EMOTE_ONESHOT_TALK);
-                            }
-                        });
-            DoAfterTime(pCreature, 50 * IN_MILLISECONDS,
-                        [npc = pCreature]()
-                        {
-                            npc->MonsterSay(66383);
-                            npc->HandleEmote(EMOTE_ONESHOT_TALK);
-                        });
-            DoAfterTime(pCreature, 55 * IN_MILLISECONDS,
-                        [npc = pCreature]()
-                        {
-                            if (Creature* analyzer_x51 = npc->FindNearestCreature(60444, 30.0F))
-                            {
-                                analyzer_x51->MonsterSay(66384);
-                                analyzer_x51->HandleEmote(EMOTE_ONESHOT_TALK);
-                            }
-                        });
-            DoAfterTime(pPlayer, 60 * IN_MILLISECONDS,
-                        [player = pPlayer, npcGuid = pCreature->GetObjectGuid()]()
-                        {
-                            if (Creature* npc = player->GetMap()->GetCreature(npcGuid))
-                            {
-                                npc->MonsterSayToPlayer(67026, player);
-                                npc->HandleEmote(EMOTE_ONESHOT_TALK);
-                            }
-                        });
-            DoAfterTime(pPlayer, 65 * IN_MILLISECONDS,
-                        [player = pPlayer]()
-                        {
-                            if (Creature* analyzer_x51 = player->FindNearestCreature(60444, 30.0F))
-                            {
-                                analyzer_x51->MonsterSay(66386);
-                                analyzer_x51->HandleEmote(EMOTE_ONESHOT_TALK);
-                                if (CreatureInfo const* cInfo = sObjectMgr.GetCreatureTemplate(60324))
-                                    player->KilledMonster(cInfo, ObjectGuid());
-                            }
-                        });
-            break;
+            case 60441: // Torble Sparksprocket
+                DoAfterTime(pCreature, 1 * IN_MILLISECONDS, [npc = pCreature]()
+                {
+                    npc->MonsterSay(66372);
+                    npc->HandleEmote(EMOTE_ONESHOT_TALK);
+                    if (Creature* analyzer_x51 = npc->FindNearestCreature(60444, 30.0F))
+                    {
+                        analyzer_x51->SetVisibility(VISIBILITY_ON);
+                    }
+                });
+                DoAfterTime(pCreature, 5 * IN_MILLISECONDS, [npc = pCreature]()
+                {
+                    if (Creature* analyzer_x51 = npc->FindNearestCreature(60444, 30.0F))
+                    {
+                        analyzer_x51->MonsterSay(66373);
+                        analyzer_x51->HandleEmote(EMOTE_ONESHOT_TALK);
+                    }
+                });
+                DoAfterTime(pCreature, 7 * IN_MILLISECONDS, [npc = pCreature]()
+                {
+                    if (Creature* analyzer_x51 = npc->FindNearestCreature(60444, 30.0F))
+                    {
+                        analyzer_x51->MonsterSay(66374);
+                        analyzer_x51->HandleEmote(EMOTE_ONESHOT_TALK);
+                    }
+                });
+                DoAfterTime(pCreature, 9 * IN_MILLISECONDS, [npc = pCreature]()
+                {
+                    if (Creature* analyzer_x51 = npc->FindNearestCreature(60444, 30.0F))
+                    {
+                        analyzer_x51->MonsterSay(66374);
+                        analyzer_x51->HandleEmote(EMOTE_ONESHOT_TALK);
+                    }
+                });
+                DoAfterTime(pCreature, 11 * IN_MILLISECONDS, [npc = pCreature]()
+                {
+                    if (Creature* analyzer_x51 = npc->FindNearestCreature(60444, 30.0F))
+                    {
+                        analyzer_x51->MonsterSay(66375);
+                        analyzer_x51->HandleEmote(EMOTE_ONESHOT_TALK);
+                    }
+                });
+                DoAfterTime(pCreature, 15 * IN_MILLISECONDS, [npc = pCreature]()
+                {
+                    if (Creature* analyzer_x51 = npc->FindNearestCreature(60444, 30.0F))
+                    {
+                        analyzer_x51->MonsterSay(66376);
+                        analyzer_x51->HandleEmote(EMOTE_ONESHOT_TALK);
+                    }
+                });
+                DoAfterTime(pCreature, 20 * IN_MILLISECONDS, [npc = pCreature]()
+                {
+                    npc->MonsterSay(66377);
+                    npc->HandleEmote(EMOTE_ONESHOT_TALK);
+                });
+                DoAfterTime(pCreature, 25 * IN_MILLISECONDS, [npc = pCreature]()
+                {
+                    if (Creature* analyzer_x51 = npc->FindNearestCreature(60444, 30.0F))
+                    {
+                        analyzer_x51->MonsterSay(66378);
+                        analyzer_x51->HandleEmote(EMOTE_ONESHOT_TALK);
+                    }
+                });
+                DoAfterTime(pCreature, 30 * IN_MILLISECONDS, [npc = pCreature]()
+                {
+                    npc->MonsterSay(66379);
+                    npc->HandleEmote(EMOTE_ONESHOT_TALK);
+                });
+                DoAfterTime(pCreature, 35 * IN_MILLISECONDS, [npc = pCreature]()
+                {
+                    if (Creature* analyzer_x51 = npc->FindNearestCreature(60444, 30.0F))
+                    {
+                        analyzer_x51->MonsterSay(66380);
+                        analyzer_x51->HandleEmote(EMOTE_ONESHOT_TALK);
+                    }
+                });
+                DoAfterTime(pCreature, 40 * IN_MILLISECONDS, [npc = pCreature]()
+                {
+                    npc->MonsterSay(66381);
+                    npc->HandleEmote(EMOTE_ONESHOT_TALK);
+                });
+                DoAfterTime(pCreature, 45 * IN_MILLISECONDS, [npc = pCreature]()
+                {
+                    if (Creature* analyzer_x51 = npc->FindNearestCreature(60444, 30.0F))
+                    {
+                        analyzer_x51->MonsterSay(66382);
+                        analyzer_x51->HandleEmote(EMOTE_ONESHOT_TALK);
+                    }
+                });
+                DoAfterTime(pCreature, 50 * IN_MILLISECONDS, [npc = pCreature]()
+                {
+                    npc->MonsterSay(66383);
+                    npc->HandleEmote(EMOTE_ONESHOT_TALK);
+                });
+                DoAfterTime(pCreature, 55 * IN_MILLISECONDS, [npc = pCreature]()
+                {
+                    if (Creature* analyzer_x51 = npc->FindNearestCreature(60444, 30.0F))
+                    {
+                        analyzer_x51->MonsterSay(66384);
+                        analyzer_x51->HandleEmote(EMOTE_ONESHOT_TALK);
+                    }
+                });
+                DoAfterTime(pPlayer, 60 * IN_MILLISECONDS, [player = pPlayer, npcGuid = pCreature->GetObjectGuid()]()
+                {
+                    if (Creature* npc = player->GetMap()->GetCreature(npcGuid))
+                    {
+                        npc->MonsterSayToPlayer(67026, player);
+                        npc->HandleEmote(EMOTE_ONESHOT_TALK);
+                    }
+                });
+                DoAfterTime(pPlayer, 65 * IN_MILLISECONDS, [player = pPlayer]()
+                {
+                    if (Creature* analyzer_x51 = player->FindNearestCreature(60444, 30.0F))
+                    {
+                        analyzer_x51->MonsterSay(66386);
+                        analyzer_x51->HandleEmote(EMOTE_ONESHOT_TALK);
+                        if (CreatureInfo const* cInfo = sObjectMgr.GetCreatureTemplate(60324))
+                            player->KilledMonster(cInfo, ObjectGuid());
+                    }
+                });
+                break;
 
-        case 60443: // Kex Blowmaster
-            DoAfterTime(pCreature, 1 * IN_MILLISECONDS,
-                        [npc = pCreature]()
-                        {
-                            npc->MonsterSay(66387);
-                            npc->HandleEmote(EMOTE_ONESHOT_TALK);
-                            if (Creature* analyzer_x48 = npc->FindNearestCreature(60445, 30.0F))
-                            {
-                                analyzer_x48->SetVisibility(VISIBILITY_ON);
-                            }
-                        });
-            DoAfterTime(pCreature, 5 * IN_MILLISECONDS,
-                        [npc = pCreature]()
-                        {
-                            if (Creature* analyzer_x48 = npc->FindNearestCreature(60445, 30.0F))
-                            {
-                                analyzer_x48->MonsterSay(66373);
-                                analyzer_x48->HandleEmote(EMOTE_ONESHOT_TALK);
-                            }
-                        });
-            DoAfterTime(pCreature, 10 * IN_MILLISECONDS,
-                        [npc = pCreature]()
-                        {
-                            if (Creature* analyzer_x48 = npc->FindNearestCreature(60445, 30.0F))
-                            {
-                                analyzer_x48->MonsterSay(66374);
-                                analyzer_x48->HandleEmote(EMOTE_ONESHOT_TALK);
-                            }
-                        });
-            DoAfterTime(pCreature, 15 * IN_MILLISECONDS,
-                        [npc = pCreature]()
-                        {
-                            if (Creature* analyzer_x48 = npc->FindNearestCreature(60445, 30.0F))
-                            {
-                                analyzer_x48->MonsterSay(66374);
-                                analyzer_x48->HandleEmote(EMOTE_ONESHOT_TALK);
-                            }
-                        });
-            DoAfterTime(pCreature, 15 * IN_MILLISECONDS,
-                        [npc = pCreature]()
-                        {
-                            if (Creature* analyzer_x48 = npc->FindNearestCreature(60445, 30.0F))
-                            {
-                                analyzer_x48->MonsterSay(66388);
-                                analyzer_x48->HandleEmote(EMOTE_ONESHOT_TALK);
-                            }
-                        });
-            DoAfterTime(pCreature, 20 * IN_MILLISECONDS,
-                        [npc = pCreature]()
-                        {
-                            if (Creature* analyzer_x48 = npc->FindNearestCreature(60445, 30.0F))
-                            {
-                                analyzer_x48->MonsterSay(66389);
-                                analyzer_x48->HandleEmote(EMOTE_ONESHOT_TALK);
-                            }
-                        });
-            DoAfterTime(pCreature, 25 * IN_MILLISECONDS,
-                        [npc = pCreature]()
-                        {
-                            npc->MonsterSay(66390);
-                            npc->HandleEmote(EMOTE_ONESHOT_TALK);
-                        });
-            DoAfterTime(pCreature, 30 * IN_MILLISECONDS,
-                        [npc = pCreature]()
-                        {
-                            if (Creature* analyzer_x48 = npc->FindNearestCreature(60445, 30.0F))
-                            {
-                                analyzer_x48->MonsterSay(66391);
-                                analyzer_x48->HandleEmote(EMOTE_ONESHOT_TALK);
-                            }
-                        });
-            DoAfterTime(pCreature, 35 * IN_MILLISECONDS,
-                        [npc = pCreature]()
-                        {
-                            npc->MonsterSay(66392);
-                            npc->HandleEmote(EMOTE_ONESHOT_TALK);
-                        });
-            DoAfterTime(pCreature, 40 * IN_MILLISECONDS,
-                        [npc = pCreature]()
-                        {
-                            if (Creature* analyzer_x48 = npc->FindNearestCreature(60445, 30.0F))
-                            {
-                                analyzer_x48->MonsterSay(66393);
-                                analyzer_x48->HandleEmote(EMOTE_ONESHOT_TALK);
-                            }
-                        });
-            DoAfterTime(pCreature, 45 * IN_MILLISECONDS,
-                        [npc = pCreature]()
-                        {
-                            npc->MonsterSay(66394);
-                            npc->HandleEmote(EMOTE_ONESHOT_TALK);
-                        });
-            DoAfterTime(pCreature, 50 * IN_MILLISECONDS,
-                        [npc = pCreature]()
-                        {
-                            if (Creature* analyzer_x48 = npc->FindNearestCreature(60445, 30.0F))
-                            {
-                                analyzer_x48->MonsterSay(66395);
-                                analyzer_x48->HandleEmote(EMOTE_ONESHOT_TALK);
-                            }
-                        });
-            DoAfterTime(pCreature, 55 * IN_MILLISECONDS,
-                        [npc = pCreature]()
-                        {
-                            npc->MonsterSay(66396);
-                            npc->HandleEmote(EMOTE_ONESHOT_TALK);
-                        });
-            DoAfterTime(pCreature, 60 * IN_MILLISECONDS,
-                        [npc = pCreature]()
-                        {
-                            if (Creature* analyzer_x48 = npc->FindNearestCreature(60445, 30.0F))
-                            {
-                                analyzer_x48->MonsterSay(66397);
-                                analyzer_x48->HandleEmote(EMOTE_ONESHOT_TALK);
-                            }
-                        });
-            DoAfterTime(pCreature, 65 * IN_MILLISECONDS,
-                        [npc = pCreature]()
-                        {
-                            npc->MonsterSay(66398);
-                            npc->HandleEmote(EMOTE_ONESHOT_TALK);
-                        });
-            DoAfterTime(pPlayer, 70 * IN_MILLISECONDS,
-                        [player = pPlayer]()
-                        {
-                            if (Creature* analyzer_x48 = player->FindNearestCreature(60445, 30.0F))
-                            {
-                                analyzer_x48->MonsterSay(66399);
-                                analyzer_x48->HandleEmote(EMOTE_ONESHOT_TALK);
-                                if (CreatureInfo const* cInfo = sObjectMgr.GetCreatureTemplate(60324))
-                                    player->KilledMonster(cInfo, ObjectGuid());
-                            }
-                        });
-            break;
+            case 60443: // Kex Blowmaster
+                DoAfterTime(pCreature, 1 * IN_MILLISECONDS, [npc = pCreature]()
+                {
+                    npc->MonsterSay(66387);
+                    npc->HandleEmote(EMOTE_ONESHOT_TALK);
+                    if (Creature* analyzer_x48 = npc->FindNearestCreature(60445, 30.0F))
+                    {
+                        analyzer_x48->SetVisibility(VISIBILITY_ON);
+                    }
+                });
+                DoAfterTime(pCreature, 5 * IN_MILLISECONDS, [npc = pCreature]()
+                {
+                    if (Creature* analyzer_x48 = npc->FindNearestCreature(60445, 30.0F))
+                    {
+                        analyzer_x48->MonsterSay(66373);
+                        analyzer_x48->HandleEmote(EMOTE_ONESHOT_TALK);
+                    }
+                });
+                DoAfterTime(pCreature, 10 * IN_MILLISECONDS, [npc = pCreature]()
+                {
+                    if (Creature* analyzer_x48 = npc->FindNearestCreature(60445, 30.0F))
+                    {
+                        analyzer_x48->MonsterSay(66374);
+                        analyzer_x48->HandleEmote(EMOTE_ONESHOT_TALK);
+                    }
+                });
+                DoAfterTime(pCreature, 15 * IN_MILLISECONDS, [npc = pCreature]()
+                {
+                    if (Creature* analyzer_x48 = npc->FindNearestCreature(60445, 30.0F))
+                    {
+                        analyzer_x48->MonsterSay(66374);
+                        analyzer_x48->HandleEmote(EMOTE_ONESHOT_TALK);
+                    }
+                });
+                DoAfterTime(pCreature, 15 * IN_MILLISECONDS, [npc = pCreature]()
+                {
+                    if (Creature* analyzer_x48 = npc->FindNearestCreature(60445, 30.0F))
+                    {
+                        analyzer_x48->MonsterSay(66388);
+                        analyzer_x48->HandleEmote(EMOTE_ONESHOT_TALK);
+                    }
+                });
+                DoAfterTime(pCreature, 20 * IN_MILLISECONDS, [npc = pCreature]()
+                {
+                    if (Creature* analyzer_x48 = npc->FindNearestCreature(60445, 30.0F))
+                    {
+                        analyzer_x48->MonsterSay(66389);
+                        analyzer_x48->HandleEmote(EMOTE_ONESHOT_TALK);
+                    }
+                });
+                DoAfterTime(pCreature, 25 * IN_MILLISECONDS, [npc = pCreature]()
+                {
+                    npc->MonsterSay(66390);
+                    npc->HandleEmote(EMOTE_ONESHOT_TALK);
+                });
+                DoAfterTime(pCreature, 30 * IN_MILLISECONDS, [npc = pCreature]()
+                {
+                    if (Creature* analyzer_x48 = npc->FindNearestCreature(60445, 30.0F))
+                    {
+                        analyzer_x48->MonsterSay(66391);
+                        analyzer_x48->HandleEmote(EMOTE_ONESHOT_TALK);
+                    }
+                });
+                DoAfterTime(pCreature, 35 * IN_MILLISECONDS, [npc = pCreature]()
+                {
+                    npc->MonsterSay(66392);
+                    npc->HandleEmote(EMOTE_ONESHOT_TALK);
+                });
+                DoAfterTime(pCreature, 40 * IN_MILLISECONDS, [npc = pCreature]()
+                {
+                    if (Creature* analyzer_x48 = npc->FindNearestCreature(60445, 30.0F))
+                    {
+                        analyzer_x48->MonsterSay(66393);
+                        analyzer_x48->HandleEmote(EMOTE_ONESHOT_TALK);
+                    }
+                });
+                DoAfterTime(pCreature, 45 * IN_MILLISECONDS, [npc = pCreature]()
+                {
+                    npc->MonsterSay(66394);
+                    npc->HandleEmote(EMOTE_ONESHOT_TALK);
+                });
+                DoAfterTime(pCreature, 50 * IN_MILLISECONDS, [npc = pCreature]()
+                {
+                    if (Creature* analyzer_x48 = npc->FindNearestCreature(60445, 30.0F))
+                    {
+                        analyzer_x48->MonsterSay(66395);
+                        analyzer_x48->HandleEmote(EMOTE_ONESHOT_TALK);
+                    }
+                });
+                DoAfterTime(pCreature, 55 * IN_MILLISECONDS, [npc = pCreature]()
+                {
+                    npc->MonsterSay(66396);
+                    npc->HandleEmote(EMOTE_ONESHOT_TALK);
+                });
+                DoAfterTime(pCreature, 60 * IN_MILLISECONDS, [npc = pCreature]()
+                {
+                    if (Creature* analyzer_x48 = npc->FindNearestCreature(60445, 30.0F))
+                    {
+                        analyzer_x48->MonsterSay(66397);
+                        analyzer_x48->HandleEmote(EMOTE_ONESHOT_TALK);
+                    }
+                });
+                DoAfterTime(pCreature, 65 * IN_MILLISECONDS, [npc = pCreature]()
+                {
+                    npc->MonsterSay(66398);
+                    npc->HandleEmote(EMOTE_ONESHOT_TALK);
+                });
+                DoAfterTime(pPlayer, 70 * IN_MILLISECONDS, [player = pPlayer]()
+                {
+                    if (Creature* analyzer_x48 = player->FindNearestCreature(60445, 30.0F))
+                    {
+                        analyzer_x48->MonsterSay(66399);
+                        analyzer_x48->HandleEmote(EMOTE_ONESHOT_TALK);
+                        if (CreatureInfo const* cInfo = sObjectMgr.GetCreatureTemplate(60324))
+                            player->KilledMonster(cInfo, ObjectGuid());
+                    }
+                });
+                break;
         }
     }
 
@@ -681,7 +651,7 @@ bool GossipSelect_npc_carlos_matos(Player* pPlayer, Creature* pCreature, uint32 
         if (pPlayer->HasItemCount(ITEM_SHELL_COIN, 1, false))
         {
             pPlayer->DestroyItemCount(ITEM_SHELL_COIN, 1, true);
-
+            
             int32 price = sObjectMgr.GetShellCoinSellPrice();
             sObjectMgr.DecreaseShellCoinCount();
             pPlayer->ModifyMoney(price);
@@ -708,10 +678,8 @@ bool QuestAccept_npc_arnold_boran(Player* pPlayer, Creature* pQuestGiver, Quest 
 
     if (pQuest->GetQuestId() == 40141) // The Boran Family
     {
-        if (pPlayer->AddItem(60204))
-            first_item_added = true;
-        if (pPlayer->AddItem(60205))
-            second_item_added = true;
+        if (pPlayer->AddItem(60204)) first_item_added = true;
+        if (pPlayer->AddItem(60205)) second_item_added = true;
 
         if (!first_item_added || !second_item_added)
         {
@@ -748,23 +716,19 @@ bool GossipSelect_npc_samuel_boran(Player* pPlayer, Creature* pCreature, uint32 
             pPlayer->DestroyItemCount(60205, 1, true);
             pPlayer->SaveInventoryAndGoldToDB();
         }
-        DoAfterTime(pPlayer, 1 * IN_MILLISECONDS,
-                    [player = pPlayer, npc = pCreature]()
-                    {
-                        npc->MonsterSayToPlayer(66643, player);
-                        npc->HandleEmote(EMOTE_ONESHOT_TALK);
-                    });
-        DoAfterTime(pPlayer, 5 * IN_MILLISECONDS,
-                    [player = pPlayer, npc = pCreature]()
-                    {
-                        npc->MonsterSayToPlayer(66644, player);
-                        npc->HandleEmote(EMOTE_ONESHOT_TALK);
-                        player->AddItem(60203, 1);
-                        if (CreatureInfo const* cInfo = sObjectMgr.GetCreatureTemplate(60326))
-                            player->KilledMonster(cInfo, ObjectGuid());
-                        npc->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                        npc->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_SPAWNING);
-                    });
+        DoAfterTime(pPlayer, 1 * IN_MILLISECONDS, [player = pPlayer, npc = pCreature]() {
+            npc->MonsterSayToPlayer(66643, player);
+            npc->HandleEmote(EMOTE_ONESHOT_TALK);
+            });
+        DoAfterTime(pPlayer, 5 * IN_MILLISECONDS, [player = pPlayer, npc = pCreature]() {
+            npc->MonsterSayToPlayer(66644, player);
+            npc->HandleEmote(EMOTE_ONESHOT_TALK);
+            player->AddItem(60203, 1);
+            if (CreatureInfo const* cInfo = sObjectMgr.GetCreatureTemplate(60326))
+                player->KilledMonster(cInfo, ObjectGuid());
+            npc->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+            npc->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_SPAWNING);
+            });
     }
 
     pPlayer->CLOSE_GOSSIP_MENU();
@@ -795,23 +759,19 @@ bool GossipSelect_npc_karl_boran(Player* pPlayer, Creature* pCreature, uint32 ui
             pPlayer->DestroyItemCount(60204, 1, true);
             pPlayer->SaveInventoryAndGoldToDB();
         }
-        DoAfterTime(pPlayer, 1 * IN_MILLISECONDS,
-                    [player = pPlayer, npc = pCreature]()
-                    {
-                        npc->MonsterSayToPlayer(66645, player);
-                        npc->HandleEmote(EMOTE_ONESHOT_TALK);
-                    });
-        DoAfterTime(pPlayer, 5 * IN_MILLISECONDS,
-                    [player = pPlayer, npc = pCreature]()
-                    {
-                        npc->MonsterSayToPlayer(66646, player);
-                        npc->HandleEmote(EMOTE_ONESHOT_TALK);
-                        player->AddItem(60202, 1);
-                        if (CreatureInfo const* cInfo = sObjectMgr.GetCreatureTemplate(60325))
-                            player->KilledMonster(cInfo, ObjectGuid());
-                        npc->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                        npc->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_SPAWNING);
-                    });
+        DoAfterTime(pPlayer, 1 * IN_MILLISECONDS, [player = pPlayer, npc = pCreature]() {
+            npc->MonsterSayToPlayer(66645, player);
+            npc->HandleEmote(EMOTE_ONESHOT_TALK);
+            });
+        DoAfterTime(pPlayer, 5 * IN_MILLISECONDS, [player = pPlayer, npc = pCreature]() {
+            npc->MonsterSayToPlayer(66646, player);
+            npc->HandleEmote(EMOTE_ONESHOT_TALK);
+            player->AddItem(60202, 1);
+            if (CreatureInfo const* cInfo = sObjectMgr.GetCreatureTemplate(60325))
+                player->KilledMonster(cInfo, ObjectGuid());
+            npc->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+            npc->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_SPAWNING);
+            });
     }
 
     pPlayer->CLOSE_GOSSIP_MENU();
@@ -914,8 +874,14 @@ struct npc_captain_saltbeardAI : public ScriptedAI
     npc_captain_saltbeardAI(Creature* c) : ScriptedAI(c) { Reset(); }
 
     void Reset() {}
-    void UpdateAI(const uint32 diff) { DoMeleeAttackIfReady(); }
-    void Aggro(Unit* who) { m_creature->MonsterSay(66400); }
+    void UpdateAI(const uint32 diff)
+    {
+        DoMeleeAttackIfReady();
+    }
+    void Aggro(Unit* who)
+    {
+        m_creature->MonsterSay(66400);
+    }
     void JustRespawned() { Reset(); }
 };
 
@@ -926,8 +892,14 @@ struct npc_captain_blackeyeAI : public ScriptedAI
     npc_captain_blackeyeAI(Creature* c) : ScriptedAI(c) { Reset(); }
 
     void Reset() {}
-    void UpdateAI(const uint32 diff) { DoMeleeAttackIfReady(); }
-    void Aggro(Unit* who) { m_creature->MonsterSay(66401); }
+    void UpdateAI(const uint32 diff)
+    {
+        DoMeleeAttackIfReady();
+    }
+    void Aggro(Unit* who)
+    {
+        m_creature->MonsterSay(66401);
+    }
     void JustRespawned() { Reset(); }
 };
 
@@ -938,8 +910,14 @@ struct npc_captain_ironhoofAI : public ScriptedAI
     npc_captain_ironhoofAI(Creature* c) : ScriptedAI(c) { Reset(); }
 
     void Reset() {}
-    void UpdateAI(const uint32 diff) { DoMeleeAttackIfReady(); }
-    void Aggro(Unit* who) { m_creature->MonsterSay(66402); }
+    void UpdateAI(const uint32 diff)
+    {
+        DoMeleeAttackIfReady();
+    }
+    void Aggro(Unit* who)
+    {
+        m_creature->MonsterSay(66402);
+    }
     void JustRespawned() { Reset(); }
 };
 
@@ -1024,7 +1002,7 @@ bool GossipSelect_npc_morgan_the_storm(Player* pPlayer, Creature* pCreature, uin
 {
     if (uiAction == GOSSIP_ACTION_INFO_DEF + 1)
     {
-        // pCreature->MonsterSay(66403);
+        //pCreature->MonsterSay(66403);
         pCreature->SetFactionTemporary(14, TEMPFACTION_RESTORE_COMBAT_STOP);
         pCreature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_SPAWNING);
         pCreature->HandleEmote(EMOTE_ONESHOT_ATTACK1H);
@@ -1069,34 +1047,26 @@ bool GossipSelect_npc_garfield_sparkblast(Player* pPlayer, Creature* pCreature, 
     {
         pCreature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_SPAWNING);
 
-        DoAfterTime(pPlayer, 1 * IN_MILLISECONDS,
-                    [player = pPlayer, npc = pCreature]()
-                    {
-                        npc->MonsterSayToPlayer(66662, player);
-                        npc->HandleEmote(EMOTE_ONESHOT_TALK);
-                    });
-        DoAfterTime(pPlayer, 3 * IN_MILLISECONDS,
-                    [player = pPlayer, npc = pCreature]()
-                    {
-                        npc->MonsterSayToPlayer(66663, player);
-                        npc->HandleEmote(EMOTE_ONESHOT_TALK);
-                    });
-        DoAfterTime(pPlayer, 8 * IN_MILLISECONDS,
-                    [player = pPlayer, npc = pCreature]()
-                    {
-                        npc->MonsterYell(66426);
-                        npc->HandleEmote(EMOTE_ONESHOT_APPLAUD);
-                    });
-        DoAfterTime(pPlayer, 12 * IN_MILLISECONDS,
-                    [player = pPlayer, npc = pCreature]()
-                    {
-                        npc->MonsterYell(66427);
-                        npc->HandleEmote(EMOTE_ONESHOT_CHEER);
-                        if (CreatureInfo const* cInfo = sObjectMgr.GetCreatureTemplate(60331))
-                            player->KilledMonster(cInfo, ObjectGuid());
-                        npc->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                        npc->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_SPAWNING);
-                    });
+        DoAfterTime(pPlayer, 1 * IN_MILLISECONDS, [player = pPlayer, npc = pCreature]() {
+            npc->MonsterSayToPlayer(66662, player);
+            npc->HandleEmote(EMOTE_ONESHOT_TALK);
+            });
+        DoAfterTime(pPlayer, 3 * IN_MILLISECONDS, [player = pPlayer, npc = pCreature]() {
+            npc->MonsterSayToPlayer(66663, player);
+            npc->HandleEmote(EMOTE_ONESHOT_TALK);
+            });
+        DoAfterTime(pPlayer, 8 * IN_MILLISECONDS, [player = pPlayer, npc = pCreature]() {
+            npc->MonsterYell(66426);
+            npc->HandleEmote(EMOTE_ONESHOT_APPLAUD);
+            });
+        DoAfterTime(pPlayer, 12 * IN_MILLISECONDS, [player = pPlayer, npc = pCreature]() {
+            npc->MonsterYell(66427);
+            npc->HandleEmote(EMOTE_ONESHOT_CHEER);
+            if (CreatureInfo const* cInfo = sObjectMgr.GetCreatureTemplate(60331))
+                player->KilledMonster(cInfo, ObjectGuid());
+            npc->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+            npc->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_SPAWNING);
+            });
     }
 
     if (uiAction == GOSSIP_ACTION_INFO_DEF + 3)
@@ -1105,14 +1075,12 @@ bool GossipSelect_npc_garfield_sparkblast(Player* pPlayer, Creature* pCreature, 
         pCreature->MonsterSay(66404);
         pCreature->HandleEmote(EMOTE_ONESHOT_TALK);
 
-        DoAfterTime(pPlayer, 5 * IN_MILLISECONDS,
-                    [player = pPlayer, npc = pCreature]()
-                    {
-                        if (CreatureInfo const* cInfo = sObjectMgr.GetCreatureTemplate(60354))
-                            player->KilledMonster(cInfo, ObjectGuid());
-                        npc->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                        npc->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_SPAWNING);
-                    });
+        DoAfterTime(pPlayer, 5 * IN_MILLISECONDS, [player = pPlayer, npc = pCreature]() {
+            if (CreatureInfo const* cInfo = sObjectMgr.GetCreatureTemplate(60354))
+                player->KilledMonster(cInfo, ObjectGuid());
+            npc->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+            npc->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_SPAWNING);
+            });
     }
 
     pPlayer->CLOSE_GOSSIP_MENU();
@@ -1147,11 +1115,11 @@ struct npc_thiraelAI : public ScriptedAI
 {
     npc_thiraelAI(Creature* c) : ScriptedAI(c) { Reset(); }
 
-    void Reset() {}
+    void Reset() { }
     void JustDied(Unit*) override
     {
-        if (!m_creature->FindNearestCreature(60464, 5.0F))
-            m_creature->SummonCreature(60464, m_creature->GetPositionX(), m_creature->GetPositionY(), m_creature->GetPositionZ(), m_creature->GetOrientation(), TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 115 * IN_MILLISECONDS);
+        if(!m_creature->FindNearestCreature(60464, 5.0F))
+        m_creature->SummonCreature(60464, m_creature->GetPositionX(), m_creature->GetPositionY(), m_creature->GetPositionZ(), m_creature->GetOrientation(), TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 115 * IN_MILLISECONDS);
     }
 };
 
@@ -1159,12 +1127,13 @@ CreatureAI* GetAI_npc_thirael(Creature* _Creature) { return new npc_thiraelAI(_C
 
 bool QuestRewarded_npc_thirael_ghost(Player* pPlayer, Creature* pQuestGiver, Quest const* pQuest)
 {
-    if (!pQuestGiver || !pPlayer)
-        return false;
+    if (!pQuestGiver || !pPlayer) return false;
 
     if (pQuest->GetQuestId() == 40184) // No Hope for Tomorrow
     {
-        DoAfterTime(pPlayer, 5 * IN_MILLISECONDS, [player = pPlayer, npc = pQuestGiver]() { npc->ForcedDespawn(); });
+        DoAfterTime(pPlayer, 5 * IN_MILLISECONDS, [player = pPlayer, npc = pQuestGiver]() {
+            npc->ForcedDespawn();
+            });
     }
 
     return false;
@@ -1172,26 +1141,21 @@ bool QuestRewarded_npc_thirael_ghost(Player* pPlayer, Creature* pQuestGiver, Que
 
 bool QuestRewarded_npc_blazno(Player* pPlayer, Creature* pQuestGiver, Quest const* pQuest)
 {
-    if (!pQuestGiver || !pPlayer)
-        return false;
+    if (!pQuestGiver || !pPlayer) return false;
 
     if (pQuest->GetQuestId() == 40190) // The Blazno Touch
     {
         pQuestGiver->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_SPAWNING);
-        DoAfterTime(pPlayer, 1 * IN_MILLISECONDS,
-                    [player = pPlayer, npc = pQuestGiver]()
-                    {
-                        npc->MonsterSayToPlayer(66665, player);
-                        npc->HandleEmote(EMOTE_ONESHOT_TALK);
-                    });
-        DoAfterTime(pPlayer, 12 * IN_MILLISECONDS,
-                    [player = pPlayer, npc = pQuestGiver]()
-                    {
-                        npc->MonsterSayToPlayer(66666, player);
-                        npc->HandleEmote(EMOTE_ONESHOT_TALK);
-                        npc->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                        npc->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_SPAWNING);
-                    });
+        DoAfterTime(pPlayer, 1 * IN_MILLISECONDS, [player = pPlayer, npc = pQuestGiver]() {
+            npc->MonsterSayToPlayer(66665, player);
+            npc->HandleEmote(EMOTE_ONESHOT_TALK);
+            });
+        DoAfterTime(pPlayer, 12 * IN_MILLISECONDS, [player = pPlayer, npc = pQuestGiver]() {
+            npc->MonsterSayToPlayer(66666, player);
+            npc->HandleEmote(EMOTE_ONESHOT_TALK);
+            npc->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+            npc->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_SPAWNING);
+            });
     }
 
     return false;
@@ -1199,8 +1163,7 @@ bool QuestRewarded_npc_blazno(Player* pPlayer, Creature* pQuestGiver, Quest cons
 
 bool QuestRewarded_npc_daela_evermoon(Player* pPlayer, Creature* pQuestGiver, Quest const* pQuest)
 {
-    if (!pQuestGiver || !pPlayer)
-        return false;
+    if (!pQuestGiver || !pPlayer) return false;
 
     if (pQuest->GetQuestId() == 40197) // Old Greypaw
     {
@@ -1224,20 +1187,16 @@ bool GossipSelect_npc_old_greypaw(Player* pPlayer, Creature* pCreature, uint32 u
 {
     if (uiAction == GOSSIP_ACTION_INFO_DEF + 1)
     {
-        DoAfterTime(pPlayer, 1 * IN_MILLISECONDS,
-                    [player = pPlayer, npc = pCreature]()
-                    {
-                        npc->MonsterSayToPlayer(66668, player);
-                        npc->HandleEmote(EMOTE_ONESHOT_TALK);
-                    });
-        DoAfterTime(pPlayer, 5 * IN_MILLISECONDS,
-                    [player = pPlayer, npc = pCreature]()
-                    {
-                        npc->MonsterSayToPlayer(66669, player);
-                        npc->SetFactionTemporary(14, TEMPFACTION_RESTORE_COMBAT_STOP);
-                        npc->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_SPAWNING);
-                        npc->HandleEmote(EMOTE_ONESHOT_ATTACK1H);
-                    });
+        DoAfterTime(pPlayer, 1 * IN_MILLISECONDS, [player = pPlayer, npc = pCreature]() {
+            npc->MonsterSayToPlayer(66668, player);
+            npc->HandleEmote(EMOTE_ONESHOT_TALK);
+            });
+        DoAfterTime(pPlayer, 5 * IN_MILLISECONDS, [player = pPlayer, npc = pCreature]() {
+            npc->MonsterSayToPlayer(66669, player);
+            npc->SetFactionTemporary(14, TEMPFACTION_RESTORE_COMBAT_STOP);
+            npc->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_SPAWNING);
+            npc->HandleEmote(EMOTE_ONESHOT_ATTACK1H);
+            });
     }
 
     pPlayer->CLOSE_GOSSIP_MENU();
@@ -1248,7 +1207,7 @@ struct npc_old_greypawAI : public ScriptedAI
 {
     npc_old_greypawAI(Creature* c) : ScriptedAI(c) { Reset(); }
 
-    void Reset() {}
+    void Reset() { }
     void JustDied(Unit*) override
     {
         m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_SPAWNING);
@@ -1280,42 +1239,35 @@ bool GossipSelect_npc_insomni(Player* pPlayer, Creature* pCreature, uint32 /*uiS
     switch (uiAction)
     {
     case GOSSIP_ACTION_INFO_DEF + 1:
-        {
-            pCreature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+    {
+        pCreature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
 
-            DoAfterTime(pCreature, 1 * IN_MILLISECONDS,
-                        [npc = pCreature]()
-                        {
-                            npc->MonsterSay(66405);
-                            npc->HandleEmote(EMOTE_ONESHOT_TALK);
-                        });
-            DoAfterTime(pCreature, 21 * IN_MILLISECONDS,
-                        [npc = pCreature]()
-                        {
-                            npc->MonsterSay(66406);
-                            npc->HandleEmote(EMOTE_ONESHOT_TALK);
-                        });
-            DoAfterTime(pCreature, 41 * IN_MILLISECONDS,
-                        [npc = pCreature]()
-                        {
-                            npc->MonsterSay(66407);
-                            npc->HandleEmote(EMOTE_ONESHOT_TALK);
-                        });
-            DoAfterTime(pCreature, 56 * IN_MILLISECONDS,
-                        [playerGuid, npc = pCreature]()
-                        {
-                            auto player = sObjectAccessor.FindPlayer(playerGuid);
-                            if (CreatureInfo const* cInfo = sObjectMgr.GetCreatureTemplate(60334); cInfo && player)
-                                player->KilledMonster(cInfo, ObjectGuid());
-                            npc->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                        });
-            break;
-        }
+        DoAfterTime(pCreature, 1 * IN_MILLISECONDS, [npc = pCreature]() {
+            npc->MonsterSay(66405);
+            npc->HandleEmote(EMOTE_ONESHOT_TALK);
+            });
+        DoAfterTime(pCreature, 21 * IN_MILLISECONDS, [npc = pCreature]() {
+            npc->MonsterSay(66406);
+            npc->HandleEmote(EMOTE_ONESHOT_TALK);
+            });
+        DoAfterTime(pCreature, 41 * IN_MILLISECONDS, [ npc = pCreature]() {
+            npc->MonsterSay(66407);
+            npc->HandleEmote(EMOTE_ONESHOT_TALK);
+            });
+        DoAfterTime(pCreature, 56 * IN_MILLISECONDS, [playerGuid, npc = pCreature]() {
+            auto player = sObjectAccessor.FindPlayer(playerGuid);
+            if (CreatureInfo const* cInfo = sObjectMgr.GetCreatureTemplate(60334); cInfo && player)
+                player->KilledMonster(cInfo, ObjectGuid());
+            npc->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+            });
+        break;
+    }
     case GOSSIP_ACTION_INFO_DEF + 2:
-        {
-            insomniDialogue(pPlayer, pCreature);
-            break;
-        }
+    {
+        insomniDialogue(pPlayer, pCreature);
+        break;
+    }
+
     }
 
     pPlayer->CLOSE_GOSSIP_MENU();
@@ -1337,34 +1289,30 @@ bool QuestAccept_npc_insomni(Player* pPlayer, Creature* pQuestGiver, Quest const
         pQuestGiver->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
         pQuestGiver->CastSpell(pQuestGiver, 13236, false);
 
-        DoAfterTime(pQuestGiver, 18 * IN_MILLISECONDS,
-                    [npc = pQuestGiver]()
-                    {
-                        npc->HandleEmote(EMOTE_ONESHOT_YES);
-                        npc->CastSpell(npc, 5906, false);
-                    });
-        DoAfterTime(pQuestGiver, 20 * IN_MILLISECONDS,
-                    [playerGuid, npc = pQuestGiver]()
-                    {
-                        npc->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                        auto player = sObjectAccessor.FindPlayer(playerGuid);
-                        if (player)
-                        {
-                            player->AddItem(60244);
-                            if (player->HasItemCount(60244, 1, false))
-                            {
-                                npc->MonsterSayToPlayer(66672, player);
-                                npc->HandleEmote(EMOTE_ONESHOT_TALK);
-                                npc->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_SPAWNING);
-                                return true;
-                            }
-                            else
-                                player->RemoveQuest(40171);
-                            player->SetQuestStatus(40171, QUEST_STATUS_NONE);
-                            player->GetSession()->SendNotification("Your bags are full!");
-                        }
-                        return false;
-                    });
+        DoAfterTime(pQuestGiver, 18 * IN_MILLISECONDS, [npc = pQuestGiver]() {
+            npc->HandleEmote(EMOTE_ONESHOT_YES);
+            npc->CastSpell(npc, 5906, false);
+            });
+        DoAfterTime(pQuestGiver, 20 * IN_MILLISECONDS, [playerGuid, npc = pQuestGiver]() {
+            npc->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+            auto player = sObjectAccessor.FindPlayer(playerGuid);
+            if (player)
+            {
+                player->AddItem(60244);
+                if (player->HasItemCount(60244, 1, false))
+                {
+                    npc->MonsterSayToPlayer(66672, player);
+                    npc->HandleEmote(EMOTE_ONESHOT_TALK);
+                    npc->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_SPAWNING);
+                    return true;
+                }
+                else
+                    player->RemoveQuest(40171);
+                player->SetQuestStatus(40171, QUEST_STATUS_NONE);
+                player->GetSession()->SendNotification("Your bags are full!");
+            }
+            return false;
+            });
     }
 
     if (pQuest->GetQuestId() == 40271) // The Maul'ogg Crisis VIII --
@@ -1372,33 +1320,29 @@ bool QuestAccept_npc_insomni(Player* pPlayer, Creature* pQuestGiver, Quest const
         pQuestGiver->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
         pQuestGiver->CastSpell(pQuestGiver, 13236, false);
 
-        DoAfterTime(pQuestGiver, 18 * IN_MILLISECONDS,
-                    [npc = pQuestGiver]()
-                    {
-                        npc->HandleEmote(EMOTE_ONESHOT_YES);
-                        npc->CastSpell(npc, 5906, false);
-                    });
-        DoAfterTime(pQuestGiver, 20 * IN_MILLISECONDS,
-                    [playerGuid, npc = pQuestGiver]()
-                    {
-                        npc->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                        auto player = sObjectAccessor.FindPlayer(playerGuid);
-                        if (player)
-                        {
-                            player->AddItem(60345);
-                            if (player->HasItemCount(60345, 1, false))
-                            {
-                                npc->MonsterSayToPlayer(66673, player);
-                                npc->HandleEmote(EMOTE_ONESHOT_TALK);
-                                return true;
-                            }
-                            else
-                                player->RemoveQuest(40271);
-                            player->SetQuestStatus(40271, QUEST_STATUS_NONE);
-                            player->GetSession()->SendNotification("Your bags are full!");
-                        }
-                        return false;
-                    });
+        DoAfterTime(pQuestGiver, 18 * IN_MILLISECONDS, [npc = pQuestGiver]() {
+            npc->HandleEmote(EMOTE_ONESHOT_YES);
+            npc->CastSpell(npc, 5906, false);
+            });
+        DoAfterTime(pQuestGiver, 20 * IN_MILLISECONDS, [playerGuid, npc = pQuestGiver]() {
+            npc->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+            auto player = sObjectAccessor.FindPlayer(playerGuid);
+            if (player)
+            {
+                player->AddItem(60345);
+                if (player->HasItemCount(60345, 1, false))
+                {
+                    npc->MonsterSayToPlayer(66673, player);
+                    npc->HandleEmote(EMOTE_ONESHOT_TALK);
+                    return true;
+                }
+                else
+                    player->RemoveQuest(40271);
+                player->SetQuestStatus(40271, QUEST_STATUS_NONE);
+                player->GetSession()->SendNotification("Your bags are full!");
+            }
+            return false;
+            });
     }
 
     if (pQuest->GetQuestId() == 40214) // Uncovering Evil
@@ -1413,91 +1357,71 @@ void insomniDialogue(Player* pPlayer, Creature* pQuestGiver)
 
     auto pGuid = pPlayer->GetObjectGuid();
 
-    DoAfterTime(pQuestGiver, 1 * IN_MILLISECONDS,
-                [player = pPlayer, npc = pQuestGiver]()
-                {
-                    {
-                        npc->SetWalk(true);
-                        npc->GetMotionMaster()->MovePoint(0, -12864.27F, 2809.63F, -6.85F, 0, 3.0F);
-                        npc->PMonsterSay(66408, player->GetName());
-                    }
-                });
-    DoAfterTime(pQuestGiver, 39 * IN_MILLISECONDS,
-                [player = pPlayer, npc = pQuestGiver]()
-                {
-                    {
-                        npc->MonsterSay(66409);
-                        npc->HandleEmote(EMOTE_ONESHOT_TALK);
-                    }
-                });
-    DoAfterTime(pQuestGiver, 42 * IN_MILLISECONDS,
-                [player = pPlayer, npc = pQuestGiver]()
-                {
-                    {
-                        npc->GetMotionMaster()->MovePoint(0, -12865.99F, 2821.96F, -0.82F, 0, 3.0F);
-                    }
-                });
-    DoAfterTime(pQuestGiver, 47 * IN_MILLISECONDS,
-                [player = pPlayer, npc = pQuestGiver]()
-                {
-                    {
-                        npc->MonsterSay(66410);
-                        npc->HandleEmote(EMOTE_ONESHOT_TALK);
-                    }
-                });
-    DoAfterTime(pQuestGiver, 48 * IN_MILLISECONDS,
-                [player = pPlayer, npc = pQuestGiver]()
-                {
-                    {
-                        npc->GetMotionMaster()->MovePoint(0, -12864.54F, 2908.59F, 10.24F, 0, 3.0F);
-                    }
-                });
-    DoAfterTime(pQuestGiver, 61 * IN_MILLISECONDS,
-                [player = pPlayer, npc = pQuestGiver]()
-                {
-                    {
-                        npc->GetMotionMaster()->MovePoint(0, -12865.12F, 2873.97F, 1.67F, 0, 3.0F);
-                    }
-                });
-    DoAfterTime(pQuestGiver, 65 * IN_MILLISECONDS,
-                [player = pPlayer, npc = pQuestGiver]()
-                {
-                    {
-                        npc->GetMotionMaster()->MovePoint(0, -12864.54F, 2908.59F, 10.24F, 0, 3.0F, 0.62F);
-                    }
-                });
-    DoAfterTime(pQuestGiver, 78 * IN_MILLISECONDS,
-                [player = pPlayer, npc = pQuestGiver]()
-                {
-                    {
-                        npc->MonsterSay(66411);
-                        npc->HandleEmote(EMOTE_ONESHOT_TALK);
-                    }
-                });
-    DoAfterTime(pQuestGiver, 82 * IN_MILLISECONDS,
-                [player = pPlayer, npc = pQuestGiver]()
-                {
-                    {
-                        npc->CastSpell(npc, 13236, false);
-                        GameObject* riftSpell = npc->SummonGameObject(7000035, -12853.94f, 2915.04f, 10.81f, 0);
-                    }
-                });
+    DoAfterTime(pQuestGiver, 1 * IN_MILLISECONDS, [player = pPlayer, npc = pQuestGiver]() {
+        {
+            npc->SetWalk(true);
+            npc->GetMotionMaster()->MovePoint(0, -12864.27F, 2809.63F, -6.85F, 0, 3.0F);
+            npc->PMonsterSay(66408, player->GetName());
+        }
+        });
+    DoAfterTime(pQuestGiver, 39 * IN_MILLISECONDS, [player = pPlayer, npc = pQuestGiver]() {
+        {
+            npc->MonsterSay(66409);
+            npc->HandleEmote(EMOTE_ONESHOT_TALK);
+        }
+        });
+    DoAfterTime(pQuestGiver, 42 * IN_MILLISECONDS, [player = pPlayer, npc = pQuestGiver]() {
+        {
+            npc->GetMotionMaster()->MovePoint(0, -12865.99F, 2821.96F, -0.82F, 0, 3.0F);
+        }
+        });
+    DoAfterTime(pQuestGiver, 47 * IN_MILLISECONDS, [player = pPlayer, npc = pQuestGiver]() {
+        {
+            npc->MonsterSay(66410);
+            npc->HandleEmote(EMOTE_ONESHOT_TALK);
+        }
+        });
+    DoAfterTime(pQuestGiver, 48 * IN_MILLISECONDS, [player = pPlayer, npc = pQuestGiver]() {
+        {
+            npc->GetMotionMaster()->MovePoint(0, -12864.54F, 2908.59F, 10.24F, 0, 3.0F);
+        }
+        });
+    DoAfterTime(pQuestGiver, 61 * IN_MILLISECONDS, [player = pPlayer, npc = pQuestGiver]() {
+        {
+            npc->GetMotionMaster()->MovePoint(0, -12865.12F, 2873.97F, 1.67F, 0, 3.0F);
+        }
+        });
+    DoAfterTime(pQuestGiver, 65 * IN_MILLISECONDS, [player = pPlayer, npc = pQuestGiver]() {
+        {
+            npc->GetMotionMaster()->MovePoint(0, -12864.54F, 2908.59F, 10.24F, 0, 3.0F, 0.62F);
+        }
+        });
+    DoAfterTime(pQuestGiver, 78 * IN_MILLISECONDS, [player = pPlayer, npc = pQuestGiver]() {
+        {
+            npc->MonsterSay(66411);
+            npc->HandleEmote(EMOTE_ONESHOT_TALK);
+        }
+        });
+    DoAfterTime(pQuestGiver, 82 * IN_MILLISECONDS, [player = pPlayer, npc = pQuestGiver]() {
+        {
+            npc->CastSpell(npc, 13236, false);
+            GameObject* riftSpell = npc->SummonGameObject(7000035, -12853.94f, 2915.04f, 10.81f, 0);
+        }
+        });
 
-    DoAfterTime(pQuestGiver, 92 * IN_MILLISECONDS,
-                [pGuid, npc = pQuestGiver]()
-                {
-                    npc->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                    WorldObject* obj = nullptr;
-                    Player* pPlayer = ObjectAccessor::FindPlayer(pGuid);
-                    if (!pPlayer)
-                        obj = npc;
-                    else
-                        obj = pPlayer;
+    DoAfterTime(pQuestGiver, 92 * IN_MILLISECONDS, [pGuid, npc = pQuestGiver]() {
+        npc->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+        WorldObject* obj = nullptr;
+        Player* pPlayer = ObjectAccessor::FindPlayer(pGuid);
+        if (!pPlayer)
+            obj = npc;
+        else
+            obj = pPlayer;
 
-                    if (GameObject* riftSpell = obj->FindNearestGameObject(7000035, 50.0f))
-                        riftSpell->AddObjectToRemoveList();
-                    npc->SummonCreature(60499, -12853.94f, 2915.04f, 10.81f, 3.83F, TEMPSUMMON_CORPSE_DESPAWN);
-                });
+        if (GameObject* riftSpell = obj->FindNearestGameObject(7000035, 50.0f))
+            riftSpell->AddObjectToRemoveList();
+        npc->SummonCreature(60499, -12853.94f, 2915.04f, 10.81f, 3.83F, TEMPSUMMON_CORPSE_DESPAWN);
+        });
 }
 
 struct npc_fearothAI : public ScriptedAI
@@ -1507,7 +1431,7 @@ struct npc_fearothAI : public ScriptedAI
     bool transformed;
     bool fightBegun;
 
-    void Reset()
+    void Reset() 
     {
         transformed = false;
         fightBegun = false;
@@ -1540,7 +1464,7 @@ struct npc_fearothAI : public ScriptedAI
         DoMeleeAttackIfReady();
     }
 
-    void JustDied(Unit*)
+    void JustDied(Unit*) 
     {
         Creature* insomnius = m_creature->FindNearestCreature(60498, 40.0F);
 
@@ -1551,7 +1475,7 @@ struct npc_fearothAI : public ScriptedAI
         }
     }
 
-    void EnterEvadeMode()
+    void EnterEvadeMode() 
     {
         if (Creature* insomni = m_creature->FindNearestCreature(60446, 100.0F))
             insomni->DespawnOrUnsummon();
@@ -1570,9 +1494,18 @@ struct npc_lapidisAI : public ScriptedAI
     npc_lapidisAI(Creature* c) : ScriptedAI(c) { Reset(); }
 
     void Reset() {}
-    void UpdateAI(const uint32 diff) { DoMeleeAttackIfReady(); }
-    void Aggro(Unit* who) { m_creature->MonsterSay(66414); }
-    void JustDied(Unit*) override { m_creature->MonsterSay(66415); }
+    void UpdateAI(const uint32 diff)
+    {
+        DoMeleeAttackIfReady();
+    }
+    void Aggro(Unit* who)
+    {
+        m_creature->MonsterSay(66414);
+    }
+    void JustDied(Unit*) override
+    {
+        m_creature->MonsterSay(66415);
+    }
     void EnterCombat() {}
     void JustRespawned() { Reset(); }
 };
@@ -1581,7 +1514,7 @@ CreatureAI* GetAI_npc_lapidis(Creature* _Creature) { return new npc_lapidisAI(_C
 
 bool GossipHello_npc_lorthiras(Player* pPlayer, Creature* pCreature)
 {
-    // if (pPlayer->GetQuestStatus(00000) == QUEST_STATUS_INCOMPLETE)
+    //if (pPlayer->GetQuestStatus(00000) == QUEST_STATUS_INCOMPLETE)
     pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_TALK, 66674, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
 
     if (pCreature->IsQuestGiver())
@@ -1605,28 +1538,23 @@ bool GossipSelect_npc_lorthiras(Player* pPlayer, Creature* pCreature, uint32 uiS
 
 bool QuestRewarded_npc_lorthiras(Player* pPlayer, Creature* pQuestGiver, Quest const* pQuest)
 {
-    if (!pQuestGiver || !pPlayer)
-        return false;
+    if (!pQuestGiver || !pPlayer) return false;
 
     if (pQuest->GetQuestId() == 40239) // The Will of Lorthiras
     {
         pQuestGiver->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_SPAWNING);
         pQuestGiver->CastSpell(pQuestGiver, 698, false); // Ritual of Summoning
 
-        DoAfterTime(pPlayer, 6 * IN_MILLISECONDS,
-                    [player = pPlayer, npc = pQuestGiver]()
-                    {
-                        npc->MonsterSayToPlayer(66675, player);
-                        npc->CastSpell(npc, 1456, false); // Life Tap
-                        npc->HandleEmote(EMOTE_ONESHOT_TALK);
-                    });
+        DoAfterTime(pPlayer, 6 * IN_MILLISECONDS, [player = pPlayer, npc = pQuestGiver]() {
+            npc->MonsterSayToPlayer(66675, player);
+            npc->CastSpell(npc, 1456, false); // Life Tap
+            npc->HandleEmote(EMOTE_ONESHOT_TALK);
+            });
 
-        DoAfterTime(pPlayer, 16 * IN_MILLISECONDS,
-                    [player = pPlayer, npc = pQuestGiver]()
-                    {
-                        npc->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                        npc->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_SPAWNING);
-                    });
+        DoAfterTime(pPlayer, 16 * IN_MILLISECONDS, [player = pPlayer, npc = pQuestGiver]() {
+            npc->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+            npc->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_SPAWNING);
+            });
     }
 
     return false;
@@ -1689,7 +1617,7 @@ GameObjectAI* GetAI_magically_sealed_door(GameObject* Obj) { return new magicall
 bool GossipHello_npc_iselus(Player* pPlayer, Creature* pCreature)
 {
     if (pPlayer->GetQuestStatus(40285) == QUEST_STATUS_INCOMPLETE)
-        pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_TALK, 66676, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+    pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_TALK, 66676, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
 
     if (pCreature->IsQuestGiver())
         pPlayer->PrepareQuestMenu(pCreature->GetGUID());
@@ -1702,14 +1630,12 @@ bool GossipSelect_npc_iselus(Player* pPlayer, Creature* pCreature, uint32 uiSend
 {
     if (uiAction == GOSSIP_ACTION_INFO_DEF + 1)
     {
-        DoAfterTime(pPlayer, 1 * IN_MILLISECONDS,
-                    [player = pPlayer, npc = pCreature]()
-                    {
-                        npc->MonsterSayToPlayer(66677, player);
-                        npc->HandleEmote(EMOTE_ONESHOT_TALK);
-                        if (CreatureInfo const* dummy_bunny = sObjectMgr.GetCreatureTemplate(60340))
-                            player->KilledMonster(dummy_bunny, ObjectGuid());
-                    });
+        DoAfterTime(pPlayer, 1 * IN_MILLISECONDS, [player = pPlayer, npc = pCreature]() {
+            npc->MonsterSayToPlayer(66677, player);
+            npc->HandleEmote(EMOTE_ONESHOT_TALK);
+            if (CreatureInfo const* dummy_bunny = sObjectMgr.GetCreatureTemplate(60340))
+                player->KilledMonster(dummy_bunny, ObjectGuid());
+            });
     }
     pPlayer->CLOSE_GOSSIP_MENU();
     return true;
@@ -1722,7 +1648,7 @@ bool GOHello_go_way_stone(Player* pPlayer, GameObject* pGo)
         pPlayer->GetSession()->SendNotification("Require The Staff of Eldara");
         pPlayer->CLOSE_GOSSIP_MENU();
     }
-    else
+    else 
     {
         switch (pGo->GetEntry())
         {
@@ -1809,54 +1735,42 @@ bool GossipSelect_npc_lord_crukzogg(Player* pPlayer, Creature* pCreature, uint32
     if (uiAction == GOSSIP_ACTION_INFO_DEF + 1)
     {
         pCreature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_SPAWNING);
-        DoAfterTime(pPlayer, 1 * IN_MILLISECONDS,
-                    [player = pPlayer, npc = pCreature]()
-                    {
-                        npc->MonsterSayToPlayer(66683, player);
-                        npc->HandleEmote(EMOTE_ONESHOT_LAUGH);
-                    });
-        DoAfterTime(pPlayer, 4 * IN_MILLISECONDS,
-                    [player = pPlayer, npc = pCreature]()
-                    {
-                        npc->MonsterSayToPlayer(67027, player);
-                        npc->HandleEmote(EMOTE_ONESHOT_TALK);
-                        if (CreatureInfo const* dummy_bunny = sObjectMgr.GetCreatureTemplate(60337))
-                            player->KilledMonster(dummy_bunny, ObjectGuid());
-                        npc->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                        npc->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_SPAWNING);
-                    });
+        DoAfterTime(pPlayer, 1 * IN_MILLISECONDS, [player = pPlayer, npc = pCreature]() {
+            npc->MonsterSayToPlayer(66683, player);
+            npc->HandleEmote(EMOTE_ONESHOT_LAUGH);
+            });
+        DoAfterTime(pPlayer, 4 * IN_MILLISECONDS, [player = pPlayer, npc = pCreature]() {
+            npc->MonsterSayToPlayer(67027, player);
+            npc->HandleEmote(EMOTE_ONESHOT_TALK);
+            if (CreatureInfo const* dummy_bunny = sObjectMgr.GetCreatureTemplate(60337))
+                player->KilledMonster(dummy_bunny, ObjectGuid());
+            npc->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+            npc->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_SPAWNING);
+            });
     }
 
     if (uiAction == GOSSIP_ACTION_INFO_DEF + 2)
     {
         pCreature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_SPAWNING);
-        DoAfterTime(pPlayer, 1 * IN_MILLISECONDS,
-                    [player = pPlayer, npc = pCreature]()
-                    {
-                        npc->SendPlaySpellVisual(SPELL_VISUAL_KIT_DRINK);
-                        player->DestroyItemCount(60345, 1, true);
-                        player->SaveInventoryAndGoldToDB();
-                    });
-        DoAfterTime(pPlayer, 4 * IN_MILLISECONDS,
-                    [player = pPlayer, npc = pCreature]()
-                    {
-                        npc->MonsterSayToPlayer(66385, player);
-                        npc->HandleEmote(EMOTE_ONESHOT_TALK);
-                    });
-        DoAfterTime(pPlayer, 12 * IN_MILLISECONDS,
-                    [player = pPlayer, npc = pCreature]()
-                    {
-                        npc->MonsterSayToPlayer(66475, player);
-                        npc->HandleEmote(EMOTE_ONESHOT_TALK);
-                    });
-        DoAfterTime(pPlayer, 14 * IN_MILLISECONDS,
-                    [player = pPlayer, npc = pCreature]()
-                    {
-                        if (CreatureInfo const* dummy_bunny = sObjectMgr.GetCreatureTemplate(60339))
-                            player->KilledMonster(dummy_bunny, ObjectGuid());
-                        npc->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                        npc->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_SPAWNING);
-                    });
+        DoAfterTime(pPlayer, 1 * IN_MILLISECONDS, [player = pPlayer, npc = pCreature]() {
+            npc->SendPlaySpellVisual(SPELL_VISUAL_KIT_DRINK);
+            player->DestroyItemCount(60345, 1, true);
+            player->SaveInventoryAndGoldToDB();
+            });
+        DoAfterTime(pPlayer, 4 * IN_MILLISECONDS, [player = pPlayer, npc = pCreature]() {
+            npc->MonsterSayToPlayer(66385, player);
+            npc->HandleEmote(EMOTE_ONESHOT_TALK);
+            });
+        DoAfterTime(pPlayer, 12 * IN_MILLISECONDS, [player = pPlayer, npc = pCreature]() {
+            npc->MonsterSayToPlayer(66475, player);
+            npc->HandleEmote(EMOTE_ONESHOT_TALK);
+            });
+        DoAfterTime(pPlayer, 14 * IN_MILLISECONDS, [player = pPlayer, npc = pCreature]() {
+            if (CreatureInfo const* dummy_bunny = sObjectMgr.GetCreatureTemplate(60339))
+                player->KilledMonster(dummy_bunny, ObjectGuid());
+            npc->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+            npc->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_SPAWNING);
+            });
     }
 
     pPlayer->CLOSE_GOSSIP_MENU();
@@ -1881,27 +1795,21 @@ bool GossipSelect_npc_seer_bolukk(Player* pPlayer, Creature* pCreature, uint32 u
     if (uiAction == GOSSIP_ACTION_INFO_DEF + 1)
     {
         pCreature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_SPAWNING);
-        DoAfterTime(pPlayer, 3 * IN_MILLISECONDS,
-                    [player = pPlayer, npc = pCreature]()
-                    {
-                        npc->MonsterSayToPlayer(66685, player);
-                        npc->HandleEmote(EMOTE_ONESHOT_TALK);
-                    });
+        DoAfterTime(pPlayer, 3 * IN_MILLISECONDS, [player = pPlayer, npc = pCreature]() {
+            npc->MonsterSayToPlayer(66685, player);
+            npc->HandleEmote(EMOTE_ONESHOT_TALK);
+            });
         pCreature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_SPAWNING);
-        DoAfterTime(pPlayer, 23 * IN_MILLISECONDS,
-                    [player = pPlayer, npc = pCreature]()
-                    {
-                        npc->MonsterSayToPlayer(66686, player);
-                        npc->HandleEmote(EMOTE_ONESHOT_TALK);
-                    });
-        DoAfterTime(pPlayer, 33 * IN_MILLISECONDS,
-                    [player = pPlayer, npc = pCreature]()
-                    {
-                        if (CreatureInfo const* dummy_bunny = sObjectMgr.GetCreatureTemplate(60338))
-                            player->KilledMonster(dummy_bunny, ObjectGuid());
-                        npc->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                        npc->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_SPAWNING);
-                    });
+        DoAfterTime(pPlayer, 23 * IN_MILLISECONDS, [player = pPlayer, npc = pCreature]() {
+            npc->MonsterSayToPlayer(66686, player);
+            npc->HandleEmote(EMOTE_ONESHOT_TALK);
+            });
+        DoAfterTime(pPlayer, 33 * IN_MILLISECONDS, [player = pPlayer, npc = pCreature]() {
+            if (CreatureInfo const* dummy_bunny = sObjectMgr.GetCreatureTemplate(60338))
+                player->KilledMonster(dummy_bunny, ObjectGuid());
+            npc->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+            npc->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_SPAWNING);
+            });
     }
 
     pPlayer->CLOSE_GOSSIP_MENU();
@@ -1921,10 +1829,8 @@ bool QuestAccept_npc_duke_nargelas(Player* pPlayer, Creature* pQuestGiver, Quest
 
     if (pQuest->GetQuestId() == 40280) // Ways of Magic
     {
-        if (pPlayer->AddItem(60189))
-            first_item_added = true;
-        if (pPlayer->AddItem(60190))
-            second_item_added = true;
+        if (pPlayer->AddItem(60189)) first_item_added = true;
+        if (pPlayer->AddItem(60190)) second_item_added = true;
 
         if (!first_item_added || !second_item_added)
         {
@@ -1950,10 +1856,8 @@ bool QuestAccept_npc_pierce_shackleton(Player* pPlayer, Creature* pQuestGiver, Q
 
     if (pQuest->GetQuestId() == 40282) // Darlthos Legacy
     {
-        if (pPlayer->AddItem(60189))
-            first_item_added = true;
-        if (pPlayer->AddItem(60391))
-            second_item_added = true;
+        if (pPlayer->AddItem(60189)) first_item_added = true;
+        if (pPlayer->AddItem(60391)) second_item_added = true;
 
         if (!first_item_added || !second_item_added)
         {
@@ -1982,14 +1886,12 @@ bool GossipSelect_npc_katokar_bladewind(Player* pPlayer, Creature* pCreature, ui
 {
     if (uiAction == GOSSIP_ACTION_INFO_DEF + 1)
     {
-        DoAfterTime(pPlayer, 1 * IN_MILLISECONDS,
-                    [player = pPlayer, npc = pCreature]()
-                    {
-                        npc->MonsterSayToPlayer(66688, player);
-                        npc->HandleEmote(EMOTE_ONESHOT_TALK);
-                        if (CreatureInfo const* dummy_bunny = sObjectMgr.GetCreatureTemplate(60341))
-                            player->KilledMonster(dummy_bunny, ObjectGuid());
-                    });
+        DoAfterTime(pPlayer, 1 * IN_MILLISECONDS, [player = pPlayer, npc = pCreature]() {
+            npc->MonsterSayToPlayer(66688, player);
+            npc->HandleEmote(EMOTE_ONESHOT_TALK);
+            if (CreatureInfo const* dummy_bunny = sObjectMgr.GetCreatureTemplate(60341))
+                player->KilledMonster(dummy_bunny, ObjectGuid());
+            });
     }
     pPlayer->CLOSE_GOSSIP_MENU();
     return true;
@@ -2007,94 +1909,99 @@ bool QuestAccept_npc_yhargosh(Player* pPlayer, Creature* pQuestGiver, Quest cons
     {
         pQuestGiver->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
 
-        pQuestGiver->m_Events.AddLambdaEventAtOffset(
-            [pQuestGiver]()
+        pQuestGiver->m_Events.AddLambdaEventAtOffset([pQuestGiver]()
             {
                 pQuestGiver->SetWalk(true);
                 pQuestGiver->GetMotionMaster()->MovePoint(0, 4993.68F, -6042.01F, 89.09F, 0, 3.0F, 2.05F);
-            },
-            1000);
-        pQuestGiver->m_Events.AddLambdaEventAtOffset([pQuestGiver]() { pQuestGiver->GetMotionMaster()->MovePoint(0, 4985.88F, -6026.60F, 88.69F, 0, 3.0F, 0.61F); }, 2300);
-        pQuestGiver->m_Events.AddLambdaEventAtOffset([pQuestGiver]() { pQuestGiver->GetMotionMaster()->MovePoint(0, 4993.11F, -6020.67F, 89.27F, 0, 3.0F, 0.14F); }, 7000);
-        pQuestGiver->m_Events.AddLambdaEventAtOffset([pQuestGiver]() { pQuestGiver->GetMotionMaster()->MovePoint(0, 5009.55F, -6018.99F, 86.59F, 0, 3.0F, 0.11F); }, 11000);
-        pQuestGiver->m_Events.AddLambdaEventAtOffset(
-            [pQuestGiver]()
+            }, 1000);
+        pQuestGiver->m_Events.AddLambdaEventAtOffset([pQuestGiver]()
+            {
+                pQuestGiver->GetMotionMaster()->MovePoint(0, 4985.88F, -6026.60F, 88.69F, 0, 3.0F, 0.61F);
+            }, 2300);
+        pQuestGiver->m_Events.AddLambdaEventAtOffset([pQuestGiver]()
+            {
+                pQuestGiver->GetMotionMaster()->MovePoint(0, 4993.11F, -6020.67F, 89.27F, 0, 3.0F, 0.14F);
+            }, 7000);
+        pQuestGiver->m_Events.AddLambdaEventAtOffset([pQuestGiver]()
+            {
+                pQuestGiver->GetMotionMaster()->MovePoint(0, 5009.55F, -6018.99F, 86.59F, 0, 3.0F, 0.11F);
+            }, 11000);
+        pQuestGiver->m_Events.AddLambdaEventAtOffset([pQuestGiver]()
             {
                 pQuestGiver->MonsterYell(66428);
                 pQuestGiver->HandleEmote(EMOTE_ONESHOT_SHOUT);
-            },
-            19000);
-        pQuestGiver->m_Events.AddLambdaEventAtOffset([pQuestGiver]() { pQuestGiver->SummonGameObject(2000745, pQuestGiver->GetPositionX(), pQuestGiver->GetPositionY(), pQuestGiver->GetPositionZ(), 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 36, true); }, 23000);
-        pQuestGiver->m_Events.AddLambdaEventAtOffset(
-            [pQuestGiver]()
+            }, 19000);
+        pQuestGiver->m_Events.AddLambdaEventAtOffset([pQuestGiver]()
+            {
+                pQuestGiver->SummonGameObject(2000745, pQuestGiver->GetPositionX(), pQuestGiver->GetPositionY(), pQuestGiver->GetPositionZ(), 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 36, true);
+            }, 23000);
+        pQuestGiver->m_Events.AddLambdaEventAtOffset([pQuestGiver]()
             {
                 pQuestGiver->MonsterSay(66416);
                 pQuestGiver->HandleEmote(EMOTE_ONESHOT_TALK);
-            },
-            27000);
-        pQuestGiver->m_Events.AddLambdaEventAtOffset(
-            [pQuestGiver]()
+            }, 27000);
+        pQuestGiver->m_Events.AddLambdaEventAtOffset([pQuestGiver]()
             {
                 pQuestGiver->MonsterSay(66417);
                 pQuestGiver->HandleEmote(EMOTE_ONESHOT_TALK);
-            },
-            35000);
-        pQuestGiver->m_Events.AddLambdaEventAtOffset(
-            [pQuestGiver]()
+            }, 35000);
+        pQuestGiver->m_Events.AddLambdaEventAtOffset([pQuestGiver]()
             {
                 pQuestGiver->MonsterSay(66418);
                 pQuestGiver->HandleEmote(EMOTE_ONESHOT_TALK);
-            },
-            43000);
-        pQuestGiver->m_Events.AddLambdaEventAtOffset(
-            [pQuestGiver]()
+            }, 43000);
+        pQuestGiver->m_Events.AddLambdaEventAtOffset([pQuestGiver]()
             {
                 pQuestGiver->MonsterSay(66419);
                 pQuestGiver->HandleEmote(EMOTE_ONESHOT_TALK);
-            },
-            51000);
-        pQuestGiver->m_Events.AddLambdaEventAtOffset(
-            [pQuestGiver]()
+            }, 51000);
+        pQuestGiver->m_Events.AddLambdaEventAtOffset([pQuestGiver]()
             {
                 pQuestGiver->MonsterSay(66420);
                 pQuestGiver->HandleEmote(EMOTE_STATE_KNEEL);
-            },
-            59000);
-        pQuestGiver->m_Events.AddLambdaEventAtOffset([pQuestGiver]() { pQuestGiver->GetMotionMaster()->MovePoint(0, 4993.11F, -6020.67F, 89.27F, 0, 3.0F, 3.28F); }, 67000);
-        pQuestGiver->m_Events.AddLambdaEventAtOffset([pQuestGiver]() { pQuestGiver->GetMotionMaster()->MovePoint(0, 4985.88F, -6026.60F, 88.69F, 0, 3.0F, 3.75F); }, 71700);
-        pQuestGiver->m_Events.AddLambdaEventAtOffset([pQuestGiver]() { pQuestGiver->GetMotionMaster()->MovePoint(0, 4994.63F, -6041.35F, 89.09F, 0, 3.0F, 4.20F); }, 75700);
-        pQuestGiver->m_Events.AddLambdaEventAtOffset([pQuestGiver]() { pQuestGiver->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE); }, 79500);
+            }, 59000);
+        pQuestGiver->m_Events.AddLambdaEventAtOffset([pQuestGiver]()
+            {
+                pQuestGiver->GetMotionMaster()->MovePoint(0, 4993.11F, -6020.67F, 89.27F, 0, 3.0F, 3.28F);
+            }, 67000);
+        pQuestGiver->m_Events.AddLambdaEventAtOffset([pQuestGiver]()
+            {
+                pQuestGiver->GetMotionMaster()->MovePoint(0, 4985.88F, -6026.60F, 88.69F, 0, 3.0F, 3.75F);
+            }, 71700);
+        pQuestGiver->m_Events.AddLambdaEventAtOffset([pQuestGiver]()
+            {
+                pQuestGiver->GetMotionMaster()->MovePoint(0, 4994.63F, -6041.35F, 89.09F, 0, 3.0F, 4.20F);
+            }, 75700);
+        pQuestGiver->m_Events.AddLambdaEventAtOffset([pQuestGiver]()
+            {
+                pQuestGiver->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+            }, 79500);
 
-        DoAfterTime(pPlayer, 80 * IN_MILLISECONDS,
-                    [player = pPlayer, npc = pQuestGiver]()
-                    {
-                        {
-                            npc->GetMotionMaster()->MovePoint(0, 4992.68F, -6045.22F, 89.02F, 0, 3.0F, 2.46F);
-                            if (CreatureInfo const* dummy_bunny = sObjectMgr.GetCreatureTemplate(60342))
-                                player->KilledMonster(dummy_bunny, ObjectGuid());
-                        }
-                    });
+        DoAfterTime(pPlayer, 80 * IN_MILLISECONDS, [player = pPlayer, npc = pQuestGiver]() {
+            {
+                npc->GetMotionMaster()->MovePoint(0, 4992.68F, -6045.22F, 89.02F, 0, 3.0F, 2.46F);
+                if (CreatureInfo const* dummy_bunny = sObjectMgr.GetCreatureTemplate(60342))
+                    player->KilledMonster(dummy_bunny, ObjectGuid());
+            }
+            });
     }
     return false;
 }
 
 bool QuestRewarded_npc_colonel_hardinus(Player* pPlayer, Creature* pQuestGiver, Quest const* pQuest)
 {
-    if (!pQuestGiver || !pPlayer)
-        return false;
+    if (!pQuestGiver || !pPlayer) return false;
 
     if (pQuest->GetQuestId() == 40303) // The Tower of Lapidis X
     {
         pQuestGiver->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_SPAWNING);
         pQuestGiver->HandleEmote(EMOTE_ONESHOT_CHEER);
-        DoAfterTime(pPlayer, 1.75 * IN_MILLISECONDS,
-                    [player = pPlayer, npc = pQuestGiver]()
-                    {
-                        npc->MonsterSayToPlayer(67028, player);
-                        npc->HandleEmote(EMOTE_ONESHOT_SHOUT);
-                        npc->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                        npc->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_SPAWNING);
-                    });
+        DoAfterTime(pPlayer, 1.75 * IN_MILLISECONDS, [player = pPlayer, npc = pQuestGiver]() {
+            npc->MonsterSayToPlayer(67028, player);
+            npc->HandleEmote(EMOTE_ONESHOT_SHOUT);
+            npc->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+            npc->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_SPAWNING);
+            });
 
         Creature* NPC_cheer1 = pPlayer->FindNearestCreature(92004, 100.0F);
         Creature* NPC_cheer2 = pPlayer->FindNearestCreature(91882, 100.0F);
@@ -2103,10 +2010,18 @@ bool QuestRewarded_npc_colonel_hardinus(Player* pPlayer, Creature* pQuestGiver, 
 
         if (NPC_cheer1)
         {
-            DoAfterTime(pPlayer, 2.3 * IN_MILLISECONDS, [player = pPlayer, npc = NPC_cheer1]() { npc->HandleEmote(EMOTE_ONESHOT_CHEER); });
-            DoAfterTime(pPlayer, 2.5 * IN_MILLISECONDS, [player = pPlayer, npc = NPC_cheer2]() { npc->HandleEmote(EMOTE_ONESHOT_CHEER); });
-            DoAfterTime(pPlayer, 2.7 * IN_MILLISECONDS, [player = pPlayer, npc = NPC_cheer3]() { npc->HandleEmote(EMOTE_ONESHOT_CHEER); });
-            DoAfterTime(pPlayer, 2.9 * IN_MILLISECONDS, [player = pPlayer, npc = NPC_cheer4]() { npc->HandleEmote(EMOTE_ONESHOT_CHEER); });
+            DoAfterTime(pPlayer, 2.3 * IN_MILLISECONDS, [player = pPlayer, npc = NPC_cheer1]() {
+                npc->HandleEmote(EMOTE_ONESHOT_CHEER);
+                });
+            DoAfterTime(pPlayer, 2.5 * IN_MILLISECONDS, [player = pPlayer, npc = NPC_cheer2]() {
+                npc->HandleEmote(EMOTE_ONESHOT_CHEER);
+                });
+            DoAfterTime(pPlayer, 2.7 * IN_MILLISECONDS, [player = pPlayer, npc = NPC_cheer3]() {
+                npc->HandleEmote(EMOTE_ONESHOT_CHEER);
+                });
+            DoAfterTime(pPlayer, 2.9 * IN_MILLISECONDS, [player = pPlayer, npc = NPC_cheer4]() {
+                npc->HandleEmote(EMOTE_ONESHOT_CHEER);
+                });
             return true;
         }
     }
@@ -2127,25 +2042,21 @@ bool QuestAccept_npc_korgan(Player* pPlayer, Creature* pQuestGiver, Quest const*
         pQuestGiver->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
         pQuestGiver->CastSpell(pQuestGiver, 23017, false); // Arcane Channeling
 
-        DoAfterTime(pPlayer, 14 * IN_MILLISECONDS,
-                    [player = pPlayer, npc = pQuestGiver]()
-                    {
-                        npc->HandleEmote(EMOTE_ONESHOT_YES);
-                        npc->CastSpell(npc, 1449, false);
-                    });
-        DoAfterTime(pPlayer, 15 * IN_MILLISECONDS,
-                    [player = pPlayer, npc = pQuestGiver]()
-                    {
-                        {
-                            npc->MonsterSayToPlayer(66689, player);
-                            npc->HandleEmote(EMOTE_ONESHOT_TALK);
-                            if (CreatureInfo const* dummy_bunny = sObjectMgr.GetCreatureTemplate(60344))
-                                player->KilledMonster(dummy_bunny, ObjectGuid());
-                            npc->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                            npc->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_SPAWNING);
-                            return true;
-                        }
-                    });
+        DoAfterTime(pPlayer, 14 * IN_MILLISECONDS, [player = pPlayer, npc = pQuestGiver]() {
+            npc->HandleEmote(EMOTE_ONESHOT_YES);
+            npc->CastSpell(npc, 1449, false);
+            });
+        DoAfterTime(pPlayer, 15 * IN_MILLISECONDS, [player = pPlayer, npc = pQuestGiver]() {
+            {
+                npc->MonsterSayToPlayer(66689, player);
+                npc->HandleEmote(EMOTE_ONESHOT_TALK);
+                if (CreatureInfo const* dummy_bunny = sObjectMgr.GetCreatureTemplate(60344))
+                    player->KilledMonster(dummy_bunny, ObjectGuid());
+                npc->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                npc->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_SPAWNING);
+                return true;
+            }
+            });
     }
 
     return false;
@@ -2164,25 +2075,21 @@ bool QuestAccept_npc_magus_ariden_dusktower(Player* pPlayer, Creature* pQuestGiv
         pQuestGiver->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
         pQuestGiver->CastSpell(pQuestGiver, 23017, false); // Arcane Channeling
 
-        DoAfterTime(pPlayer, 14 * IN_MILLISECONDS,
-                    [player = pPlayer, npc = pQuestGiver]()
-                    {
-                        npc->HandleEmote(EMOTE_ONESHOT_YES);
-                        npc->CastSpell(npc, 1449, false);
-                    });
-        DoAfterTime(pPlayer, 15 * IN_MILLISECONDS,
-                    [player = pPlayer, npc = pQuestGiver]()
-                    {
-                        {
-                            npc->MonsterSayToPlayer(66690, player);
-                            npc->HandleEmote(EMOTE_ONESHOT_TALK);
-                            if (CreatureInfo const* dummy_bunny = sObjectMgr.GetCreatureTemplate(60345))
-                                player->KilledMonster(dummy_bunny, ObjectGuid());
-                            npc->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                            npc->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_SPAWNING);
-                            return true;
-                        }
-                    });
+        DoAfterTime(pPlayer, 14 * IN_MILLISECONDS, [player = pPlayer, npc = pQuestGiver]() {
+            npc->HandleEmote(EMOTE_ONESHOT_YES);
+            npc->CastSpell(npc, 1449, false);
+            });
+        DoAfterTime(pPlayer, 15 * IN_MILLISECONDS, [player = pPlayer, npc = pQuestGiver]() {
+            {
+                npc->MonsterSayToPlayer(66690, player);
+                npc->HandleEmote(EMOTE_ONESHOT_TALK);
+                if (CreatureInfo const* dummy_bunny = sObjectMgr.GetCreatureTemplate(60345))
+                    player->KilledMonster(dummy_bunny, ObjectGuid());
+                npc->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                npc->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_SPAWNING);
+                return true;
+            }
+            });
     }
 
     return false;
@@ -2243,8 +2150,8 @@ bool GOHello_go_moo_rune(Player* pPlayer, GameObject* pGo)
 {
     if (pGo->GetEntry() == 2010799)
     {
-        pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_DOT, 66693, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-        pPlayer->SEND_GOSSIP_MENU(2010799, pGo->GetGUID());
+         pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_DOT, 66693, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+         pPlayer->SEND_GOSSIP_MENU(2010799, pGo->GetGUID());
     }
     return true;
 }
@@ -2281,32 +2188,24 @@ bool GossipSelect_npc_tholdan_mountainheart(Player* pPlayer, Creature* pCreature
     if (uiAction == GOSSIP_ACTION_INFO_DEF + 1)
     {
         pCreature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_SPAWNING);
-        DoAfterTime(pPlayer, 1 * IN_MILLISECONDS,
-                    [player = pPlayer, npc = pCreature]()
-                    {
-                        npc->MonsterSayToPlayer(66695, player);
-                        npc->HandleEmote(EMOTE_ONESHOT_TALK);
-                    });
-        DoAfterTime(pPlayer, 21 * IN_MILLISECONDS,
-                    [player = pPlayer, npc = pCreature]()
-                    {
-                        npc->MonsterSayToPlayer(66696, player);
-                        npc->HandleEmote(EMOTE_ONESHOT_TALK);
-                    });
-        DoAfterTime(pPlayer, 41 * IN_MILLISECONDS,
-                    [player = pPlayer, npc = pCreature]()
-                    {
-                        npc->MonsterSayToPlayer(66697, player);
-                        npc->HandleEmote(EMOTE_ONESHOT_TALK);
-                    });
-        DoAfterTime(pPlayer, 48 * IN_MILLISECONDS,
-                    [player = pPlayer, npc = pCreature]()
-                    {
-                        if (CreatureInfo const* dummy_bunny = sObjectMgr.GetCreatureTemplate(60347))
-                            player->KilledMonster(dummy_bunny, ObjectGuid());
-                        npc->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                        npc->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_SPAWNING);
-                    });
+        DoAfterTime(pPlayer, 1 * IN_MILLISECONDS, [player = pPlayer, npc = pCreature]() {
+            npc->MonsterSayToPlayer(66695, player);
+            npc->HandleEmote(EMOTE_ONESHOT_TALK);
+            });
+        DoAfterTime(pPlayer, 21 * IN_MILLISECONDS, [player = pPlayer, npc = pCreature]() {
+            npc->MonsterSayToPlayer(66696, player);
+            npc->HandleEmote(EMOTE_ONESHOT_TALK);
+            });
+        DoAfterTime(pPlayer, 41 * IN_MILLISECONDS, [player = pPlayer, npc = pCreature]() {
+            npc->MonsterSayToPlayer(66697, player);
+            npc->HandleEmote(EMOTE_ONESHOT_TALK);
+            });
+        DoAfterTime(pPlayer, 48 * IN_MILLISECONDS, [player = pPlayer, npc = pCreature]() {
+            if (CreatureInfo const* dummy_bunny = sObjectMgr.GetCreatureTemplate(60347))
+                player->KilledMonster(dummy_bunny, ObjectGuid());
+            npc->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+            npc->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_SPAWNING);
+            });
     }
 
     pPlayer->CLOSE_GOSSIP_MENU();
@@ -2326,24 +2225,24 @@ bool QuestAccept_npc_sage_palerunner(Player* pPlayer, Creature* pQuestGiver, Que
         pQuestGiver->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
         pQuestGiver->CastSpell(pQuestGiver, 13236, false);
 
-        DoAfterTime(pPlayer, 3 * IN_MILLISECONDS, [player = pPlayer, npc = pQuestGiver]() { npc->MonsterSayToPlayer(66698, player); });
-        DoAfterTime(pPlayer, 13 * IN_MILLISECONDS, [player = pPlayer, npc = pQuestGiver]() { npc->MonsterSayToPlayer(66699, player); });
-        DoAfterTime(pPlayer, 23 * IN_MILLISECONDS,
-                    [player = pPlayer, npc = pQuestGiver]()
-                    {
-                        npc->HandleEmote(EMOTE_ONESHOT_YES);
-                        npc->CastSpell(npc, 5906, false);
-                    });
-        DoAfterTime(pPlayer, 26 * IN_MILLISECONDS,
-                    [player = pPlayer, npc = pQuestGiver]()
-                    {
-                        npc->MonsterSayToPlayer(66700, player);
-                        if (CreatureInfo const* dummy_bunny = sObjectMgr.GetCreatureTemplate(60348))
-                            player->KilledMonster(dummy_bunny, ObjectGuid());
-                        npc->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                        npc->InterruptNonMeleeSpells(true);
-                        return true;
-                    });
+        DoAfterTime(pPlayer, 3 * IN_MILLISECONDS, [player = pPlayer, npc = pQuestGiver]() {
+            npc->MonsterSayToPlayer(66698, player);
+            });
+        DoAfterTime(pPlayer, 13 * IN_MILLISECONDS, [player = pPlayer, npc = pQuestGiver]() {
+            npc->MonsterSayToPlayer(66699, player);
+            });
+        DoAfterTime(pPlayer, 23 * IN_MILLISECONDS, [player = pPlayer, npc = pQuestGiver]() {
+            npc->HandleEmote(EMOTE_ONESHOT_YES);
+            npc->CastSpell(npc, 5906, false);
+            });
+        DoAfterTime(pPlayer, 26 * IN_MILLISECONDS, [player = pPlayer, npc = pQuestGiver]() {
+                npc->MonsterSayToPlayer(66700, player);
+                if (CreatureInfo const* dummy_bunny = sObjectMgr.GetCreatureTemplate(60348))
+                    player->KilledMonster(dummy_bunny, ObjectGuid());
+                npc->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                npc->InterruptNonMeleeSpells(true);
+                return true;
+            });
     }
 
     return false;
@@ -2447,16 +2346,14 @@ bool QuestAccept_npc_bombay(Player* pPlayer, Creature* pQuestGiver, Quest const*
         pQuestGiver->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
         pQuestGiver->CastSpell(pQuestGiver, 13236, false);
 
-        DoAfterTime(pPlayer, 10 * IN_MILLISECONDS,
-                    [player = pPlayer, npc = pQuestGiver]()
-                    {
-                        npc->HandleEmote(EMOTE_ONESHOT_YES);
-                        npc->CastSpell(npc, 5906, false);
-                        npc->MonsterSayToPlayer(66702, player);
-                        player->CompleteQuest(40351);
-                        npc->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                        return true;
-                    });
+        DoAfterTime(pPlayer, 10 * IN_MILLISECONDS, [player = pPlayer, npc = pQuestGiver]() {
+            npc->HandleEmote(EMOTE_ONESHOT_YES);
+            npc->CastSpell(npc, 5906, false);
+            npc->MonsterSayToPlayer(66702, player);
+            player->CompleteQuest(40351);
+            npc->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+            return true;
+            });
     }
 
     return false;
@@ -2492,22 +2389,21 @@ bool GossipSelect_npc_nribbi(Player* pPlayer, Creature* pCreature, uint32 /*uiSe
 
 bool QuestRewarded_npc_nribbi(Player* pPlayer, Creature* pQuestGiver, Quest const* pQuest)
 {
-    if (!pQuestGiver || !pPlayer)
-        return false;
+    if (!pQuestGiver || !pPlayer) return false;
 
     if (pQuest->GetQuestId() == 40353) // The Way Of The Witch Doctor V
     {
         pQuestGiver->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_SPAWNING);
         pPlayer->LearnSpell(45504, false);
 
-        DoAfterTime(pPlayer, 7 * IN_MILLISECONDS,
-                    [player = pPlayer, npc = pQuestGiver]()
-                    {
-                        npc->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                        npc->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_SPAWNING);
-                    });
+        DoAfterTime(pPlayer, 7 * IN_MILLISECONDS, [player = pPlayer, npc = pQuestGiver]() {
+            npc->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+            npc->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_SPAWNING);
+            });
 
-        DoAfterTime(pPlayer, 30 * IN_MILLISECONDS, [player = pPlayer, npc = pQuestGiver]() { npc->RemoveAurasAtReset(); });
+        DoAfterTime(pPlayer, 30 * IN_MILLISECONDS, [player = pPlayer, npc = pQuestGiver]() {
+            npc->RemoveAurasAtReset();
+            });
 
         Creature* NPC_cheer1 = pPlayer->FindNearestCreature(60866, 40.0F);
         Creature* NPC_cheer2 = pPlayer->FindNearestCreature(60867, 40.0F);
@@ -2515,36 +2411,26 @@ bool QuestRewarded_npc_nribbi(Player* pPlayer, Creature* pQuestGiver, Quest cons
 
         if (NPC_cheer1 && NPC_cheer2 && NPC_cheer3)
         {
-            DoAfterTime(pPlayer, 1 * IN_MILLISECONDS,
-                        [player = pPlayer, npc = NPC_cheer1]()
-                        {
-                            if (npc)
-                                npc->MonsterSay(66704);
-                        });
-            DoAfterTime(pPlayer, 3 * IN_MILLISECONDS,
-                        [player = pPlayer, npc = NPC_cheer2]()
-                        {
-                            if (npc)
-                                npc->MonsterSay(66705);
-                        });
-            DoAfterTime(pPlayer, 4 * IN_MILLISECONDS,
-                        [player = pPlayer, npc = NPC_cheer3]()
-                        {
-                            if (npc)
-                                npc->MonsterSay(66706);
-                        });
-            DoAfterTime(pPlayer, 5 * IN_MILLISECONDS,
-                        [player = pPlayer, npc = NPC_cheer1]()
-                        {
-                            if (npc)
-                                npc->MonsterSay(66707);
-                        });
-            DoAfterTime(pPlayer, 7 * IN_MILLISECONDS,
-                        [player = pPlayer, npc = NPC_cheer2]()
-                        {
-                            if (npc)
-                                npc->MonsterSay(66708);
-                        });
+            DoAfterTime(pPlayer, 1 * IN_MILLISECONDS, [player = pPlayer, npc = NPC_cheer1]() {
+                if (npc)
+                    npc->MonsterSay(66704);
+                });
+            DoAfterTime(pPlayer, 3 * IN_MILLISECONDS, [player = pPlayer, npc = NPC_cheer2]() {
+                if (npc)
+                    npc->MonsterSay(66705);
+                });
+            DoAfterTime(pPlayer, 4 * IN_MILLISECONDS, [player = pPlayer, npc = NPC_cheer3]() {
+                if (npc)
+                    npc->MonsterSay(66706);
+                });
+            DoAfterTime(pPlayer, 5 * IN_MILLISECONDS, [player = pPlayer, npc = NPC_cheer1]() {
+                if (npc)
+                    npc->MonsterSay(66707);
+                });
+            DoAfterTime(pPlayer, 7 * IN_MILLISECONDS, [player = pPlayer, npc = NPC_cheer2]() {
+                if (npc)
+                    npc->MonsterSay(66708);
+                });
             return true;
         }
     }
@@ -2576,7 +2462,7 @@ bool GossipSelect_npc_ironpatch(Player* pPlayer, Creature* pCreature, uint32 uiS
 
 bool GossipHello_npc_vildo_onetusk(Player* pPlayer, Creature* pCreature)
 {
-    if (!pPlayer->GetQuestStatus(40358) == QUEST_STATUS_NONE) // Golden Elves of Feralas
+    if (!pPlayer->GetQuestStatus(40358) == QUEST_STATUS_NONE)  // Golden Elves of Feralas
     {
         pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, 66711, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
     }
@@ -2632,7 +2518,7 @@ bool GossipSelect_npc_fazgel_mechaflame(Player* pPlayer, Creature* pCreature, ui
 
 bool GossipHello_npc_sovatir(Player* pPlayer, Creature* pCreature)
 {
-    if (pPlayer->GetQuestStatus(40362) == QUEST_STATUS_INCOMPLETE) // A Historian Finds You
+    if (pPlayer->GetQuestStatus(40362) == QUEST_STATUS_INCOMPLETE)  // A Historian Finds You
     {
         pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, 66715, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
     }
@@ -2728,15 +2614,13 @@ bool GOSelect_mournful_apparition_atack(Player* pPlayer, GameObject* pGo, uint32
 
 bool QuestRewarded_npc_captain_grayson(Player* pPlayer, Creature* pQuestGiver, Quest const* pQuest)
 {
-    if (!pQuestGiver || !pPlayer)
-        return false;
+    if (!pQuestGiver || !pPlayer) return false;
 
     if (pQuest->GetQuestId() == 40396 && !pQuestGiver->FindNearestCreature(60709, 30.0F)) // Captain Grayson's Revenge
     {
         pQuestGiver->SummonCreature(60709, -11410.70F, 1966.56F, 10.60F, 6.12F, TEMPSUMMON_TIMED_DESPAWN, 0.125 * MINUTE * IN_MILLISECONDS);
 
-        pQuestGiver->m_Events.AddLambdaEventAtOffset(
-            [pQuestGiver]()
+        pQuestGiver->m_Events.AddLambdaEventAtOffset([pQuestGiver]()
             {
                 Creature* npc_cookie = pQuestGiver->FindNearestCreature(60709, 30.0F);
                 if (!npc_cookie)
@@ -2744,19 +2628,16 @@ bool QuestRewarded_npc_captain_grayson(Player* pPlayer, Creature* pQuestGiver, Q
 
                 npc_cookie->PMonsterEmote(66421);
                 npc_cookie->MonsterSay(66422);
-            },
-            5000);
+            }, 5000);
 
-        pQuestGiver->m_Events.AddLambdaEventAtOffset(
-            [pQuestGiver]()
+        pQuestGiver->m_Events.AddLambdaEventAtOffset([pQuestGiver]()
             {
                 if (!pQuestGiver)
                     return;
 
                 pQuestGiver->MonsterSay(66423);
                 pQuestGiver->HandleEmote(EMOTE_ONESHOT_WAVE);
-            },
-            9000);
+            }, 9000);
     }
 
     return false;
@@ -2788,17 +2669,14 @@ bool GossipSelect_npc_captain_grayson(Player* pPlayer, Creature* pCreature, uint
 
 bool QuestRewarded_npc_niremius(Player* pPlayer, Creature* pQuestGiver, Quest const* pQuest)
 {
-    if (!pQuestGiver || !pPlayer)
-        return false;
+    if (!pQuestGiver || !pPlayer) return false;
 
     if (pQuest->GetQuestId() == 40399) // By Any Means Necessary III
     {
-        DoAfterTime(pPlayer, 1 * IN_MILLISECONDS,
-                    [player = pPlayer, npc = pQuestGiver]()
-                    {
-                        npc->MonsterSay(66424);
-                        npc->HandleEmote(EMOTE_ONESHOT_TALK);
-                    });
+        DoAfterTime(pPlayer, 1 * IN_MILLISECONDS, [player = pPlayer, npc = pQuestGiver]() {
+            npc->MonsterSay(66424);
+            npc->HandleEmote(EMOTE_ONESHOT_TALK);
+            });
     }
 
     return false;
@@ -2806,25 +2684,27 @@ bool QuestRewarded_npc_niremius(Player* pPlayer, Creature* pQuestGiver, Quest co
 
 bool QuestAccept_npc_niremius(Player* pPlayer, Creature* pQuestGiver, Quest const* pQuest)
 {
-    if (!pQuestGiver || !pPlayer)
-        return false;
+    if (!pQuestGiver || !pPlayer) return false;
 
     if (pQuest->GetQuestId() == 40401) // By Any Means Necessary V
     {
         pQuestGiver->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
         pQuestGiver->CastSpell(pQuestGiver, 17447, false);
 
-        DoAfterTime(pPlayer, 10 * IN_MILLISECONDS, [player = pPlayer, npc = pQuestGiver]() { npc->MonsterSayToPlayer(66718, player); });
+        DoAfterTime(pPlayer, 10 * IN_MILLISECONDS, [player = pPlayer, npc = pQuestGiver]() {
+            npc->MonsterSayToPlayer(66718, player);
+            });
 
-        DoAfterTime(pPlayer, 25 * IN_MILLISECONDS,
-                    [player = pPlayer, npc = pQuestGiver]()
-                    {
-                        npc->HandleEmote(EMOTE_ONESHOT_BOW);
-                        npc->MonsterSayToPlayer(66719, player);
-                        player->CompleteQuest(40401);
-                    });
+        DoAfterTime(pPlayer, 25 * IN_MILLISECONDS, [player = pPlayer, npc = pQuestGiver]() {
+            npc->HandleEmote(EMOTE_ONESHOT_BOW);
+            npc->MonsterSayToPlayer(66719, player);
+            player->CompleteQuest(40401);
+            });
 
-        pQuestGiver->m_Events.AddLambdaEventAtOffset([pQuestGiver]() { pQuestGiver->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE); }, 26000);
+        pQuestGiver->m_Events.AddLambdaEventAtOffset([pQuestGiver]()
+            {
+                pQuestGiver->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+            }, 26000);
         return true;
     }
 
@@ -2973,8 +2853,7 @@ bool GossipSelect_npc_captain_harker(Player* pPlayer, Creature* pCreature, uint3
 
 bool QuestRewarded_npc_koli_steamheart(Player* pPlayer, Creature* pQuestGiver, Quest const* pQuest)
 {
-    if (!pQuestGiver || !pPlayer)
-        return false;
+    if (!pQuestGiver || !pPlayer) return false;
 
     if (pQuest->GetQuestId() == 40426) // Recovering Vault Shackles
     {
@@ -3061,8 +2940,7 @@ bool GossipSelect_npc_engineer_wigglestip(Player* pPlayer, Creature* pCreature, 
 
 bool QuestRewarded_npc_watcher_mahar_ba(Player* pPlayer, Creature* pQuestGiver, Quest const* pQuest)
 {
-    if (!pQuestGiver || !pPlayer)
-        return false;
+    if (!pQuestGiver || !pPlayer) return false;
 
     if (pQuest->GetQuestId() == 40440) // Fel Energy Irregularities III
     {
@@ -3072,23 +2950,19 @@ bool QuestRewarded_npc_watcher_mahar_ba(Player* pPlayer, Creature* pQuestGiver, 
 
     if (pQuest->GetQuestId() == 40441) // Fel Energy Irregularities IV
     {
-        DoAfterTime(pPlayer, 10 * IN_MILLISECONDS,
-                    [player = pPlayer, npc = pQuestGiver]()
-                    {
-                        npc->MonsterSayToPlayer(66734, player);
-                        npc->HandleEmote(EMOTE_ONESHOT_TALK);
-                    });
+        DoAfterTime(pPlayer, 10 * IN_MILLISECONDS, [player = pPlayer, npc = pQuestGiver]() {
+            npc->MonsterSayToPlayer(66734, player);
+            npc->HandleEmote(EMOTE_ONESHOT_TALK);
+            });
 
         Creature* NPC_riftwatcher_say = pQuestGiver->FindNearestCreature(6002, 40.0F);
 
         if (NPC_riftwatcher_say)
         {
-            DoAfterTime(pPlayer, 1 * IN_MILLISECONDS,
-                        [player = pPlayer, npc = NPC_riftwatcher_say]()
-                        {
-                            npc->MonsterSayToPlayer(66735, player);
-                            npc->HandleEmote(EMOTE_ONESHOT_TALK);
-                        });
+            DoAfterTime(pPlayer, 1 * IN_MILLISECONDS, [player = pPlayer, npc = NPC_riftwatcher_say]() {
+                npc->MonsterSayToPlayer(66735, player);
+                npc->HandleEmote(EMOTE_ONESHOT_TALK);
+                });
             return true;
         }
     }
@@ -3104,8 +2978,7 @@ bool QuestRewarded_npc_watcher_mahar_ba(Player* pPlayer, Creature* pQuestGiver, 
 
 bool QuestRewarded_npc_chaser(Player* pPlayer, Creature* pQuestGiver, Quest const* pQuest)
 {
-    if (!pQuestGiver || !pPlayer)
-        return false;
+    if (!pQuestGiver || !pPlayer) return false;
 
     if (pQuest->GetQuestId() == 40450) // Repowering Chaser
     {
@@ -3136,44 +3009,34 @@ bool GossipSelect_npc_orvak_sternrock(Player* pPlayer, Creature* pCreature, uint
         {
             Creature* controller = pCreature->SummonCreature(10, pCreature->GetPositionX(), pCreature->GetPositionY(), pCreature->GetPositionZ(), pCreature->GetOrientation(), TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 50 * IN_MILLISECONDS);
 
-            pCreature->m_Events.AddLambdaEventAtOffset(
-                [pCreature]()
+            pCreature->m_Events.AddLambdaEventAtOffset([pCreature]()
                 {
                     pCreature->MonsterSay(66429);
                     pCreature->HandleEmote(EMOTE_ONESHOT_TALK);
-                },
-                1000);
+                }, 1000);
 
-            pCreature->m_Events.AddLambdaEventAtOffset(
-                [pCreature]()
+            pCreature->m_Events.AddLambdaEventAtOffset([pCreature]()
                 {
                     pCreature->MonsterSay(66430);
                     pCreature->HandleEmote(EMOTE_ONESHOT_TALK);
-                },
-                15000);
+                }, 15000);
 
-            pCreature->m_Events.AddLambdaEventAtOffset(
-                [pCreature]()
+            pCreature->m_Events.AddLambdaEventAtOffset([pCreature]()
                 {
                     pCreature->MonsterSay(66431);
                     pCreature->HandleEmote(EMOTE_ONESHOT_TALK);
-                },
-                30000);
+                }, 30000);
 
-            pCreature->m_Events.AddLambdaEventAtOffset(
-                [pCreature]()
+            pCreature->m_Events.AddLambdaEventAtOffset([pCreature]()
                 {
                     pCreature->MonsterSay(66432);
                     pCreature->HandleEmote(EMOTE_ONESHOT_TALK);
-                },
-                50000);
+                }, 50000);
 
-            DoAfterTime(pPlayer, 58 * IN_MILLISECONDS,
-                        [player = pPlayer]()
-                        {
-                            if (CreatureInfo const* cInfo = sObjectMgr.GetCreatureTemplate(60375))
-                                player->KilledMonster(cInfo, ObjectGuid());
-                        });
+            DoAfterTime(pPlayer, 58 * IN_MILLISECONDS, [player = pPlayer]() {
+                if (CreatureInfo const* cInfo = sObjectMgr.GetCreatureTemplate(60375))
+                    player->KilledMonster(cInfo, ObjectGuid());
+                });
         }
     pPlayer->CLOSE_GOSSIP_MENU();
     return true;
@@ -3181,8 +3044,7 @@ bool GossipSelect_npc_orvak_sternrock(Player* pPlayer, Creature* pCreature, uint
 
 bool QuestRewarded_npc_orvak_sternrock(Player* pPlayer, Creature* pQuestGiver, Quest const* pQuest)
 {
-    if (!pQuestGiver || !pPlayer)
-        return false;
+    if (!pQuestGiver || !pPlayer) return false;
 
     if (pQuest->GetQuestId() == 40463) // The True High Foreman
     {
@@ -3195,8 +3057,7 @@ bool QuestRewarded_npc_orvak_sternrock(Player* pPlayer, Creature* pQuestGiver, Q
 
 bool QuestRewarded_npc_maltimor_gartside(Player* pPlayer, Creature* pQuestGiver, Quest const* pQuest)
 {
-    if (!pQuestGiver || !pPlayer)
-        return false;
+    if (!pQuestGiver || !pPlayer) return false;
 
     if (pQuest->GetQuestId() == 40474) // The Harvest Golem Mystery V
     {
@@ -3204,19 +3065,17 @@ bool QuestRewarded_npc_maltimor_gartside(Player* pPlayer, Creature* pQuestGiver,
         pQuestGiver->MonsterSay(66434);
         pQuestGiver->HandleEmote(EMOTE_ONESHOT_TALK);
 
-        DoAfterTime(pPlayer, 5 * IN_MILLISECONDS,
-                    [player = pPlayer, npc = pQuestGiver]()
-                    {
-                        npc->MonsterSay(66435);
-                        npc->HandleEmote(EMOTE_ONESHOT_TALK);
-                    });
-        DoAfterTime(pPlayer, 10 * IN_MILLISECONDS,
-                    [player = pPlayer, npc = pQuestGiver]()
-                    {
-                        npc->MonsterSay(66436);
-                        npc->HandleEmote(EMOTE_ONESHOT_TALK);
-                    });
-        DoAfterTime(pPlayer, 15 * IN_MILLISECONDS, [player = pPlayer, npc = pQuestGiver]() { npc->HandleEmote(EMOTE_ONESHOT_CHEER); });
+        DoAfterTime(pPlayer, 5 * IN_MILLISECONDS, [player = pPlayer, npc = pQuestGiver]() {
+            npc->MonsterSay(66435);
+            npc->HandleEmote(EMOTE_ONESHOT_TALK);
+            });
+        DoAfterTime(pPlayer, 10 * IN_MILLISECONDS, [player = pPlayer, npc = pQuestGiver]() {
+            npc->MonsterSay(66436);
+            npc->HandleEmote(EMOTE_ONESHOT_TALK);
+            });
+        DoAfterTime(pPlayer, 15 * IN_MILLISECONDS, [player = pPlayer, npc = pQuestGiver]() {
+            npc->HandleEmote(EMOTE_ONESHOT_CHEER);
+            });
     }
 
     return false;
@@ -3224,33 +3083,27 @@ bool QuestRewarded_npc_maltimor_gartside(Player* pPlayer, Creature* pQuestGiver,
 
 bool QuestAccept_npc_maltimor_gartside(Player* pPlayer, Creature* pQuestGiver, Quest const* pQuest)
 {
-    if (!pQuestGiver || !pPlayer)
-        return false;
+    if (!pQuestGiver || !pPlayer) return false;
 
     if (pQuest->GetQuestId() == 40476) // The Harvest Golem Mystery VII
     {
         pQuestGiver->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
         pQuestGiver->HandleEmote(EMOTE_STATE_WORK);
 
-        pQuestGiver->m_Events.AddLambdaEventAtOffset(
-            [pQuestGiver]()
+        pQuestGiver->m_Events.AddLambdaEventAtOffset([pQuestGiver]()
             {
                 pQuestGiver->HandleEmote(EMOTE_STATE_NONE);
                 pQuestGiver->SummonCreature(60871, -10279.18F, 1920.43F, 34.23F, 3.99F, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 30 * IN_MILLISECONDS);
-            },
-            5000);
+            }, 5000);
 
-        pQuestGiver->m_Events.AddLambdaEventAtOffset(
-            [pQuestGiver]()
+        pQuestGiver->m_Events.AddLambdaEventAtOffset([pQuestGiver]()
             {
                 pQuestGiver->MonsterSay(66437);
                 pQuestGiver->HandleEmote(EMOTE_STATE_NONE);
                 pQuestGiver->HandleEmote(EMOTE_ONESHOT_TALK);
-            },
-            9000);
+            }, 9000);
 
-        pQuestGiver->m_Events.AddLambdaEventAtOffset(
-            [pQuestGiver]()
+        pQuestGiver->m_Events.AddLambdaEventAtOffset([pQuestGiver]()
             {
                 pQuestGiver->CastSpell(pQuestGiver, 13540, false); // Green Channeling
                 Creature* harvest_reaper = pQuestGiver->FindNearestCreature(60871, 30.0F);
@@ -3260,11 +3113,9 @@ bool QuestAccept_npc_maltimor_gartside(Player* pPlayer, Creature* pQuestGiver, Q
                     harvest_reaper->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_SPAWNING);
                     harvest_reaper->HandleEmote(EMOTE_ONESHOT_ATTACK1H);
                 }
-            },
-            10000);
+            }, 10000);
 
-        pQuestGiver->m_Events.AddLambdaEventAtOffset(
-            [pQuestGiver]()
+        pQuestGiver->m_Events.AddLambdaEventAtOffset([pQuestGiver]()
             {
                 pQuestGiver->CastSpell(pQuestGiver, 24171, false);
                 if (Creature* harvest_reaper = pQuestGiver->FindNearestCreature(60871, 30.0F))
@@ -3272,11 +3123,10 @@ bool QuestAccept_npc_maltimor_gartside(Player* pPlayer, Creature* pQuestGiver, Q
                     harvest_reaper->SetFactionTemporary(35, TEMPFACTION_RESTORE_COMBAT_STOP);
                     harvest_reaper->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_SPAWNING);
                 }
-            },
-            30000);
 
-        pQuestGiver->m_Events.AddLambdaEventAtOffset(
-            [pQuestGiver]()
+            }, 30000);
+
+        pQuestGiver->m_Events.AddLambdaEventAtOffset([pQuestGiver]()
             {
                 if (Creature* harvest_reaper = pQuestGiver->FindNearestCreature(60871, 30.0F))
                 {
@@ -3284,25 +3134,24 @@ bool QuestAccept_npc_maltimor_gartside(Player* pPlayer, Creature* pQuestGiver, Q
                     pQuestGiver->HandleEmote(EMOTE_ONESHOT_TALK);
                 }
                 pQuestGiver->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-            },
-            31000);
 
-        DoAfterTime(pPlayer, 31 * IN_MILLISECONDS,
-                    [player = pPlayer]()
-                    {
-                        if (Creature* harvest_reaper = player->FindNearestCreature(60871, 30.0F))
-                        {
-                            if (player->IsAlive())
-                            {
-                                if (CreatureInfo const* cInfo = sObjectMgr.GetCreatureTemplate(60375))
-                                    player->KilledMonster(cInfo, ObjectGuid());
-                            }
-                            else
-                            {
-                                player->SetQuestStatus(40476, QUEST_STATUS_FAILED);
-                            }
-                        }
-                    });
+            }, 31000);
+
+        DoAfterTime(pPlayer, 31 * IN_MILLISECONDS, [player = pPlayer]() {
+            if (Creature* harvest_reaper = player->FindNearestCreature(60871, 30.0F))
+            {
+                if (player->IsAlive())
+                {
+                    if (CreatureInfo const* cInfo = sObjectMgr.GetCreatureTemplate(60375))
+                        player->KilledMonster(cInfo, ObjectGuid());
+                }
+                else
+                {
+                    player->SetQuestStatus(40476, QUEST_STATUS_FAILED);
+                }
+            }
+            });
+
     }
     return false;
 }
@@ -3357,8 +3206,7 @@ bool GossipSelect_npc_maltimor_gartside(Player* pPlayer, Creature* pCreature, ui
 
 bool QuestRewarded_npc_franklin_hamar(Player* pPlayer, Creature* pQuestGiver, Quest const* pQuest)
 {
-    if (!pQuestGiver || !pPlayer)
-        return false;
+    if (!pQuestGiver || !pPlayer) return false;
 
     if (pQuest->GetQuestId() == 40482) // The Harvest Golem Mystery XIII
     {
@@ -3366,32 +3214,24 @@ bool QuestRewarded_npc_franklin_hamar(Player* pPlayer, Creature* pQuestGiver, Qu
         pQuestGiver->MonsterSay(66439);
         pQuestGiver->HandleEmote(EMOTE_ONESHOT_TALK);
 
-        DoAfterTime(pPlayer, 8 * IN_MILLISECONDS,
-                    [player = pPlayer, npc = pQuestGiver]()
-                    {
-                        npc->MonsterSay(66440);
-                        npc->HandleEmote(EMOTE_ONESHOT_TALK);
-                    });
-        DoAfterTime(pPlayer, 16 * IN_MILLISECONDS,
-                    [player = pPlayer, npc = pQuestGiver]()
-                    {
-                        npc->MonsterSay(66441);
-                        npc->HandleEmote(EMOTE_ONESHOT_TALK);
-                    });
-        DoAfterTime(pPlayer, 24 * IN_MILLISECONDS,
-                    [player = pPlayer, npc = pQuestGiver]()
-                    {
-                        npc->MonsterSay(66442);
-                        npc->HandleEmote(EMOTE_ONESHOT_TALK);
-                    });
-        DoAfterTime(pPlayer, 32 * IN_MILLISECONDS,
-                    [player = pPlayer, npc = pQuestGiver]()
-                    {
-                        npc->MonsterSay(66443);
-                        npc->HandleEmote(EMOTE_ONESHOT_TALK);
-                    });
+        DoAfterTime(pPlayer, 8 * IN_MILLISECONDS, [player = pPlayer, npc = pQuestGiver]() {
+            npc->MonsterSay(66440);
+            npc->HandleEmote(EMOTE_ONESHOT_TALK);
+            });
+        DoAfterTime(pPlayer, 16 * IN_MILLISECONDS, [player = pPlayer, npc = pQuestGiver]() {
+            npc->MonsterSay(66441);
+            npc->HandleEmote(EMOTE_ONESHOT_TALK);
+            });
+        DoAfterTime(pPlayer, 24 * IN_MILLISECONDS, [player = pPlayer, npc = pQuestGiver]() {
+            npc->MonsterSay(66442);
+            npc->HandleEmote(EMOTE_ONESHOT_TALK);
+            });
+        DoAfterTime(pPlayer, 32 * IN_MILLISECONDS, [player = pPlayer, npc = pQuestGiver]() {
+            npc->MonsterSay(66443);
+            npc->HandleEmote(EMOTE_ONESHOT_TALK);
+            });
     }
-
+    
     return false;
 }
 
@@ -3412,16 +3252,16 @@ bool GossipHello_npc_farad_wrightsow(Player* pPlayer, Creature* pCreature)
 bool GossipSelect_npc_farad_wrightsow(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
 {
     if (uiAction == GOSSIP_ACTION_INFO_DEF + 1)
-    {
+        {
         pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_TALK, 66744, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
         pPlayer->SEND_GOSSIP_MENU(30024, pCreature->GetGUID());
-    }
+        }
 
     if (uiAction == GOSSIP_ACTION_INFO_DEF + 2)
-    {
+        {
         pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_TALK, 66745, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 3);
         pPlayer->SEND_GOSSIP_MENU(30025, pCreature->GetGUID());
-    }
+        }
 
     if (uiAction == GOSSIP_ACTION_INFO_DEF + 3)
     {
@@ -3445,8 +3285,7 @@ bool GossipSelect_npc_farad_wrightsow(Player* pPlayer, Creature* pCreature, uint
 
 bool QuestRewarded_npc_darkseer_geshtol(Player* pPlayer, Creature* pQuestGiver, Quest const* pQuest)
 {
-    if (!pQuestGiver || !pPlayer)
-        return false;
+    if (!pQuestGiver || !pPlayer) return false;
 
     if (pQuest->GetQuestId() == 40492) // Fueling the Blood Fury
     {
@@ -3460,7 +3299,9 @@ bool QuestRewarded_npc_darkseer_geshtol(Player* pPlayer, Creature* pQuestGiver, 
         pQuestGiver->MonsterSay(66445);
         pQuestGiver->HandleEmote(EMOTE_ONESHOT_TALK);
 
-        DoAfterTime(pPlayer, 5 * IN_MILLISECONDS, [player = pPlayer, npc = pQuestGiver]() { npc->HandleEmote(EMOTE_ONESHOT_LAUGH); });
+        DoAfterTime(pPlayer, 5 * IN_MILLISECONDS, [player = pPlayer, npc = pQuestGiver]() {
+        npc->HandleEmote(EMOTE_ONESHOT_LAUGH);
+            });
     }
 
     return false;
@@ -3506,24 +3347,21 @@ bool GossipSelect_npc_young_blackrock_worg(Player* pPlayer, Creature* pCreature,
 
 bool QuestRewarded_npc_karfang(Player* pPlayer, Creature* pQuestGiver, Quest const* pQuest)
 {
-    if (!pQuestGiver || !pPlayer)
-        return false;
+    if (!pQuestGiver || !pPlayer) return false;
 
     if (pQuest->GetQuestId() == 40508) // Take No Chances
     {
         pQuestGiver->MonsterSay(66446);
         pQuestGiver->HandleEmote(EMOTE_ONESHOT_TALK);
 
-        DoAfterTime(pPlayer, 2 * IN_MILLISECONDS,
-                    [player = pPlayer, npc = pQuestGiver]()
-                    {
-                        npc->HandleEmote(EMOTE_ONESHOT_SALUTE);
+        DoAfterTime(pPlayer, 2 * IN_MILLISECONDS, [player = pPlayer, npc = pQuestGiver]() {
+            npc->HandleEmote(EMOTE_ONESHOT_SALUTE);
 
-                        Creature* molk = npc->FindNearestCreature(60769, 15.0F);
-                        molk->HandleEmote(EMOTE_ONESHOT_SALUTE);
-                        Creature* councilor_vargek = npc->FindNearestCreature(60772, 15.0F);
-                        councilor_vargek->HandleEmote(EMOTE_ONESHOT_SALUTE);
-                    });
+            Creature* molk = npc->FindNearestCreature(60769, 15.0F);
+            molk->HandleEmote(EMOTE_ONESHOT_SALUTE);
+            Creature* councilor_vargek = npc->FindNearestCreature(60772, 15.0F);
+            councilor_vargek->HandleEmote(EMOTE_ONESHOT_SALUTE);
+            });
     }
 
 
@@ -3532,9 +3370,13 @@ bool QuestRewarded_npc_karfang(Player* pPlayer, Creature* pQuestGiver, Quest con
         pQuestGiver->MonsterSay(66447);
         pQuestGiver->HandleEmote(EMOTE_ONESHOT_TALK);
 
-        DoAfterTime(pPlayer, 6 * IN_MILLISECONDS, [player = pPlayer, npc = pQuestGiver]() { npc->MonsterSay(66448); });
+        DoAfterTime(pPlayer, 6 * IN_MILLISECONDS, [player = pPlayer, npc = pQuestGiver]() {
+            npc->MonsterSay(66448);
+            });
 
-        DoAfterTime(pPlayer, 8 * IN_MILLISECONDS, [player = pPlayer, npc = pQuestGiver]() { npc->HandleEmote(EMOTE_ONESHOT_BOW); });
+        DoAfterTime(pPlayer, 8 * IN_MILLISECONDS, [player = pPlayer, npc = pQuestGiver]() {
+            npc->HandleEmote(EMOTE_ONESHOT_BOW);
+            });
     }
 
     return false;
@@ -3542,8 +3384,7 @@ bool QuestRewarded_npc_karfang(Player* pPlayer, Creature* pQuestGiver, Quest con
 
 bool QuestRewarded_npc_lashog(Player* pPlayer, Creature* pQuestGiver, Quest const* pQuest)
 {
-    if (!pQuestGiver || !pPlayer)
-        return false;
+    if (!pQuestGiver || !pPlayer) return false;
 
     if (pQuest->GetQuestId() == 40513) // Polymorph Enslavement!
     {
@@ -3551,60 +3392,49 @@ bool QuestRewarded_npc_lashog(Player* pPlayer, Creature* pQuestGiver, Quest cons
         pQuestGiver->SetDisplayId(1653); // Orc
     }
 
-    pQuestGiver->m_Events.AddLambdaEventAtOffset(
-        [pQuestGiver]()
+    pQuestGiver->m_Events.AddLambdaEventAtOffset([pQuestGiver]()
         {
             pQuestGiver->MonsterSay(66449);
             pQuestGiver->HandleEmote(EMOTE_ONESHOT_ROAR);
-        },
-        1000);
+        }, 1000);
 
-    pQuestGiver->m_Events.AddLambdaEventAtOffset(
-        [pQuestGiver]()
+    pQuestGiver->m_Events.AddLambdaEventAtOffset([pQuestGiver]()
         {
             pQuestGiver->MonsterSay(66450);
             pQuestGiver->HandleEmote(EMOTE_ONESHOT_TALK);
-        },
-        8000);
+        }, 8000);
 
-    pQuestGiver->m_Events.AddLambdaEventAtOffset(
-        [pQuestGiver]()
+    pQuestGiver->m_Events.AddLambdaEventAtOffset([pQuestGiver]()
         {
             pQuestGiver->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
             pQuestGiver->SetDisplayId(856); // Sheep
             pQuestGiver->CastSpell(pQuestGiver, 24085, false); // Transform Visual
             return true;
-        },
-        60000);
+        }, 60000);
 
     return false;
 }
 
 bool QuestRewarded_npc_seer_mazek(Player* pPlayer, Creature* pQuestGiver, Quest const* pQuest)
 {
-    if (!pQuestGiver || !pPlayer)
-        return false;
+    if (!pQuestGiver || !pPlayer) return false;
 
     if (pQuest->GetQuestId() == 40521) // Desert Voodoo
     {
         pQuestGiver->MonsterSay(66451);
         pQuestGiver->HandleEmote(EMOTE_ONESHOT_CHEER);
 
-        pQuestGiver->m_Events.AddLambdaEventAtOffset(
-            [pQuestGiver]()
+        pQuestGiver->m_Events.AddLambdaEventAtOffset([pQuestGiver]()
             {
                 pQuestGiver->MonsterSay(66452);
                 pQuestGiver->HandleEmote(EMOTE_ONESHOT_CHEER);
-            },
-            5000);
+            }, 5000);
 
-        pQuestGiver->m_Events.AddLambdaEventAtOffset(
-            [pQuestGiver]()
+        pQuestGiver->m_Events.AddLambdaEventAtOffset([pQuestGiver]()
             {
                 pQuestGiver->MonsterSay(66453);
                 pQuestGiver->HandleEmote(EMOTE_ONESHOT_CHEER);
-            },
-            10000);
+            }, 10000);
     }
 
     return false;
@@ -3651,29 +3481,24 @@ bool GossipSelect_npc_voljin(Player* pPlayer, Creature* pCreature, uint32 uiSend
 
 bool QuestRewarded_npc_ekka(Player* pPlayer, Creature* pQuestGiver, Quest const* pQuest)
 {
-    if (!pQuestGiver || !pPlayer)
-        return false;
+    if (!pQuestGiver || !pPlayer) return false;
 
     if (pQuest->GetQuestId() == 40528) // Meat for Viceclaw!
     {
         pQuestGiver->MonsterSay(66454);
         pQuestGiver->HandleEmote(EMOTE_ONESHOT_TALK);
 
-        pQuestGiver->m_Events.AddLambdaEventAtOffset(
-            [pQuestGiver]()
+        pQuestGiver->m_Events.AddLambdaEventAtOffset([pQuestGiver]()
             {
                 if (Creature* viceclaw = pQuestGiver->FindNearestCreature(60755, 15.0F))
                     viceclaw->MonsterTextEmote(66750);
-            },
-            3000);
+            }, 3000);
 
-        pQuestGiver->m_Events.AddLambdaEventAtOffset(
-            [pQuestGiver]()
+        pQuestGiver->m_Events.AddLambdaEventAtOffset([pQuestGiver]()
             {
                 pQuestGiver->MonsterSay(66455);
                 pQuestGiver->HandleEmote(EMOTE_ONESHOT_TALK);
-            },
-            5000);
+            }, 5000);
     }
 
     return false;
@@ -3714,16 +3539,20 @@ bool GossipSelect_npc_ancient_spirit_wolf(Player* pPlayer, Creature* pCreature, 
 
     if (uiAction == GOSSIP_ACTION_INFO_DEF + 2)
     {
-        pCreature->m_Events.AddLambdaEventAtOffset([pCreature]() { pCreature->MonsterSay(66456); }, 3000);
+        pCreature->m_Events.AddLambdaEventAtOffset([pCreature]()
+            {
+                pCreature->MonsterSay(66456);
+            }, 3000);
 
-        pCreature->m_Events.AddLambdaEventAtOffset([pCreature]() { pCreature->MonsterSay(66457); }, 18000);
+        pCreature->m_Events.AddLambdaEventAtOffset([pCreature]()
+            {
+                pCreature->MonsterSay(66457);
+            }, 18000);
 
-        DoAfterTime(pPlayer, 28 * IN_MILLISECONDS,
-                    [player = pPlayer, npc = pCreature]()
-                    {
-                        if (CreatureInfo const* cInfo = sObjectMgr.GetCreatureTemplate(60379))
-                            player->KilledMonster(cInfo, ObjectGuid());
-                    });
+        DoAfterTime(pPlayer, 28 * IN_MILLISECONDS, [player = pPlayer, npc = pCreature]() {
+            if (CreatureInfo const* cInfo = sObjectMgr.GetCreatureTemplate(60379))
+                player->KilledMonster(cInfo, ObjectGuid());
+            });
     }
 
     if (uiAction == GOSSIP_ACTION_INFO_DEF + 3)
@@ -3741,7 +3570,7 @@ struct npc_ancient_spirit_wolfAI : public ScriptedAI
 {
     npc_ancient_spirit_wolfAI(Creature* c) : ScriptedAI(c) { Reset(); }
 
-    void Reset() {}
+    void Reset() { }
     void UpdateAI(const uint32 diff)
     {
         if (m_creature->GetHealthPercent() < 10)
@@ -3750,12 +3579,11 @@ struct npc_ancient_spirit_wolfAI : public ScriptedAI
             m_creature->ClearInCombat();
             m_creature->SetFactionTemplateId(35);
         }
-        if (!m_creature->SelectHostileTarget() || !m_creature->GetVictim())
-            return;
+        if (!m_creature->SelectHostileTarget() || !m_creature->GetVictim()) return;
         DoMeleeAttackIfReady();
     }
-    void JustDied(Unit*) override {}
-    void EnterCombat() {}
+    void JustDied(Unit*) override { }
+    void EnterCombat() { }
 
     void OnCombatStop()
     {
@@ -3810,7 +3638,7 @@ struct npc_sunchaserAI : public ScriptedAI
 {
     npc_sunchaserAI(Creature* c) : ScriptedAI(c) { Reset(); }
 
-    void Reset() {}
+    void Reset() { }
     void UpdateAI(const uint32 diff)
     {
         if (!m_creature->SelectHostileTarget() || !m_creature->GetVictim())
@@ -3823,11 +3651,11 @@ struct npc_sunchaserAI : public ScriptedAI
             EnterEvadeMode();
             return;
         }
-
+        
         DoMeleeAttackIfReady();
     }
-    void JustDied(Unit*) override {}
-    void EnterCombat() {}
+    void JustDied(Unit*) override { }
+    void EnterCombat() { }
 
     void GiveQuestCredit()
     {
@@ -3853,7 +3681,10 @@ struct npc_sellick_vossAI : public ScriptedAI
     npc_sellick_vossAI(Creature* c) : ScriptedAI(c) { Reset(); }
 
     void Reset() {}
-    void Aggro(Unit* who) { m_creature->MonsterSay(66458); }
+    void Aggro(Unit* who)
+    {
+        m_creature->MonsterSay(66458);
+    }
     void JustRespawned() { Reset(); }
 };
 
@@ -3994,7 +3825,11 @@ bool GossipSelect_npc_bert_mano(Player* pPlayer, Creature* pCreature, uint32 uiS
             pCreature->MonsterSay(66462);
             pCreature->HandleEmote(EMOTE_ONESHOT_TALK);
 
-            pCreature->m_Events.AddLambdaEventAtOffset([pCreature]() { pCreature->SummonCreature(60954, pCreature->GetPositionX() + 2, pCreature->GetPositionY() + 2, pCreature->GetPositionZ() + 2, pCreature->GetOrientation() + 3.14, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 0.5 * MINUTE * IN_MILLISECONDS); }, 3000);
+            pCreature->m_Events.AddLambdaEventAtOffset([pCreature]()
+                {
+                    pCreature->SummonCreature(60954, pCreature->GetPositionX() + 2, pCreature->GetPositionY() + 2, pCreature->GetPositionZ() + 2, pCreature->GetOrientation() + 3.14, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 0.5 * MINUTE * IN_MILLISECONDS);
+                }, 3000);
+
         }
         pPlayer->CLOSE_GOSSIP_MENU();
     }
@@ -4043,8 +3878,7 @@ bool GossipSelect_npc_broter_neals(Player* pPlayer, Creature* pCreature, uint32 
 
 bool QuestRewarded_npc_broter_neals(Player* pPlayer, Creature* pQuestGiver, Quest const* pQuest)
 {
-    if (!pQuestGiver || !pPlayer)
-        return false;
+    if (!pQuestGiver || !pPlayer) return false;
 
     if (pQuest->GetQuestId() == 40603) // The Old Church of Westfall XI
     {
@@ -4057,8 +3891,7 @@ bool QuestRewarded_npc_broter_neals(Player* pPlayer, Creature* pQuestGiver, Ques
 
 bool QuestAccept_npc_gryan_stoutmantle(Player* pPlayer, Creature* pQuestGiver, Quest const* pQuest)
 {
-    if (!pQuestGiver || !pPlayer)
-        return false;
+    if (!pQuestGiver || !pPlayer) return false;
 
     bool first_item_added = false;
     bool second_item_added = false;
@@ -4095,8 +3928,7 @@ bool QuestAccept_npc_gryan_stoutmantle(Player* pPlayer, Creature* pQuestGiver, Q
 
 bool QuestRewarded_npc_segwar_ironback(Player* pPlayer, Creature* pQuestGiver, Quest const* pQuest)
 {
-    if (!pQuestGiver || !pPlayer)
-        return false;
+    if (!pQuestGiver || !pPlayer) return false;
 
     if (pQuest->GetQuestId() == 40608) // Salvaging the Crops
     {
@@ -4153,8 +3985,7 @@ bool GossipSelect_npc_khan_jehn(Player* pPlayer, Creature* pCreature, uint32 uiS
 
 bool QuestRewarded_npc_khan_jehn(Player* pPlayer, Creature* pQuestGiver, Quest const* pQuest)
 {
-    if (!pQuestGiver || !pPlayer)
-        return false;
+    if (!pQuestGiver || !pPlayer) return false;
 
     if (pQuest->GetQuestId() == 40616) // One of Us
     {
@@ -4204,8 +4035,7 @@ bool GossipSelect_npc_khan_shaka(Player* pPlayer, Creature* pCreature, uint32 ui
 
 bool QuestRewarded_npc_khan_shaka(Player* pPlayer, Creature* pQuestGiver, Quest const* pQuest)
 {
-    if (!pQuestGiver || !pPlayer)
-        return false;
+    if (!pQuestGiver || !pPlayer) return false;
 
     if (pQuest->GetQuestId() == 40629) // An Honorary Gelkis
     {
@@ -4218,8 +4048,7 @@ bool QuestRewarded_npc_khan_shaka(Player* pPlayer, Creature* pQuestGiver, Quest 
 
 bool QuestRewarded_npc_nazz_firecracker(Player* pPlayer, Creature* pQuestGiver, Quest const* pQuest)
 {
-    if (!pQuestGiver || !pPlayer)
-        return false;
+    if (!pQuestGiver || !pPlayer) return false;
 
     if (pQuest->GetQuestId() == 40642) // Lighting the Oilmaster
     {
@@ -4299,44 +4128,34 @@ bool GossipSelect_npc_mally_o_flor(Player* pPlayer, Creature* pCreature, uint32 
         {
             Creature* controller = pCreature->SummonCreature(10, pCreature->GetPositionX(), pCreature->GetPositionY(), pCreature->GetPositionZ(), pCreature->GetOrientation(), TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 48 * IN_MILLISECONDS);
 
-            pCreature->m_Events.AddLambdaEventAtOffset(
-                [pCreature]()
+            pCreature->m_Events.AddLambdaEventAtOffset([pCreature]()
                 {
                     pCreature->MonsterSay(66469);
                     pCreature->HandleEmote(EMOTE_ONESHOT_TALK);
-                },
-                1000);
+                }, 1000);
 
-            pCreature->m_Events.AddLambdaEventAtOffset(
-                [pCreature]()
+            pCreature->m_Events.AddLambdaEventAtOffset([pCreature]()
                 {
                     pCreature->MonsterSay(66470);
                     pCreature->HandleEmote(EMOTE_ONESHOT_TALK);
-                },
-                10000);
+                }, 10000);
 
-            pCreature->m_Events.AddLambdaEventAtOffset(
-                [pCreature]()
+            pCreature->m_Events.AddLambdaEventAtOffset([pCreature]()
                 {
                     pCreature->MonsterSay(66471);
                     pCreature->HandleEmote(EMOTE_ONESHOT_TALK);
-                },
-                24000);
+                }, 24000);
 
-            pCreature->m_Events.AddLambdaEventAtOffset(
-                [pCreature]()
+            pCreature->m_Events.AddLambdaEventAtOffset([pCreature]()
                 {
                     pCreature->MonsterSay(66472);
                     pCreature->HandleEmote(EMOTE_ONESHOT_TALK);
-                },
-                40000);
+                }, 40000);
 
-            DoAfterTime(pPlayer, 48 * IN_MILLISECONDS,
-                        [player = pPlayer]()
-                        {
-                            if (CreatureInfo const* cInfo = sObjectMgr.GetCreatureTemplate(60398))
-                                player->KilledMonster(cInfo, ObjectGuid());
-                        });
+            DoAfterTime(pPlayer, 48 * IN_MILLISECONDS, [player = pPlayer]() {
+                if (CreatureInfo const* cInfo = sObjectMgr.GetCreatureTemplate(60398))
+                    player->KilledMonster(cInfo, ObjectGuid());
+                });
         }
     }
 
@@ -4346,8 +4165,7 @@ bool GossipSelect_npc_mally_o_flor(Player* pPlayer, Creature* pCreature, uint32 
 
 bool QuestRewarded_npc_war_crier_darnakk(Player* pPlayer, Creature* pQuestGiver, Quest const* pQuest)
 {
-    if (!pQuestGiver || !pPlayer)
-        return false;
+    if (!pQuestGiver || !pPlayer) return false;
 
     if (pQuest->GetQuestId() == 40673) // Cutting Ranks
     {
@@ -4360,12 +4178,10 @@ bool QuestRewarded_npc_war_crier_darnakk(Player* pPlayer, Creature* pQuestGiver,
         pQuestGiver->MonsterSay(66474);
         pQuestGiver->HandleEmote(EMOTE_ONESHOT_TALK);
 
-        DoAfterTime(pPlayer, 6 * IN_MILLISECONDS,
-                    [player = pPlayer, npc = pQuestGiver]()
-                    {
-                        npc->MonsterSayToPlayer(67029, player);
-                        npc->HandleEmote(EMOTE_ONESHOT_BOW);
-                    });
+        DoAfterTime(pPlayer, 6 * IN_MILLISECONDS, [player = pPlayer, npc = pQuestGiver]() {
+            npc->MonsterSayToPlayer(67029, player);
+            npc->HandleEmote(EMOTE_ONESHOT_BOW);
+            });
     }
 
     return false;
@@ -4373,8 +4189,7 @@ bool QuestRewarded_npc_war_crier_darnakk(Player* pPlayer, Creature* pQuestGiver,
 
 bool QuestRewarded_npc_gowlfang(Player* pPlayer, Creature* pQuestGiver, Quest const* pQuest)
 {
-    if (!pQuestGiver || !pPlayer)
-        return false;
+    if (!pQuestGiver || !pPlayer) return false;
 
     if (pQuest->GetQuestId() == 40681) // Cursed Sagepaw!
     {
@@ -4388,20 +4203,30 @@ bool QuestRewarded_npc_gowlfang(Player* pPlayer, Creature* pQuestGiver, Quest co
 
         if (NPC_cheer1)
         {
-            DoAfterTime(pPlayer, 6 * IN_MILLISECONDS, [player = pPlayer, npc = NPC_cheer1]() { npc->MonsterSayToPlayer(66770, player); });
-            DoAfterTime(pPlayer, 14 * IN_MILLISECONDS, [player = pPlayer, npc = NPC_cheer1]() { npc->MonsterSayToPlayer(66771, player); });
+            DoAfterTime(pPlayer, 6 * IN_MILLISECONDS, [player = pPlayer, npc = NPC_cheer1]() {
+                npc->MonsterSayToPlayer(66770, player);
+                });
+            DoAfterTime(pPlayer, 14 * IN_MILLISECONDS, [player = pPlayer, npc = NPC_cheer1]() {
+                npc->MonsterSayToPlayer(66771, player);
+                });
         }
         if (NPC_cheer2)
         {
-            DoAfterTime(pPlayer, 14.2 * IN_MILLISECONDS, [player = pPlayer, npc = NPC_cheer2]() { npc->MonsterSayToPlayer(66771, player); });
+            DoAfterTime(pPlayer, 14.2 * IN_MILLISECONDS, [player = pPlayer, npc = NPC_cheer2]() {
+                npc->MonsterSayToPlayer(66771, player);
+                });
         }
         if (NPC_cheer3)
         {
-            DoAfterTime(pPlayer, 14.4 * IN_MILLISECONDS, [player = pPlayer, npc = NPC_cheer3]() { npc->MonsterSayToPlayer(66771, player); });
+            DoAfterTime(pPlayer, 14.4 * IN_MILLISECONDS, [player = pPlayer, npc = NPC_cheer3]() {
+                npc->MonsterSayToPlayer(66771, player);
+                });
         }
         if (NPC_cheer4)
         {
-            DoAfterTime(pPlayer, 14.6 * IN_MILLISECONDS, [player = pPlayer, npc = NPC_cheer4]() { npc->MonsterSayToPlayer(66771, player); });
+            DoAfterTime(pPlayer, 14.6 * IN_MILLISECONDS, [player = pPlayer, npc = NPC_cheer4]() {
+                npc->MonsterSayToPlayer(66771, player);
+                });
         }
         return true;
     }
@@ -4459,8 +4284,7 @@ bool GOSelect_go_harmonization_crystal(Player* pPlayer, GameObject* pGo, uint32 
 
 bool QuestRewarded_npc_colonel_breen(Player* pPlayer, Creature* pQuestGiver, Quest const* pQuest)
 {
-    if (!pQuestGiver || !pPlayer)
-        return false;
+    if (!pQuestGiver || !pPlayer) return false;
 
     if (pQuest->GetQuestId() == 40687) // Daelin's Brigade
     {
@@ -4502,169 +4326,129 @@ bool GossipSelect_npc_falgran_hastil(Player* pPlayer, Creature* pCreature, uint3
             Creature* controller = pCreature->SummonCreature(10, pCreature->GetPositionX(), pCreature->GetPositionY(), pCreature->GetPositionZ(), pCreature->GetOrientation(), TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 187 * IN_MILLISECONDS);
             Creature* NPC_KAGORO = pCreature->FindNearestCreature(61056, 30.0F);
 
-            pCreature->m_Events.AddLambdaEventAtOffset(
-                [pCreature]()
+            pCreature->m_Events.AddLambdaEventAtOffset([pCreature]()
                 {
                     pCreature->MonsterSay(66478);
                     pCreature->HandleEmote(EMOTE_ONESHOT_TALK);
-                },
-                5000);
-            pCreature->m_Events.AddLambdaEventAtOffset(
-                [NPC_KAGORO]()
+                }, 5000);
+            pCreature->m_Events.AddLambdaEventAtOffset([NPC_KAGORO]()
                 {
                     NPC_KAGORO->MonsterSay(66479);
                     NPC_KAGORO->HandleEmote(EMOTE_ONESHOT_TALK);
-                },
-                13000);
-            pCreature->m_Events.AddLambdaEventAtOffset(
-                [pCreature]()
+                }, 13000);
+            pCreature->m_Events.AddLambdaEventAtOffset([pCreature]()
                 {
                     pCreature->MonsterSay(66480);
                     pCreature->HandleEmote(EMOTE_ONESHOT_TALK);
-                },
-                21000);
-            pCreature->m_Events.AddLambdaEventAtOffset(
-                [NPC_KAGORO]()
+                }, 21000);
+            pCreature->m_Events.AddLambdaEventAtOffset([NPC_KAGORO]()
                 {
                     NPC_KAGORO->MonsterSay(66481);
                     NPC_KAGORO->HandleEmote(EMOTE_ONESHOT_TALK);
-                },
-                29000);
-            pCreature->m_Events.AddLambdaEventAtOffset([NPC_KAGORO]() { NPC_KAGORO->PMonsterEmote(66482); }, 32000);
-            pCreature->m_Events.AddLambdaEventAtOffset(
-                [NPC_KAGORO]()
+                }, 29000);
+            pCreature->m_Events.AddLambdaEventAtOffset([NPC_KAGORO]()
+                {
+                    NPC_KAGORO->PMonsterEmote(66482);
+                }, 32000);
+            pCreature->m_Events.AddLambdaEventAtOffset([NPC_KAGORO]()
                 {
                     NPC_KAGORO->MonsterSay(66483);
                     NPC_KAGORO->HandleEmote(EMOTE_ONESHOT_TALK);
-                },
-                37000);
-            pCreature->m_Events.AddLambdaEventAtOffset(
-                [pCreature]()
+                }, 37000);
+            pCreature->m_Events.AddLambdaEventAtOffset([pCreature]()
                 {
                     pCreature->MonsterSay(66484);
                     pCreature->HandleEmote(EMOTE_ONESHOT_TALK);
-                },
-                47000);
-            pCreature->m_Events.AddLambdaEventAtOffset(
-                [NPC_KAGORO]()
+                }, 47000);
+            pCreature->m_Events.AddLambdaEventAtOffset([NPC_KAGORO]()
                 {
                     NPC_KAGORO->MonsterSay(66485);
                     NPC_KAGORO->HandleEmote(EMOTE_ONESHOT_TALK);
-                },
-                55000);
-            pCreature->m_Events.AddLambdaEventAtOffset(
-                [pCreature]()
+                }, 55000);
+            pCreature->m_Events.AddLambdaEventAtOffset([pCreature]()
                 {
                     pCreature->MonsterSay(66486);
                     pCreature->HandleEmote(EMOTE_ONESHOT_TALK);
-                },
-                63000);
-            pCreature->m_Events.AddLambdaEventAtOffset(
-                [NPC_KAGORO]()
+                }, 63000);
+            pCreature->m_Events.AddLambdaEventAtOffset([NPC_KAGORO]()
                 {
                     NPC_KAGORO->MonsterSay(66487);
                     NPC_KAGORO->HandleEmote(EMOTE_ONESHOT_TALK);
-                },
-                68000);
-            pCreature->m_Events.AddLambdaEventAtOffset(
-                [pCreature]()
+                }, 68000);
+            pCreature->m_Events.AddLambdaEventAtOffset([pCreature]()
                 {
                     pCreature->MonsterSay(66488);
                     pCreature->HandleEmote(EMOTE_ONESHOT_TALK);
-                },
-                73000);
-            pCreature->m_Events.AddLambdaEventAtOffset(
-                [NPC_KAGORO]()
+                }, 73000);
+            pCreature->m_Events.AddLambdaEventAtOffset([NPC_KAGORO]()
                 {
                     NPC_KAGORO->MonsterSay(66489);
                     NPC_KAGORO->HandleEmote(EMOTE_ONESHOT_TALK);
-                },
-                78000);
-            pCreature->m_Events.AddLambdaEventAtOffset(
-                [pCreature]()
+                }, 78000);
+            pCreature->m_Events.AddLambdaEventAtOffset([pCreature]()
                 {
                     pCreature->MonsterSay(66490);
                     pCreature->HandleEmote(EMOTE_ONESHOT_TALK);
-                },
-                81000);
-            pCreature->m_Events.AddLambdaEventAtOffset([NPC_KAGORO]() { NPC_KAGORO->PMonsterEmote(66491); }, 85000);
-            pCreature->m_Events.AddLambdaEventAtOffset(
-                [pCreature]()
+                }, 81000);
+            pCreature->m_Events.AddLambdaEventAtOffset([NPC_KAGORO]()
+                {
+                    NPC_KAGORO->PMonsterEmote(66491);
+                }, 85000);
+            pCreature->m_Events.AddLambdaEventAtOffset([pCreature]()
                 {
                     pCreature->MonsterSay(66492);
                     pCreature->HandleEmote(EMOTE_ONESHOT_TALK);
-                },
-                88000);
-            pCreature->m_Events.AddLambdaEventAtOffset(
-                [NPC_KAGORO]()
+                }, 88000);
+            pCreature->m_Events.AddLambdaEventAtOffset([NPC_KAGORO]()
                 {
                     NPC_KAGORO->MonsterSay(66493);
                     NPC_KAGORO->HandleEmote(EMOTE_ONESHOT_TALK);
-                },
-                100000);
-            pCreature->m_Events.AddLambdaEventAtOffset(
-                [pCreature]()
+                }, 100000);
+            pCreature->m_Events.AddLambdaEventAtOffset([pCreature]()
                 {
                     pCreature->MonsterSay(66494);
                     pCreature->HandleEmote(EMOTE_ONESHOT_TALK);
-                },
-                110000);
-            pCreature->m_Events.AddLambdaEventAtOffset(
-                [NPC_KAGORO]()
+                }, 110000);
+            pCreature->m_Events.AddLambdaEventAtOffset([NPC_KAGORO]()
                 {
                     NPC_KAGORO->MonsterSay(66495);
                     NPC_KAGORO->HandleEmote(EMOTE_ONESHOT_TALK);
-                },
-                122000);
-            pCreature->m_Events.AddLambdaEventAtOffset(
-                [pCreature]()
+                }, 122000);
+            pCreature->m_Events.AddLambdaEventAtOffset([pCreature]()
                 {
                     pCreature->MonsterSay(66496);
                     pCreature->HandleEmote(EMOTE_ONESHOT_TALK);
-                },
-                136000);
-            pCreature->m_Events.AddLambdaEventAtOffset(
-                [NPC_KAGORO]()
+                }, 136000);
+            pCreature->m_Events.AddLambdaEventAtOffset([NPC_KAGORO]()
                 {
                     NPC_KAGORO->MonsterSay(66497);
                     NPC_KAGORO->HandleEmote(EMOTE_ONESHOT_TALK);
-                },
-                144000);
-            pCreature->m_Events.AddLambdaEventAtOffset(
-                [pCreature]()
+                }, 144000);
+            pCreature->m_Events.AddLambdaEventAtOffset([pCreature]()
                 {
                     pCreature->MonsterSay(66498);
                     pCreature->HandleEmote(EMOTE_ONESHOT_TALK);
-                },
-                156000);
-            pCreature->m_Events.AddLambdaEventAtOffset(
-                [NPC_KAGORO]()
+                }, 156000);
+            pCreature->m_Events.AddLambdaEventAtOffset([NPC_KAGORO]()
                 {
                     NPC_KAGORO->MonsterSay(66499);
                     NPC_KAGORO->HandleEmote(EMOTE_ONESHOT_TALK);
-                },
-                164000);
-            pCreature->m_Events.AddLambdaEventAtOffset(
-                [pCreature]()
+                }, 164000);
+            pCreature->m_Events.AddLambdaEventAtOffset([pCreature]()
                 {
                     pCreature->MonsterSay(66500);
                     pCreature->HandleEmote(EMOTE_ONESHOT_TALK);
-                },
-                174000);
-            pCreature->m_Events.AddLambdaEventAtOffset(
-                [NPC_KAGORO]()
+                }, 174000);
+            pCreature->m_Events.AddLambdaEventAtOffset([NPC_KAGORO]()
                 {
                     NPC_KAGORO->MonsterSay(66501);
                     NPC_KAGORO->HandleEmote(EMOTE_ONESHOT_TALK);
-                },
-                182000);
-            DoAfterTime(pCreature, 187 * IN_MILLISECONDS,
-                        [playerGuid, npc = pCreature]()
-                        {
-                            auto player = sObjectAccessor.FindPlayer(playerGuid);
-                            if (CreatureInfo const* cInfo = sObjectMgr.GetCreatureTemplate(60388); cInfo && player)
-                                player->KilledMonster(cInfo, ObjectGuid());
-                        });
+                }, 182000);
+            DoAfterTime(pCreature, 187 * IN_MILLISECONDS, [playerGuid, npc = pCreature]() {
+                auto player = sObjectAccessor.FindPlayer(playerGuid);
+                if (CreatureInfo const* cInfo = sObjectMgr.GetCreatureTemplate(60388); cInfo && player)
+                    player->KilledMonster(cInfo, ObjectGuid());
+                });
         }
     }
 
@@ -4675,118 +4459,86 @@ bool GossipSelect_npc_falgran_hastil(Player* pPlayer, Creature* pCreature, uint3
             Creature* controller = pCreature->SummonCreature(10, pCreature->GetPositionX(), pCreature->GetPositionY(), pCreature->GetPositionZ(), pCreature->GetOrientation(), TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 105 * IN_MILLISECONDS);
             Creature* NPC_KAGORO = pCreature->FindNearestCreature(61056, 30.0F);
 
-            pCreature->m_Events.AddLambdaEventAtOffset(
-                [pCreature]()
+            pCreature->m_Events.AddLambdaEventAtOffset([pCreature]()
                 {
                     pCreature->MonsterSay(66502);
                     pCreature->HandleEmote(EMOTE_ONESHOT_TALK);
-                },
-                5000);
-            pCreature->m_Events.AddLambdaEventAtOffset(
-                [NPC_KAGORO]()
+                }, 5000);
+            pCreature->m_Events.AddLambdaEventAtOffset([NPC_KAGORO]()
                 {
                     NPC_KAGORO->MonsterSay(66503);
                     NPC_KAGORO->HandleEmote(EMOTE_ONESHOT_TALK);
-                },
-                8000);
-            pCreature->m_Events.AddLambdaEventAtOffset(
-                [pCreature]()
+                }, 8000);
+            pCreature->m_Events.AddLambdaEventAtOffset([pCreature]()
                 {
                     pCreature->MonsterSay(66504);
                     pCreature->HandleEmote(EMOTE_ONESHOT_TALK);
-                },
-                10000);
-            pCreature->m_Events.AddLambdaEventAtOffset(
-                [NPC_KAGORO]()
+                }, 10000);
+            pCreature->m_Events.AddLambdaEventAtOffset([NPC_KAGORO]()
                 {
                     NPC_KAGORO->MonsterSay(66505);
                     NPC_KAGORO->HandleEmote(EMOTE_ONESHOT_TALK);
-                },
-                20000);
-            pCreature->m_Events.AddLambdaEventAtOffset(
-                [pCreature]()
+                }, 20000);
+            pCreature->m_Events.AddLambdaEventAtOffset([pCreature]()
                 {
                     pCreature->MonsterSay(66506);
                     pCreature->HandleEmote(EMOTE_ONESHOT_TALK);
-                },
-                27000);
-            pCreature->m_Events.AddLambdaEventAtOffset(
-                [NPC_KAGORO]()
+                }, 27000);
+            pCreature->m_Events.AddLambdaEventAtOffset([NPC_KAGORO]()
                 {
                     NPC_KAGORO->MonsterSay(66507);
                     NPC_KAGORO->HandleEmote(EMOTE_ONESHOT_TALK);
-                },
-                35000);
-            pCreature->m_Events.AddLambdaEventAtOffset(
-                [pCreature]()
+                }, 35000);
+            pCreature->m_Events.AddLambdaEventAtOffset([pCreature]()
                 {
                     pCreature->MonsterSay(66508);
                     pCreature->HandleEmote(EMOTE_ONESHOT_TALK);
-                },
-                41000);
-            pCreature->m_Events.AddLambdaEventAtOffset(
-                [NPC_KAGORO]()
+                }, 41000);
+            pCreature->m_Events.AddLambdaEventAtOffset([NPC_KAGORO]()
                 {
                     NPC_KAGORO->MonsterSay(66509);
                     NPC_KAGORO->HandleEmote(EMOTE_ONESHOT_TALK);
-                },
-                54000);
-            pCreature->m_Events.AddLambdaEventAtOffset(
-                [pCreature]()
+                }, 54000);
+            pCreature->m_Events.AddLambdaEventAtOffset([pCreature]()
                 {
                     pCreature->MonsterSay(66510);
                     pCreature->HandleEmote(EMOTE_ONESHOT_TALK);
-                },
-                57000);
-            pCreature->m_Events.AddLambdaEventAtOffset(
-                [NPC_KAGORO]()
+                }, 57000);
+            pCreature->m_Events.AddLambdaEventAtOffset([NPC_KAGORO]()
                 {
                     NPC_KAGORO->MonsterSay(66511);
                     NPC_KAGORO->HandleEmote(EMOTE_ONESHOT_TALK);
-                },
-                65000);
-            pCreature->m_Events.AddLambdaEventAtOffset(
-                [pCreature]()
+                }, 65000);
+            pCreature->m_Events.AddLambdaEventAtOffset([pCreature]()
                 {
                     pCreature->MonsterSay(66512);
                     pCreature->HandleEmote(EMOTE_ONESHOT_TALK);
-                },
-                72000);
-            pCreature->m_Events.AddLambdaEventAtOffset(
-                [NPC_KAGORO]()
+                }, 72000);
+            pCreature->m_Events.AddLambdaEventAtOffset([NPC_KAGORO]()
                 {
                     NPC_KAGORO->MonsterSay(66513);
                     NPC_KAGORO->HandleEmote(EMOTE_ONESHOT_TALK);
-                },
-                80000);
-            pCreature->m_Events.AddLambdaEventAtOffset(
-                [pCreature]()
+                }, 80000);
+            pCreature->m_Events.AddLambdaEventAtOffset([pCreature]()
                 {
                     pCreature->MonsterSay(66514);
                     pCreature->HandleEmote(EMOTE_ONESHOT_TALK);
-                },
-                88000);
-            pCreature->m_Events.AddLambdaEventAtOffset(
-                [NPC_KAGORO]()
+                }, 88000);
+            pCreature->m_Events.AddLambdaEventAtOffset([NPC_KAGORO]()
                 {
                     NPC_KAGORO->MonsterSay(66515);
                     NPC_KAGORO->HandleEmote(EMOTE_ONESHOT_TALK);
-                },
-                98000);
-            pCreature->m_Events.AddLambdaEventAtOffset(
-                [pCreature]()
+                }, 98000);
+            pCreature->m_Events.AddLambdaEventAtOffset([pCreature]()
                 {
                     pCreature->MonsterSay(66516);
                     pCreature->HandleEmote(EMOTE_ONESHOT_TALK);
-                },
-                104000);
-            DoAfterTime(pCreature, 105 * IN_MILLISECONDS,
-                        [playerGuid, npc = pCreature]()
-                        {
-                            auto player = sObjectAccessor.FindPlayer(playerGuid);
-                            if (CreatureInfo const* cInfo = sObjectMgr.GetCreatureTemplate(60390); cInfo && player)
-                                player->KilledMonster(cInfo, ObjectGuid());
-                        });
+                }, 104000);
+            DoAfterTime(pCreature, 105 * IN_MILLISECONDS, [playerGuid, npc = pCreature]() {
+                auto player = sObjectAccessor.FindPlayer(playerGuid);
+                if (CreatureInfo const* cInfo = sObjectMgr.GetCreatureTemplate(60390); cInfo && player)
+                    player->KilledMonster(cInfo, ObjectGuid());
+                });
         }
     }
 
@@ -4796,8 +4548,7 @@ bool GossipSelect_npc_falgran_hastil(Player* pPlayer, Creature* pCreature, uint3
 
 bool QuestRewarded_npc_falgran_hastil(Player* pPlayer, Creature* pQuestGiver, Quest const* pQuest)
 {
-    if (!pQuestGiver || !pPlayer)
-        return false;
+    if (!pQuestGiver || !pPlayer) return false;
 
     if (pQuest->GetQuestId() == 40723) // Honoring Treaties
     {
@@ -4831,33 +4582,25 @@ bool GossipSelect_npc_grumnir_battlebeard(Player* pPlayer, Creature* pCreature, 
         {
             Creature* controller = pCreature->SummonCreature(10, pCreature->GetPositionX(), pCreature->GetPositionY(), pCreature->GetPositionZ(), pCreature->GetOrientation(), TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 48 * IN_MILLISECONDS);
 
-            pCreature->m_Events.AddLambdaEventAtOffset(
-                [pCreature]()
+            pCreature->m_Events.AddLambdaEventAtOffset([pCreature]()
                 {
                     pCreature->MonsterSay(66517);
                     pCreature->HandleEmote(EMOTE_ONESHOT_TALK);
-                },
-                1000);
-            pCreature->m_Events.AddLambdaEventAtOffset(
-                [pCreature]()
+                }, 1000);
+            pCreature->m_Events.AddLambdaEventAtOffset([pCreature]()
                 {
                     pCreature->MonsterSay(66518);
                     pCreature->HandleEmote(EMOTE_ONESHOT_TALK);
-                },
-                13000);
-            pCreature->m_Events.AddLambdaEventAtOffset(
-                [pCreature]()
+                }, 13000);
+            pCreature->m_Events.AddLambdaEventAtOffset([pCreature]()
                 {
                     pCreature->MonsterSay(66519);
                     pCreature->HandleEmote(EMOTE_ONESHOT_TALK);
-                },
-                25000);
-            DoAfterTime(pPlayer, 33 * IN_MILLISECONDS,
-                        [player = pPlayer]()
-                        {
-                            if (CreatureInfo const* cInfo = sObjectMgr.GetCreatureTemplate(60399))
-                                player->KilledMonster(cInfo, ObjectGuid());
-                        });
+                }, 25000);
+            DoAfterTime(pPlayer, 33 * IN_MILLISECONDS, [player = pPlayer]() {
+                if (CreatureInfo const* cInfo = sObjectMgr.GetCreatureTemplate(60399))
+                    player->KilledMonster(cInfo, ObjectGuid());
+                });
         }
     }
 
@@ -4867,8 +4610,7 @@ bool GossipSelect_npc_grumnir_battlebeard(Player* pPlayer, Creature* pCreature, 
 
 bool QuestRewarded_npc_harlek_vaultshield(Player* pPlayer, Creature* pQuestGiver, Quest const* pQuest)
 {
-    if (!pQuestGiver || !pPlayer)
-        return false;
+    if (!pQuestGiver || !pPlayer) return false;
 
     if (pQuest->GetQuestId() == 40696) // The Fixed Sputtervalve Conductor
     {
@@ -4902,40 +4644,30 @@ bool GossipSelect_npc_faldan_moonshatter(Player* pPlayer, Creature* pCreature, u
         {
             Creature* controller = pCreature->SummonCreature(10, pCreature->GetPositionX(), pCreature->GetPositionY(), pCreature->GetPositionZ(), pCreature->GetOrientation(), TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 48 * IN_MILLISECONDS);
 
-            pCreature->m_Events.AddLambdaEventAtOffset(
-                [pCreature]()
+            pCreature->m_Events.AddLambdaEventAtOffset([pCreature]()
                 {
                     pCreature->MonsterSay(66521);
                     pCreature->HandleEmote(EMOTE_ONESHOT_TALK);
-                },
-                1000);
-            pCreature->m_Events.AddLambdaEventAtOffset(
-                [pCreature]()
+                }, 1000);
+            pCreature->m_Events.AddLambdaEventAtOffset([pCreature]()
                 {
                     pCreature->MonsterSay(66522);
                     pCreature->HandleEmote(EMOTE_ONESHOT_TALK);
-                },
-                13000);
-            pCreature->m_Events.AddLambdaEventAtOffset(
-                [pCreature]()
+                }, 13000);
+            pCreature->m_Events.AddLambdaEventAtOffset([pCreature]()
                 {
                     pCreature->MonsterSay(66523);
                     pCreature->HandleEmote(EMOTE_ONESHOT_TALK);
-                },
-                27000);
-            pCreature->m_Events.AddLambdaEventAtOffset(
-                [pCreature]()
+                }, 27000);
+            pCreature->m_Events.AddLambdaEventAtOffset([pCreature]()
                 {
                     pCreature->MonsterSay(66524);
                     pCreature->HandleEmote(EMOTE_ONESHOT_TALK);
-                },
-                35000);
-            DoAfterTime(pPlayer, 39 * IN_MILLISECONDS,
-                        [player = pPlayer]()
-                        {
-                            if (CreatureInfo const* cInfo = sObjectMgr.GetCreatureTemplate(60008))
-                                player->KilledMonster(cInfo, ObjectGuid());
-                        });
+                }, 35000);
+            DoAfterTime(pPlayer, 39 * IN_MILLISECONDS, [player = pPlayer]() {
+                if (CreatureInfo const* cInfo = sObjectMgr.GetCreatureTemplate(60008))
+                    player->KilledMonster(cInfo, ObjectGuid());
+                });
         }
     }
 
@@ -4945,8 +4677,7 @@ bool GossipSelect_npc_faldan_moonshatter(Player* pPlayer, Creature* pCreature, u
 
 bool QuestRewarded_npc_maloran_oakbranch(Player* pPlayer, Creature* pQuestGiver, Quest const* pQuest)
 {
-    if (!pQuestGiver || !pPlayer)
-        return false;
+    if (!pQuestGiver || !pPlayer) return false;
 
     if (pQuest->GetQuestId() == 40698) // Conflicting Questions
     {
@@ -4987,52 +4718,42 @@ bool GOSelect_go_gong_of_corthan(Player* pPlayer, GameObject* pGo, uint32 sender
             Creature* echo_of_forgotten_warlord = pGo->SummonCreature(61068, -6379.24F, -3021.03F, 403.46F, 4.36F, TEMPSUMMON_TIMED_DESPAWN, 22 * IN_MILLISECONDS);
             Creature* echo_of_forgotten_chieftain = pGo->SummonCreature(61067, -6383.77F, -3020.89F, 403.37F, 5.03F, TEMPSUMMON_TIMED_DESPAWN, 22 * IN_MILLISECONDS);
 
-            pGo->m_Events.AddLambdaEventAtOffset(
-                [echo_of_forgotten_warlord, echo_of_forgotten_chieftain]()
+            pGo->m_Events.AddLambdaEventAtOffset([echo_of_forgotten_warlord, echo_of_forgotten_chieftain]()
                 {
                     if (echo_of_forgotten_warlord && echo_of_forgotten_chieftain)
                     {
                         echo_of_forgotten_warlord->HandleEmote(EMOTE_STATE_KNEEL);
                         echo_of_forgotten_chieftain->HandleEmote(EMOTE_STATE_KNEEL);
                     }
-                },
-                1000);
-            pGo->m_Events.AddLambdaEventAtOffset(
-                [echo_of_corthan]()
+                }, 1000);
+            pGo->m_Events.AddLambdaEventAtOffset([echo_of_corthan]()
                 {
                     if (echo_of_corthan)
                     {
                         echo_of_corthan->MonsterSay(66526);
                         echo_of_corthan->HandleEmote(EMOTE_ONESHOT_TALK);
                     }
-                },
-                4000);
-            pGo->m_Events.AddLambdaEventAtOffset(
-                [echo_of_forgotten_warlord, echo_of_forgotten_chieftain]()
+                }, 4000);
+            pGo->m_Events.AddLambdaEventAtOffset([echo_of_forgotten_warlord, echo_of_forgotten_chieftain]()
                 {
                     if (echo_of_forgotten_warlord)
                     {
                         echo_of_forgotten_warlord->MonsterSay(66527);
                         echo_of_forgotten_warlord->HandleEmote(EMOTE_ONESHOT_TALK);
                     }
-                },
-                11000);
-            pGo->m_Events.AddLambdaEventAtOffset(
-                [echo_of_forgotten_warlord, echo_of_forgotten_chieftain]()
+                }, 11000);
+            pGo->m_Events.AddLambdaEventAtOffset([echo_of_forgotten_warlord, echo_of_forgotten_chieftain]()
                 {
                     if (echo_of_forgotten_chieftain)
                     {
                         echo_of_forgotten_chieftain->MonsterSay(66528);
                         echo_of_forgotten_chieftain->HandleEmote(EMOTE_ONESHOT_TALK);
                     }
-                },
-                12000);
-            DoAfterTime(pPlayer, 22 * IN_MILLISECONDS,
-                        [player = pPlayer, gob = pGo]()
-                        {
-                            if (CreatureInfo const* cInfo = sObjectMgr.GetCreatureTemplate(60009))
-                                player->KilledMonster(cInfo, ObjectGuid());
-                        });
+                }, 12000);
+            DoAfterTime(pPlayer, 22 * IN_MILLISECONDS, [player = pPlayer, gob = pGo]() {
+                if (CreatureInfo const* cInfo = sObjectMgr.GetCreatureTemplate(60009))
+                    player->KilledMonster(cInfo, ObjectGuid());
+                });
         }
     }
     pPlayer->CLOSE_GOSSIP_MENU();
@@ -5098,8 +4819,7 @@ bool GossipSelect_npc_forgotten_keeper(Player* pPlayer, Creature* pCreature, uin
 
 bool QuestAccept_npc_kagoro(Player* pPlayer, Creature* pQuestGiver, Quest const* pQuest)
 {
-    if (!pQuestGiver || !pPlayer)
-        return false;
+    if (!pQuestGiver || !pPlayer) return false;
 
     auto playerGuid = pPlayer->GetObjectGuid();
 
@@ -5110,164 +4830,126 @@ bool QuestAccept_npc_kagoro(Player* pPlayer, Creature* pQuestGiver, Quest const*
             Creature* controller = pQuestGiver->SummonCreature(10, pQuestGiver->GetPositionX(), pQuestGiver->GetPositionY(), pQuestGiver->GetPositionZ(), pQuestGiver->GetOrientation(), TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 175 * IN_MILLISECONDS);
             Creature* NPC_FALGRAN = pQuestGiver->FindNearestCreature(5088, 30.0F);
 
-            pQuestGiver->m_Events.AddLambdaEventAtOffset(
-                [pQuestGiver]()
+            pQuestGiver->m_Events.AddLambdaEventAtOffset([pQuestGiver]()
                 {
                     pQuestGiver->MonsterSay(66529);
                     pQuestGiver->HandleEmote(EMOTE_ONESHOT_TALK);
-                },
-                1000);
-            pQuestGiver->m_Events.AddLambdaEventAtOffset(
-                [NPC_FALGRAN]()
+                }, 1000);
+            pQuestGiver->m_Events.AddLambdaEventAtOffset([NPC_FALGRAN]()
                 {
                     NPC_FALGRAN->MonsterSay(66530);
                     NPC_FALGRAN->HandleEmote(EMOTE_ONESHOT_TALK);
-                },
-                10000);
-            pQuestGiver->m_Events.AddLambdaEventAtOffset(
-                [pQuestGiver]()
+                }, 10000);
+            pQuestGiver->m_Events.AddLambdaEventAtOffset([pQuestGiver]()
                 {
                     pQuestGiver->MonsterSay(66531);
                     pQuestGiver->HandleEmote(EMOTE_ONESHOT_TALK);
-                },
-                18000);
-            pQuestGiver->m_Events.AddLambdaEventAtOffset([pQuestGiver]() { pQuestGiver->PMonsterEmote(66532); }, 21000);
-            pQuestGiver->m_Events.AddLambdaEventAtOffset(
-                [pQuestGiver]()
+                }, 18000);
+            pQuestGiver->m_Events.AddLambdaEventAtOffset([pQuestGiver]()
+                {
+                    pQuestGiver->PMonsterEmote(66532);
+                }, 21000);
+            pQuestGiver->m_Events.AddLambdaEventAtOffset([pQuestGiver]()
                 {
                     pQuestGiver->MonsterSay(66533);
                     pQuestGiver->HandleEmote(EMOTE_ONESHOT_TALK);
-                },
-                26000);
-            pQuestGiver->m_Events.AddLambdaEventAtOffset(
-                [NPC_FALGRAN]()
+                }, 26000);
+            pQuestGiver->m_Events.AddLambdaEventAtOffset([NPC_FALGRAN]()
                 {
                     NPC_FALGRAN->MonsterSay(66534);
                     NPC_FALGRAN->HandleEmote(EMOTE_ONESHOT_TALK);
-                },
-                36000);
-            pQuestGiver->m_Events.AddLambdaEventAtOffset(
-                [pQuestGiver]()
+                }, 36000);
+            pQuestGiver->m_Events.AddLambdaEventAtOffset([pQuestGiver]()
                 {
                     pQuestGiver->MonsterSay(66535);
                     pQuestGiver->HandleEmote(EMOTE_ONESHOT_TALK);
-                },
-                44000);
-            pQuestGiver->m_Events.AddLambdaEventAtOffset(
-                [NPC_FALGRAN]()
+                }, 44000);
+            pQuestGiver->m_Events.AddLambdaEventAtOffset([NPC_FALGRAN]()
                 {
                     NPC_FALGRAN->MonsterSay(66536);
                     NPC_FALGRAN->HandleEmote(EMOTE_ONESHOT_TALK);
-                },
-                52000);
-            pQuestGiver->m_Events.AddLambdaEventAtOffset(
-                [pQuestGiver]()
+                }, 52000);
+            pQuestGiver->m_Events.AddLambdaEventAtOffset([pQuestGiver]()
                 {
                     pQuestGiver->MonsterSay(66537);
                     pQuestGiver->HandleEmote(EMOTE_ONESHOT_TALK);
-                },
-                60000);
-            pQuestGiver->m_Events.AddLambdaEventAtOffset(
-                [NPC_FALGRAN]()
+                }, 60000);
+            pQuestGiver->m_Events.AddLambdaEventAtOffset([NPC_FALGRAN]()
                 {
                     NPC_FALGRAN->MonsterSay(66538);
                     NPC_FALGRAN->HandleEmote(EMOTE_ONESHOT_TALK);
-                },
-                65000);
-            pQuestGiver->m_Events.AddLambdaEventAtOffset(
-                [pQuestGiver]()
+                }, 65000);
+            pQuestGiver->m_Events.AddLambdaEventAtOffset([pQuestGiver]()
                 {
                     pQuestGiver->MonsterSay(66539);
                     pQuestGiver->HandleEmote(EMOTE_ONESHOT_TALK);
-                },
-                70000);
-            pQuestGiver->m_Events.AddLambdaEventAtOffset(
-                [NPC_FALGRAN]()
+                }, 70000);
+            pQuestGiver->m_Events.AddLambdaEventAtOffset([NPC_FALGRAN]()
                 {
                     NPC_FALGRAN->MonsterSay(66540);
                     NPC_FALGRAN->HandleEmote(EMOTE_ONESHOT_TALK);
-                },
-                73000);
-            pQuestGiver->m_Events.AddLambdaEventAtOffset([pQuestGiver]() { pQuestGiver->PMonsterEmote(66491); }, 77000);
-            pQuestGiver->m_Events.AddLambdaEventAtOffset(
-                [NPC_FALGRAN]()
+                }, 73000);
+            pQuestGiver->m_Events.AddLambdaEventAtOffset([pQuestGiver]()
+                {
+                    pQuestGiver->PMonsterEmote(66491);
+                }, 77000);
+            pQuestGiver->m_Events.AddLambdaEventAtOffset([NPC_FALGRAN]()
                 {
                     NPC_FALGRAN->MonsterSay(66541);
                     NPC_FALGRAN->HandleEmote(EMOTE_ONESHOT_TALK);
-                },
-                80000);
-            pQuestGiver->m_Events.AddLambdaEventAtOffset(
-                [pQuestGiver]()
+                }, 80000);
+            pQuestGiver->m_Events.AddLambdaEventAtOffset([pQuestGiver]()
                 {
                     pQuestGiver->MonsterSay(66542);
                     pQuestGiver->HandleEmote(EMOTE_ONESHOT_TALK);
-                },
-                92000);
-            pQuestGiver->m_Events.AddLambdaEventAtOffset(
-                [NPC_FALGRAN]()
+                }, 92000);
+            pQuestGiver->m_Events.AddLambdaEventAtOffset([NPC_FALGRAN]()
                 {
                     NPC_FALGRAN->MonsterSay(66543);
                     NPC_FALGRAN->HandleEmote(EMOTE_ONESHOT_TALK);
-                },
-                102000);
-            pQuestGiver->m_Events.AddLambdaEventAtOffset(
-                [pQuestGiver]()
+                }, 102000);
+            pQuestGiver->m_Events.AddLambdaEventAtOffset([pQuestGiver]()
                 {
                     pQuestGiver->MonsterSay(66544);
                     pQuestGiver->HandleEmote(EMOTE_ONESHOT_TALK);
-                },
-                114000);
-            pQuestGiver->m_Events.AddLambdaEventAtOffset(
-                [NPC_FALGRAN]()
+                }, 114000);
+            pQuestGiver->m_Events.AddLambdaEventAtOffset([NPC_FALGRAN]()
                 {
                     NPC_FALGRAN->MonsterSay(66545);
                     NPC_FALGRAN->HandleEmote(EMOTE_ONESHOT_TALK);
-                },
-                128000);
-            pQuestGiver->m_Events.AddLambdaEventAtOffset(
-                [pQuestGiver]()
+                }, 128000);
+            pQuestGiver->m_Events.AddLambdaEventAtOffset([pQuestGiver]()
                 {
                     pQuestGiver->MonsterSay(66546);
                     pQuestGiver->HandleEmote(EMOTE_ONESHOT_TALK);
-                },
-                136000);
-            pQuestGiver->m_Events.AddLambdaEventAtOffset(
-                [NPC_FALGRAN]()
+                }, 136000);
+            pQuestGiver->m_Events.AddLambdaEventAtOffset([NPC_FALGRAN]()
                 {
                     NPC_FALGRAN->MonsterSay(66547);
                     NPC_FALGRAN->HandleEmote(EMOTE_ONESHOT_TALK);
-                },
-                144000);
-            pQuestGiver->m_Events.AddLambdaEventAtOffset(
-                [pQuestGiver]()
+                }, 144000);
+            pQuestGiver->m_Events.AddLambdaEventAtOffset([pQuestGiver]()
                 {
                     pQuestGiver->MonsterSay(66548);
                     pQuestGiver->HandleEmote(EMOTE_ONESHOT_TALK);
-                },
-                152000);
-            pQuestGiver->m_Events.AddLambdaEventAtOffset(
-                [NPC_FALGRAN]()
+                }, 152000);
+            pQuestGiver->m_Events.AddLambdaEventAtOffset([NPC_FALGRAN]()
                 {
                     NPC_FALGRAN->MonsterSay(66549);
                     NPC_FALGRAN->HandleEmote(EMOTE_ONESHOT_TALK);
-                },
-                162000);
-            pQuestGiver->m_Events.AddLambdaEventAtOffset(
-                [pQuestGiver, playerGuid]()
+                }, 162000);
+            pQuestGiver->m_Events.AddLambdaEventAtOffset([pQuestGiver, playerGuid]()
                 {
                     auto player = sObjectAccessor.FindPlayer(playerGuid);
                     pQuestGiver->MonsterSayToPlayer(67030, player);
                     pQuestGiver->HandleEmote(EMOTE_ONESHOT_TALK);
-                },
-                170000);
+                }, 170000);
 
-            DoAfterTime(pQuestGiver, 175 * IN_MILLISECONDS,
-                        [playerGuid, npc = pQuestGiver]()
-                        {
-                            auto player = sObjectAccessor.FindPlayer(playerGuid);
-                            if (CreatureInfo const* cInfo = sObjectMgr.GetCreatureTemplate(60011); cInfo && player)
-                                player->KilledMonster(cInfo, ObjectGuid());
-                        });
+            DoAfterTime(pQuestGiver, 175 * IN_MILLISECONDS, [playerGuid, npc = pQuestGiver]() {
+                auto player = sObjectAccessor.FindPlayer(playerGuid);
+                if (CreatureInfo const* cInfo = sObjectMgr.GetCreatureTemplate(60011); cInfo && player)
+                    player->KilledMonster(cInfo, ObjectGuid());
+                });
         }
     }
 
@@ -5278,112 +4960,82 @@ bool QuestAccept_npc_kagoro(Player* pPlayer, Creature* pQuestGiver, Quest const*
             Creature* controller = pQuestGiver->SummonCreature(10, pQuestGiver->GetPositionX(), pQuestGiver->GetPositionY(), pQuestGiver->GetPositionZ(), pQuestGiver->GetOrientation(), TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 130 * IN_MILLISECONDS);
             Creature* NPC_FALGRAN = pQuestGiver->FindNearestCreature(5088, 30.0F);
 
-            pQuestGiver->m_Events.AddLambdaEventAtOffset(
-                [NPC_FALGRAN]()
+            pQuestGiver->m_Events.AddLambdaEventAtOffset([NPC_FALGRAN]()
                 {
                     NPC_FALGRAN->MonsterSay(66550);
                     NPC_FALGRAN->HandleEmote(EMOTE_ONESHOT_TALK);
-                },
-                1000);
-            pQuestGiver->m_Events.AddLambdaEventAtOffset(
-                [pQuestGiver]()
+                }, 1000);
+            pQuestGiver->m_Events.AddLambdaEventAtOffset([pQuestGiver]()
                 {
                     pQuestGiver->MonsterSay(66551);
                     pQuestGiver->HandleEmote(EMOTE_ONESHOT_TALK);
-                },
-                14000);
-            pQuestGiver->m_Events.AddLambdaEventAtOffset(
-                [NPC_FALGRAN]()
+                }, 14000);
+            pQuestGiver->m_Events.AddLambdaEventAtOffset([NPC_FALGRAN]()
                 {
                     NPC_FALGRAN->MonsterSay(66552);
                     NPC_FALGRAN->HandleEmote(EMOTE_ONESHOT_TALK);
-                },
-                24000);
-            pQuestGiver->m_Events.AddLambdaEventAtOffset(
-                [pQuestGiver]()
+                }, 24000);
+            pQuestGiver->m_Events.AddLambdaEventAtOffset([pQuestGiver]()
                 {
                     pQuestGiver->MonsterSay(66553);
                     pQuestGiver->HandleEmote(EMOTE_ONESHOT_TALK);
-                },
-                34000);
-            pQuestGiver->m_Events.AddLambdaEventAtOffset(
-                [NPC_FALGRAN]()
+                }, 34000);
+            pQuestGiver->m_Events.AddLambdaEventAtOffset([NPC_FALGRAN]()
                 {
                     NPC_FALGRAN->MonsterSay(66554);
                     NPC_FALGRAN->HandleEmote(EMOTE_ONESHOT_TALK);
-                },
-                42000);
-            pQuestGiver->m_Events.AddLambdaEventAtOffset(
-                [pQuestGiver]()
+                }, 42000);
+            pQuestGiver->m_Events.AddLambdaEventAtOffset([pQuestGiver]()
                 {
                     pQuestGiver->MonsterSay(66555);
                     pQuestGiver->HandleEmote(EMOTE_ONESHOT_TALK);
-                },
-                57000);
-            pQuestGiver->m_Events.AddLambdaEventAtOffset(
-                [NPC_FALGRAN]()
+                }, 57000);
+            pQuestGiver->m_Events.AddLambdaEventAtOffset([NPC_FALGRAN]()
                 {
                     NPC_FALGRAN->MonsterSay(66556);
                     NPC_FALGRAN->HandleEmote(EMOTE_ONESHOT_TALK);
-                },
-                62000);
-            pQuestGiver->m_Events.AddLambdaEventAtOffset(
-                [pQuestGiver]()
+                }, 62000);
+            pQuestGiver->m_Events.AddLambdaEventAtOffset([pQuestGiver]()
                 {
                     pQuestGiver->MonsterSay(66557);
                     pQuestGiver->HandleEmote(EMOTE_ONESHOT_TALK);
-                },
-                72000);
-            pQuestGiver->m_Events.AddLambdaEventAtOffset(
-                [NPC_FALGRAN]()
+                }, 72000);
+            pQuestGiver->m_Events.AddLambdaEventAtOffset([NPC_FALGRAN]()
                 {
                     NPC_FALGRAN->MonsterSay(66558);
                     NPC_FALGRAN->HandleEmote(EMOTE_ONESHOT_TALK);
-                },
-                82000);
-            pQuestGiver->m_Events.AddLambdaEventAtOffset(
-                [pQuestGiver]()
+                }, 82000);
+            pQuestGiver->m_Events.AddLambdaEventAtOffset([pQuestGiver]()
                 {
                     pQuestGiver->MonsterSay(66559);
                     pQuestGiver->HandleEmote(EMOTE_ONESHOT_TALK);
-                },
-                92000);
-            pQuestGiver->m_Events.AddLambdaEventAtOffset(
-                [NPC_FALGRAN]()
+                }, 92000);
+            pQuestGiver->m_Events.AddLambdaEventAtOffset([NPC_FALGRAN]()
                 {
                     NPC_FALGRAN->MonsterSay(66560);
                     NPC_FALGRAN->HandleEmote(EMOTE_ONESHOT_TALK);
-                },
-                100000);
-            pQuestGiver->m_Events.AddLambdaEventAtOffset(
-                [pQuestGiver]()
+                }, 100000);
+            pQuestGiver->m_Events.AddLambdaEventAtOffset([pQuestGiver]()
                 {
                     pQuestGiver->MonsterSay(66561);
                     pQuestGiver->HandleEmote(EMOTE_ONESHOT_TALK);
-                },
-                113000);
-            pQuestGiver->m_Events.AddLambdaEventAtOffset(
-                [NPC_FALGRAN]()
+                }, 113000);
+            pQuestGiver->m_Events.AddLambdaEventAtOffset([NPC_FALGRAN]()
                 {
                     NPC_FALGRAN->MonsterSay(66562);
                     NPC_FALGRAN->HandleEmote(EMOTE_ONESHOT_TALK);
-                },
-                116000);
-            pQuestGiver->m_Events.AddLambdaEventAtOffset(
-                [pQuestGiver]()
+                }, 116000);
+            pQuestGiver->m_Events.AddLambdaEventAtOffset([pQuestGiver]()
                 {
                     pQuestGiver->MonsterSay(66563);
                     pQuestGiver->HandleEmote(EMOTE_ONESHOT_TALK);
-                },
-                128000);
+                }, 128000);
 
-            DoAfterTime(pQuestGiver, 130 * IN_MILLISECONDS,
-                        [playerGuid, npc = pQuestGiver]()
-                        {
-                            auto player = sObjectAccessor.FindPlayer(playerGuid);
-                            if (CreatureInfo const* cInfo = sObjectMgr.GetCreatureTemplate(60012); cInfo && player)
-                                player->KilledMonster(cInfo, ObjectGuid());
-                        });
+            DoAfterTime(pQuestGiver, 130 * IN_MILLISECONDS, [playerGuid, npc = pQuestGiver]() {
+                auto player = sObjectAccessor.FindPlayer(playerGuid);
+                if (CreatureInfo const* cInfo = sObjectMgr.GetCreatureTemplate(60012); cInfo && player)
+                    player->KilledMonster(cInfo, ObjectGuid());
+                });
         }
     }
 
@@ -5392,22 +5044,22 @@ bool QuestAccept_npc_kagoro(Player* pPlayer, Creature* pQuestGiver, Quest const*
 
 bool QuestRewarded_npc_gizzix_grimegurgle(Player* pPlayer, Creature* pQuestGiver, Quest const* pQuest)
 {
-    if (!pQuestGiver || !pPlayer)
-        return false;
+    if (!pQuestGiver || !pPlayer) return false;
 
     if (pQuest->GetQuestId() == 40719) // Exquisite Goblin Engineering
     {
         pQuestGiver->MonsterSay(66564);
         pQuestGiver->HandleEmote(EMOTE_ONESHOT_TALK);
 
-        pQuestGiver->m_Events.AddLambdaEventAtOffset([pQuestGiver]() { pQuestGiver->PMonsterEmote(66565); }, 4000);
-        pQuestGiver->m_Events.AddLambdaEventAtOffset(
-            [pQuestGiver]()
+        pQuestGiver->m_Events.AddLambdaEventAtOffset([pQuestGiver]()
+            {
+                pQuestGiver->PMonsterEmote(66565);
+            }, 4000);
+        pQuestGiver->m_Events.AddLambdaEventAtOffset([pQuestGiver]()
             {
                 pQuestGiver->MonsterSay(66566);
                 pQuestGiver->HandleEmote(EMOTE_ONESHOT_TALK);
-            },
-            7000);
+            }, 7000);
     }
 
     return false;
@@ -5415,8 +5067,7 @@ bool QuestRewarded_npc_gizzix_grimegurgle(Player* pPlayer, Creature* pQuestGiver
 
 bool QuestRewarded_npc_pumpworker_zalwan(Player* pPlayer, Creature* pQuestGiver, Quest const* pQuest)
 {
-    if (!pQuestGiver || !pPlayer)
-        return false;
+    if (!pQuestGiver || !pPlayer) return false;
 
     if (pQuest->GetQuestId() == 40726) // The Backup Seal-Valve
     {
@@ -5429,8 +5080,7 @@ bool QuestRewarded_npc_pumpworker_zalwan(Player* pPlayer, Creature* pQuestGiver,
 
 bool QuestRewarded_npc_wazlon_headiron(Player* pPlayer, Creature* pQuestGiver, Quest const* pQuest)
 {
-    if (!pQuestGiver || !pPlayer)
-        return false;
+    if (!pQuestGiver || !pPlayer) return false;
 
     if (pQuest->GetQuestId() == 40727) // Derelict Supplies
     {
@@ -5454,24 +5104,37 @@ bool QuestAccept_npc_tazzo_gearfire(Player* pPlayer, Creature* pQuestGiver, Ques
         pQuestGiver->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP | UNIT_NPC_FLAG_QUESTGIVER);
         pQuestGiver->CastSpell(pQuestGiver, 23017, false); // Arcane Channeling
 
-        pQuestGiver->m_Events.AddLambdaEventAtOffset([pQuestGiver]() { pQuestGiver->MonsterSay(66569); }, 3000);
+        pQuestGiver->m_Events.AddLambdaEventAtOffset([pQuestGiver]()
+            {
+                pQuestGiver->MonsterSay(66569);
+            }, 3000);
 
-        pQuestGiver->m_Events.AddLambdaEventAtOffset([pQuestGiver]() { pQuestGiver->PMonsterEmote(66570); }, 10000);
+        pQuestGiver->m_Events.AddLambdaEventAtOffset([pQuestGiver]()
+            {
+                pQuestGiver->PMonsterEmote(66570);
+            }, 10000);
 
-        pQuestGiver->m_Events.AddLambdaEventAtOffset([pQuestGiver]() { pQuestGiver->MonsterSay(66571); }, 13000);
+        pQuestGiver->m_Events.AddLambdaEventAtOffset([pQuestGiver]()
+            {
+                pQuestGiver->MonsterSay(66571);
+            }, 13000);
 
-        pQuestGiver->m_Events.AddLambdaEventAtOffset([pQuestGiver]() { pQuestGiver->PMonsterEmote(66572); }, 18000);
+        pQuestGiver->m_Events.AddLambdaEventAtOffset([pQuestGiver]()
+            {
+                pQuestGiver->PMonsterEmote(66572);
+            }, 18000);
 
-        pQuestGiver->m_Events.AddLambdaEventAtOffset([pQuestGiver]() { pQuestGiver->CastSpell(pQuestGiver, 1449, false); }, 21000);
+        pQuestGiver->m_Events.AddLambdaEventAtOffset([pQuestGiver]()
+            {
+                pQuestGiver->CastSpell(pQuestGiver, 1449, false);
+            }, 21000);
 
-        pQuestGiver->m_Events.AddLambdaEventAtOffset(
-            [pQuestGiver]()
+        pQuestGiver->m_Events.AddLambdaEventAtOffset([pQuestGiver]()
             {
                 pQuestGiver->MonsterSay(66573);
                 pQuestGiver->HandleEmote(EMOTE_ONESHOT_CHEER);
                 pQuestGiver->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP | UNIT_NPC_FLAG_QUESTGIVER);
-            },
-            23000);
+            }, 23000);
 
         return true;
     }
@@ -5481,8 +5144,7 @@ bool QuestAccept_npc_tazzo_gearfire(Player* pPlayer, Creature* pQuestGiver, Ques
 
 bool QuestRewarded_npc_tazzo_gearfire(Player* pPlayer, Creature* pQuestGiver, Quest const* pQuest)
 {
-    if (!pQuestGiver || !pPlayer)
-        return false;
+    if (!pQuestGiver || !pPlayer) return false;
 
     if (pQuest->GetQuestId() == 40729) // Collecting Specimens
     {
@@ -5494,15 +5156,16 @@ bool QuestRewarded_npc_tazzo_gearfire(Player* pPlayer, Creature* pQuestGiver, Qu
     {
         pQuestGiver->PMonsterEmote(66575);
 
-        pQuestGiver->m_Events.AddLambdaEventAtOffset([pQuestGiver]() { pQuestGiver->PMonsterEmote(66576); }, 5000);
+        pQuestGiver->m_Events.AddLambdaEventAtOffset([pQuestGiver]()
+            {
+                pQuestGiver->PMonsterEmote(66576);
+            }, 5000);
 
-        pQuestGiver->m_Events.AddLambdaEventAtOffset(
-            [pQuestGiver]()
+        pQuestGiver->m_Events.AddLambdaEventAtOffset([pQuestGiver]()
             {
                 pQuestGiver->MonsterSay(66577);
                 pQuestGiver->HandleEmote(EMOTE_ONESHOT_TALK);
-            },
-            9000);
+            }, 9000);
     }
 
     if (pQuest->GetQuestId() == 40734) // A Must Have Discovery
@@ -5542,29 +5205,23 @@ bool GossipSelect_npc_leeza_fraxtoggle(Player* pPlayer, Creature* pCreature, uin
             pCreature->MonsterSay(66579);
             pCreature->HandleEmote(EMOTE_ONESHOT_TALK);
 
-            pCreature->m_Events.AddLambdaEventAtOffset(
-                [pCreature]()
+            pCreature->m_Events.AddLambdaEventAtOffset([pCreature]()
                 {
                     pCreature->MonsterSay(66580);
                     pCreature->HandleEmote(EMOTE_ONESHOT_TALK);
-                },
-                13000);
+                }, 13000);
 
-            pCreature->m_Events.AddLambdaEventAtOffset(
-                [pCreature]()
+            pCreature->m_Events.AddLambdaEventAtOffset([pCreature]()
                 {
                     pCreature->MonsterSay(66581);
                     pCreature->HandleEmote(EMOTE_ONESHOT_TALK);
-                },
-                28000);
+                }, 28000);
 
-            DoAfterTime(pCreature, 33 * IN_MILLISECONDS,
-                        [playerGuid, npc = pCreature]()
-                        {
-                            auto player = sObjectAccessor.FindPlayer(playerGuid);
-                            if (CreatureInfo const* cInfo = sObjectMgr.GetCreatureTemplate(60013); cInfo && player)
-                                player->KilledMonster(cInfo, ObjectGuid());
-                        });
+            DoAfterTime(pCreature, 33 * IN_MILLISECONDS, [playerGuid, npc = pCreature]() {
+                auto player = sObjectAccessor.FindPlayer(playerGuid);
+                if (CreatureInfo const* cInfo = sObjectMgr.GetCreatureTemplate(60013); cInfo && player)
+                    player->KilledMonster(cInfo, ObjectGuid());
+                });
         }
     }
 
@@ -5574,8 +5231,7 @@ bool GossipSelect_npc_leeza_fraxtoggle(Player* pPlayer, Creature* pCreature, uin
 
 bool QuestAccept_npc_magus_halister(Player* pPlayer, Creature* pQuestGiver, Quest const* pQuest)
 {
-    if (!pQuestGiver || !pPlayer)
-        return false;
+    if (!pQuestGiver || !pPlayer) return false;
 
     auto playerGuid = pPlayer->GetObjectGuid();
 
@@ -5588,19 +5244,19 @@ bool QuestAccept_npc_magus_halister(Player* pPlayer, Creature* pQuestGiver, Ques
             pQuestGiver->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
             pQuestGiver->CastSpell(pQuestGiver, 23017, false); // Arcane Channeling
 
-            pQuestGiver->m_Events.AddLambdaEventAtOffset([pQuestGiver]() { pQuestGiver->PMonsterEmote(66619); }, 3000);
+            pQuestGiver->m_Events.AddLambdaEventAtOffset([pQuestGiver]()
+                {
+                    pQuestGiver->PMonsterEmote(66619);
+                }, 3000);
 
-            pQuestGiver->m_Events.AddLambdaEventAtOffset(
-                [pQuestGiver]()
+            pQuestGiver->m_Events.AddLambdaEventAtOffset([pQuestGiver]()
                 {
                     pQuestGiver->SummonCreature(60953, -3750.76f, -4438.47f, 30.57f, 3.08F, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 61 * IN_MILLISECONDS);
 
                     pQuestGiver->CastSpell(pQuestGiver, 1449, false);
-                },
-                8000);
+                }, 8000);
 
-            pQuestGiver->m_Events.AddLambdaEventAtOffset(
-                [pQuestGiver]()
+            pQuestGiver->m_Events.AddLambdaEventAtOffset([pQuestGiver]()
                 {
                     Creature* NPC_PAVAL_REETHE = pQuestGiver->FindNearestCreature(60953, 40.0F);
 
@@ -5609,19 +5265,15 @@ bool QuestAccept_npc_magus_halister(Player* pPlayer, Creature* pQuestGiver, Ques
 
                     NPC_PAVAL_REETHE->MonsterSay(66582);
                     NPC_PAVAL_REETHE->HandleEmote(EMOTE_ONESHOT_TALK);
-                },
-                11000);
+                }, 11000);
 
-            pQuestGiver->m_Events.AddLambdaEventAtOffset(
-                [pQuestGiver]()
+            pQuestGiver->m_Events.AddLambdaEventAtOffset([pQuestGiver]()
                 {
                     pQuestGiver->MonsterSay(66583);
                     pQuestGiver->HandleEmote(EMOTE_ONESHOT_TALK);
-                },
-                19000);
+                }, 19000);
 
-            pQuestGiver->m_Events.AddLambdaEventAtOffset(
-                [pQuestGiver]()
+            pQuestGiver->m_Events.AddLambdaEventAtOffset([pQuestGiver]()
                 {
                     Creature* NPC_PAVAL_REETHE = pQuestGiver->FindNearestCreature(60953, 40.0F);
 
@@ -5630,19 +5282,15 @@ bool QuestAccept_npc_magus_halister(Player* pPlayer, Creature* pQuestGiver, Ques
 
                     NPC_PAVAL_REETHE->MonsterSay(66584);
                     NPC_PAVAL_REETHE->HandleEmote(EMOTE_ONESHOT_TALK);
-                },
-                29000);
+                }, 29000);
 
-            pQuestGiver->m_Events.AddLambdaEventAtOffset(
-                [pQuestGiver]()
+            pQuestGiver->m_Events.AddLambdaEventAtOffset([pQuestGiver]()
                 {
                     pQuestGiver->MonsterSay(66585);
                     pQuestGiver->HandleEmote(EMOTE_ONESHOT_TALK);
-                },
-                39000);
+                }, 39000);
 
-            pQuestGiver->m_Events.AddLambdaEventAtOffset(
-                [pQuestGiver]()
+            pQuestGiver->m_Events.AddLambdaEventAtOffset([pQuestGiver]()
                 {
                     Creature* NPC_PAVAL_REETHE = pQuestGiver->FindNearestCreature(60953, 40.0F);
 
@@ -5651,19 +5299,15 @@ bool QuestAccept_npc_magus_halister(Player* pPlayer, Creature* pQuestGiver, Ques
 
                     NPC_PAVAL_REETHE->MonsterSay(66586);
                     NPC_PAVAL_REETHE->HandleEmote(EMOTE_ONESHOT_TALK);
-                },
-                45000);
+                }, 45000);
 
-            pQuestGiver->m_Events.AddLambdaEventAtOffset(
-                [pQuestGiver]()
+            pQuestGiver->m_Events.AddLambdaEventAtOffset([pQuestGiver]()
                 {
                     pQuestGiver->MonsterSay(66587);
                     pQuestGiver->HandleEmote(EMOTE_ONESHOT_TALK);
-                },
-                61000);
+                }, 61000);
 
-            pQuestGiver->m_Events.AddLambdaEventAtOffset(
-                [pQuestGiver]()
+            pQuestGiver->m_Events.AddLambdaEventAtOffset([pQuestGiver]()
                 {
                     Creature* NPC_PAVAL_REETHE = pQuestGiver->FindNearestCreature(60953, 40.0F);
 
@@ -5672,11 +5316,9 @@ bool QuestAccept_npc_magus_halister(Player* pPlayer, Creature* pQuestGiver, Ques
 
                     NPC_PAVAL_REETHE->PMonsterEmote(66588);
                     NPC_PAVAL_REETHE->HandleEmote(EMOTE_ONESHOT_LAUGH);
-                },
-                66000);
+                }, 66000);
 
-            pQuestGiver->m_Events.AddLambdaEventAtOffset(
-                [pQuestGiver]()
+            pQuestGiver->m_Events.AddLambdaEventAtOffset([pQuestGiver]()
                 {
                     Creature* NPC_PAVAL_REETHE = pQuestGiver->FindNearestCreature(60953, 40.0F);
 
@@ -5686,35 +5328,32 @@ bool QuestAccept_npc_magus_halister(Player* pPlayer, Creature* pQuestGiver, Ques
                     NPC_PAVAL_REETHE->MonsterSay(66589);
                     NPC_PAVAL_REETHE->HandleEmote(EMOTE_ONESHOT_TALK);
                     NPC_PAVAL_REETHE->PMonsterEmote(66590);
-                },
-                68000);
 
-            pQuestGiver->m_Events.AddLambdaEventAtOffset(
-                [pQuestGiver]()
+                }, 68000);
+
+            pQuestGiver->m_Events.AddLambdaEventAtOffset([pQuestGiver]()
                 {
                     pQuestGiver->MonsterYell(66591);
                     pQuestGiver->HandleEmote(EMOTE_ONESHOT_TALK);
-                },
-                70000);
+                }, 70000);
 
-            pQuestGiver->m_Events.AddLambdaEventAtOffset([pQuestGiver]() { pQuestGiver->PMonsterEmote(66592); }, 76000);
+            pQuestGiver->m_Events.AddLambdaEventAtOffset([pQuestGiver]()
+                {
+                    pQuestGiver->PMonsterEmote(66592);
+                }, 76000);
 
-            pQuestGiver->m_Events.AddLambdaEventAtOffset(
-                [pQuestGiver]()
+            pQuestGiver->m_Events.AddLambdaEventAtOffset([pQuestGiver]()
                 {
                     pQuestGiver->MonsterSay(66593);
                     pQuestGiver->HandleEmote(EMOTE_ONESHOT_TALK);
-                },
-                78000);
+                }, 78000);
 
-            DoAfterTime(pQuestGiver, 79 * IN_MILLISECONDS,
-                        [playerGuid, npc = pQuestGiver]()
-                        {
-                            npc->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                            auto player = sObjectAccessor.FindPlayer(playerGuid);
-                            if (CreatureInfo const* cInfo = sObjectMgr.GetCreatureTemplate(60389); cInfo && player)
-                                player->KilledMonster(cInfo, ObjectGuid());
-                        });
+            DoAfterTime(pQuestGiver, 79 * IN_MILLISECONDS, [playerGuid, npc = pQuestGiver]() {
+                npc->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                auto player = sObjectAccessor.FindPlayer(playerGuid);
+                if (CreatureInfo const* cInfo = sObjectMgr.GetCreatureTemplate(60389); cInfo && player)
+                    player->KilledMonster(cInfo, ObjectGuid());
+                });
         }
     }
 
@@ -5733,8 +5372,7 @@ bool GOHello_go_bounty_board(Player* pPlayer, GameObject* pGo)
 
 bool QuestRewarded_npc_bixxle_screwfuse(Player* pPlayer, Creature* pQuestGiver, Quest const* pQuest)
 {
-    if (!pQuestGiver || !pPlayer)
-        return false;
+    if (!pQuestGiver || !pPlayer) return false;
 
     if (pQuest->GetQuestId() == 40760) // Operation Final Repairs
     {
@@ -5825,42 +5463,42 @@ bool GossipHello_npc_winter_veil_storytailer(Player* pPlayer, Creature* pCreatur
     switch (pCreature->GetEntry())
     {
     case 61182: // Tylekinah Lunalumina
-        if (pPlayer->GetQuestStatus(40780) == QUEST_STATUS_INCOMPLETE) // Inquiring About Legend
+        if (pPlayer->GetQuestStatus(40780) == QUEST_STATUS_INCOMPLETE)  // Inquiring About Legend
         {
             pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, 66783, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
         }
         pPlayer->SEND_GOSSIP_MENU(61182, pCreature->GetGUID());
         break;
     case 61184: // Bulor Wheathoof
-        if (pPlayer->GetQuestStatus(40780) == QUEST_STATUS_INCOMPLETE) // Inquiring About Legend
+        if (pPlayer->GetQuestStatus(40780) == QUEST_STATUS_INCOMPLETE)  // Inquiring About Legend
         {
             pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, 66784, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
         }
         pPlayer->SEND_GOSSIP_MENU(61184, pCreature->GetGUID());
         break;
     case 61187: // Brum Bamse
-        if (pPlayer->GetQuestStatus(40780) == QUEST_STATUS_INCOMPLETE) // Inquiring About Legend
+        if (pPlayer->GetQuestStatus(40780) == QUEST_STATUS_INCOMPLETE)  // Inquiring About Legend
         {
             pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, 66785, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 3);
         }
         pPlayer->SEND_GOSSIP_MENU(61187, pCreature->GetGUID());
         break;
     case 61177: // Raz'umdaj Frostnose
-        if (pPlayer->GetQuestStatus(40781) == QUEST_STATUS_INCOMPLETE) // Further Inquiries About Legend
+        if (pPlayer->GetQuestStatus(40781) == QUEST_STATUS_INCOMPLETE)  // Further Inquiries About Legend
         {
             pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, 66786, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 4);
         }
         pPlayer->SEND_GOSSIP_MENU(61177, pCreature->GetGUID());
         break;
     case 61179: // Henning Silverbeard
-        if (pPlayer->GetQuestStatus(40781) == QUEST_STATUS_INCOMPLETE) // Further Inquiries About Legend
+        if (pPlayer->GetQuestStatus(40781) == QUEST_STATUS_INCOMPLETE)  // Further Inquiries About Legend
         {
             pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, 66787, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 5);
         }
         pPlayer->SEND_GOSSIP_MENU(61179, pCreature->GetGUID());
         break;
     case 61186: // Tikor Goldspin
-        if (pPlayer->GetQuestStatus(40781) == QUEST_STATUS_INCOMPLETE) // Further Inquiries About Legend
+        if (pPlayer->GetQuestStatus(40781) == QUEST_STATUS_INCOMPLETE)  // Further Inquiries About Legend
         {
             pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, 66788, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 6);
         }
@@ -5868,7 +5506,7 @@ bool GossipHello_npc_winter_veil_storytailer(Player* pPlayer, Creature* pCreatur
         break;
 
     case 61172: // Winter Patriarch
-        if (pPlayer->GetQuestStatus(40782) == QUEST_STATUS_INCOMPLETE) // The Legend Comes To Life!
+        if (pPlayer->GetQuestStatus(40782) == QUEST_STATUS_INCOMPLETE)  // The Legend Comes To Life!
         {
             if (CreatureInfo const* cInfo = sObjectMgr.GetCreatureTemplate(60021); cInfo && pPlayer)
                 pPlayer->KilledMonster(cInfo, ObjectGuid());
@@ -5876,7 +5514,7 @@ bool GossipHello_npc_winter_veil_storytailer(Player* pPlayer, Creature* pCreatur
         pPlayer->SEND_GOSSIP_MENU(61172, pCreature->GetGUID());
         break;
     case 61169: // Winter Patriarch
-        if (pPlayer->GetQuestStatus(40782) == QUEST_STATUS_INCOMPLETE) // The Legend Comes To Life!
+        if (pPlayer->GetQuestStatus(40782) == QUEST_STATUS_INCOMPLETE)  // The Legend Comes To Life!
         {
             if (CreatureInfo const* cInfo = sObjectMgr.GetCreatureTemplate(60022); cInfo && pPlayer)
                 pPlayer->KilledMonster(cInfo, ObjectGuid());
@@ -5884,7 +5522,7 @@ bool GossipHello_npc_winter_veil_storytailer(Player* pPlayer, Creature* pCreatur
         pPlayer->SEND_GOSSIP_MENU(61169, pCreature->GetGUID());
         break;
     case 61170: // Winter Patriarch
-        if (pPlayer->GetQuestStatus(40782) == QUEST_STATUS_INCOMPLETE) // The Legend Comes To Life!
+        if (pPlayer->GetQuestStatus(40782) == QUEST_STATUS_INCOMPLETE)  // The Legend Comes To Life!
         {
             if (CreatureInfo const* cInfo = sObjectMgr.GetCreatureTemplate(60023); cInfo && pPlayer)
                 pPlayer->KilledMonster(cInfo, ObjectGuid());
@@ -5893,7 +5531,7 @@ bool GossipHello_npc_winter_veil_storytailer(Player* pPlayer, Creature* pCreatur
         break;
 
     case 61168: // Great Spirit of Winter
-        if (pPlayer->GetQuestStatus(40783) == QUEST_STATUS_INCOMPLETE) // Life Comes To The Legend!
+        if (pPlayer->GetQuestStatus(40783) == QUEST_STATUS_INCOMPLETE)  // Life Comes To The Legend!
         {
             if (CreatureInfo const* cInfo = sObjectMgr.GetCreatureTemplate(60024); cInfo && pPlayer)
                 pPlayer->KilledMonster(cInfo, ObjectGuid());
@@ -5901,7 +5539,7 @@ bool GossipHello_npc_winter_veil_storytailer(Player* pPlayer, Creature* pCreatur
         pPlayer->SEND_GOSSIP_MENU(61168, pCreature->GetGUID());
         break;
     case 61171: // Greatfather Winter
-        if (pPlayer->GetQuestStatus(40783) == QUEST_STATUS_INCOMPLETE) // Life Comes To The Legend!
+        if (pPlayer->GetQuestStatus(40783) == QUEST_STATUS_INCOMPLETE)  // Life Comes To The Legend!
         {
             if (CreatureInfo const* cInfo = sObjectMgr.GetCreatureTemplate(60025); cInfo && pPlayer)
                 pPlayer->KilledMonster(cInfo, ObjectGuid());
@@ -5909,7 +5547,7 @@ bool GossipHello_npc_winter_veil_storytailer(Player* pPlayer, Creature* pCreatur
         pPlayer->SEND_GOSSIP_MENU(61171, pCreature->GetGUID());
         break;
     case 61173: // Great-father Winter
-        if (pPlayer->GetQuestStatus(40783) == QUEST_STATUS_INCOMPLETE) // Life Comes To The Legend!
+        if (pPlayer->GetQuestStatus(40783) == QUEST_STATUS_INCOMPLETE)  // Life Comes To The Legend!
         {
             if (CreatureInfo const* cInfo = sObjectMgr.GetCreatureTemplate(60026); cInfo && pPlayer)
                 pPlayer->KilledMonster(cInfo, ObjectGuid());
@@ -5965,8 +5603,7 @@ bool GossipSelect_npc_winter_veil_storytailer(Player* pPlayer, Creature* pCreatu
 
 bool QuestRewarded_npc_baron_telraz(Player* pPlayer, Creature* pQuestGiver, Quest const* pQuest)
 {
-    if (!pQuestGiver || !pPlayer)
-        return false;
+    if (!pQuestGiver || !pPlayer) return false;
 
     if (pQuest->GetQuestId() == 40785) // King Morogo Thunderfoot!
     {
@@ -5980,8 +5617,7 @@ bool QuestRewarded_npc_baron_telraz(Player* pPlayer, Creature* pQuestGiver, Ques
 bool QuestRewarded_npc_aneka_konko(Player* pPlayer, Creature* pQuestGiver, Quest const* pQuest)
 {
     Creature* quest_controller = pQuestGiver->FindNearestCreature(20, 40.0F);
-    if (!pQuestGiver || !pPlayer || quest_controller)
-        return false;
+    if (!pQuestGiver || !pPlayer || quest_controller) return false;
 
     if (pQuest->GetQuestId() == 40751 && !quest_controller) // To Heal a Soul
     {
@@ -6000,8 +5636,7 @@ bool QuestRewarded_npc_aneka_konko(Player* pPlayer, Creature* pQuestGiver, Quest
 
 bool QuestRewarded_npc_deckmaster_darkhollow(Player* pPlayer, Creature* pQuestGiver, Quest const* pQuest)
 {
-    if (!pQuestGiver || !pPlayer)
-        return false;
+    if (!pQuestGiver || !pPlayer) return false;
 
     if (pQuest->GetQuestId() == 40791) // Kul Tiran Provisions: Special Goods
     {
@@ -6014,7 +5649,7 @@ bool QuestRewarded_npc_deckmaster_darkhollow(Player* pPlayer, Creature* pQuestGi
 
 struct npc_horde_defenderAI : public GuardAI
 {
-    npc_horde_defenderAI(Creature* c) : GuardAI(c) {}
+    npc_horde_defenderAI(Creature* c) : GuardAI(c) { }
 
     uint32 m_uiDespawnTimer = 0;
 
@@ -6033,7 +5668,7 @@ struct npc_horde_defenderAI : public GuardAI
 
         if (ToPlayer(m_creature->GetVictim()))
             EnterEvadeMode();
-
+        
         if (m_creature->IsAlive())
         {
             m_uiDespawnTimer += uiDiff;
@@ -6047,16 +5682,16 @@ CreatureAI* GetAI_npc_horde_defender(Creature* creature) { return new npc_horde_
 
 struct npc_feral_spiritAI : public PetAI
 {
-    npc_feral_spiritAI(Creature* c) : PetAI(c) {}
+    npc_feral_spiritAI(Creature* c) : PetAI(c) { }
 
     float GetDamageScalingPercent() const
     {
         switch (m_creature->GetEntry())
         {
-        case 29000: // Rank 1
-            return 0.33f;
-        case 29001: // Rank 2
-            return 0.66f;
+            case 29000: // Rank 1
+                return 0.33f;
+            case 29001: // Rank 2
+                return 0.66f;
         }
 
         return 1.0f;
@@ -6113,7 +5748,7 @@ CreatureAI* GetAI_npc_feral_spirit(Creature* creature) { return new npc_feral_sp
 
 struct npc_compact_harvest_reaperAI : public PetAI
 {
-    npc_compact_harvest_reaperAI(Creature* c) : PetAI(c) {}
+    npc_compact_harvest_reaperAI(Creature* c) : PetAI(c) { }
 
     void UpdateAI(uint32 const diff) override
     {
@@ -6167,15 +5802,15 @@ bool GossipHello_npc_brolthan_ironglade(Player* pPlayer, Creature* pCreature)
 
     switch (pCreature->GetEntry())
     {
-    case 61143: //
-        if (pPlayer->GetQuestStatus(40801) == QUEST_STATUS_INCOMPLETE || pPlayer->GetQuestStatus(40807) == QUEST_STATUS_INCOMPLETE) //
+    case 61143: // 
+        if (pPlayer->GetQuestStatus(40801) == QUEST_STATUS_INCOMPLETE || pPlayer->GetQuestStatus(40807) == QUEST_STATUS_INCOMPLETE)  // 
         {
             pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_TALK, 66789, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 6);
         }
         pPlayer->SEND_GOSSIP_MENU(61143, pCreature->GetGUID());
         break;
-    case 61147: //
-        if (pPlayer->GetQuestStatus(40801) == QUEST_STATUS_INCOMPLETE || pPlayer->GetQuestStatus(40807) == QUEST_STATUS_INCOMPLETE) //
+    case 61147: // 
+        if (pPlayer->GetQuestStatus(40801) == QUEST_STATUS_INCOMPLETE || pPlayer->GetQuestStatus(40807) == QUEST_STATUS_INCOMPLETE)  // 
         {
             pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_TALK, 66790, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
         }
@@ -6256,8 +5891,7 @@ bool GossipSelect_npc_brolthan_ironglade(Player* pPlayer, Creature* pCreature, u
 
 bool QuestRewarded_npc_brolthan_ironglade(Player* pPlayer, Creature* pQuestGiver, Quest const* pQuest)
 {
-    if (!pQuestGiver || !pPlayer)
-        return false;
+    if (!pQuestGiver || !pPlayer) return false;
 
     if (pQuest->GetQuestId() == 40806) // Kaldorei Relics
     {
@@ -6275,15 +5909,15 @@ bool GossipHello_npc_commander_starwind(Player* pPlayer, Creature* pCreature)
 
     switch (pCreature->GetEntry())
     {
-    case 61143: //
-        if (pPlayer->GetQuestStatus(40801) == QUEST_STATUS_INCOMPLETE || pPlayer->GetQuestStatus(40807) == QUEST_STATUS_INCOMPLETE) //
+    case 61143: // 
+        if (pPlayer->GetQuestStatus(40801) == QUEST_STATUS_INCOMPLETE || pPlayer->GetQuestStatus(40807) == QUEST_STATUS_INCOMPLETE)  // 
         {
             pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_TALK, 66789, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 6);
         }
         pPlayer->SEND_GOSSIP_MENU(61143, pCreature->GetGUID());
         break;
-    case 61147: //
-        if (pPlayer->GetQuestStatus(40801) == QUEST_STATUS_INCOMPLETE || pPlayer->GetQuestStatus(40807) == QUEST_STATUS_INCOMPLETE) //
+    case 61147: // 
+        if (pPlayer->GetQuestStatus(40801) == QUEST_STATUS_INCOMPLETE || pPlayer->GetQuestStatus(40807) == QUEST_STATUS_INCOMPLETE)  // 
         {
             pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_TALK, 66790, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
         }
@@ -6364,8 +5998,7 @@ bool GossipSelect_npc_commander_starwind(Player* pPlayer, Creature* pCreature, u
 
 bool QuestRewarded_npc_commander_starwind(Player* pPlayer, Creature* pQuestGiver, Quest const* pQuest)
 {
-    if (!pQuestGiver || !pPlayer)
-        return false;
+    if (!pQuestGiver || !pPlayer) return false;
 
     if (pQuest->GetQuestId() == 40812) // Kaldorei Weaponry
     {
@@ -6489,8 +6122,7 @@ bool GossipSelect_npc_dolvan_bracewind(Player* pPlayer, Creature* pCreature, uin
 
 bool QuestAccept_npc_dolvan_bracewind(Player* pPlayer, Creature* pQuestGiver, Quest const* pQuest)
 {
-    if (!pQuestGiver || !pPlayer)
-        return false;
+    if (!pQuestGiver || !pPlayer) return false;
 
     auto playerGuid = pPlayer->GetObjectGuid();
 
@@ -6503,18 +6135,18 @@ bool QuestAccept_npc_dolvan_bracewind(Player* pPlayer, Creature* pQuestGiver, Qu
             pQuestGiver->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
             pQuestGiver->CastSpell(pQuestGiver, 23017, false); // Arcane Channeling
 
-            pQuestGiver->m_Events.AddLambdaEventAtOffset(
-                [pQuestGiver]()
+            pQuestGiver->m_Events.AddLambdaEventAtOffset([pQuestGiver]()
                 {
                     pQuestGiver->SummonCreature(61330, -4595.88f, -4706.26f, 57.67f, 3.52F, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 27 * IN_MILLISECONDS);
                     pQuestGiver->SummonCreature(61331, -4597.55f, -4709.26f, 57.67f, 2.00F, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 27 * IN_MILLISECONDS);
-                },
-                2000);
+                }, 2000);
 
-            pQuestGiver->m_Events.AddLambdaEventAtOffset([pQuestGiver]() { pQuestGiver->MonsterSay(66601); }, 7000);
+            pQuestGiver->m_Events.AddLambdaEventAtOffset([pQuestGiver]()
+                {
+                    pQuestGiver->MonsterSay(66601);
+                }, 7000);
 
-            pQuestGiver->m_Events.AddLambdaEventAtOffset(
-                [pQuestGiver]()
+            pQuestGiver->m_Events.AddLambdaEventAtOffset([pQuestGiver]()
                 {
                     Creature* NPC_CONCUIL_SPIRIT_1 = pQuestGiver->FindNearestCreature(61330, 40.0F);
 
@@ -6522,11 +6154,9 @@ bool QuestAccept_npc_dolvan_bracewind(Player* pPlayer, Creature* pQuestGiver, Qu
                         return;
 
                     NPC_CONCUIL_SPIRIT_1->CastSpell(NPC_CONCUIL_SPIRIT_1, 23017, false); // Arcane Channeling
-                },
-                12000);
+                }, 12000);
 
-            pQuestGiver->m_Events.AddLambdaEventAtOffset(
-                [pQuestGiver]()
+            pQuestGiver->m_Events.AddLambdaEventAtOffset([pQuestGiver]()
                 {
                     Creature* NPC_CONCUIL_SPIRIT_2 = pQuestGiver->FindNearestCreature(61331, 40.0F);
 
@@ -6534,31 +6164,35 @@ bool QuestAccept_npc_dolvan_bracewind(Player* pPlayer, Creature* pQuestGiver, Qu
                         return;
 
                     NPC_CONCUIL_SPIRIT_2->CastSpell(NPC_CONCUIL_SPIRIT_2, 23017, false); // Arcane Channeling
-                },
-                12000);
+                }, 12000);
 
-            pQuestGiver->m_Events.AddLambdaEventAtOffset([pQuestGiver]() { pQuestGiver->MonsterSay(66602); }, 17000);
+            pQuestGiver->m_Events.AddLambdaEventAtOffset([pQuestGiver]()
+                {
+                    pQuestGiver->MonsterSay(66602);
+                }, 17000);
 
-            pQuestGiver->m_Events.AddLambdaEventAtOffset([pQuestGiver]() { pQuestGiver->MonsterSay(66603); }, 23000);
+            pQuestGiver->m_Events.AddLambdaEventAtOffset([pQuestGiver]()
+                {
+                    pQuestGiver->MonsterSay(66603);
+                }, 23000);
 
-            pQuestGiver->m_Events.AddLambdaEventAtOffset([pQuestGiver]() { pQuestGiver->CastSpell(pQuestGiver, 1449, false); }, 31000);
+            pQuestGiver->m_Events.AddLambdaEventAtOffset([pQuestGiver]()
+                {
+                    pQuestGiver->CastSpell(pQuestGiver, 1449, false);
+                }, 31000);
 
-            pQuestGiver->m_Events.AddLambdaEventAtOffset(
-                [pQuestGiver]()
+            pQuestGiver->m_Events.AddLambdaEventAtOffset([pQuestGiver]()
                 {
                     pQuestGiver->MonsterSay(66604);
                     pQuestGiver->HandleEmote(EMOTE_ONESHOT_TALK);
-                },
-                33000);
+                }, 33000);
 
-            DoAfterTime(pQuestGiver, 34 * IN_MILLISECONDS,
-                        [playerGuid, npc = pQuestGiver]()
-                        {
-                            npc->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                            auto player = sObjectAccessor.FindPlayer(playerGuid);
-                            if (CreatureInfo const* cInfo = sObjectMgr.GetCreatureTemplate(60040); cInfo && player)
-                                player->KilledMonster(cInfo, ObjectGuid());
-                        });
+            DoAfterTime(pQuestGiver, 34 * IN_MILLISECONDS, [playerGuid, npc = pQuestGiver]() {
+                npc->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                auto player = sObjectAccessor.FindPlayer(playerGuid);
+                if (CreatureInfo const* cInfo = sObjectMgr.GetCreatureTemplate(60040); cInfo && player)
+                    player->KilledMonster(cInfo, ObjectGuid());
+                });
         }
     }
 
@@ -6567,21 +6201,18 @@ bool QuestAccept_npc_dolvan_bracewind(Player* pPlayer, Creature* pQuestGiver, Qu
 
 bool QuestRewarded_npc_dolvan_bracewind(Player* pPlayer, Creature* pQuestGiver, Quest const* pQuest)
 {
-    if (!pQuestGiver || !pPlayer)
-        return false;
+    if (!pQuestGiver || !pPlayer) return false;
 
     if (pQuest->GetQuestId() == 41312) // Restoration
     {
         pQuestGiver->CastSpell(pQuestGiver, 1449, false);
     }
 
-    pQuestGiver->m_Events.AddLambdaEventAtOffset(
-        [pQuestGiver]()
+    pQuestGiver->m_Events.AddLambdaEventAtOffset([pQuestGiver]()
         {
             pQuestGiver->MonsterSay(30178);
             pQuestGiver->HandleEmote(EMOTE_ONESHOT_TALK);
-        },
-        2000);
+        }, 2000);
 
     return false;
 }
@@ -6608,7 +6239,10 @@ bool GossipSelect_npc_shizuru_yamada(Player* pPlayer, Creature* pCreature, uint3
         if (CreatureInfo const* cInfo = sObjectMgr.GetCreatureTemplate(60041); cInfo && pPlayer)
             pPlayer->KilledMonster(cInfo, ObjectGuid());
 
-        pCreature->m_Events.AddLambdaEventAtOffset([pCreature]() { pCreature->ForcedDespawn(); }, 3000);
+        pCreature->m_Events.AddLambdaEventAtOffset([pCreature]()
+            {
+                pCreature->ForcedDespawn();
+            }, 3000);
     }
     return true;
 }
@@ -6786,8 +6420,7 @@ bool GossipSelect_npc_prospector_gehn(Player* pPlayer, Creature* pCreature, uint
 
 bool QuestRewarded_npc_master_chemist_volterwhite(Player* pPlayer, Creature* pQuestGiver, Quest const* pQuest)
 {
-    if (!pQuestGiver || !pPlayer)
-        return false;
+    if (!pQuestGiver || !pPlayer) return false;
 
     if (pQuest->GetQuestId() == 40868) // Mastering the Formula II
     {
@@ -6842,28 +6475,26 @@ bool GossipSelect_npc_loremaster_taerlon(Player* pPlayer, Creature* pCreature, u
 
 bool QuestRewarded_npc_orvan_darkeye(Player* pPlayer, Creature* pQuestGiver, Quest const* pQuest)
 {
-    if (!pQuestGiver || !pPlayer)
-        return false;
+    if (!pQuestGiver || !pPlayer) return false;
 
     if (pQuest->GetQuestId() == 40880) // We Take It From The Living
     {
         pQuestGiver->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
 
-        pQuestGiver->m_Events.AddLambdaEventAtOffset([pQuestGiver]() { pQuestGiver->HandleEmote(EMOTE_STATE_WORK); }, 1000);
-        pQuestGiver->m_Events.AddLambdaEventAtOffset(
-            [pQuestGiver]()
+        pQuestGiver->m_Events.AddLambdaEventAtOffset([pQuestGiver]()
+            {
+                pQuestGiver->HandleEmote(EMOTE_STATE_WORK);
+            }, 1000);
+        pQuestGiver->m_Events.AddLambdaEventAtOffset([pQuestGiver]()
             {
                 pQuestGiver->HandleEmote(EMOTE_STATE_NONE);
                 pQuestGiver->PMonsterEmote(66620);
-            },
-            6000);
-        pQuestGiver->m_Events.AddLambdaEventAtOffset(
-            [pQuestGiver]()
+            }, 6000);
+        pQuestGiver->m_Events.AddLambdaEventAtOffset([pQuestGiver]()
             {
                 pQuestGiver->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                 pQuestGiver->MonsterSay(66606);
-            },
-            9000);
+            }, 9000);
     }
     return false;
 }
@@ -6915,8 +6546,7 @@ bool GOSelect_go_aliattans_campfire(Player* pPlayer, GameObject* pGo, uint32 sen
 
 bool QuestRewarded_npc_lord_darius_ravenwood(Player* pPlayer, Creature* pQuestGiver, Quest const* pQuest)
 {
-    if (!pQuestGiver || !pPlayer)
-        return false;
+    if (!pQuestGiver || !pPlayer) return false;
 
     if (pQuest->GetQuestId() == 40956) // The Fall and Rise of Greymane
     {
@@ -6974,46 +6604,45 @@ bool GossipSelect_npc_lord_darius_ravenwood(Player* pPlayer, Creature* pCreature
 bool QuestRewarded_npc_ralathius(Player* pPlayer, Creature* pQuestGiver, Quest const* pQuest)
 {
     Creature* NPC_YSERA = pQuestGiver->FindNearestCreature(61545, 40.0F);
-    if (!pQuestGiver || !pPlayer || NPC_YSERA)
-        return false;
+    if (!pQuestGiver || !pPlayer || NPC_YSERA) return false;
 
     if (pQuest->GetQuestId() == 40962) // Into the Dream VI
     {
         pQuestGiver->CastSpell(pQuestGiver, 23017, false);
 
-        pQuestGiver->m_Events.AddLambdaEventAtOffset(
-            [pQuestGiver]()
+        pQuestGiver->m_Events.AddLambdaEventAtOffset([pQuestGiver]()
             {
                 pQuestGiver->MonsterSay(66608);
                 pQuestGiver->HandleEmote(EMOTE_ONESHOT_TALK);
-            },
-            3000);
+            }, 3000);
 
-        pQuestGiver->m_Events.AddLambdaEventAtOffset([pQuestGiver]() { pQuestGiver->SummonCreature(61545, 5527.01f, -3700.22f, 1595.52f, 0.28F, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 9 * IN_MILLISECONDS); }, 5000);
+        pQuestGiver->m_Events.AddLambdaEventAtOffset([pQuestGiver]()
+            {
+                pQuestGiver->SummonCreature(61545, 5527.01f, -3700.22f, 1595.52f, 0.28F, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 9 * IN_MILLISECONDS);
+            }, 5000);
 
-        pQuestGiver->m_Events.AddLambdaEventAtOffset(
-            [pQuestGiver]()
+        pQuestGiver->m_Events.AddLambdaEventAtOffset([pQuestGiver]()
             {
                 Creature* NPC_YSERA = pQuestGiver->FindNearestCreature(61545, 40.0F);
                 if (!NPC_YSERA)
                     return;
 
                 NPC_YSERA->MonsterSay(66609);
-            },
-            6000);
+            }, 6000);
 
-        pQuestGiver->m_Events.AddLambdaEventAtOffset(
-            [pQuestGiver]()
+        pQuestGiver->m_Events.AddLambdaEventAtOffset([pQuestGiver]()
             {
                 Creature* NPC_YSERA = pQuestGiver->FindNearestCreature(61545, 40.0F);
                 if (!NPC_YSERA)
                     return;
 
                 NPC_YSERA->MonsterSay(66610);
-            },
-            9000);
+            }, 9000);
 
-        pQuestGiver->m_Events.AddLambdaEventAtOffset([pQuestGiver]() { pQuestGiver->CastSpell(pQuestGiver, 24171, false); }, 12000);
+        pQuestGiver->m_Events.AddLambdaEventAtOffset([pQuestGiver]()
+            {
+                pQuestGiver->CastSpell(pQuestGiver, 24171, false);
+            }, 12000);
     }
 
     return false;
@@ -7031,14 +6660,10 @@ bool QuestAccept_npc_itharius(Player* pPlayer, Creature* pQuestGiver, Quest cons
 
     if (pQuest->GetQuestId() == 40960) // Into the Dream IV
     {
-        if (pPlayer->AddItem(61557))
-            first_item_added = true;
-        if (pPlayer->AddItem(61558))
-            second_item_added = true;
-        if (pPlayer->AddItem(61559))
-            third_item_added = true;
-        if (pPlayer->AddItem(61560))
-            fourth_item_added = true;
+        if (pPlayer->AddItem(61557)) first_item_added = true;
+        if (pPlayer->AddItem(61558)) second_item_added = true;
+        if (pPlayer->AddItem(61559)) third_item_added = true;
+        if (pPlayer->AddItem(61560)) fourth_item_added = true;
 
         if (!first_item_added || !second_item_added || !third_item_added || !fourth_item_added)
         {
@@ -7127,24 +6752,23 @@ bool QuestAccept_npc_buthok_cloudhorn(Player* pPlayer, Creature* pQuestGiver, Qu
         pQuestGiver->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
         pQuestGiver->CastSpell(pQuestGiver, 13236, false);
 
-        pQuestGiver->m_Events.AddLambdaEventAtOffset([pQuestGiver]() { pQuestGiver->MonsterSay(66612); }, 3000);
+        pQuestGiver->m_Events.AddLambdaEventAtOffset([pQuestGiver]()
+            {
+                pQuestGiver->MonsterSay(66612);
+            }, 3000);
 
-        pQuestGiver->m_Events.AddLambdaEventAtOffset(
-            [pQuestGiver]()
+        pQuestGiver->m_Events.AddLambdaEventAtOffset([pQuestGiver]()
             {
                 pQuestGiver->HandleEmote(EMOTE_ONESHOT_YES);
                 pQuestGiver->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-            },
-            9500);
+            }, 9500);
 
-        DoAfterTime(pPlayer, 10 * IN_MILLISECONDS,
-                    [player = pPlayer, npc = pQuestGiver]()
-                    {
-                        if (CreatureInfo const* dummy_bunny = sObjectMgr.GetCreatureTemplate(60048))
-                            player->KilledMonster(dummy_bunny, ObjectGuid());
-                        npc->InterruptNonMeleeSpells(true);
-                        return true;
-                    });
+        DoAfterTime(pPlayer, 10 * IN_MILLISECONDS, [player = pPlayer, npc = pQuestGiver]() {
+            if (CreatureInfo const* dummy_bunny = sObjectMgr.GetCreatureTemplate(60048))
+                player->KilledMonster(dummy_bunny, ObjectGuid());
+            npc->InterruptNonMeleeSpells(true);
+            return true;
+            });
     }
 
     return false;
@@ -7206,8 +6830,7 @@ bool GOSelect_go_runestone_of_cenarius(Player* pPlayer, GameObject* pGo, uint32 
 
 bool QuestRewarded_npc_dark_bishop_mordren(Player* pPlayer, Creature* pQuestGiver, Quest const* pQuest)
 {
-    if (!pQuestGiver || !pPlayer)
-        return false;
+    if (!pQuestGiver || !pPlayer) return false;
 
     if (pQuest->GetQuestId() == 40993) // Through Greater Magic
     {
@@ -7215,19 +6838,24 @@ bool QuestRewarded_npc_dark_bishop_mordren(Player* pPlayer, Creature* pQuestGive
         pQuestGiver->MonsterSay(66613);
         pQuestGiver->HandleEmote(EMOTE_ONESHOT_TALK);
 
-        pQuestGiver->m_Events.AddLambdaEventAtOffset([pQuestGiver]() { pQuestGiver->CastSpell(pQuestGiver, 21157, false); }, 1000);
+        pQuestGiver->m_Events.AddLambdaEventAtOffset([pQuestGiver]()
+            {
+                pQuestGiver->CastSpell(pQuestGiver, 21157, false);
+            }, 1000);
 
-        pQuestGiver->m_Events.AddLambdaEventAtOffset([pQuestGiver]() { pQuestGiver->MonsterSay(66614); }, 5000);
+        pQuestGiver->m_Events.AddLambdaEventAtOffset([pQuestGiver]()
+            {
+                pQuestGiver->MonsterSay(66614);
+            }, 5000);
 
-        pQuestGiver->m_Events.AddLambdaEventAtOffset(
-            [pQuestGiver]()
+        pQuestGiver->m_Events.AddLambdaEventAtOffset([pQuestGiver]()
             {
                 pQuestGiver->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                 pQuestGiver->InterruptNonMeleeSpells(true);
                 pQuestGiver->MonsterSay(66615);
                 pQuestGiver->HandleEmote(EMOTE_ONESHOT_TALK);
-            },
-            10000);
+            }, 10000);
+
     }
 
     return false;
@@ -7235,8 +6863,7 @@ bool QuestRewarded_npc_dark_bishop_mordren(Player* pPlayer, Creature* pQuestGive
 
 bool QuestAccept_npc_parnabus(Player* pPlayer, Creature* pQuestGiver, Quest const* pQuest)
 {
-    if (!pQuestGiver || !pPlayer)
-        return false;
+    if (!pQuestGiver || !pPlayer) return false;
 
     auto playerGuid = pPlayer->GetObjectGuid();
 
@@ -7249,26 +6876,28 @@ bool QuestAccept_npc_parnabus(Player* pPlayer, Creature* pQuestGiver, Quest cons
             pQuestGiver->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
             pQuestGiver->CastSpell(pQuestGiver, 23017, false); // Arcane Channeling
 
-            pQuestGiver->m_Events.AddLambdaEventAtOffset([pQuestGiver]() { pQuestGiver->PMonsterEmote(66621); }, 10000);
+            pQuestGiver->m_Events.AddLambdaEventAtOffset([pQuestGiver]()
+                {
+                    pQuestGiver->PMonsterEmote(66621);
+                }, 10000);
 
-            pQuestGiver->m_Events.AddLambdaEventAtOffset([pQuestGiver]() { pQuestGiver->CastSpell(pQuestGiver, 1449, false); }, 12000);
+            pQuestGiver->m_Events.AddLambdaEventAtOffset([pQuestGiver]()
+                {
+                    pQuestGiver->CastSpell(pQuestGiver, 1449, false);
+                }, 12000);
 
-            pQuestGiver->m_Events.AddLambdaEventAtOffset(
-                [pQuestGiver]()
+            pQuestGiver->m_Events.AddLambdaEventAtOffset([pQuestGiver]()
                 {
                     pQuestGiver->MonsterSay(66616);
                     pQuestGiver->HandleEmote(EMOTE_ONESHOT_TALK);
                     pQuestGiver->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                },
-                13500);
+                }, 13500);
 
-            DoAfterTime(pQuestGiver, 14 * IN_MILLISECONDS,
-                        [playerGuid, npc = pQuestGiver]()
-                        {
-                            auto player = sObjectAccessor.FindPlayer(playerGuid);
-                            if (CreatureInfo const* cInfo = sObjectMgr.GetCreatureTemplate(60049); cInfo && player)
-                                player->KilledMonster(cInfo, ObjectGuid());
-                        });
+            DoAfterTime(pQuestGiver, 14 * IN_MILLISECONDS, [playerGuid, npc = pQuestGiver]() {
+                auto player = sObjectAccessor.FindPlayer(playerGuid);
+                if (CreatureInfo const* cInfo = sObjectMgr.GetCreatureTemplate(60049); cInfo && player)
+                    player->KilledMonster(cInfo, ObjectGuid());
+                });
         }
     }
 
@@ -7329,17 +6958,14 @@ bool GossipSelect_npc_arch_druid_dreamwind(Player* pPlayer, Creature* pCreature,
 
 bool QuestRewarded_npc_arch_druid_dreamwind(Player* pPlayer, Creature* pQuestGiver, Quest const* pQuest)
 {
-    if (!pQuestGiver || !pPlayer)
-        return false;
+    if (!pQuestGiver || !pPlayer) return false;
 
     if (pQuest->GetQuestId() == 41020) // Lord Xanvarak
     {
-        DoAfterTime(pPlayer, 1 * IN_MILLISECONDS,
-                    [player = pPlayer, npc = pQuestGiver]()
-                    {
-                        npc->MonsterSay(66617);
-                        npc->HandleEmote(EMOTE_ONESHOT_TALK);
-                    });
+        DoAfterTime(pPlayer, 1 * IN_MILLISECONDS, [player = pPlayer, npc = pQuestGiver]() {
+            npc->MonsterSay(66617);
+            npc->HandleEmote(EMOTE_ONESHOT_TALK);
+            });
     }
 
     return false;
@@ -7347,8 +6973,7 @@ bool QuestRewarded_npc_arch_druid_dreamwind(Player* pPlayer, Creature* pQuestGiv
 
 bool QuestAccept_npc_great_cat_spirit(Player* pPlayer, Creature* pQuestGiver, Quest const* pQuest)
 {
-    if (!pQuestGiver || !pPlayer)
-        return false;
+    if (!pQuestGiver || !pPlayer) return false;
 
     auto playerGuid = pPlayer->GetObjectGuid();
 
@@ -7361,28 +6986,33 @@ bool QuestAccept_npc_great_cat_spirit(Player* pPlayer, Creature* pQuestGiver, Qu
             pQuestGiver->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
             pQuestGiver->CastSpell(pQuestGiver, 13540, false); // Nature Channeling
 
-            pQuestGiver->m_Events.AddLambdaEventAtOffset([pQuestGiver]() { pQuestGiver->PMonsterEmote(66622); }, 3000);
+            pQuestGiver->m_Events.AddLambdaEventAtOffset([pQuestGiver]()
+                {
+                    pQuestGiver->PMonsterEmote(66622);
+                }, 3000);
 
-            pQuestGiver->m_Events.AddLambdaEventAtOffset([pQuestGiver]() { pQuestGiver->PMonsterEmote(66623); }, 8000);
+            pQuestGiver->m_Events.AddLambdaEventAtOffset([pQuestGiver]()
+                {
+                    pQuestGiver->PMonsterEmote(66623);
+                }, 8000);
 
-            pQuestGiver->m_Events.AddLambdaEventAtOffset([pQuestGiver]() { pQuestGiver->CastSpell(pQuestGiver, 24171, false); }, 9000);
+            pQuestGiver->m_Events.AddLambdaEventAtOffset([pQuestGiver]()
+                {
+                    pQuestGiver->CastSpell(pQuestGiver, 24171, false);
+                }, 9000);
 
-            pQuestGiver->m_Events.AddLambdaEventAtOffset(
-                [pQuestGiver]()
+            pQuestGiver->m_Events.AddLambdaEventAtOffset([pQuestGiver]()
                 {
                     pQuestGiver->MonsterSay(66618);
                     pQuestGiver->HandleEmote(EMOTE_ONESHOT_TALK);
                     pQuestGiver->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                },
-                9500);
+                }, 9500);
 
-            DoAfterTime(pQuestGiver, 10 * IN_MILLISECONDS,
-                        [playerGuid, npc = pQuestGiver]()
-                        {
-                            auto player = sObjectAccessor.FindPlayer(playerGuid);
-                            if (CreatureInfo const* cInfo = sObjectMgr.GetCreatureTemplate(60050); cInfo && player)
-                                player->KilledMonster(cInfo, ObjectGuid());
-                        });
+            DoAfterTime(pQuestGiver, 10 * IN_MILLISECONDS, [playerGuid, npc = pQuestGiver]() {
+                auto player = sObjectAccessor.FindPlayer(playerGuid);
+                if (CreatureInfo const* cInfo = sObjectMgr.GetCreatureTemplate(60050); cInfo && player)
+                    player->KilledMonster(cInfo, ObjectGuid());
+                });
         }
     }
 
@@ -7422,7 +7052,7 @@ bool GOSelect_go_velindes_memory(Player* pPlayer, GameObject* pGo, uint32 sender
 
             pGo->SummonCreature(NPC_INVISIBLE_CONTROLLER, pGo->GetPositionX(), pGo->GetPositionY(), pGo->GetPositionZ(), pPlayer->GetOrientation(), TEMPSUMMON_TIMED_DESPAWN, 300 * IN_MILLISECONDS);
 
-            Creature* VELINDE_STARSONG = pGo->SummonCreature(NPC_VELINDE_STARSONG, pGo->GetPositionX(), pGo->GetPositionY(), pGo->GetPositionZ(), pPlayer->GetOrientation() + 3.14, TEMPSUMMON_TIMED_DESPAWN, 300 * IN_MILLISECONDS);
+            Creature* VELINDE_STARSONG = pGo->SummonCreature(NPC_VELINDE_STARSONG, pGo->GetPositionX(), pGo->GetPositionY(), pGo->GetPositionZ(), pPlayer->GetOrientation()+3.14, TEMPSUMMON_TIMED_DESPAWN, 300 * IN_MILLISECONDS);
             if (!VELINDE_STARSONG)
                 VELINDE_STARSONG = pPlayer->FindNearestCreature(NPC_VELINDE_STARSONG, 30.0F);
             if (!VELINDE_STARSONG)
@@ -7508,8 +7138,7 @@ bool GOSelect_go_strange_marble_bust(Player* pPlayer, GameObject* pGo, uint32 se
 
             bool item_added = false;
 
-            if (pPlayer->AddItem(61771))
-                item_added = true;
+            if (pPlayer->AddItem(61771)) item_added = true;
 
             if (!item_added)
             {
@@ -7576,40 +7205,31 @@ bool GossipSelect_npc_frig_thunderforge(Player* pPlayer, Creature* pCreature, ui
         {
             Creature* controller = pCreature->SummonCreature(10, pCreature->GetPositionX(), pCreature->GetPositionY(), pCreature->GetPositionZ(), pCreature->GetOrientation(), TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 42 * IN_MILLISECONDS);
 
-            pCreature->m_Events.AddLambdaEventAtOffset(
-                [pCreature]()
+            pCreature->m_Events.AddLambdaEventAtOffset([pCreature]()
                 {
                     pCreature->MonsterSay(30141);
                     pCreature->HandleEmote(EMOTE_ONESHOT_TALK);
-                },
-                1000);
+                }, 1000);
 
-            pCreature->m_Events.AddLambdaEventAtOffset(
-                [pCreature]()
+            pCreature->m_Events.AddLambdaEventAtOffset([pCreature]()
                 {
                     pCreature->MonsterSay(30142);
                     pCreature->HandleEmote(EMOTE_ONESHOT_TALK);
-                },
-                11000);
+                }, 11000);
 
-            pCreature->m_Events.AddLambdaEventAtOffset(
-                [pCreature]()
+            pCreature->m_Events.AddLambdaEventAtOffset([pCreature]()
                 {
                     pCreature->MonsterSay(30143);
                     pCreature->HandleEmote(EMOTE_ONESHOT_TALK);
-                },
-                21000);
+                }, 21000);
 
-            pCreature->m_Events.AddLambdaEventAtOffset(
-                [pCreature]()
+            pCreature->m_Events.AddLambdaEventAtOffset([pCreature]()
                 {
                     pCreature->MonsterSay(30144);
                     pCreature->HandleEmote(EMOTE_ONESHOT_TALK);
-                },
-                31000);
+                }, 31000);
 
-            pCreature->m_Events.AddLambdaEventAtOffset(
-                [pCreature]()
+            pCreature->m_Events.AddLambdaEventAtOffset([pCreature]()
                 {
                     Creature* NPC_BROK_THUNDERFORGE = pCreature->FindNearestCreature(61756, 40.0F);
 
@@ -7618,11 +7238,9 @@ bool GossipSelect_npc_frig_thunderforge(Player* pPlayer, Creature* pCreature, ui
 
                     NPC_BROK_THUNDERFORGE->MonsterSay(30145);
                     NPC_BROK_THUNDERFORGE->HandleEmote(EMOTE_ONESHOT_TALK);
-                },
-                41000);
+                }, 41000);
 
-            pCreature->m_Events.AddLambdaEventAtOffset(
-                [pCreature]()
+            pCreature->m_Events.AddLambdaEventAtOffset([pCreature]()
                 {
                     Creature* NPC_SINDRI_THUNDERFORGE = pCreature->FindNearestCreature(61757, 40.0F);
 
@@ -7631,29 +7249,26 @@ bool GossipSelect_npc_frig_thunderforge(Player* pPlayer, Creature* pCreature, ui
 
                     NPC_SINDRI_THUNDERFORGE->MonsterSay(30145);
                     NPC_SINDRI_THUNDERFORGE->HandleEmote(EMOTE_ONESHOT_TALK);
-                },
-                41000);
+                }, 41000);
 
-            DoAfterTime(pPlayer, 42 * IN_MILLISECONDS,
-                        [player = pPlayer]()
+            DoAfterTime(pPlayer, 42 * IN_MILLISECONDS, [player = pPlayer]() {
+                if (CreatureInfo const* cInfo = sObjectMgr.GetCreatureTemplate(60052))
+                {
+                    player->KilledMonster(cInfo, ObjectGuid());
+
+                    if (Group* pGroup = player->GetGroup())
+                    {
+                        for (GroupReference* itr = pGroup->GetFirstMember(); itr != nullptr; itr = itr->next())
                         {
-                            if (CreatureInfo const* cInfo = sObjectMgr.GetCreatureTemplate(60052))
+                            if (Player* pMember = itr->getSource())
                             {
-                                player->KilledMonster(cInfo, ObjectGuid());
-
-                                if (Group* pGroup = player->GetGroup())
-                                {
-                                    for (GroupReference* itr = pGroup->GetFirstMember(); itr != nullptr; itr = itr->next())
-                                    {
-                                        if (Player* pMember = itr->getSource())
-                                        {
-                                            if (pMember->GetObjectGuid() != player->GetObjectGuid())
-                                                pMember->KilledMonster(cInfo, ObjectGuid());
-                                        }
-                                    }
-                                }
+                                if (pMember->GetObjectGuid() != player->GetObjectGuid())
+                                    pMember->KilledMonster(cInfo, ObjectGuid());
                             }
-                        });
+                        }
+                    }
+                }
+                });
         }
     pPlayer->CLOSE_GOSSIP_MENU();
     return true;
@@ -7685,8 +7300,7 @@ bool GossipSelect_npc_gazzik(Player* pPlayer, Creature* pCreature, uint32 uiSend
 
 bool QuestRewarded_npc_rine(Player* pPlayer, Creature* pQuestGiver, Quest const* pQuest)
 {
-    if (!pQuestGiver || !pPlayer)
-        return false;
+    if (!pQuestGiver || !pPlayer) return false;
 
     if (pQuest->GetQuestId() == 41232) // To Find the Heart
     {
@@ -7694,16 +7308,18 @@ bool QuestRewarded_npc_rine(Player* pPlayer, Creature* pQuestGiver, Quest const*
         pQuestGiver->MonsterSay(30153);
         pQuestGiver->HandleEmote(EMOTE_ONESHOT_TALK);
 
-        pQuestGiver->m_Events.AddLambdaEventAtOffset([pQuestGiver]() { pQuestGiver->MonsterSay(30154); }, 3000);
+        pQuestGiver->m_Events.AddLambdaEventAtOffset([pQuestGiver]()
+            {
+                pQuestGiver->MonsterSay(30154);
+            }, 3000);
 
-        pQuestGiver->m_Events.AddLambdaEventAtOffset(
-            [pQuestGiver]()
+        pQuestGiver->m_Events.AddLambdaEventAtOffset([pQuestGiver]()
             {
                 pQuestGiver->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                 pQuestGiver->MonsterSay(30155);
                 pQuestGiver->HandleEmote(EMOTE_ONESHOT_TALK);
-            },
-            6000);
+            }, 6000);
+
     }
 
     return false;
@@ -7711,8 +7327,7 @@ bool QuestRewarded_npc_rine(Player* pPlayer, Creature* pQuestGiver, Quest const*
 
 bool QuestAccept_npc_rommath(Player* pPlayer, Creature* pQuestGiver, Quest const* pQuest)
 {
-    if (!pQuestGiver || !pPlayer)
-        return false;
+    if (!pQuestGiver || !pPlayer) return false;
 
     auto playerGuid = pPlayer->GetObjectGuid();
 
@@ -7722,30 +7337,28 @@ bool QuestAccept_npc_rommath(Player* pPlayer, Creature* pQuestGiver, Quest const
         {
             Creature* controller = pQuestGiver->SummonCreature(10, pQuestGiver->GetPositionX(), pQuestGiver->GetPositionY(), pQuestGiver->GetPositionZ(), pQuestGiver->GetOrientation(), TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 60 * IN_MILLISECONDS);
 
-            // pQuestGiver->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+            //pQuestGiver->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
             pQuestGiver->CastSpell(pQuestGiver, 23017, false); // Arcane Channeling
 
-            pQuestGiver->m_Events.AddLambdaEventAtOffset(
-                [pQuestGiver]()
+            pQuestGiver->m_Events.AddLambdaEventAtOffset([pQuestGiver]()
                 {
                     pQuestGiver->MonsterSay(30156);
                     pQuestGiver->HandleEmote(EMOTE_ONESHOT_TALK);
-                },
-                1000);
+                }, 1000);
 
-            pQuestGiver->m_Events.AddLambdaEventAtOffset(
-                [pQuestGiver]()
+            pQuestGiver->m_Events.AddLambdaEventAtOffset([pQuestGiver]()
                 {
                     pQuestGiver->SummonCreature(61847, 4313.0f, -3074.0f, 147.0f, 1.7F, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 56 * IN_MILLISECONDS);
 
                     pQuestGiver->CastSpell(pQuestGiver, 1449, false);
-                },
-                5000);
+                }, 5000);
 
-            pQuestGiver->m_Events.AddLambdaEventAtOffset([pQuestGiver]() { pQuestGiver->HandleEmote(EMOTE_STATE_KNEEL); }, 8000);
+            pQuestGiver->m_Events.AddLambdaEventAtOffset([pQuestGiver]()
+                {
+                    pQuestGiver->HandleEmote(EMOTE_STATE_KNEEL);
+                }, 8000);
 
-            pQuestGiver->m_Events.AddLambdaEventAtOffset(
-                [pQuestGiver]()
+            pQuestGiver->m_Events.AddLambdaEventAtOffset([pQuestGiver]()
                 {
                     Creature* NPC_IMAGE_OF_KAELTHAS = pQuestGiver->FindNearestCreature(61847, 40.0F);
 
@@ -7754,19 +7367,15 @@ bool QuestAccept_npc_rommath(Player* pPlayer, Creature* pQuestGiver, Quest const
 
                     NPC_IMAGE_OF_KAELTHAS->MonsterSay(30157);
                     NPC_IMAGE_OF_KAELTHAS->HandleEmote(EMOTE_ONESHOT_TALK);
-                },
-                11000);
+                }, 11000);
 
-            pQuestGiver->m_Events.AddLambdaEventAtOffset(
-                [pQuestGiver]()
+            pQuestGiver->m_Events.AddLambdaEventAtOffset([pQuestGiver]()
                 {
                     pQuestGiver->MonsterSay(30158);
                     pQuestGiver->HandleEmote(EMOTE_ONESHOT_TALK);
-                },
-                16000);
+                }, 16000);
 
-            pQuestGiver->m_Events.AddLambdaEventAtOffset(
-                [pQuestGiver]()
+            pQuestGiver->m_Events.AddLambdaEventAtOffset([pQuestGiver]()
                 {
                     Creature* NPC_IMAGE_OF_KAELTHAS = pQuestGiver->FindNearestCreature(61847, 40.0F);
 
@@ -7775,19 +7384,15 @@ bool QuestAccept_npc_rommath(Player* pPlayer, Creature* pQuestGiver, Quest const
 
                     NPC_IMAGE_OF_KAELTHAS->MonsterSay(30159);
                     NPC_IMAGE_OF_KAELTHAS->HandleEmote(EMOTE_ONESHOT_TALK);
-                },
-                21000);
+                }, 21000);
 
-            pQuestGiver->m_Events.AddLambdaEventAtOffset(
-                [pQuestGiver]()
+            pQuestGiver->m_Events.AddLambdaEventAtOffset([pQuestGiver]()
                 {
                     pQuestGiver->MonsterSay(30160);
                     pQuestGiver->HandleEmote(EMOTE_ONESHOT_TALK);
-                },
-                26000);
+                }, 26000);
 
-            pQuestGiver->m_Events.AddLambdaEventAtOffset(
-                [pQuestGiver]()
+            pQuestGiver->m_Events.AddLambdaEventAtOffset([pQuestGiver]()
                 {
                     Creature* NPC_IMAGE_OF_KAELTHAS = pQuestGiver->FindNearestCreature(61847, 40.0F);
 
@@ -7796,19 +7401,15 @@ bool QuestAccept_npc_rommath(Player* pPlayer, Creature* pQuestGiver, Quest const
 
                     NPC_IMAGE_OF_KAELTHAS->MonsterSay(30161);
                     NPC_IMAGE_OF_KAELTHAS->HandleEmote(EMOTE_ONESHOT_TALK);
-                },
-                31000);
+                }, 31000);
 
-            pQuestGiver->m_Events.AddLambdaEventAtOffset(
-                [pQuestGiver]()
+            pQuestGiver->m_Events.AddLambdaEventAtOffset([pQuestGiver]()
                 {
                     pQuestGiver->MonsterSay(30162);
                     pQuestGiver->HandleEmote(EMOTE_ONESHOT_TALK);
-                },
-                36000);
+                }, 36000);
 
-            pQuestGiver->m_Events.AddLambdaEventAtOffset(
-                [pQuestGiver]()
+            pQuestGiver->m_Events.AddLambdaEventAtOffset([pQuestGiver]()
                 {
                     Creature* NPC_IMAGE_OF_KAELTHAS = pQuestGiver->FindNearestCreature(61847, 40.0F);
 
@@ -7817,19 +7418,15 @@ bool QuestAccept_npc_rommath(Player* pPlayer, Creature* pQuestGiver, Quest const
 
                     NPC_IMAGE_OF_KAELTHAS->MonsterSay(30163);
                     NPC_IMAGE_OF_KAELTHAS->HandleEmote(EMOTE_ONESHOT_TALK);
-                },
-                41000);
+                }, 41000);
 
-            pQuestGiver->m_Events.AddLambdaEventAtOffset(
-                [pQuestGiver]()
+            pQuestGiver->m_Events.AddLambdaEventAtOffset([pQuestGiver]()
                 {
                     pQuestGiver->MonsterSay(30164);
                     pQuestGiver->HandleEmote(EMOTE_ONESHOT_TALK);
-                },
-                46000);
+                }, 46000);
 
-            pQuestGiver->m_Events.AddLambdaEventAtOffset(
-                [pQuestGiver]()
+            pQuestGiver->m_Events.AddLambdaEventAtOffset([pQuestGiver]()
                 {
                     Creature* NPC_IMAGE_OF_KAELTHAS = pQuestGiver->FindNearestCreature(61847, 40.0F);
 
@@ -7838,44 +7435,43 @@ bool QuestAccept_npc_rommath(Player* pPlayer, Creature* pQuestGiver, Quest const
 
                     NPC_IMAGE_OF_KAELTHAS->MonsterSay(30165);
                     NPC_IMAGE_OF_KAELTHAS->HandleEmote(EMOTE_ONESHOT_TALK);
-                },
-                51000);
+                }, 51000);
 
-            pQuestGiver->m_Events.AddLambdaEventAtOffset(
-                [pQuestGiver]()
+            pQuestGiver->m_Events.AddLambdaEventAtOffset([pQuestGiver]()
                 {
                     pQuestGiver->MonsterSay(30166);
                     pQuestGiver->HandleEmote(EMOTE_ONESHOT_TALK);
-                },
-                56000);
+                }, 56000);
 
-            pQuestGiver->m_Events.AddLambdaEventAtOffset([pQuestGiver]() { pQuestGiver->HandleEmote(EMOTE_STATE_STAND); }, 59000);
+            pQuestGiver->m_Events.AddLambdaEventAtOffset([pQuestGiver]()
+                {
+                    pQuestGiver->HandleEmote(EMOTE_STATE_STAND);
+                }, 59000);
 
-            // pQuestGiver->m_Events.AddLambdaEventAtOffset([pQuestGiver]()
-            //     {
-            //         pQuestGiver->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-            //     }, 60000);
+            //pQuestGiver->m_Events.AddLambdaEventAtOffset([pQuestGiver]()
+            //    {
+            //        pQuestGiver->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+            //    }, 60000);
 
-            DoAfterTime(pPlayer, 60 * IN_MILLISECONDS,
-                        [player = pPlayer]()
+            DoAfterTime(pPlayer, 60 * IN_MILLISECONDS, [player = pPlayer]()
+            {
+                if (CreatureInfo const* cInfo = sObjectMgr.GetCreatureTemplate(60053))
+                {
+                    player->KilledMonster(cInfo, ObjectGuid());
+
+                    if (Group* pGroup = player->GetGroup())
+                    {
+                        for (GroupReference* itr = pGroup->GetFirstMember(); itr != nullptr; itr = itr->next())
                         {
-                            if (CreatureInfo const* cInfo = sObjectMgr.GetCreatureTemplate(60053))
+                            if (Player* pMember = itr->getSource())
                             {
-                                player->KilledMonster(cInfo, ObjectGuid());
-
-                                if (Group* pGroup = player->GetGroup())
-                                {
-                                    for (GroupReference* itr = pGroup->GetFirstMember(); itr != nullptr; itr = itr->next())
-                                    {
-                                        if (Player* pMember = itr->getSource())
-                                        {
-                                            if (pMember->GetObjectGuid() != player->GetObjectGuid())
-                                                pMember->KilledMonster(cInfo, ObjectGuid());
-                                        }
-                                    }
-                                }
+                                if (pMember->GetObjectGuid() != player->GetObjectGuid())
+                                    pMember->KilledMonster(cInfo, ObjectGuid());
                             }
-                        });
+                        }
+                    }
+                }
+            });
         }
     }
 
@@ -7930,11 +7526,14 @@ bool GOSelect_go_council_translocation_orb(Player* pPlayer, GameObject* pGo, uin
     return false;
 }
 
-constexpr std::array<uint32, 2> QuestsCompleted = {41270, 41273};
+constexpr std::array<uint32, 2> QuestsCompleted = { 41270, 41273 };
 
 bool GossipHello_Christmas_Entity(Player* player, Creature* creature)
 {
-    const bool canSeeItems = std::any_of(QuestsCompleted.begin(), QuestsCompleted.end(), [player](uint32 questId) { return player->GetQuestStatus(questId) == QUEST_STATUS_COMPLETE; });
+    const bool canSeeItems = std::any_of(QuestsCompleted.begin(), QuestsCompleted.end(), [player](uint32 questId)
+        {
+            return player->GetQuestStatus(questId) == QUEST_STATUS_COMPLETE;
+        });
 
     if (canSeeItems)
         player->ADD_GOSSIP_ITEM(GOSSIP_ICON_VENDOR, "Show me the goods.", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
@@ -7946,7 +7545,10 @@ bool GossipSelect_Christmas_Entity(Player* player, Creature* creature, uint32 se
 {
     if (action == GOSSIP_ACTION_INFO_DEF)
     {
-        const bool canSeeItems = std::any_of(QuestsCompleted.begin(), QuestsCompleted.end(), [player](uint32 questId) { return player->GetQuestStatus(questId) == QUEST_STATUS_COMPLETE; });
+        const bool canSeeItems = std::any_of(QuestsCompleted.begin(), QuestsCompleted.end(), [player](uint32 questId)
+            {
+                return player->GetQuestStatus(questId) == QUEST_STATUS_COMPLETE;
+            });
 
         if (canSeeItems)
         {
@@ -7983,16 +7585,17 @@ enum
 
 inline bool CanRefundShopItem(ShopLogEntry* pEntry, Player* player)
 {
-    if (!pEntry->refunded && pEntry->charGuid == player->GetGUIDLow() && (pEntry->dateUnix + sWorld.getConfig(CONFIG_UINT32_SHOP_REFUND_WINDOW)) > time(nullptr))
+    if (!pEntry->refunded && pEntry->charGuid == player->GetGUIDLow() &&
+        (pEntry->dateUnix + sWorld.getConfig(CONFIG_UINT32_SHOP_REFUND_WINDOW)) > time(nullptr))
     {
 
         auto shopEntry = sObjectMgr.GetShopEntryInfo(pEntry->itemEntry);
-        // no skins illu's or fashion in auto refund.
+        //no skins illu's or fashion in auto refund.
         if (!shopEntry || (shopEntry->Category == 2 || shopEntry->Category == 7 || shopEntry->Category == 8))
             return false;
 
 
-        // brainwashing device
+        //brainwashing device
         if (shopEntry->Item == 51715)
             return false;
 
@@ -8098,13 +7701,10 @@ bool RemoveSpecialEffectOnRefund(uint32 itemId, uint32 spellId, Player* pPlayer)
                 if (originalSkinOpt)
                 {
                     int32 skin = 0;
-                    try
-                    {
+                    try {
                         skin = std::stoi(originalSkinOpt.value());
                     }
-                    catch (...)
-                    {
-                    }
+                    catch (...) {}
 
                     if (skin > 0)
                         originalSkinId = static_cast<uint8>(skin);
@@ -8112,7 +7712,7 @@ bool RemoveSpecialEffectOnRefund(uint32 itemId, uint32 spellId, Player* pPlayer)
 
                 pPlayer->SetByteValue(PLAYER_BYTES, 0, originalSkinId);
                 pPlayer->SetDisplayId(15435);
-                pPlayer->m_Events.AddLambdaEventAtOffset([pPlayer]() { pPlayer->DeMorph(); }, 1000);
+                pPlayer->m_Events.AddLambdaEventAtOffset([pPlayer]() {pPlayer->DeMorph(); }, 1000);
                 return false; // non consumable
             }
         }
@@ -8175,7 +7775,7 @@ bool GossipSelect_ShopRefundNPC(Player* pPlayer, Creature* pCreature, uint32 /*u
                         }
                     }
 
-                    // Remove existing xmogs that reference refunded item if wearable, remove xmog history.
+                    //Remove existing xmogs that reference refunded item if wearable, remove xmog history.
                     pPlayer->RemoveTransmogsToItem(pEntry->itemEntry);
 
                     pEntry->refunded = true;
@@ -8223,8 +7823,7 @@ bool GossipHello_EggRefundNPC(Player* player, Creature* creature)
     for (const auto& eggLoot : eggItems)
     {
         Item* targetItem = nullptr;
-        player->ApplyForAllItems(
-            [&targetItem, itemGuid = eggLoot.ItemGuid](Item* item)
+        player->ApplyForAllItems([&targetItem, itemGuid = eggLoot.ItemGuid](Item* item)
             {
                 if (targetItem)
                     return;
@@ -8272,8 +7871,7 @@ bool GossipSelect_EggRefundNPC(Player* player, Creature* creature, uint32 /*uiSe
     {
 
         Item* targetItem = nullptr;
-        player->ApplyForAllItems(
-            [&targetItem, itemGuid = itr->ItemGuid](Item* item)
+        player->ApplyForAllItems([&targetItem, itemGuid = itr->ItemGuid](Item* item)
             {
                 if (targetItem)
                     return;
@@ -8304,13 +7902,11 @@ void LoadPlayerEggLoot()
 
     if (result)
     {
-        do
-        {
+        do {
             auto fields = result->Fetch();
-            PlayerEggLoot loot{fields[0].GetUInt32(), fields[1].GetUInt32(), fields[2].GetUInt32(), fields[3].GetUInt32(), fields[4].GetBool()};
+            PlayerEggLoot loot{ fields[0].GetUInt32(), fields[1].GetUInt32(), fields[2].GetUInt32() , fields[3].GetUInt32(), fields[4].GetBool() };
             playerEggLoot[loot.PlayerGuid].push_back(std::move(loot));
-        }
-        while (result->NextRow());
+        } while (result->NextRow());
     }
 
     result = std::unique_ptr<QueryResult>(CharacterDatabase.Query("SELECT MAX(id) FROM character_egg_loot"));
@@ -8328,11 +7924,19 @@ bool ItemUseSpell_easter_egg(Player* player, Item* item, const SpellCastTargets&
 
     if (!currentKey)
     {
-        std::vector<uint32> possibleItemIds = {12303, 13582, 13584, 18768, 23193, 23705, 50003, 50004, 50005, 50007, 50009, 50011, 50081, 50399, 50400, 50407, 50602, 51421, 51700, 51715, 51891, 60982, 69001, 69002, 69004, 69006, 80430, 80449, 81081, 81082, 81085, 81091, 81102, 81152, 81153, 81155, 81158, 81207, 81231, 81232, 81234, 81235, 81236, 81258, 83150, 83300, 83301, 83302, 92011, 92012, 92013, 92014, 92016, 92017, 92018, 92019};
+        std::vector<uint32> possibleItemIds =
+        {
+            12303, 13582, 13584, 18768, 23193, 23705, 50003, 50004, 50005, 50007,
+            50009, 50011, 50081, 50399, 50400, 50407, 50602, 51421, 51700, 51715,
+            51891, 60982, 69001, 69002, 69004, 69006, 80430, 80449, 81081, 81082,
+            81085, 81091, 81102, 81152, 81153, 81155, 81158, 81207, 81231, 81232,
+            81234, 81235, 81236, 81258, 83150, 83300, 83301, 83302,
+            92011, 92012, 92013, 92014, 92016, 92017, 92018, 92019
+        };
 
         if (sWorld.getConfig(CONFIG_BOOL_SEA_NETWORK))
         {
-            // clouds on CN
+            //clouds on CN
             possibleItemIds.push_back(81239);
             possibleItemIds.push_back(81240);
         }
@@ -8346,11 +7950,11 @@ bool ItemUseSpell_easter_egg(Player* player, Item* item, const SpellCastTargets&
             }
             else
             {
-                // Shop-exclusive drops, semi-hardcoded for now.
+                //Shop-exclusive drops, semi-hardcoded for now.
                 uint32 price = 100;
 
-                uint32 normalPets[] = {13582, 50081, 69001, 69002, 81152, 92016};
-                uint32 shirts[] = {92011, 92012, 92013, 92014, 92019};
+                uint32 normalPets[] = { 13582, 50081, 69001, 69002, 81152, 92016};
+                uint32 shirts[] = { 92011, 92012, 92013, 92014, 92019 };
 
 
                 if (std::find(std::begin(normalPets), std::end(normalPets), itemId) != std::end(normalPets))
@@ -8367,7 +7971,7 @@ bool ItemUseSpell_easter_egg(Player* player, Item* item, const SpellCastTargets&
                     price = 300;
                 else
                 {
-                    // mounts
+                    //mounts
                     price = 300;
                 }
 
@@ -8406,8 +8010,9 @@ bool ItemUseSpell_easter_egg(Player* player, Item* item, const SpellCastTargets&
             uint32 eggId = ++currentEggId;
             item->preventCancel = true;
             player->DestroyItem(item->GetBagSlot(), item->GetSlot(), true);
-            playerEggLoot[player->GetGUIDLow()].push_back(PlayerEggLoot{eggId, player->GetGUIDLow(), lootedItem->GetEntry(), lootedItem->GetGUIDLow(), false});
-            CharacterDatabase.PExecute("INSERT INTO character_egg_loot VALUES (%u, %u, %u, %u, 0)", eggId, player->GetGUIDLow(), lootedItem->GetEntry(), lootedItem->GetGUIDLow());
+            playerEggLoot[player->GetGUIDLow()].push_back(PlayerEggLoot{ eggId, player->GetGUIDLow(), lootedItem->GetEntry(), lootedItem->GetGUIDLow(), false });
+            CharacterDatabase.PExecute("INSERT INTO character_egg_loot VALUES (%u, %u, %u, %u, 0)",
+                eggId, player->GetGUIDLow(), lootedItem->GetEntry(), lootedItem->GetGUIDLow());
             player->SaveInventoryAndGoldToDB();
         }
         else
@@ -8546,15 +8151,14 @@ struct npc_froggerAI : public ScriptedPetAI
 {
     npc_froggerAI(Creature* pCreature) : ScriptedPetAI(pCreature) { Reset(); }
 
-    void Reset() {}
+    void Reset() { }
     void UpdateAI(const uint32 diff)
     {
-        if (!m_creature->SelectHostileTarget() || !m_creature->GetVictim())
-            return;
+        if (!m_creature->SelectHostileTarget() || !m_creature->GetVictim()) return;
         DoMeleeAttackIfReady();
     }
-    void JustDied(Unit*) override {}
-    void EnterCombat() {}
+    void JustDied(Unit*) override { }
+    void EnterCombat() { }
 
     void ReceiveEmote(Player* pPlayer, uint32 uiEmote)
     {
@@ -8571,7 +8175,10 @@ struct npc_froggerAI : public ScriptedPetAI
     void JustRespawned() { Reset(); }
 };
 
-CreatureAI* GetAI_npc_frogger(Creature* pCreature) { return new npc_froggerAI(pCreature); }
+CreatureAI* GetAI_npc_frogger(Creature* pCreature)
+{
+    return new npc_froggerAI(pCreature);
+}
 
 bool GossipHello_npc_anelace_the_clairvoyant(Player* pPlayer, Creature* pCreature)
 {
@@ -8594,48 +8201,52 @@ bool GossipSelect_npc_anelace_the_clairvoyant(Player* pPlayer, Creature* pCreatu
         {
             Creature* controller = pCreature->SummonCreature(10, pCreature->GetPositionX(), pCreature->GetPositionY(), pCreature->GetPositionZ(), pCreature->GetOrientation(), TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 22 * IN_MILLISECONDS);
 
-            pCreature->m_Events.AddLambdaEventAtOffset(
-                [pCreature]()
+            pCreature->m_Events.AddLambdaEventAtOffset([pCreature]()
                 {
                     pCreature->MonsterSay(30230);
                     pCreature->CastSpell(pCreature, 8734, false);
-                },
-                1000);
+                }, 1000);
 
-            pCreature->m_Events.AddLambdaEventAtOffset([pCreature]() { pCreature->MonsterSay(30231); }, 6000);
+            pCreature->m_Events.AddLambdaEventAtOffset([pCreature]()
+                {
+                    pCreature->MonsterSay(30231);
+                }, 6000);
 
-            pCreature->m_Events.AddLambdaEventAtOffset([pCreature]() { pCreature->MonsterSay(30232); }, 11000);
+            pCreature->m_Events.AddLambdaEventAtOffset([pCreature]()
+                {
+                    pCreature->MonsterSay(30232);
+                }, 11000);
 
-            pCreature->m_Events.AddLambdaEventAtOffset([pCreature]() { pCreature->MonsterSay(30233); }, 16000);
+            pCreature->m_Events.AddLambdaEventAtOffset([pCreature]()
+                {
+                    pCreature->MonsterSay(30233);
+                }, 16000);
 
-            pCreature->m_Events.AddLambdaEventAtOffset(
-                [pCreature]()
+            pCreature->m_Events.AddLambdaEventAtOffset([pCreature]()
                 {
                     pCreature->MonsterSay(30234);
                     pCreature->CastSpell(pCreature, 1449, false);
-                },
-                21000);
+                }, 21000);
 
-            DoAfterTime(pPlayer, 22 * IN_MILLISECONDS,
-                        [player = pPlayer]()
+            DoAfterTime(pPlayer, 22 * IN_MILLISECONDS, [player = pPlayer]()
+                {
+                    if (CreatureInfo const* cInfo = sObjectMgr.GetCreatureTemplate(60055))
+                    {
+                        player->KilledMonster(cInfo, ObjectGuid());
+
+                        if (Group* pGroup = player->GetGroup())
                         {
-                            if (CreatureInfo const* cInfo = sObjectMgr.GetCreatureTemplate(60055))
+                            for (GroupReference* itr = pGroup->GetFirstMember(); itr != nullptr; itr = itr->next())
                             {
-                                player->KilledMonster(cInfo, ObjectGuid());
-
-                                if (Group* pGroup = player->GetGroup())
+                                if (Player* pMember = itr->getSource())
                                 {
-                                    for (GroupReference* itr = pGroup->GetFirstMember(); itr != nullptr; itr = itr->next())
-                                    {
-                                        if (Player* pMember = itr->getSource())
-                                        {
-                                            if (pMember->GetObjectGuid() != player->GetObjectGuid())
-                                                pMember->KilledMonster(cInfo, ObjectGuid());
-                                        }
-                                    }
+                                    if (pMember->GetObjectGuid() != player->GetObjectGuid())
+                                        pMember->KilledMonster(cInfo, ObjectGuid());
                                 }
                             }
-                        });
+                        }
+                    }
+                });
         }
     pPlayer->CLOSE_GOSSIP_MENU();
     return true;
@@ -8663,16 +8274,17 @@ bool GOSelect_go_beacon_of_power(Player* pPlayer, GameObject* pGo, uint32 sender
         {
             pGo->SummonCreature(10, pGo->GetPositionX(), pGo->GetPositionY(), pGo->GetPositionZ(), pPlayer->GetOrientation(), TEMPSUMMON_TIMED_COMBAT_OR_DEAD_DESPAWN, 9 * IN_MILLISECONDS); // invisible multi spawn controller
 
-            pGo->m_Events.AddLambdaEventAtOffset([pGo, pPlayer]() { pPlayer->GetSession()->SendNotification("The Beacon of Power begins to react with the Orb of Vorgendor. A foul energy can be felt."); }, 3000);
+            pGo->m_Events.AddLambdaEventAtOffset([pGo, pPlayer]()
+                {
+                    pPlayer->GetSession()->SendNotification("The Beacon of Power begins to react with the Orb of Vorgendor. A foul energy can be felt.");
+                }, 3000);
 
-            pGo->m_Events.AddLambdaEventAtOffset(
-                [pGo]()
+            pGo->m_Events.AddLambdaEventAtOffset([pGo]()
                 {
                     if (Creature* NPC_FATHER_LYCAN = pGo->SummonCreature(62059, pGo->GetPositionX() + 2.0F, pGo->GetPositionY() + 2.0F, pGo->GetPositionZ() + 1.0F, 0.0F, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 3 * MINUTE * IN_MILLISECONDS))
                         if (Player* pPlayer = NPC_FATHER_LYCAN->FindNearestHostilePlayer(50.0f))
                             NPC_FATHER_LYCAN->AI()->AttackStart(pPlayer);
-                },
-                8000);
+                }, 8000);
         }
     }
     pPlayer->CLOSE_GOSSIP_MENU();
@@ -9032,7 +8644,7 @@ void AddSC_random_scripts_3()
     newscript->pGOHello = &GOHello_go_mysterious_mailbox;
     newscript->pQuestRewardedGO = &QuestComplete_go_mysterious_mailbox;
     newscript->RegisterSelf();
-
+  
     newscript = new Script;
     newscript->Name = "go_aliattans_campfire";
     newscript->pGOHello = &GOHello_go_aliattans_campfire;

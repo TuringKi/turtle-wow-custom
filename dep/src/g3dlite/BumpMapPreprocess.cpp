@@ -13,42 +13,31 @@
 #include "G3D/Any.h"
 #include "G3D/stringutils.h"
 
-namespace G3D
-{
+namespace G3D {
 
-    BumpMapPreprocess::BumpMapPreprocess(const Any& any)
-    {
-        *this = BumpMapPreprocess();
-        for (Any::AnyTable::Iterator it = any.table().begin(); it.isValid(); ++it)
-        {
-            const std::string& key = toLower(it->key);
-            if (key == "lowpassfilter")
-            {
-                lowPassFilter = it->value;
-            }
-            else if (key == "zextentpixels")
-            {
-                zExtentPixels = it->value;
-            }
-            else if (key == "scalezbynz")
-            {
-                scaleZByNz = it->value;
-            }
-            else
-            {
-                any.verify(false, "Illegal key: " + it->key);
-            }
+BumpMapPreprocess::BumpMapPreprocess(const Any& any) {
+    *this = BumpMapPreprocess();
+    for (Any::AnyTable::Iterator it = any.table().begin(); it.isValid(); ++it) {
+        const std::string& key = toLower(it->key);
+        if (key == "lowpassfilter") {
+            lowPassFilter = it->value;
+        } else if (key == "zextentpixels") {
+            zExtentPixels = it->value;
+        } else if (key == "scalezbynz") {
+            scaleZByNz = it->value;
+        } else {
+            any.verify(false, "Illegal key: " + it->key);
         }
     }
+}
 
 
-    Any BumpMapPreprocess::toAny() const
-    {
-        Any any(Any::TABLE, "BumpMapPreprocess");
-        any["lowPassFilter"] = lowPassFilter;
-        any["zExtentPixels"] = zExtentPixels;
-        any["scaleZByNz"] = scaleZByNz;
-        return any;
-    }
+Any BumpMapPreprocess::toAny() const {
+    Any any(Any::TABLE, "BumpMapPreprocess");
+    any["lowPassFilter"] = lowPassFilter;
+    any["zExtentPixels"] = zExtentPixels;
+    any["scaleZByNz"] = scaleZByNz;
+    return any;
+}
 
-} // namespace G3D
+}

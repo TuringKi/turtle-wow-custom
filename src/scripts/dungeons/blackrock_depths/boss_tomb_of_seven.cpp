@@ -21,8 +21,8 @@ SDComment: Learning Smelt Dark Iron if tribute quest rewarded. Basic event imple
 SDCategory: Blackrock Depths
 EndScriptData */
 
-#include "blackrock_depths.h"
 #include "scriptPCH.h"
+#include "blackrock_depths.h"
 
 enum
 {
@@ -61,30 +61,30 @@ bool GossipSelect_boss_gloomrel(Player* pPlayer, Creature* pCreature, uint32 uiS
 {
     switch (uiAction)
     {
-    case GOSSIP_ACTION_INFO_DEF + 1:
+        case GOSSIP_ACTION_INFO_DEF+1:
         {
             pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_TEACH_2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 11);
             pPlayer->SEND_GOSSIP_MENU(2606, pCreature->GetGUID());
             break;
         }
-    case GOSSIP_ACTION_INFO_DEF + 11:
+        case GOSSIP_ACTION_INFO_DEF+11:
         {
             pPlayer->CLOSE_GOSSIP_MENU();
             pCreature->CastSpell(pPlayer, SPELL_LEARN_SMELT, false);
             break;
         }
-    case GOSSIP_ACTION_INFO_DEF + 2:
+        case GOSSIP_ACTION_INFO_DEF+2:
         {
             pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "[PH] Continue...", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 22);
             pPlayer->SEND_GOSSIP_MENU(2604, pCreature->GetGUID());
             break;
         }
-    case GOSSIP_ACTION_INFO_DEF + 22:
+        case GOSSIP_ACTION_INFO_DEF+22:
         {
             pPlayer->CLOSE_GOSSIP_MENU();
             if (ScriptedInstance* pInstance = (ScriptedInstance*)pCreature->GetInstanceData())
             {
-                // are 5 minutes expected? go template may have data to despawn when used at quest
+                //are 5 minutes expected? go template may have data to despawn when used at quest
                 pInstance->DoRespawnGameObject(pInstance->GetData64(DATA_GO_CHALICE), MINUTE * 5);
             }
             break;
@@ -146,7 +146,7 @@ struct boss_doomrelAI : public ScriptedAI
             m_pInstance->SetData(TYPE_TOMB_OF_SEVEN, FAIL);
     }
 
-    void JustDied(Unit* victim) override
+    void JustDied(Unit *victim) override
     {
         if (m_pInstance)
             m_pInstance->SetData(TYPE_TOMB_OF_SEVEN, DONE);
@@ -162,20 +162,20 @@ struct boss_doomrelAI : public ScriptedAI
     {
         switch (uiPhase)
         {
-        case 0:
-            return m_pInstance->instance->GetCreature(m_pInstance->GetData64(DATA_ANGERREL));
-        case 1:
-            return m_pInstance->instance->GetCreature(m_pInstance->GetData64(DATA_SEETHREL));
-        case 2:
-            return m_pInstance->instance->GetCreature(m_pInstance->GetData64(DATA_DOPEREL));
-        case 3:
-            return m_pInstance->instance->GetCreature(m_pInstance->GetData64(DATA_GLOOMREL));
-        case 4:
-            return m_pInstance->instance->GetCreature(m_pInstance->GetData64(DATA_VILEREL));
-        case 5:
-            return m_pInstance->instance->GetCreature(m_pInstance->GetData64(DATA_HATEREL));
-        case 6:
-            return m_creature;
+            case 0:
+                return m_pInstance->instance->GetCreature(m_pInstance->GetData64(DATA_ANGERREL));
+            case 1:
+                return m_pInstance->instance->GetCreature(m_pInstance->GetData64(DATA_SEETHREL));
+            case 2:
+                return m_pInstance->instance->GetCreature(m_pInstance->GetData64(DATA_DOPEREL));
+            case 3:
+                return m_pInstance->instance->GetCreature(m_pInstance->GetData64(DATA_GLOOMREL));
+            case 4:
+                return m_pInstance->instance->GetCreature(m_pInstance->GetData64(DATA_VILEREL));
+            case 5:
+                return m_pInstance->instance->GetCreature(m_pInstance->GetData64(DATA_HATEREL));
+            case 6:
+                return m_creature;
         }
 
         return nullptr;
@@ -189,7 +189,7 @@ struct boss_doomrelAI : public ScriptedAI
             {
                 pDwarf->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PLAYER);
                 pDwarf->SetFactionTemplateId(FACTION_HOSTILE);
-                pDwarf->SetInCombatWithZone(); // attackstart
+                pDwarf->SetInCombatWithZone();              // attackstart
             }
             else
             {
@@ -254,7 +254,7 @@ struct boss_doomrelAI : public ScriptedAI
         if (!m_creature->SelectHostileTarget() || !m_creature->GetVictim())
             return;
 
-        // ShadowVolley_Timer
+        //ShadowVolley_Timer
         if (m_uiShadowVolley_Timer < diff)
         {
             DoCastSpellIfCan(m_creature->GetVictim(), SPELL_SHADOWBOLTVOLLEY);
@@ -263,7 +263,7 @@ struct boss_doomrelAI : public ScriptedAI
         else
             m_uiShadowVolley_Timer -= diff;
 
-        // Immolate_Timer
+        //Immolate_Timer
         if (m_uiImmolate_Timer < diff)
         {
             if (Unit* target = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 0))
@@ -274,7 +274,7 @@ struct boss_doomrelAI : public ScriptedAI
         else
             m_uiImmolate_Timer -= diff;
 
-        // CurseOfWeakness_Timer
+        //CurseOfWeakness_Timer
         if (m_uiCurseOfWeakness_Timer < diff)
         {
             DoCastSpellIfCan(m_creature->GetVictim(), SPELL_CURSEOFWEAKNESS);
@@ -283,7 +283,7 @@ struct boss_doomrelAI : public ScriptedAI
         else
             m_uiCurseOfWeakness_Timer -= diff;
 
-        // DemonArmor_Timer
+        //DemonArmor_Timer
         if (m_uiDemonArmor_Timer < diff)
         {
             DoCastSpellIfCan(m_creature, SPELL_DEMONARMOR);
@@ -292,7 +292,7 @@ struct boss_doomrelAI : public ScriptedAI
         else
             m_uiDemonArmor_Timer -= diff;
 
-        // Summon Voidwalkers
+        //Summon Voidwalkers
         if (!m_bHasSummoned && m_creature->GetHealthPercent() <= 50.0f)
         {
             m_creature->CastSpell(m_creature, SPELL_SUMMON_VOIDWALKERS, true);
@@ -303,7 +303,10 @@ struct boss_doomrelAI : public ScriptedAI
     }
 };
 
-CreatureAI* GetAI_boss_doomrel(Creature* pCreature) { return new boss_doomrelAI(pCreature); }
+CreatureAI* GetAI_boss_doomrel(Creature* pCreature)
+{
+    return new boss_doomrelAI(pCreature);
+}
 
 bool GossipHello_boss_doomrel(Player* pPlayer, Creature* pCreature)
 {
@@ -321,21 +324,21 @@ bool GossipSelect_boss_doomrel(Player* pPlayer, Creature* pCreature, uint32 uiSe
 {
     switch (uiAction)
     {
-    case GOSSIP_ACTION_INFO_DEF + 1:
-        pPlayer->CLOSE_GOSSIP_MENU();
-        DoScriptText(SAY_DOOMREL_START_EVENT, pCreature, pPlayer);
-        // start event
-        if (ScriptedInstance* pInstance = (ScriptedInstance*)pCreature->GetInstanceData())
-            pInstance->SetData(TYPE_TOMB_OF_SEVEN, IN_PROGRESS);
+        case GOSSIP_ACTION_INFO_DEF+1:
+            pPlayer->CLOSE_GOSSIP_MENU();
+            DoScriptText(SAY_DOOMREL_START_EVENT, pCreature, pPlayer);
+            // start event
+            if (ScriptedInstance* pInstance = (ScriptedInstance*)pCreature->GetInstanceData())
+                pInstance->SetData(TYPE_TOMB_OF_SEVEN, IN_PROGRESS);
 
-        break;
+            break;
     }
     return true;
 }
 
 void AddSC_boss_tomb_of_seven()
 {
-    Script* newscript;
+    Script *newscript;
 
     newscript = new Script;
     newscript->Name = "boss_gloomrel";

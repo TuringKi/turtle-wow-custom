@@ -20,11 +20,12 @@
  */
 
 #include "ChannelMgr.h"
+#include "MapNodes/AbstractPlayer.h"
+#include "Policies/SingletonImp.h"
+#include "World.h"
+#include "Util.h"
 #include "DBCStores.h"
 #include "ObjectMgr.h"
-#include "Policies/SingletonImp.h"
-#include "Util.h"
-#include "World.h"
 
 INSTANTIATE_SINGLETON_1(AllianceChannelMgr);
 INSTANTIATE_SINGLETON_1(HordeChannelMgr);
@@ -32,7 +33,7 @@ INSTANTIATE_SINGLETON_1(HordeChannelMgr);
 ChannelMgr* channelMgr(Team team)
 {
     if (sWorld.getConfig(CONFIG_BOOL_ALLOW_TWO_SIDE_INTERACTION_CHANNEL))
-        return &MaNGOS::Singleton<AllianceChannelMgr>::Instance(); // cross-faction
+        return &MaNGOS::Singleton<AllianceChannelMgr>::Instance();        // cross-faction
 
     if (team == ALLIANCE)
         return &MaNGOS::Singleton<AllianceChannelMgr>::Instance();
@@ -51,7 +52,7 @@ ChannelMgr::~ChannelMgr()
     channels.clear();
 }
 
-Channel* ChannelMgr::GetOrCreateChannel(std::string const& name, bool allowAreaDependantChans)
+Channel *ChannelMgr::GetOrCreateChannel(std::string const& name, bool allowAreaDependantChans)
 {
     std::wstring wname;
     Utf8toWStr(name, wname);
@@ -62,7 +63,7 @@ Channel* ChannelMgr::GetOrCreateChannel(std::string const& name, bool allowAreaD
         ChatChannelsEntry const* ch = sObjectMgr.GetChannelEntryFor(name);
         if (!allowAreaDependantChans && ch && ch->flags & Channel::CHANNEL_DBC_FLAG_ZONE_DEP)
             return nullptr;
-        Channel* nchan = new Channel(name, m_team);
+        Channel *nchan = new Channel(name, m_team);
         channels[wname] = nchan;
         return nchan;
     }
@@ -70,7 +71,13 @@ Channel* ChannelMgr::GetOrCreateChannel(std::string const& name, bool allowAreaD
     return channels[wname];
 }
 
-Channel* ChannelMgr::GetChannel(std::string const& name, PlayerPointer p, bool sendPacket)
+// bot passes Player*; convert via PlayerWrapper.
+Channel* ChannelMgr::GetChannel(std::string const& name, Player* p, bool sendPacket)
+{
+    return GetChannel(name, PlayerPointer(p ? new PlayerWrapper<Player>(p) : nullptr), sendPacket);
+}
+
+Channel *ChannelMgr::GetChannel(std::string const& name, PlayerPointer p, bool sendPacket)
 {
     std::wstring wname;
     Utf8toWStr(name, wname);
@@ -145,6 +152,12 @@ void ChannelMgr::AnnounceBothFactionsChannel(std::string const& channelName, Obj
             c->AsyncSay(playerGuid, message, LANG_UNIVERSAL, true);
 }
 
-AllianceChannelMgr::AllianceChannelMgr() { m_team = ALLIANCE; }
+AllianceChannelMgr::AllianceChannelMgr()
+{
+    m_team = ALLIANCE;
+}
 
-HordeChannelMgr::HordeChannelMgr() { m_team = HORDE; }
+HordeChannelMgr::HordeChannelMgr()
+{
+    m_team = HORDE;
+}

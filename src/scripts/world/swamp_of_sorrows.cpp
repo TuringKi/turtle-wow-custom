@@ -33,17 +33,17 @@ EndContentData */
 
 enum GalenGoodwardData
 {
-    QUEST_GALENS_ESCAPE = 1393,
+    QUEST_GALENS_ESCAPE     = 1393,
 
-    GO_GALENS_CAGE = 37118,
+    GO_GALENS_CAGE          = 37118,
 
-    SAY_PERIODIC = 7124,
-    SAY_QUEST_ACCEPTED = 1854,
-    SAY_ATTACKED_1 = 1628,
-    SAY_ATTACKED_2 = 1629,
-    SAY_QUEST_COMPLETE = 1855,
-    EMOTE_WHISPER = 2076,
-    EMOTE_DISAPPEAR = 1856
+    SAY_PERIODIC            = 7124,
+    SAY_QUEST_ACCEPTED      = 1854,
+    SAY_ATTACKED_1          = 1628,
+    SAY_ATTACKED_2          = 1629,
+    SAY_QUEST_COMPLETE      = 1855,
+    EMOTE_WHISPER           = 2076,
+    EMOTE_DISAPPEAR         = 1856
 };
 
 struct npc_galen_goodwardAI : public npc_escortAI
@@ -57,7 +57,10 @@ struct npc_galen_goodwardAI : public npc_escortAI
     uint64 m_uiGalensCageGUID;
     uint32 m_uiPeriodicSay;
 
-    void Reset() override { m_uiPeriodicSay = 6000; }
+    void Reset() override
+    {
+        m_uiPeriodicSay = 6000;
+    }
 
     void Aggro(Unit* pWho) override
     {
@@ -69,7 +72,7 @@ struct npc_galen_goodwardAI : public npc_escortAI
     {
         switch (uiPointId)
         {
-        case 0:
+            case 0:
             {
                 GameObject* pCage = nullptr;
                 if (m_uiGalensCageGUID)
@@ -83,9 +86,9 @@ struct npc_galen_goodwardAI : public npc_escortAI
                 }
                 break;
             }
-        case 21:
-            DoScriptText(EMOTE_DISAPPEAR, m_creature);
-            break;
+            case 21:
+                DoScriptText(EMOTE_DISAPPEAR, m_creature);
+                break;
         }
     }
 
@@ -93,20 +96,20 @@ struct npc_galen_goodwardAI : public npc_escortAI
     {
         switch (uiPointId)
         {
-        case 0:
-            if (GameObject* pCage = m_creature->GetMap()->GetGameObject(m_uiGalensCageGUID))
-                pCage->ResetDoorOrButton();
-            break;
-        case 20:
-            if (Player* pPlayer = GetPlayerForEscort())
-            {
-                m_creature->SetFacingToObject(pPlayer);
-                DoScriptText(SAY_QUEST_COMPLETE, m_creature, pPlayer);
-                DoScriptText(EMOTE_WHISPER, m_creature, pPlayer);
-                pPlayer->GroupEventHappens(QUEST_GALENS_ESCAPE, m_creature);
-            }
-            SetRun(true);
-            break;
+            case 0:
+                if (GameObject* pCage = m_creature->GetMap()->GetGameObject(m_uiGalensCageGUID))
+                    pCage->ResetDoorOrButton();
+                break;
+            case 20:
+                if (Player* pPlayer = GetPlayerForEscort())
+                {
+                    m_creature->SetFacingToObject(pPlayer);
+                    DoScriptText(SAY_QUEST_COMPLETE, m_creature, pPlayer);
+                    DoScriptText(EMOTE_WHISPER, m_creature, pPlayer);
+                    pPlayer->GroupEventHappens(QUEST_GALENS_ESCAPE, m_creature);
+                }
+                SetRun(true);
+                break;
         }
     }
 
@@ -137,15 +140,18 @@ bool QuestAccept_npc_galen_goodward(Player* pPlayer, Creature* pCreature, const 
         if (npc_galen_goodwardAI* pEscortAI = dynamic_cast<npc_galen_goodwardAI*>(pCreature->AI()))
         {
             pEscortAI->Start(false, pPlayer->GetGUID(), pQuest);
-            // pCreature->setFaction(FACTION_ESCORT_N_NEUTRAL_ACTIVE);
-            pCreature->SetFactionTemporary(495, TEMPFACTION_RESTORE_RESPAWN); // 231 //250
+            //pCreature->setFaction(FACTION_ESCORT_N_NEUTRAL_ACTIVE);
+            pCreature->SetFactionTemporary(495, TEMPFACTION_RESTORE_RESPAWN);//231 //250
             DoScriptText(SAY_QUEST_ACCEPTED, pCreature);
         }
     }
     return true;
 }
 
-CreatureAI* GetAI_npc_galen_goodward(Creature* pCreature) { return new npc_galen_goodwardAI(pCreature); }
+CreatureAI* GetAI_npc_galen_goodward(Creature* pCreature)
+{
+    return new npc_galen_goodwardAI(pCreature);
+}
 
 void AddSC_swamp_of_sorrows()
 {

@@ -2,7 +2,7 @@
  *
  * D++, A Lightweight C++ library for Discord
  *
- * Copyright 2021 Craig Edwards and D++ contributors
+ * Copyright 2021 Craig Edwards and D++ contributors 
  * (https://github.com/brainboxdotcc/DPP/graphs/contributors)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,69 +18,57 @@
  * limitations under the License.
  *
  ************************************************************************************/
-#include <dpp/cluster.h>
 #include <dpp/discordevents.h>
+#include <dpp/cluster.h>
 #include <dpp/guild.h>
-#include <dpp/nlohmann/json.hpp>
 #include <dpp/role.h>
 #include <dpp/stringops.h>
+#include <dpp/nlohmann/json.hpp>
 
 using json = nlohmann::json;
 
-namespace dpp
-{
-    namespace events
-    {
+namespace dpp { namespace events {
 
-        using namespace dpp;
+using namespace dpp;
 
-        /**
-         * @brief Handle event
-         *
-         * @param client Websocket client (current shard)
-         * @param j JSON data for the event
-         * @param raw Raw JSON string
-         */
-        void guild_role_create::handle(discord_client* client, json& j, const std::string& raw)
-        {
-            json& d = j["d"];
-            dpp::guild* g = dpp::find_guild(snowflake_not_null(&d, "guild_id"));
-            if (g)
-            {
-                if (client->creator->cache_policy.role_policy == dpp::cp_none)
-                {
-                    json& role = d["role"];
-                    dpp::role r;
-                    r.fill_from_json(g->id, &role);
-                    if (!client->creator->on_guild_role_create.empty())
-                    {
-                        dpp::guild_role_create_t grc(client, raw);
-                        grc.creating_guild = g;
-                        grc.created = &r;
-                        client->creator->on_guild_role_create.call(grc);
-                    }
-                }
-                else
-                {
-                    json& role = d["role"];
-                    dpp::role* r = dpp::find_role(snowflake_not_null(&role, "id"));
-                    if (!r)
-                    {
-                        r = new dpp::role();
-                    }
-                    r->fill_from_json(g->id, &role);
-                    dpp::get_role_cache()->store(r);
-                    g->roles.push_back(r->id);
-                    if (!client->creator->on_guild_role_create.empty())
-                    {
-                        dpp::guild_role_create_t grc(client, raw);
-                        grc.creating_guild = g;
-                        grc.created = r;
-                        client->creator->on_guild_role_create.call(grc);
-                    }
-                }
-            }
-        }
+/**
+ * @brief Handle event
+ * 
+ * @param client Websocket client (current shard)
+ * @param j JSON data for the event
+ * @param raw Raw JSON string
+ */
+void guild_role_create::handle(discord_client* client, json &j, const std::string &raw) {
+	json &d = j["d"];
+	dpp::guild* g = dpp::find_guild(snowflake_not_null(&d, "guild_id"));
+	if (g) {
+		if (client->creator->cache_policy.role_policy == dpp::cp_none) {
+			json &role = d["role"];
+			dpp::role r;
+			r.fill_from_json(g->id, &role);
+			if (!client->creator->on_guild_role_create.empty()) {
+				dpp::guild_role_create_t grc(client, raw);
+				grc.creating_guild = g;
+				grc.created = &r;
+				client->creator->on_guild_role_create.call(grc);
+			}
+		} else {
+			json &role = d["role"];
+			dpp::role *r = dpp::find_role(snowflake_not_null(&role, "id"));
+			if (!r) {
+				r = new dpp::role();
+			}
+			r->fill_from_json(g->id, &role);
+			dpp::get_role_cache()->store(r);
+			g->roles.push_back(r->id);
+			if (!client->creator->on_guild_role_create.empty()) {
+				dpp::guild_role_create_t grc(client, raw);
+				grc.creating_guild = g;
+				grc.created = r;
+				client->creator->on_guild_role_create.call(grc);
+			}
+		}
+	}
+}
 
-    } // namespace events
-}; // namespace dpp
+}};

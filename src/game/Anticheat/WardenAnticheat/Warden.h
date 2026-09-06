@@ -18,12 +18,12 @@
 #define _WARDEN_BASE_H
 
 #include <map>
-#include "Anticheat.h"
 #include "Auth/ARC4.h"
 #include "Auth/BigNumber.h"
 #include "ByteBuffer.h"
-#include "Database/DatabaseEnv.h"
 #include "WardenMgr.h"
+#include "Database/DatabaseEnv.h"
+#include "Anticheat.h"
 
 class Object;
 class Player;
@@ -52,15 +52,15 @@ enum WardenOpcodes
 
 enum WardenCheckType
 {
-    MEM_CHECK, // byte moduleNameIndex + uint Offset + byte Len (check to ensure memory isn't modified)
-    MODULE_CHECK, // uint Seed + byte[20] SHA1 (check to ensure module isn't injected)
-    PAGE_CHECK_B, // uint Seed + byte[20] SHA1 + uint Addr + byte Len (scans only pages starts with MZ+PE headers for specified hash)
-    PAGE_CHECK_A, // uint Seed + byte[20] SHA1 + uint Addr + byte Len (scans all pages for specified hash)
-    MPQ_CHECK, // byte fileNameIndex (check to ensure MPQ file isn't modified)
+    MEM_CHECK,     // byte moduleNameIndex + uint Offset + byte Len (check to ensure memory isn't modified)
+    MODULE_CHECK,  // uint Seed + byte[20] SHA1 (check to ensure module isn't injected)
+    PAGE_CHECK_B,  // uint Seed + byte[20] SHA1 + uint Addr + byte Len (scans only pages starts with MZ+PE headers for specified hash)
+    PAGE_CHECK_A,  // uint Seed + byte[20] SHA1 + uint Addr + byte Len (scans all pages for specified hash)
+    MPQ_CHECK,     // byte fileNameIndex (check to ensure MPQ file isn't modified)
     LUA_STR_CHECK, // byte luaNameIndex (check to ensure LUA string isn't used)
-    PROC_CHECK, // uint Seed + byte[20] SHA1 + byte moluleNameIndex + byte procNameIndex + uint Offset + byte Len (check to ensure proc isn't detoured)
-    DRIVER_CHECK, // uint Seed + byte[20] SHA1 + byte driverNameIndex (check to ensure driver isn't loaded)
-    TIMING_CHECK, // empty (check to ensure GetTickCount() isn't detoured)
+    PROC_CHECK,    // uint Seed + byte[20] SHA1 + byte moluleNameIndex + byte procNameIndex + uint Offset + byte Len (check to ensure proc isn't detoured)
+    DRIVER_CHECK,  // uint Seed + byte[20] SHA1 + byte driverNameIndex (check to ensure driver isn't loaded)
+    TIMING_CHECK,  // empty (check to ensure GetTickCount() isn't detoured)
     WARDEN_CHECK_MAX
 };
 
@@ -108,25 +108,25 @@ namespace WardenState
     {
         switch (value)
         {
-        case WardenState::STATE_INITIAL:
-            return "STATE_INITIAL";
-        case WardenState::STATE_REQUESTED_MODULE:
-            return "STATE_REQUESTED_MODULE";
-        case WardenState::STATE_SENT_MODULE:
-            return "STATE_SENT_MODULE";
-        case WardenState::STATE_REQUESTED_HASH:
-            return "STATE_REQUESTED_HASH";
-        case WardenState::STATE_INITIALIZE_MODULE:
-            return "STATE_INITIALIZE_MODULE";
-        case WardenState::STATE_REQUESTED_DATA:
-            return "STATE_REQUESTED_DATA";
-        case WardenState::STATE_RESTING:
-            return "STATE_RESTING";
+            case WardenState::STATE_INITIAL:
+                return "STATE_INITIAL";
+            case WardenState::STATE_REQUESTED_MODULE:
+                return "STATE_REQUESTED_MODULE";
+            case WardenState::STATE_SENT_MODULE:
+                return "STATE_SENT_MODULE";
+            case WardenState::STATE_REQUESTED_HASH:
+                return "STATE_REQUESTED_HASH";
+            case WardenState::STATE_INITIALIZE_MODULE:
+                return "STATE_INITIALIZE_MODULE";
+            case WardenState::STATE_REQUESTED_DATA:
+                return "STATE_REQUESTED_DATA";
+            case WardenState::STATE_RESTING:
+                return "STATE_RESTING";
         }
 
         return "UNDEFINED STATE";
     }
-}; // namespace WardenState
+};
 
 #if defined(__GNUC__)
 #pragma pack()
@@ -148,49 +148,49 @@ struct WardenModule;
 
 class Warden
 {
-public:
-    Warden();
-    virtual ~Warden();
+    public:
+        Warden();
+        virtual ~Warden();
 
-    virtual void Init(WorldSession* session, BigNumber* k) = 0;
-    virtual ClientWardenModule* GetModuleForClient() = 0;
-    virtual void InitializeModule();
-    virtual void RequestHash();
-    virtual void HandleHashResult(ByteBuffer& buff) = 0;
-    virtual void RequestData();
-    virtual void HandleData(ByteBuffer& buff);
-    virtual void HandleWardenDataOpcode(WorldPacket& recv_data);
+        virtual void Init(WorldSession* session, BigNumber* k) = 0;
+        virtual ClientWardenModule* GetModuleForClient() = 0;
+        virtual void InitializeModule();
+        virtual void RequestHash();
+        virtual void HandleHashResult(ByteBuffer &buff) = 0;
+        virtual void RequestData();
+        virtual void HandleData(ByteBuffer &buff);
+        virtual void HandleWardenDataOpcode(WorldPacket & recv_data);
 
-    void SendModuleToClient();
-    void RequestModule();
-    void Update();
-    void DecryptData(uint8* buffer, uint32 length);
-    void EncryptData(uint8* buffer, uint32 length);
+        void SendModuleToClient();
+        void RequestModule();
+        void Update();
+        void DecryptData(uint8* buffer, uint32 length);
+        void EncryptData(uint8* buffer, uint32 length);
 
-    void SetNewState(WardenState::Value state);
-    WorldSession* GetSession() { return m_session; }
+        void SetNewState(WardenState::Value state);
+        WorldSession* GetSession() { return m_session; }
 
-    static bool IsValidCheckSum(uint32 checksum, const uint8* data, const uint16 length);
-    static uint32 BuildChecksum(const uint8* data, uint32 length);
+        static bool IsValidCheckSum(uint32 checksum, const uint8 *data, const uint16 length);
+        static uint32 BuildChecksum(const uint8 *data, uint32 length);
 
-    // If no check is passed, the default action from config is executed
-    void ApplyPenalty(std::string message, WardenCheck* check = nullptr);
+        // If no check is passed, the default action from config is executed
+        void ApplyPenalty(std::string message, WardenCheck* check = nullptr);
 
-protected:
-    void LogPositiveToDB(WardenCheck* check);
+    protected:
+        void LogPositiveToDB(WardenCheck* check);
 
-    WorldSession* m_session;
-    uint8 m_inputKey[16];
-    uint8 m_outputKey[16];
-    uint8 m_seed[16];
-    ARC4 m_inputCrypto;
-    ARC4 m_outputCrypto;
-    uint32 m_checkTimer; // Timer for sending check requests
-    uint32 m_clientResponseTimer; // Timer for client response delay
-    uint32 m_previousTimestamp;
-    ClientWardenModule* m_module;
-    WardenModule* m_selectedModule;
-    WardenState::Value m_state;
+        WorldSession* m_session;
+        uint8 m_inputKey[16];
+        uint8 m_outputKey[16];
+        uint8 m_seed[16];
+        ARC4 m_inputCrypto;
+        ARC4 m_outputCrypto;
+        uint32 m_checkTimer; // Timer for sending check requests
+        uint32 m_clientResponseTimer; // Timer for client response delay
+        uint32 m_previousTimestamp;
+        ClientWardenModule* m_module;
+        WardenModule* m_selectedModule;
+        WardenState::Value m_state;
 };
 
 #endif

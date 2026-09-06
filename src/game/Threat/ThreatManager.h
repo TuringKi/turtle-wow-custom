@@ -22,13 +22,13 @@
 #ifndef _THREATMANAGER
 #define _THREATMANAGER
 
-#include <list>
 #include "Common.h"
-#include "ObjectGuid.h"
 #include "SharedDefines.h"
-#include "SpellDefines.h"
-#include "UnitEvents.h"
 #include "Utilities/LinkedReference/Reference.h"
+#include "UnitEvents.h"
+#include "ObjectGuid.h"
+#include "SpellDefines.h"
+#include <list>
 
 //==============================================================
 
@@ -43,106 +43,98 @@ class SpellEntry;
 
 class ThreatCalcHelper
 {
-public:
-    static float CalcThreat(Unit* pHatedUnit, float threat, bool crit, SpellSchoolMask schoolMask, SpellEntry const* threatSpell);
+    public:
+        static float CalcThreat(Unit* pHatedUnit, float threat, bool crit, SpellSchoolMask schoolMask, SpellEntry const *threatSpell);
 };
 
 //==============================================================
 class HostileReference : public Reference<Unit, ThreatManager>
 {
-public:
-    HostileReference(Unit* pUnit, ThreatManager* pThreatManager, float pThreat);
+    public:
+        HostileReference(Unit* pUnit, ThreatManager *pThreatManager, float pThreat);
+        // AzerothCore calls the hated unit the victim and spells the accessor
+        // GetVictim; here it is the reference target.
+        Unit* GetVictim() const { return getTarget(); }
 
-    //=================================================
-    void addThreat(float pMod);
+        //=================================================
+        void addThreat(float pMod);
 
-    void setThreat(float pThreat) { addThreat(pThreat - getThreat()); }
+        void setThreat(float pThreat) { addThreat(pThreat - getThreat()); }
 
-    void addThreatPercent(int32 pPercent)
-    {
-        // for special -100 case avoid rounding
-        addThreat(pPercent == -100 ? -iThreat : iThreat * pPercent / 100.0f);
-    }
-
-    float getThreat() const { return iThreat; }
-
-    bool isOnline() const { return iOnline; }
-
-    // The Unit might be in water and the creature can not enter the water, but has range attack
-    // in this case online = true, but accessable = false
-    bool isAccessable() const { return iAccessible; }
-
-    // used for temporary setting a threat and reducting it later again.
-    // the threat modification is stored
-    void setTempThreat(float pThreat)
-    {
-        iTempThreatModifyer = pThreat - getThreat();
-        if (iTempThreatModifyer != 0.0f)
-            addThreat(iTempThreatModifyer);
-    }
-    void setTempThreatModifier(float thread)
-    {
-        iTempThreatModifyer = thread;
-        addThreat(iTempThreatModifyer);
-    }
-
-    void resetTempThreat()
-    {
-        if (iTempThreatModifyer != 0.0f)
+        void addThreatPercent(int32 pPercent)
         {
-            addThreat(-iTempThreatModifyer);
-            iTempThreatModifyer = 0.0f;
+            // for special -100 case avoid rounding
+            addThreat(pPercent == -100 ? -iThreat : iThreat * pPercent / 100.0f);
         }
-    }
 
-    float getTempThreatModifyer() const { return iTempThreatModifyer; }
+        float getThreat() const { return iThreat; }
 
-    //=================================================
-    // check, if source can reach target and set the status
-    void updateOnlineStatus();
+        bool isOnline() const { return iOnline; }
 
-    void setOnlineOfflineState(bool pIsOnline);
+        // The Unit might be in water and the creature can not enter the water, but has range attack
+        // in this case online = true, but accessable = false
+        bool isAccessable() const { return iAccessible; }
 
-    void setAccessibleState(bool pIsAccessible);
-    //=================================================
+        // used for temporary setting a threat and reducting it later again.
+        // the threat modification is stored
+        void setTempThreat(float pThreat) { iTempThreatModifyer = pThreat - getThreat(); if(iTempThreatModifyer != 0.0f) addThreat(iTempThreatModifyer);  }
+        void setTempThreatModifier(float thread) { iTempThreatModifyer = thread; addThreat(iTempThreatModifyer); }
 
-    bool operator==(const HostileReference& pHostileReference) const { return pHostileReference.getUnitGuid() == getUnitGuid(); }
+        void resetTempThreat()
+        {
+            if(iTempThreatModifyer != 0.0f)
+            {
+                addThreat(-iTempThreatModifyer);  iTempThreatModifyer = 0.0f;
+            }
+        }
 
-    //=================================================
+        float getTempThreatModifyer() const { return iTempThreatModifyer; }
 
-    ObjectGuid const& getUnitGuid() const { return iUnitGuid; }
+        //=================================================
+        // check, if source can reach target and set the status
+        void updateOnlineStatus();
 
-    Unit* getSourceUnit();
+        void setOnlineOfflineState(bool pIsOnline);
 
-    //=================================================
-    // reference is not needed anymore. realy delete it !
+        void setAccessibleState(bool pIsAccessible);
+        //=================================================
 
-    void removeReference();
+        bool operator ==(const HostileReference& pHostileReference) const { return pHostileReference.getUnitGuid() == getUnitGuid(); }
 
-    //=================================================
+        //=================================================
 
-    HostileReference* next() { return ((HostileReference*)Reference<Unit, ThreatManager>::next()); }
+        ObjectGuid const& getUnitGuid() const { return iUnitGuid; }
 
-    //=================================================
+        Unit* getSourceUnit();
 
-    // Tell our refTo (target) object that we have a link
-    void targetObjectBuildLink() override;
+        //=================================================
+        // reference is not needed anymore. realy delete it !
 
-    // Tell our refTo (taget) object, that the link is cut
-    void targetObjectDestroyLink() override;
+        void removeReference();
 
-    // Tell our refFrom (source) object, that the link is cut (Target destroyed)
-    void sourceObjectDestroyLink() override;
+        //=================================================
 
-private:
-    // Inform the source, that the status of that reference was changed
-    void fireStatusChanged(ThreatRefStatusChangeEvent& pThreatRefStatusChangeEvent);
+        HostileReference* next() { return ((HostileReference* ) Reference<Unit, ThreatManager>::next()); }
 
-    float iThreat;
-    float iTempThreatModifyer; // used for taunt
-    ObjectGuid iUnitGuid;
-    bool iOnline;
-    bool iAccessible;
+        //=================================================
+
+        // Tell our refTo (target) object that we have a link
+        void targetObjectBuildLink() override;
+
+        // Tell our refTo (taget) object, that the link is cut
+        void targetObjectDestroyLink() override;
+
+        // Tell our refFrom (source) object, that the link is cut (Target destroyed)
+        void sourceObjectDestroyLink() override;
+    private:
+        // Inform the source, that the status of that reference was changed
+        void fireStatusChanged(ThreatRefStatusChangeEvent& pThreatRefStatusChangeEvent);
+
+        float iThreat;
+        float iTempThreatModifyer;                          // used for taunt
+        ObjectGuid iUnitGuid;
+        bool iOnline;
+        bool iAccessible;
 };
 
 //==============================================================
@@ -150,11 +142,13 @@ class ThreatManager;
 
 typedef std::list<HostileReference*> ThreatList;
 
+// AzerothCore names the entry a ThreatReference.
+using ThreatReference = HostileReference;
+
 class ThreatContainer
 {
     ThreatList iThreatList;
     bool iDirty;
-
 protected:
     friend class ThreatManager;
 
@@ -163,14 +157,13 @@ protected:
     void clearReferences();
     // Sort the list if necessary
     void update();
-
 public:
     ThreatContainer() { iDirty = false; }
     ~ThreatContainer() { clearReferences(); }
 
     HostileReference* addThreat(Unit* pVictim, float pThreat);
 
-    void modifyThreatPercent(Unit* pVictim, int32 percent);
+    void modifyThreatPercent(Unit *pVictim, int32 percent);
 
     HostileReference* selectNextVictim(Creature* pAttacker, HostileReference* pCurrentVictim) const;
 
@@ -194,23 +187,23 @@ class ThreatManager
 public:
     friend class HostileReference;
 
-    explicit ThreatManager(Unit* pOwner);
+    explicit ThreatManager(Unit *pOwner);
 
     ~ThreatManager() { clearReferences(); }
 
     void clearReferences();
 
-    void addThreat(Unit* pVictim, float threat, bool crit, SpellSchoolMask schoolMask, SpellEntry const* threatSpell, bool isAssistThreat);
+    void addThreat(Unit* pVictim, float threat, bool crit, SpellSchoolMask schoolMask, SpellEntry const *threatSpell, bool isAssistThreat);
     void addThreat(Unit* pVictim, float threat) { addThreat(pVictim, threat, false, SPELL_SCHOOL_MASK_NONE, nullptr, false); }
 
-    static void UnitDetailedThreatSituation(Creature* creature, Player* requester, int limit, bool tankMode = false);
+	static void UnitDetailedThreatSituation(Creature* creature, Player* requester, int limit, bool tankMode = false);
 
     // add threat as raw value (ignore redirections and expection all mods applied already to it
     void addThreatDirectly(Unit* pVictim, float threat);
 
-    void modifyThreatPercent(Unit* pVictim, int32 pPercent);
+    void modifyThreatPercent(Unit *pVictim, int32 pPercent);
 
-    float getThreat(Unit* pVictim, bool pAlsoSearchOfflineList = false);
+    float getThreat(Unit *pVictim, bool pAlsoSearchOfflineList = false);
 
     bool isThreatListEmpty() const { return iThreatContainer.empty(); }
 
@@ -219,12 +212,12 @@ public:
     HostileReference* getCurrentVictim() const { return iCurrentVictim; }
     void setCurrentVictimIfCan(Unit* pVictim);
 
-    Unit* getOwner() const { return iOwner; }
+    Unit*  getOwner() const { return iOwner; }
 
     Unit* getHostileTarget();
 
     void tauntApply(Unit* pTaunter);
-    void tauntFadeOut(Unit* pTaunter);
+    void tauntFadeOut(Unit *pTaunter);
 
     void setCurrentVictim(HostileReference* pHostileReference);
 
@@ -232,7 +225,15 @@ public:
 
     // Don't must be used for explicit modify threat values in iterator return pointers
     ThreatList const& getThreatList() const { return iThreatContainer.getThreatList(); }
-
+    // AzerothCore spellings. Its list is explicitly unsorted; this one is in
+    // insertion order, which is the same promise - neither is ranked by threat.
+    ThreatList const& GetUnsortedThreatList() const { return getThreatList(); }
+    ThreatList const& GetThreatList() const { return getThreatList(); }
+    void ClearAllThreat() { clearReferences(); }
+    // AzerothCore drops this unit out of everyone ELSE's threat list. The
+    // reference objects are shared between both sides, so releasing the ones
+    // this manager holds unlinks them at the far end too.
+    void RemoveMeFromThreatLists() { clearReferences(); }
 private:
     HostileReference* iCurrentVictim;
     Unit* iOwner;

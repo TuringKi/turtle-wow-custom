@@ -22,21 +22,21 @@
  * and lore are copyrighted by Blizzard Entertainment, Inc.
  */
 
-#include "LFGHandler.h"
-#include "Chat.h"
 #include "Common.h"
-#include "Group.h"
-#include "LFGMgr.h"
-#include "Language.h"
-#include "Log.h"
-#include "Object.h"
-#include "ObjectMgr.h"
+#include "WorldPacket.h"
 #include "Opcodes.h"
+#include "Log.h"
 #include "Player.h"
+#include "ObjectMgr.h"
+#include "WorldSession.h"
+#include "Object.h"
+#include "Chat.h"
+#include "Language.h"
 #include "ScriptMgr.h"
 #include "World.h"
-#include "WorldPacket.h"
-#include "WorldSession.h"
+#include "Group.h"
+#include "LFGHandler.h"
+#include "LFGMgr.h"
 
 void WorldSession::HandleMeetingStoneJoinOpcode(WorldPacket& recv_data)
 {
@@ -50,7 +50,7 @@ void WorldSession::HandleMeetingStoneJoinOpcode(WorldPacket& recv_data)
     if (!_player->IsSelfMover())
         return;
 
-    GameObject* obj = _player->GetGameObjectIfCanInteractWith(guid);
+    GameObject *obj = _player->GetGameObjectIfCanInteractWith(guid);
 
     if (!obj)
         return;
@@ -85,17 +85,17 @@ void WorldSession::HandleMeetingStoneJoinOpcode(WorldPacket& recv_data)
     }
 
 
-    GameObjectInfo const* gInfo = sObjectMgr.GetGameObjectInfo(obj->GetEntry());
+   GameObjectInfo const* gInfo = sObjectMgr.GetGameObjectInfo(obj->GetEntry());
 
-    sLFGMgr.AddToQueue(_player, gInfo->meetingstone.areaID);
+   sLFGMgr.AddToQueue(_player, gInfo->meetingstone.areaID);
 }
 
 void WorldSession::HandleMeetingStoneLeaveOpcode(WorldPacket& /*recv_data*/)
 {
     DEBUG_LOG("WORLD: Recvd CMSG_MEETINGSTONE_LEAVE");
-    if (Group* grp = _player->GetGroup())
+    if(Group *grp = _player->GetGroup())
     {
-        if (grp->IsLeader(_player->GetObjectGuid()) && grp->isInLFG())
+        if(grp->IsLeader(_player->GetObjectGuid()) && grp->isInLFG())
         {
             sLFGMgr.RemoveGroupFromQueue(grp->GetId());
         }
@@ -110,13 +110,13 @@ void WorldSession::HandleMeetingStoneLeaveOpcode(WorldPacket& /*recv_data*/)
     }
 }
 
-void WorldSession::HandleMeetingStoneInfoOpcode(WorldPacket& /*recv_data*/)
+void WorldSession::HandleMeetingStoneInfoOpcode(WorldPacket & /*recv_data*/)
 {
     DEBUG_LOG("WORLD: Received CMSG_MEETING_STONE_INFO");
 
-    if (Group* grp = _player->GetGroup())
+    if(Group *grp = _player->GetGroup())
     {
-        if (grp->isInLFG())
+        if(grp->isInLFG())
         {
             SendMeetingstoneSetqueue(grp->GetLFGAreaId(), MEETINGSTONE_STATUS_JOINED_QUEUE);
         }

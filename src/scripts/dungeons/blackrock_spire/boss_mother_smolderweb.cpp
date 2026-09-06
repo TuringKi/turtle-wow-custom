@@ -32,7 +32,10 @@ enum
 
 struct boss_mothersmolderwebAI : public ScriptedAI
 {
-    boss_mothersmolderwebAI(Creature* pCreature) : ScriptedAI(pCreature) { Reset(); }
+    boss_mothersmolderwebAI(Creature* pCreature) : ScriptedAI(pCreature)
+    {
+        Reset();
+    }
 
     uint32 m_uiCrystalizeTimer;
     uint32 m_uiMothersMilkTimer;
@@ -40,12 +43,12 @@ struct boss_mothersmolderwebAI : public ScriptedAI
 
     void Reset() override
     {
-        m_uiCrystalizeTimer = 20000;
+        m_uiCrystalizeTimer  = 20000;
         m_uiMothersMilkTimer = 10000;
         m_bPulledByPet = false;
     }
 
-    void DamageTaken(Unit* pDoneBy, uint32& uiDamage) override
+    void DamageTaken(Unit* pDoneBy, uint32 &uiDamage) override
     {
         if (m_creature->GetHealth() <= uiDamage)
             DoCastSpellIfCan(m_creature, SPELL_SUMMON_SPIRE_SPIDERLING, CF_TRIGGERED);
@@ -85,7 +88,10 @@ struct boss_mothersmolderwebAI : public ScriptedAI
     }
 };
 
-CreatureAI* GetAI_boss_mothersmolderweb(Creature* pCreature) { return new boss_mothersmolderwebAI(pCreature); }
+CreatureAI* GetAI_boss_mothersmolderweb(Creature* pCreature)
+{
+    return new boss_mothersmolderwebAI(pCreature);
+}
 
 void AddSC_boss_mothersmolderweb()
 {

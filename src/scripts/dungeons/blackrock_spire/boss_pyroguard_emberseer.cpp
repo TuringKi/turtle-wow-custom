@@ -21,15 +21,15 @@ SDComment: Event to activate Emberseer NYI - 'aggro'-text missing
 SDCategory: Blackrock Spire
 EndScriptData */
 
-#include "blackrock_spire.h"
 #include "scriptPCH.h"
+#include "blackrock_spire.h"
 
 enum
 {
     SPELL_STRIKE = 15580,
     SPELL_FIRENOVA = 23462,
     SPELL_FLAMEBUFFET = 23341,
-    SPELL_PYROBLAST = 20228, // guesswork, but best fitting in spells-area, was 17274 (has mana cost)
+    SPELL_PYROBLAST = 20228,                        // guesswork, but best fitting in spells-area, was 17274 (has mana cost)
 
     NPC_INCARCERATOR = 10316,
 
@@ -51,7 +51,7 @@ struct boss_pyroguard_emberseerAI : public ScriptedAI
 {
     boss_pyroguard_emberseerAI(Creature* pCreature) : ScriptedAI(pCreature)
     {
-        m_pInstance = (instance_blackrock_spire*)pCreature->GetInstanceData();
+        m_pInstance = (instance_blackrock_spire*) pCreature->GetInstanceData();
         m_initialized = false;
         Reset();
     }
@@ -118,7 +118,7 @@ struct boss_pyroguard_emberseerAI : public ScriptedAI
             return;
         std::set<Player*>::iterator it;
         GameObject* pGo = m_creature->GetMap()->GetGameObject(m_pInstance->GetData64(GO_BLACKROCK_ALTAR));
-        Map::PlayerList const& pl = m_creature->GetMap()->GetPlayers();
+        Map::PlayerList const &pl = m_creature->GetMap()->GetPlayers();
         for (const auto& it2 : pl)
         {
             Player* currPlayer = it2.getSource();
@@ -142,7 +142,7 @@ struct boss_pyroguard_emberseerAI : public ScriptedAI
         m_pInstance->SetData(TYPE_EMBERSEER, SPECIAL);
         for (const auto& guid : canaliseurs)
         {
-            Creature* currCanaliseur = m_creature->GetMap()->GetCreature(guid);
+            Creature *currCanaliseur = m_creature->GetMap()->GetCreature(guid);
             if (!currCanaliseur)
                 continue;
             currCanaliseur->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PLAYER | UNIT_FLAG_IMMUNE_TO_NPC);
@@ -169,7 +169,7 @@ struct boss_pyroguard_emberseerAI : public ScriptedAI
         m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_IMMUNE_TO_PLAYER | UNIT_FLAG_IMMUNE_TO_NPC);
 
         // We attack everyone.
-        Map::PlayerList const& pl = m_creature->GetMap()->GetPlayers();
+        Map::PlayerList const &pl = m_creature->GetMap()->GetPlayers();
         for (const auto& it2 : pl)
         {
             Player* currPlayer = it2.getSource();
@@ -192,6 +192,7 @@ struct boss_pyroguard_emberseerAI : public ScriptedAI
             pGo->SetGoState(GO_STATE_ACTIVE);
         if (GameObject* pGo = m_creature->FindNearestGameObject(GO_EMBERSEER_RUNE07, 100.0f))
             pGo->SetGoState(GO_STATE_ACTIVE);
+
     }
     // END NOSTALRIUS
 
@@ -208,7 +209,7 @@ struct boss_pyroguard_emberseerAI : public ScriptedAI
         m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_IMMUNE_TO_PLAYER | UNIT_FLAG_IMMUNE_TO_NPC);
     }
 
-    void AttackStart(Unit* target) override
+    void AttackStart(Unit *target) override
     {
         // $target starts attacking us.
         // No fight allowed with the boss.
@@ -326,13 +327,16 @@ bool ProcessEventId_event_free_pyroguard_emberseer(uint32 eventId, Object* sourc
     return true;
 }
 
-CreatureAI* GetAI_boss_pyroguard_emberseer(Creature* pCreature) { return new boss_pyroguard_emberseerAI(pCreature); }
+CreatureAI* GetAI_boss_pyroguard_emberseer(Creature* pCreature)
+{
+    return new boss_pyroguard_emberseerAI(pCreature);
+}
 
 struct npc_geolier_main_noireAI : public ScriptedAI
 {
     npc_geolier_main_noireAI(Creature* pCreature) : ScriptedAI(pCreature)
     {
-        m_pInstance = (instance_blackrock_spire*)pCreature->GetInstanceData();
+        m_pInstance = (instance_blackrock_spire*) pCreature->GetInstanceData();
         Reset();
     }
 
@@ -349,7 +353,7 @@ struct npc_geolier_main_noireAI : public ScriptedAI
         m_fled = false;
     }
 
-    void AttackStart(Unit* target) override
+    void AttackStart(Unit *target) override
     {
         if (!m_pInstance)
             return;
@@ -420,7 +424,10 @@ struct npc_geolier_main_noireAI : public ScriptedAI
     }
 };
 
-CreatureAI* GetAI_npc_geolier_main_noire(Creature* pCreature) { return new npc_geolier_main_noireAI(pCreature); }
+CreatureAI* GetAI_npc_geolier_main_noire(Creature* pCreature)
+{
+    return new npc_geolier_main_noireAI(pCreature);
+}
 
 void AddSC_boss_pyroguard_emberseer()
 {

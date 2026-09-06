@@ -26,49 +26,70 @@ EndScriptData */
     so just created a dummy visual creature to spawn in his place
 */
 
-#include "molten_core.h"
 #include "scriptPCH.h"
+#include "molten_core.h"
 
 enum
 {
-    SAY_REINFORCEMENTS1 = -1409013,
-    SAY_REINFORCEMENTS2 = -1409014,
-    SAY_HAND = -1409015,
-    SAY_WRATH = -1409016,
-    SAY_KILL = -1409017,
-    SAY_MAGMABURST = -1409018,
-    SAY_ARRIVAL5_RAG = -1409012,
+    SAY_REINFORCEMENTS1       = -1409013,
+    SAY_REINFORCEMENTS2       = -1409014,
+    SAY_HAND                  = -1409015,
+    SAY_WRATH                 = -1409016,
+    SAY_KILL                  = -1409017,
+    SAY_MAGMABURST            = -1409018,
+    SAY_ARRIVAL5_RAG          = -1409012,
 
     SPELL_ELEMENTAL_FIRE_KILL = 19773, // Kill Majordomo
 
     SPELL_ELEMENTAL_FIRE_AURA = 20563, // Aura: trigger Elemental Fire (20564) on every hit
-    SPELL_MELT_WEAPON_AURA = 21387, // Aura: trigger Melt Weapon (21388) on melee damage taken
-    SPELL_WRATH_OF_RAGNAROS = 20566, // PBAOE Knockback
-    SPELL_MAGMA_BLAST = 20565, // Ranged attack when no one in melee range
-    SPELL_MIGHT_OF_RAGNAROS = 21154, // Summon Flame of Ragnaros trigger to deal Knockback
-    SPELL_INTENSE_HEAT = 21155, // Knockback cast by Might of Ragnaros triggers
-    SPELL_LAVASHIELD = 21857, // Son of Flame mana drain aura -- this is applied in creature_template_addon
+    SPELL_MELT_WEAPON_AURA    = 21387, // Aura: trigger Melt Weapon (21388) on melee damage taken
+    SPELL_WRATH_OF_RAGNAROS   = 20566, // PBAOE Knockback
+    SPELL_MAGMA_BLAST         = 20565, // Ranged attack when no one in melee range
+    SPELL_MIGHT_OF_RAGNAROS   = 21154, // Summon Flame of Ragnaros trigger to deal Knockback
+    SPELL_INTENSE_HEAT        = 21155, // Knockback cast by Might of Ragnaros triggers
+    SPELL_LAVASHIELD          = 21857, // Son of Flame mana drain aura -- this is applied in creature_template_addon
 
-    SPELL_SUBMERGE_VISUAL = 26234,
-    SPELL_SUBMERGE_FADE = 21107, // Stealth aura
-    SPELL_SUBMERGE_EFFECT = 21859,
-    SPELL_EMERGE_VISUAL = 20568,
+    SPELL_SUBMERGE_VISUAL     = 26234,
+    SPELL_SUBMERGE_FADE       = 21107, // Stealth aura
+    SPELL_SUBMERGE_EFFECT     = 21859,
+    SPELL_EMERGE_VISUAL       = 20568,
 
-    NPC_FLAME_OF_RAGNAROS = 13148,
-    NPC_SON_OF_FLAME = 12143,
+    NPC_FLAME_OF_RAGNAROS     = 13148,
+    NPC_SON_OF_FLAME          = 12143,
 
-    NPC_SUBMERGED_VISUAL = 21000, // dummy visual for flames/sound in lava pool where Rag submerges
+    NPC_SUBMERGED_VISUAL      = 21000, // dummy visual for flames/sound in lava pool where Rag submerges
 
-    GO_LAVA_BURST = 178088,
+    GO_LAVA_BURST             = 178088,
 
-    MAX_ADDS_IN_SUBMERGE = 8
+    MAX_ADDS_IN_SUBMERGE      = 8
 };
 
 // Lava Burst locations
-float PositionOfLavaBursts[9][3] = {{812.0f, -821.0f, -232.0f}, {832.0f, -798.0f, -232.0f}, {820.0f, -745.0f, -232.0f}, {865.0f, -807.0f, -232.0f}, {894.0f, -792.0f, -232.0f}, {874.0f, -839.0f, -232.0f}, {862.0f, -869.0f, -232.0f}, {827.0f, -873.0f, -231.3f}, {760.0f, -827.0f, -232.0f}};
+float PositionOfLavaBursts[9][3]=
+{
+    {812.0f, -821.0f, -232.0f},
+    {832.0f, -798.0f, -232.0f},
+    {820.0f, -745.0f, -232.0f},
+    {865.0f, -807.0f, -232.0f},
+    {894.0f, -792.0f, -232.0f},
+    {874.0f, -839.0f, -232.0f},
+    {862.0f, -869.0f, -232.0f}, 
+    {827.0f, -873.0f, -231.3f},
+    {760.0f, -827.0f, -232.0f}
+};
 
 // Sons of Ragnaros spawn positions
-float PositionOfAdds[8][4] = {{848.740356f, -816.103455f, -229.743270f, 2.615287f}, {852.560791f, -849.861511f, -228.560974f, 2.836073f}, {808.710632f, -852.845764f, -227.914963f, 0.964207f}, {786.597107f, -821.132874f, -226.350128f, 0.949377f}, {796.219116f, -800.948059f, -226.010361f, 0.560603f}, {821.602539f, -782.744109f, -226.023575f, 6.157440f}, {844.924744f, -769.453735f, -225.521698f, 4.4539958f}, {839.823364f, -810.869385f, -229.683182f, 4.693108f}};
+float PositionOfAdds[8][4]=
+{
+    {848.740356f, -816.103455f, -229.743270f, 2.615287f},
+    {852.560791f, -849.861511f, -228.560974f, 2.836073f},
+    {808.710632f, -852.845764f, -227.914963f, 0.964207f},
+    {786.597107f, -821.132874f, -226.350128f, 0.949377f},
+    {796.219116f, -800.948059f, -226.010361f, 0.560603f},
+    {821.602539f, -782.744109f, -226.023575f, 6.157440f},
+    {844.924744f, -769.453735f, -225.521698f, 4.4539958f},
+    {839.823364f, -810.869385f, -229.683182f, 4.693108f}
+};
 
 class ThreatListCopier : public ThreatListProcesser
 {
@@ -121,27 +142,27 @@ struct boss_ragnarosAI : ScriptedAI
 
     void Reset() override
     {
-        m_uiMagmaBlastTimer = 2000;
-        m_uiWrathOfRagnarosTimer = urand(25000, 30000);
-        m_uiMightOfRagnarosTimer = urand(10000, 15000);
-        m_uiRestoreTargetTimer = 0;
-        m_uiLavaBurstTimer = urand(10000, 15000);
+        m_uiMagmaBlastTimer         = 2000;
+        m_uiWrathOfRagnarosTimer    = urand(25000, 30000);
+        m_uiMightOfRagnarosTimer    = urand(10000, 15000);
+        m_uiRestoreTargetTimer      = 0;
+        m_uiLavaBurstTimer          = urand(10000, 15000);
         m_uiLavaBurstSecondaryTimer = 0;
-        m_uiLavaBurstTertiaryTimer = 0;
+        m_uiLavaBurstTertiaryTimer  = 0;
 
-        m_uiSubmergeTimer = 3 * MINUTE * IN_MILLISECONDS; // P1
-        m_uiAttackTimer = 1.5 * MINUTE * IN_MILLISECONDS; // P2
-        m_uiSubmergeStateTimer = 0;
-        m_uiEmergeStateTimer = 0;
+        m_uiSubmergeTimer           = 3*MINUTE*IN_MILLISECONDS;   // P1
+        m_uiAttackTimer             = 1.5*MINUTE*IN_MILLISECONDS; // P2
+        m_uiSubmergeStateTimer      = 0;
+        m_uiEmergeStateTimer        = 0;
 
-        m_uiEnterCombatTimer = 0;
+        m_uiEnterCombatTimer        = 0;
 
-        HasYelledMagmaBlast = false;
-        HasSubmergedOnce = false;
-        IsBanished = false;
-        Explosion = false;
-        HasYelledAggro = false;
-        m_bInMelee = false;
+        HasYelledMagmaBlast         = false;
+        HasSubmergedOnce            = false;
+        IsBanished                  = false;
+        Explosion                   = false;
+        HasYelledAggro              = false;
+        m_bInMelee                  = false;
 
         HasAura = true;
 
@@ -170,7 +191,7 @@ struct boss_ragnarosAI : ScriptedAI
                 m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_SPAWNING);
         }
         m_creature->SetInCombatWithZone();
-        DoCastSpellIfCan(m_creature, SPELL_MELT_WEAPON_AURA, CF_TRIGGERED | CF_AURA_NOT_PRESENT);
+        DoCastSpellIfCan(m_creature, SPELL_MELT_WEAPON_AURA, CF_TRIGGERED | CF_AURA_NOT_PRESENT);        
         DoCastSpellIfCan(m_creature, SPELL_ELEMENTAL_FIRE_AURA, CF_TRIGGERED | CF_AURA_NOT_PRESENT);
     }
 
@@ -200,7 +221,11 @@ struct boss_ragnarosAI : ScriptedAI
         for (const auto& position : PositionOfAdds)
         {
             ThreatListCopier* dataCopier = new ThreatListCopier(m_creature);
-            if (Creature* Crea = m_creature->SummonCreature(NPC_SON_OF_FLAME, position[0], position[1], position[2], position[3], TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 10000))
+            if (Creature* Crea = m_creature->SummonCreature(NPC_SON_OF_FLAME, 
+                position[0],
+                position[1],
+                position[2],
+                position[3], TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 10000))
             {
                 m_creature->ProcessThreatList(dataCopier);
                 if (Unit* randomTarget = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 0))
@@ -220,24 +245,24 @@ struct boss_ragnarosAI : ScriptedAI
         if (m_uiLavaBurstTimer < diff)
         {
             DoLavaBurst();
-            m_uiLavaBurstTimer = urand(15000, 20000);
-            m_uiLavaBurstSecondaryTimer = urand(2000, 4000);
+            m_uiLavaBurstTimer = urand (15000, 20000);
+            m_uiLavaBurstSecondaryTimer = urand (2000, 4000);
         }
         else
             m_uiLavaBurstTimer -= diff;
-
+            
         if (m_uiLavaBurstSecondaryTimer)
         {
             if (m_uiLavaBurstSecondaryTimer < diff)
             {
                 DoLavaBurst();
                 m_uiLavaBurstSecondaryTimer = 0;
-                m_uiLavaBurstTertiaryTimer = urand(2000, 4000);
+                m_uiLavaBurstTertiaryTimer = urand (2000, 4000);
             }
             else
                 m_uiLavaBurstSecondaryTimer -= diff;
         }
-
+        
         if (m_uiLavaBurstTertiaryTimer)
         {
             if (m_uiLavaBurstTertiaryTimer < diff)
@@ -253,9 +278,12 @@ struct boss_ragnarosAI : ScriptedAI
     void DoLavaBurst() const
     {
         uint8 m_uiLavaBurstPoint = urand(0, 8);
-        if (GameObject* pGo = m_creature->SummonGameObject(GO_LAVA_BURST, PositionOfLavaBursts[m_uiLavaBurstPoint][0], PositionOfLavaBursts[m_uiLavaBurstPoint][1], PositionOfLavaBursts[m_uiLavaBurstPoint][2], frand(0, M_PI_F), 0, 0, 0, 0, 0))
+        if (GameObject* pGo = m_creature->SummonGameObject(GO_LAVA_BURST, 
+            PositionOfLavaBursts[m_uiLavaBurstPoint][0], 
+            PositionOfLavaBursts[m_uiLavaBurstPoint][1], 
+            PositionOfLavaBursts[m_uiLavaBurstPoint][2], frand(0, M_PI_F), 0, 0, 0, 0, 0))
         {
-            pGo->Use(m_creature);
+            pGo->Use(m_creature);            
         }
     }
 
@@ -363,9 +391,13 @@ struct boss_ragnarosAI : ScriptedAI
                 if (m_uiSubmergeStateTimer <= diff)
                 {
                     // create dummy to handle sound and lava flame visual
-                    if (Creature* pVisual = m_creature->SummonCreature(NPC_SUBMERGED_VISUAL, m_creature->GetPositionX(), m_creature->GetPositionY(), m_creature->GetPositionZ(), m_creature->GetOrientation(), TEMPSUMMON_TIMED_DESPAWN, 95000))
+                    if (Creature* pVisual = m_creature->SummonCreature(NPC_SUBMERGED_VISUAL, 
+                        m_creature->GetPositionX(), 
+                        m_creature->GetPositionY(), 
+                        m_creature->GetPositionZ(), 
+                        m_creature->GetOrientation(), TEMPSUMMON_TIMED_DESPAWN, 95000))
                     {
-                        pVisual->HandleEmoteState(EMOTE_STATE_SUBMERGED);
+                       pVisual->HandleEmoteState(EMOTE_STATE_SUBMERGED);                        
                     }
 
                     m_creature->SetVisibility(VISIBILITY_OFF);
@@ -395,7 +427,7 @@ struct boss_ragnarosAI : ScriptedAI
         {
             if (m_uiRestoreTargetTimer <= diff)
             {
-                if (Unit* pTarget = m_creature->GetVictim())
+                if (Unit *pTarget = m_creature->GetVictim())
                 {
                     m_creature->SetTargetGuid(pTarget->GetObjectGuid());
                     m_creature->SetFacingToObject(pTarget);
@@ -409,26 +441,26 @@ struct boss_ragnarosAI : ScriptedAI
         // Timer to Phase 2
         if (!IsBanished && m_uiSubmergeTimer < diff)
         {
-            // Creature spawning and ragnaros becomming unattackable
-            // is not very well supported in the core
-            // so added normaly spawning and banish workaround and attack again after 90 secs.
+            //Creature spawning and ragnaros becomming unattackable
+            //is not very well supported in the core
+            //so added normaly spawning and banish workaround and attack again after 90 secs.
 
             m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_SPAWNING);
             m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
 
             if (DoCastSpellIfCan(m_creature, SPELL_SUBMERGE_VISUAL, CF_INTERRUPT_PREVIOUS) == CAST_OK)
             {
-                // Root self
+                //Root self
                 DoCastSpellIfCan(m_creature, 17507);
 
                 DoScriptText(HasSubmergedOnce ? SAY_REINFORCEMENTS2 : SAY_REINFORCEMENTS1, m_creature);
 
                 SummonSonsOfFlame();
 
-                HasSubmergedOnce = true;
-                IsBanished = true;
-                m_uiSubmergeTimer = 3 * MINUTE * IN_MILLISECONDS;
-                m_uiAttackTimer = 1.5 * MINUTE * IN_MILLISECONDS;
+                HasSubmergedOnce  = true;
+                IsBanished        = true;
+                m_uiSubmergeTimer = 3*MINUTE*IN_MILLISECONDS;
+                m_uiAttackTimer   = 1.5*MINUTE*IN_MILLISECONDS;
                 m_uiSubmergeStateTimer = 1500;
                 return;
             }
@@ -468,7 +500,7 @@ struct boss_ragnarosAI : ScriptedAI
                     if (DoCastSpellIfCan(pTarget, SPELL_MIGHT_OF_RAGNAROS) == CAST_OK)
                     {
                         m_creature->SetInFront(pTarget);
-                        m_creature->SetTargetGuid(pTarget->GetObjectGuid()); // Ragnaros faces targets he casts Might of Ragnaros on
+                        m_creature->SetTargetGuid(pTarget->GetObjectGuid());  // Ragnaros faces targets he casts Might of Ragnaros on
                         m_uiMightOfRagnarosTimer = urand(9000, 14000);
                         m_uiRestoreTargetTimer = 800;
                         if (urand(0, 1))
@@ -503,7 +535,7 @@ struct boss_ragnarosAI : ScriptedAI
 
                 // at first we try to select player, then pet
                 Unit* target = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 0, nullptr, SELECT_FLAG_PLAYER_NOT_GM);
-
+                
                 if (!target)
                     target = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 0, nullptr, SELECT_FLAG_PET);
 
@@ -530,7 +562,8 @@ struct boss_ragnarosAI : ScriptedAI
     {
         // at first we check for the current player-type target
         Unit* pMainTarget = m_creature->GetVictim();
-        if (pMainTarget && pMainTarget->GetTypeId() == TYPEID_PLAYER && !pMainTarget->ToPlayer()->IsGameMaster() && m_creature->CanReachWithMeleeAutoAttack(pMainTarget) && m_creature->IsWithinLOSInMap(pMainTarget))
+        if (pMainTarget && pMainTarget->GetTypeId() == TYPEID_PLAYER && !pMainTarget->ToPlayer()->IsGameMaster() && 
+            m_creature->CanReachWithMeleeAutoAttack(pMainTarget) && m_creature->IsWithinLOSInMap(pMainTarget))
         {
             m_bInMelee = true;
 
@@ -544,7 +577,8 @@ struct boss_ragnarosAI : ScriptedAI
         }
 
         // at second we look for any melee player-type target (if current target is not reachable)
-        if (Unit* pTarget = m_creature->SelectAttackingTarget(ATTACKING_TARGET_TOPAGGRO, 0, nullptr, SELECT_FLAG_PLAYER_NOT_GM | SELECT_FLAG_IN_LOS | SELECT_FLAG_IN_MELEE_RANGE))
+        if (Unit* pTarget = m_creature->SelectAttackingTarget(ATTACKING_TARGET_TOPAGGRO, 0, nullptr, 
+            SELECT_FLAG_PLAYER_NOT_GM | SELECT_FLAG_IN_LOS | SELECT_FLAG_IN_MELEE_RANGE))
         {
             m_bInMelee = true;
 
@@ -565,9 +599,10 @@ struct boss_ragnarosAI : ScriptedAI
 
         // reaching this point means there are no more reachable player-type targets in melee range
         m_bInMelee = false;
-
+        
         // at third we take any melee pet target just to punch in the face
-        if (Unit* pTarget = m_creature->SelectAttackingTarget(ATTACKING_TARGET_TOPAGGRO, 0, nullptr, SELECT_FLAG_PET | SELECT_FLAG_IN_LOS | SELECT_FLAG_IN_MELEE_RANGE))
+        if (Unit* pTarget = m_creature->SelectAttackingTarget(ATTACKING_TARGET_TOPAGGRO, 0, nullptr,
+            SELECT_FLAG_PET | SELECT_FLAG_IN_LOS | SELECT_FLAG_IN_MELEE_RANGE))
         {
             // erase current target's threat as soon as we switch the target now
             m_creature->GetThreatManager().modifyThreatPercent(m_creature->GetVictim(), -100);
@@ -585,7 +620,8 @@ struct boss_ragnarosAI : ScriptedAI
         }
 
         // at fourth we take anything to wipe it out and log (whatever, just in case)
-        if (Unit* pTarget = m_creature->SelectAttackingTarget(ATTACKING_TARGET_TOPAGGRO, 0, nullptr, SELECT_FLAG_NOT_PLAYER | SELECT_FLAG_IN_LOS | SELECT_FLAG_IN_MELEE_RANGE))
+        if (Unit* pTarget = m_creature->SelectAttackingTarget(ATTACKING_TARGET_TOPAGGRO, 0, nullptr,
+            SELECT_FLAG_NOT_PLAYER | SELECT_FLAG_IN_LOS | SELECT_FLAG_IN_MELEE_RANGE))
         {
             // erase current target's threat as soon as we switch the target now
             m_creature->GetThreatManager().modifyThreatPercent(m_creature->GetVictim(), -100);
@@ -599,19 +635,22 @@ struct boss_ragnarosAI : ScriptedAI
                 m_creature->ResetAttackTimer();
             }
 
-            // sLog.outError("[MoltenCore.Ragnaros] Target type #4 reached with name <%s> and entry <%u>.", pTarget->GetName(), pTarget->GetEntry());
+            //sLog.outError("[MoltenCore.Ragnaros] Target type #4 reached with name <%s> and entry <%u>.", pTarget->GetName(), pTarget->GetEntry());
         }
 
         // nothing in melee at all
-        // sLog.outError("[MoltenCore.Ragnaros] CheckForMelee hits the end. Nothing in melee.");
+        //sLog.outError("[MoltenCore.Ragnaros] CheckForMelee hits the end. Nothing in melee.");
     }
 };
 
-CreatureAI* GetAI_boss_ragnaros(Creature* pCreature) { return new boss_ragnarosAI(pCreature); }
+CreatureAI* GetAI_boss_ragnaros(Creature* pCreature)
+{
+    return new boss_ragnarosAI(pCreature);
+}
 
 void AddSC_boss_ragnaros()
 {
-    Script* newscript;
+    Script *newscript;
     newscript = new Script;
     newscript->Name = "boss_ragnaros";
     newscript->GetAI = &GetAI_boss_ragnaros;

@@ -27,8 +27,8 @@ mobs_spitelashes
 npc_loramus_thalipedes
 EndContentData */
 
-#include "World.h"
 #include "scriptPCH.h"
+#include "World.h"
 
 /*######
 ## mobs_spitelashes
@@ -36,7 +36,10 @@ EndContentData */
 
 struct mobs_spitelashesAI : public ScriptedAI
 {
-    mobs_spitelashesAI(Creature* pCreature) : ScriptedAI(pCreature) { Reset(); }
+    mobs_spitelashesAI(Creature* pCreature) : ScriptedAI(pCreature)
+    {
+        Reset();
+    }
 
     uint32 morphtimer;
     bool spellhit;
@@ -47,14 +50,15 @@ struct mobs_spitelashesAI : public ScriptedAI
         spellhit = false;
     }
 
-    void SpellHit(WorldObject* Hitter, const SpellEntry* Spellkind) override
+    void SpellHit(WorldObject* Hitter, const SpellEntry *Spellkind) override
     {
         if (!spellhit && Hitter->GetTypeId() == TYPEID_PLAYER)
         {
-            if (((Player*)Hitter)->GetQuestStatus(9364) == QUEST_STATUS_INCOMPLETE && (Spellkind->Id == 118 || Spellkind->Id == 12824 || Spellkind->Id == 12825 || Spellkind->Id == 12826))
+            if (((Player*)Hitter)->GetQuestStatus(9364) == QUEST_STATUS_INCOMPLETE &&
+                    (Spellkind->Id == 118 || Spellkind->Id == 12824 || Spellkind->Id == 12825 || Spellkind->Id == 12826))
             {
                 spellhit = true;
-                DoCastSpellIfCan(m_creature, 29124); // become a sheep
+                DoCastSpellIfCan(m_creature, 29124);                      //become a sheep
             }
         }
     }
@@ -74,8 +78,8 @@ struct mobs_spitelashesAI : public ScriptedAI
             morphtimer += diff;
             if (morphtimer >= 5000)
             {
-                DoCastSpellIfCan(m_creature, 28406); // summon copies
-                DoCastSpellIfCan(m_creature, 6924); // visual explosion
+                DoCastSpellIfCan(m_creature, 28406); //summon copies
+                DoCastSpellIfCan(m_creature, 6924); //visual explosion
                 uint32 invocation_nb = rand() % 4;
                 invocation_nb = invocation_nb + 2;
                 for (uint32 counter = 0; counter < invocation_nb; counter++)
@@ -87,18 +91,22 @@ struct mobs_spitelashesAI : public ScriptedAI
                         summoned->SetWanderDistance(55.0f);
                     }
                 }
+
             }
         }
 
         if (!m_creature->SelectHostileTarget() || !m_creature->GetVictim())
             return;
 
-        // TODO: add abilities for the different creatures
+        //TODO: add abilities for the different creatures
         DoMeleeAttackIfReady();
     }
 };
 
-CreatureAI* GetAI_mobs_spitelashes(Creature* pCreature) { return new mobs_spitelashesAI(pCreature); }
+CreatureAI* GetAI_mobs_spitelashes(Creature* pCreature)
+{
+    return new mobs_spitelashesAI(pCreature);
+}
 
 /*######
 ## npc_loramus_thalipedes
@@ -124,34 +132,34 @@ bool GossipSelect_npc_loramus_thalipedes(Player* pPlayer, Creature* pCreature, u
 {
     switch (uiAction)
     {
-    case GOSSIP_ACTION_INFO_DEF + 1:
-        pPlayer->CLOSE_GOSSIP_MENU();
-        pPlayer->AreaExploredOrEventHappens(2744);
-        break;
-    case GOSSIP_ACTION_INFO_DEF + 2:
-        pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Please continue", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 21);
-        pPlayer->SEND_GOSSIP_MENU(1813, pCreature->GetGUID());
-        break;
-    case GOSSIP_ACTION_INFO_DEF + 21:
-        pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "I do not understand", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 22);
-        pPlayer->SEND_GOSSIP_MENU(1814, pCreature->GetGUID());
-        break;
-    case GOSSIP_ACTION_INFO_DEF + 22:
-        pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Indeed", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 23);
-        pPlayer->SEND_GOSSIP_MENU(1815, pCreature->GetGUID());
-        break;
-    case GOSSIP_ACTION_INFO_DEF + 23:
-        pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "I will do this with or your help, Loramus", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 24);
-        pPlayer->SEND_GOSSIP_MENU(1816, pCreature->GetGUID());
-        break;
-    case GOSSIP_ACTION_INFO_DEF + 24:
-        pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Yes", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 25);
-        pPlayer->SEND_GOSSIP_MENU(1817, pCreature->GetGUID());
-        break;
-    case GOSSIP_ACTION_INFO_DEF + 25:
-        pPlayer->CLOSE_GOSSIP_MENU();
-        pPlayer->AreaExploredOrEventHappens(3141);
-        break;
+        case GOSSIP_ACTION_INFO_DEF+1:
+            pPlayer->CLOSE_GOSSIP_MENU();
+            pPlayer->AreaExploredOrEventHappens(2744);
+            break;
+        case GOSSIP_ACTION_INFO_DEF+2:
+            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Please continue", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 21);
+            pPlayer->SEND_GOSSIP_MENU(1813, pCreature->GetGUID());
+            break;
+        case GOSSIP_ACTION_INFO_DEF+21:
+            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "I do not understand", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 22);
+            pPlayer->SEND_GOSSIP_MENU(1814, pCreature->GetGUID());
+            break;
+        case GOSSIP_ACTION_INFO_DEF+22:
+            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Indeed", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 23);
+            pPlayer->SEND_GOSSIP_MENU(1815, pCreature->GetGUID());
+            break;
+        case GOSSIP_ACTION_INFO_DEF+23:
+            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "I will do this with or your help, Loramus", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 24);
+            pPlayer->SEND_GOSSIP_MENU(1816, pCreature->GetGUID());
+            break;
+        case GOSSIP_ACTION_INFO_DEF+24:
+            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Yes", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 25);
+            pPlayer->SEND_GOSSIP_MENU(1817, pCreature->GetGUID());
+            break;
+        case GOSSIP_ACTION_INFO_DEF+25:
+            pPlayer->CLOSE_GOSSIP_MENU();
+            pPlayer->AreaExploredOrEventHappens(3141);
+            break;
     }
     return true;
 }
@@ -171,15 +179,27 @@ struct Locations
 };
 
 // out of combat waypoints
-static Locations ronde[] = {{3525.413330f, -6673.905273f, -20.0f}, // because of the animation that falls I said to myself hop in the water. Not used.
-                            {3561.725098f, -6647.203613f, -7.5f}, // between 57 and 58 meters from the maelstom // spawn
-                            {3569.491211f, -6601.534668f, -7.5f},  {3567.581787f, -6601.534668f, -7.5f},
+static Locations ronde[] =
+{
+    { 3525.413330f, -6673.905273f, -20.0f }, // because of the animation that falls I said to myself hop in the water. Not used.
+    { 3561.725098f, -6647.203613f, -7.5f },  // between 57 and 58 meters from the maelstom // spawn
+    { 3569.491211f, -6601.534668f, -7.5f },
+    { 3567.581787f, -6601.534668f, -7.5f },
 
-                            {3556.089844f, -6580.337402f, -7.5f},  {3535.929199f, -6566.029785f, -7.5f}, {3512.707275f, -6560.118164f, -7.5f}, {3481.141113f, -6564.093262f, -7.5f},
+    { 3556.089844f, -6580.337402f, -7.5f },
+    { 3535.929199f, -6566.029785f, -7.5f },
+    { 3512.707275f, -6560.118164f, -7.5f },
+    { 3481.141113f, -6564.093262f, -7.5f },
 
-                            {3471.087158f, -6577.640137f, -7.5f},  {3457.589844f, -6601.105957f, -7.5f}, {3455.857666f, -6626.840820f, -7.5f}, {3464.808838f, -6650.078613f, -7.5f},
+    { 3471.087158f, -6577.640137f, -7.5f },
+    { 3457.589844f, -6601.105957f, -7.5f },
+    { 3455.857666f, -6626.840820f, -7.5f },
+    { 3464.808838f, -6650.078613f, -7.5f },
 
-                            {3482.844238f, -6667.317383f, -7.5f},  {3506.620361f, -6675.020020f, -7.5f}, {3525.413330f, -6673.905273f, -7.5f}};
+    { 3482.844238f, -6667.317383f, -7.5f },
+    { 3506.620361f, -6675.020020f, -7.5f },
+    { 3525.413330f, -6673.905273f, -7.5f }
+};
 
 struct mob_mawsAI : public ScriptedAI
 {
@@ -237,7 +257,7 @@ struct mob_mawsAI : public ScriptedAI
                     if (FrenzyTimerMax < FrenzyTimer)
                         FrenzyTimer = FrenzyTimerMax;
                 }
-
+    
                 if (RampageTimer < uiDiff)
                 {
                     DoCastSpellIfCan(m_creature->GetVictim(), SPELL_RAMPAGE);
@@ -280,12 +300,15 @@ struct mob_mawsAI : public ScriptedAI
             InCombat = 1;
     }
 
-    void DamageTaken(Unit* done_by, uint32& damage) override // Prevent infinite kiting. Does not apply to charge damage.
+    void DamageTaken(Unit *done_by, uint32 &damage) override // Prevent infinite kiting. Does not apply to charge damage.
     {
         LeaveCombatTimer = 30000;
     }
 
-    void JustDied(Unit* pKiller) override { sWorld.SendWorldText(EMOTE_THE_BEAST_RETURNS); }
+    void JustDied(Unit* pKiller) override
+    {
+        sWorld.SendWorldText(EMOTE_THE_BEAST_RETURNS);
+    }
 
     void Reset() override
     {
@@ -304,13 +327,17 @@ struct mob_mawsAI : public ScriptedAI
 
         m_creature->GetMotionMaster()->MovePoint(LastWayPoint, ronde[LastWayPoint].x, ronde[LastWayPoint].y, ronde[LastWayPoint].z);
     }
+
 };
 
-CreatureAI* GetAI_mob_maws(Creature* pCreature) { return new mob_mawsAI(pCreature); }
+CreatureAI* GetAI_mob_maws(Creature* pCreature)
+{
+    return new mob_mawsAI(pCreature);
+}
 
 void AddSC_azshara()
 {
-    Script* newscript;
+    Script *newscript;
 
     newscript = new Script;
     newscript->Name = "mobs_spitelashes";
@@ -319,7 +346,7 @@ void AddSC_azshara()
 
     newscript = new Script;
     newscript->Name = "npc_loramus_thalipedes";
-    newscript->pGossipHello = &GossipHello_npc_loramus_thalipedes;
+    newscript->pGossipHello =  &GossipHello_npc_loramus_thalipedes;
     newscript->pGossipSelect = &GossipSelect_npc_loramus_thalipedes;
     newscript->RegisterSelf();
 

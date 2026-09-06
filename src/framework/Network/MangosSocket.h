@@ -1,19 +1,19 @@
 #ifndef MANGOSSOCKET_H
 #define MANGOSSOCKET_H
 
-#include <ace/Acceptor.h>
 #include <ace/Basic_Types.h>
-#include <ace/Connector.h>
-#include <ace/Message_Block.h>
+#include <ace/Synch_Traits.h>
+#include <ace/Svc_Handler.h>
+#include <ace/SOCK_Stream.h>
 #include <ace/SOCK_Acceptor.h>
 #include <ace/SOCK_Connector.h>
-#include <ace/SOCK_Stream.h>
-#include <ace/Svc_Handler.h>
-#include <ace/Synch_Traits.h>
+#include <ace/Acceptor.h>
+#include <ace/Connector.h>
 #include <ace/Unbounded_Queue.h>
+#include <ace/Message_Block.h>
 #include <mutex>
 
-#if !defined(ACE_LACKS_PRAGMA_ONCE)
+#if !defined (ACE_LACKS_PRAGMA_ONCE)
 #pragma once
 #endif /* ACE_LACKS_PRAGMA_ONCE */
 
@@ -24,10 +24,10 @@ class WorldPacket;
 class WorldSession;
 
 
-#if defined(__GNUC__)
+#if defined( __GNUC__ )
 #pragma pack(1)
 #else
-#pragma pack(push, 1)
+#pragma pack(push,1)
 #endif
 
 struct ServerPktHeader
@@ -42,7 +42,7 @@ struct ClientPktHeader
     uint32 cmd;
 };
 
-#if defined(__GNUC__)
+#if defined( __GNUC__ )
 #pragma pack()
 #else
 #pragma pack(pop)
@@ -90,150 +90,148 @@ typedef ACE_Svc_Handler<ACE_SOCK_STREAM, ACE_NULL_SYNCH> WorldHandler;
 template <typename SessionType, typename SocketName, typename Crypt>
 class MangosSocket : public WorldHandler
 {
-public:
-    /// things called by ACE framework.
-    MangosSocket();
-    virtual ~MangosSocket(void);
+    public:
+        /// things called by ACE framework.
+        MangosSocket();
+        virtual ~MangosSocket(void);
 
-    /// Declare the acceptor for this class
-    typedef ACE_Connector<SocketName, ACE_SOCK_CONNECTOR> Connector;
-    /// Declare some friends
-    friend class ACE_Connector<SocketName, ACE_SOCK_CONNECTOR>;
-    friend class ACE_NonBlocking_Connect_Handler<SocketName>;
+        /// Declare the acceptor for this class
+        typedef ACE_Connector<SocketName, ACE_SOCK_CONNECTOR> Connector;
+        /// Declare some friends
+        friend class ACE_Connector<SocketName, ACE_SOCK_CONNECTOR>;
+        friend class ACE_NonBlocking_Connect_Handler<SocketName>;
 
-    /// Mutex type used for various synchronizations.
-    using LockType = std::mutex;
-    typedef std::unique_lock<LockType> GuardType;
+        /// Mutex type used for various synchronizations.
+        using LockType = std::mutex;
+        typedef std::unique_lock<LockType> GuardType;
 
-    /// Queue for storing packets for which there is no space.
-    typedef ACE_Unbounded_Queue<WorldPacket*> PacketQueueT;
+        /// Queue for storing packets for which there is no space.
+        typedef ACE_Unbounded_Queue<WorldPacket*> PacketQueueT;
 
-    /// Check if socket is closed.
-    bool IsClosed() const { return closing_; }
+        /// Check if socket is closed.
+        bool IsClosed() const { return closing_; }
 
-    /// Close the socket.
-    void CloseSocket(void);
+        /// Close the socket.
+        void CloseSocket (void);
 
-    /// Called on open ,the void* is the acceptor.
-    virtual int open(void*);
+        /// Called on open ,the void* is the acceptor.
+        virtual int open(void*);
 
-    /// Called on failures inside of the acceptor, don't call from your code.
-    virtual int close(int);
+        /// Called on failures inside of the acceptor, don't call from your code.
+        virtual int close(int);
 
-    /// Get address of connected peer.
-    const std::string& GetRemoteAddress() const { return m_Address; }
+        /// Get address of connected peer.
+        const std::string& GetRemoteAddress () const { return m_Address; }
 
-    /// Send A packet on the socket, this function is reentrant.
-    /// @param pct packet to send
-    /// @return -1 of failure
-    int SendPacket(const WorldPacket& pct);
+        /// Send A packet on the socket, this function is reentrant.
+        /// @param pct packet to send
+        /// @return -1 of failure
+        int SendPacket (const WorldPacket& pct);
 
-    /// Add reference to this object.
-    long AddReference() { return static_cast<long>(add_reference()); }
+        /// Add reference to this object.
+        long AddReference() { return static_cast<long>(add_reference()); }
 
-    /// Remove reference to this object.
-    long RemoveReference() { return static_cast<long>(remove_reference()); }
+        /// Remove reference to this object.
+        long RemoveReference() { return static_cast<long>(remove_reference()); }
 
-    void SetSession(SessionType* t) { m_Session = t; }
-    void SetClientSocket() { m_isServerSocket = false; }
-    /**
-     * @brief returns true iif the socket is connected TO a client (ie we are the server)
-     */
-    bool IsServerSide() { return m_isServerSocket; }
+        void SetSession(SessionType* t) { m_Session = t; }
+        void SetClientSocket() { m_isServerSocket = false; }
+        /**
+         * @brief returns true iif the socket is connected TO a client (ie we are the server)
+         */
+        bool IsServerSide() { return m_isServerSocket; }
+    protected:
 
-protected:
-    /// process one incoming packet.
-    /// @param new_pct received packet ,note that you need to delete it.
-    int ProcessIncoming(WorldPacket* new_pct)
-    {
-        delete new_pct;
-        return 0;
-    }
-    int OnSocketOpen() { return 0; }
+        /// process one incoming packet.
+        /// @param new_pct received packet ,note that you need to delete it.
+        int ProcessIncoming (WorldPacket* new_pct) { delete new_pct; return 0; }
+        int OnSocketOpen() { return 0; }
+        void OnSocketClose() {}
 
-    /// Called when we can read from the socket.
-    virtual int handle_input(ACE_HANDLE = ACE_INVALID_HANDLE);
+        /// Called when we can read from the socket.
+        virtual int handle_input (ACE_HANDLE = ACE_INVALID_HANDLE);
 
-    /// Called when the socket can write.
-    virtual int handle_output(ACE_HANDLE = ACE_INVALID_HANDLE);
+        /// Called when the socket can write.
+        virtual int handle_output (ACE_HANDLE = ACE_INVALID_HANDLE);
 
-    /// Called when connection is closed or error happens.
-    virtual int handle_close(ACE_HANDLE = ACE_INVALID_HANDLE, ACE_Reactor_Mask = ACE_Event_Handler::ALL_EVENTS_MASK);
+        /// Called when connection is closed or error happens.
+        virtual int handle_close (ACE_HANDLE = ACE_INVALID_HANDLE,
+            ACE_Reactor_Mask = ACE_Event_Handler::ALL_EVENTS_MASK);
 
-    /// Called by WorldSocketMgr/ReactorRunnable.
-    int Update(void);
+        /// Called by WorldSocketMgr/ReactorRunnable.
+        int Update (void);
 
-    /// Helper functions for processing incoming data.
-    int handle_input_header(void);
-    int handle_input_payload(void);
-    int handle_input_missing_data(void);
+        /// Helper functions for processing incoming data.
+        int handle_input_header (void);
+        int handle_input_payload (void);
+        int handle_input_missing_data (void);
 
-    /// Help functions to mark/unmark the socket for output.
-    /// @param g the guard is for m_OutBufferLock, the function will release it
-    int cancel_wakeup_output(GuardType& g);
-    int schedule_wakeup_output(GuardType& g);
+        /// Help functions to mark/unmark the socket for output.
+        /// @param g the guard is for m_OutBufferLock, the function will release it
+        int cancel_wakeup_output (GuardType& g);
+        int schedule_wakeup_output (GuardType& g);
 
-    /// Try to write WorldPacket to m_OutBuffer ,return -1 if no space
-    /// Need to be called with m_OutBufferLock lock held
-    int iSendPacket(const WorldPacket& pct);
+        /// Try to write WorldPacket to m_OutBuffer ,return -1 if no space
+        /// Need to be called with m_OutBufferLock lock held
+        int iSendPacket (const WorldPacket& pct);
 
-    /// Flush m_PacketQueue if there are packets in it
-    /// Need to be called with m_OutBufferLock lock held
-    /// @return true if it wrote to the buffer ( AKA you need
-    /// to mark the socket for output ).
-    bool iFlushPacketQueue();
+        /// Flush m_PacketQueue if there are packets in it
+        /// Need to be called with m_OutBufferLock lock held
+        /// @return true if it wrote to the buffer ( AKA you need
+        /// to mark the socket for output ).
+        bool iFlushPacketQueue ();
 
-    /// Time in which the last ping was received
-    ACE_Time_Value m_LastPingTime;
+        /// Time in which the last ping was received
+        ACE_Time_Value m_LastPingTime;
 
-    /// Keep track of over-speed pings ,to prevent ping flood.
-    uint32 m_OverSpeedPings;
+        /// Keep track of over-speed pings ,to prevent ping flood.
+        uint32 m_OverSpeedPings;
 
-    /// Address of the remote peer
-    std::string m_Address;
+        /// Address of the remote peer
+        std::string m_Address;
 
-    /// Address as uint32 for fast lookup and std::hash<>
-    uint32 m_BinaryAddress = 0;
+        /// Address as uint32 for fast lookup and std::hash<>
+        uint32 m_BinaryAddress = 0;
 
-    /// Class used for managing encryption of the headers
-    Crypt m_Crypt;
+        /// Class used for managing encryption of the headers
+        Crypt m_Crypt;
 
-    /// Mutex lock to protect m_Session
-    LockType m_SessionLock;
+        /// Mutex lock to protect m_Session
+        LockType m_SessionLock;
 
-    /// Session to which received packets are routed
-    SessionType* m_Session;
+        /// Session to which received packets are routed
+        SessionType* m_Session;
 
-    /// here are stored the fragments of the received data
-    WorldPacket* m_RecvWPct;
+        /// here are stored the fragments of the received data
+        WorldPacket* m_RecvWPct;
 
-    /// This block actually refers to m_RecvWPct contents,
-    /// which allows easy and safe writing to it.
-    /// It wont free memory when its deleted. m_RecvWPct takes care of freeing.
-    ACE_Message_Block m_RecvPct;
+        /// This block actually refers to m_RecvWPct contents,
+        /// which allows easy and safe writing to it.
+        /// It wont free memory when its deleted. m_RecvWPct takes care of freeing.
+        ACE_Message_Block m_RecvPct;
 
-    /// Fragment of the received header.
-    ACE_Message_Block m_Header;
+        /// Fragment of the received header.
+        ACE_Message_Block m_Header;
 
-    /// Mutex for protecting output related data.
-    LockType m_OutBufferLock;
+        /// Mutex for protecting output related data.
+        LockType m_OutBufferLock;
 
-    /// Buffer used for writing output.
-    ACE_Message_Block* m_OutBuffer;
+        /// Buffer used for writing output.
+        ACE_Message_Block *m_OutBuffer;
 
-    /// Size of the m_OutBuffer.
-    size_t m_OutBufferSize;
+        /// Size of the m_OutBuffer.
+        size_t m_OutBufferSize;
 
-    /// Here are stored packets for which there was no space on m_OutBuffer,
-    /// this allows not-to kick player if its buffer is overflowed.
-    PacketQueueT m_PacketQueue;
+        /// Here are stored packets for which there was no space on m_OutBuffer,
+        /// this allows not-to kick player if its buffer is overflowed.
+        PacketQueueT m_PacketQueue;
 
-    /// True if the socket is registered with the reactor for output
-    bool m_OutActive;
+        /// True if the socket is registered with the reactor for output
+        bool m_OutActive;
 
-    uint32 m_Seed;
+        uint32 m_Seed;
 
-    bool m_isServerSocket;
+        bool m_isServerSocket;
 };
 
 #endif // MANGOSSOCKET_H

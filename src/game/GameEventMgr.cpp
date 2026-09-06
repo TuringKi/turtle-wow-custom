@@ -20,26 +20,28 @@
  */
 
 #include "GameEventMgr.h"
-#include "BattleGroundMgr.h"
+#include "World.h"
+#include "ObjectMgr.h"
+#include "ObjectGuid.h"
 #include "Creature.h"
+#include "Object.h"
+#include "PoolManager.h"
 #include "Language.h"
 #include "Log.h"
 #include "MapManager.h"
+#include "BattleGroundMgr.h"
 #include "MassMailMgr.h"
-#include "Object.h"
-#include "ObjectGuid.h"
-#include "ObjectMgr.h"
-#include "Policies/SingletonImp.h"
-#include "PoolManager.h"
+#include "ScriptObjects.h"
 #include "SpellMgr.h"
-#include "World.h"
+#include "Policies/SingletonImp.h"
 
 GameEventMgr sGameEventMgr;
 
 bool GameEventMgr::CheckOneGameEvent(uint16 entry, time_t currenttime) const
 {
     // Get the event information
-    return mGameEvent[entry].start <= currenttime && currenttime < mGameEvent[entry].end && (currenttime - mGameEvent[entry].start - (mGameEvent[entry].leapDays * DAY)) % (mGameEvent[entry].occurence * MINUTE) < mGameEvent[entry].length * MINUTE;
+    return mGameEvent[entry].start <= currenttime && currenttime < mGameEvent[entry].end &&
+            (currenttime - mGameEvent[entry].start - (mGameEvent[entry].leapDays * DAY)) % (mGameEvent[entry].occurence * MINUTE) < mGameEvent[entry].length * MINUTE;
 }
 
 uint32 GameEventMgr::NextCheck(uint16 entry) const
@@ -59,10 +61,10 @@ uint32 GameEventMgr::NextCheck(uint16 entry) const
     if ((((currenttime - mGameEvent[entry].start - (mGameEvent[entry].leapDays * DAY)) % (mGameEvent[entry].occurence * 60)) < (mGameEvent[entry].length * 60)))
         // we return the delay before it ends
         delay = (mGameEvent[entry].length * MINUTE) - ((currenttime - mGameEvent[entry].start - (mGameEvent[entry].leapDays * DAY)) % (mGameEvent[entry].occurence * MINUTE));
-    else // not in window, we return the delay before next start
+    else                                                    // not in window, we return the delay before next start
         delay = (mGameEvent[entry].occurence * MINUTE) - ((currenttime - mGameEvent[entry].start - (mGameEvent[entry].leapDays * DAY)) % (mGameEvent[entry].occurence * MINUTE));
     // In case the end is before next check
-    if (mGameEvent[entry].end < time_t(currenttime + delay))
+    if (mGameEvent[entry].end  < time_t(currenttime + delay))
         return uint32(mGameEvent[entry].end - currenttime);
 
     return delay;
@@ -76,8 +78,8 @@ void GameEventMgr::StartEvent(uint16 event_id, bool overwrite /*=false*/, bool r
         return;
     }
     ApplyNewEvent(event_id, resume);
-
-    // invoke enable on hardcoded events
+    
+    //invoke enable on hardcoded events
     if (mGameEvent[event_id].hardcoded && !mGameEvent[event_id].disabled)
     {
         auto it = std::find_if(mGameEventHardcodedList.begin(), mGameEventHardcodedList.end(), [&](const WorldEvent* w) { return event_id == w->m_eventId; });
@@ -93,6 +95,9 @@ void GameEventMgr::StartEvent(uint16 event_id, bool overwrite /*=false*/, bool r
         if (mGameEvent[event_id].end <= mGameEvent[event_id].start)
             mGameEvent[event_id].end = mGameEvent[event_id].start + mGameEvent[event_id].length;
     }
+
+    if (GameEventScript* script = ScriptRegistry<GameEventScript>::GetScriptById(event_id))
+        script->OnStart(event_id);
 }
 
 void GameEventMgr::StopEvent(uint16 event_id, bool overwrite)
@@ -109,6 +114,9 @@ void GameEventMgr::StopEvent(uint16 event_id, bool overwrite)
         if (mGameEvent[event_id].end <= mGameEvent[event_id].start)
             mGameEvent[event_id].end = mGameEvent[event_id].start + mGameEvent[event_id].length;
     }
+
+    if (GameEventScript* script = ScriptRegistry<GameEventScript>::GetScriptById(event_id))
+        script->OnStop(event_id);
 }
 
 void GameEventMgr::EnableEvent(uint16 event_id, bool enable, bool updateDB)
@@ -130,7 +138,7 @@ void GameEventMgr::EnableEvent(uint16 event_id, bool enable, bool updateDB)
     mGameEvent[event_id].disabled = disabled;
     if (updateDB)
         WorldDatabase.PExecute("UPDATE `game_event` SET `disabled` = '%u' WHERE `entry` = '%u'", disabled, event_id);
-
+   
     // we take no action if event needs to be started: GameEvent system will start it for us on its next iteration
     if (!IsActiveEvent(event_id))
         return;
@@ -165,13 +173,13 @@ bool GameEventMgr::IsEnabled(uint16 event_id)
 void GameEventMgr::LoadFromDB()
 {
     {
-        QueryResult* result = WorldDatabase.Query("SELECT MAX(entry) FROM game_event");
+        QueryResult *result = WorldDatabase.Query("SELECT MAX(entry) FROM game_event");
         if (!result)
-        {
+        {           
             return;
         }
 
-        Field* fields = result->Fetch();
+        Field *fields = result->Fetch();
 
         uint32 max_event_id = fields[0].GetUInt16();
         delete result;
@@ -180,18 +188,18 @@ void GameEventMgr::LoadFromDB()
     }
 
     //                                                 0       1                             2                            3            4         5          6              7            8           9
-    QueryResult* result = WorldDatabase.Query("SELECT `entry`, UNIX_TIMESTAMP(`start_time`), UNIX_TIMESTAMP(`end_time`), `occurence`, `length`, `holiday`, `description`, `hardcoded`, `disabled`, `required_phase` FROM `game_event`");
+    QueryResult *result = WorldDatabase.Query("SELECT `entry`, UNIX_TIMESTAMP(`start_time`), UNIX_TIMESTAMP(`end_time`), `occurence`, `length`, `holiday`, `description`, `hardcoded`, `disabled`, `required_phase` FROM `game_event`");
     if (!result)
     {
         mGameEvent.clear();
-
+        
         return;
     }
 
     {
         do
         {
-            Field* fields = result->Fetch();
+            Field *fields = result->Fetch();
 
             uint16 event_id = fields[0].GetUInt16();
             if (event_id == 0)
@@ -201,23 +209,23 @@ void GameEventMgr::LoadFromDB()
             }
 
             GameEventData& pGameEvent = mGameEvent[event_id];
-            uint64 starttime = fields[1].GetUInt64();
-            pGameEvent.start = time_t(starttime);
-            uint64 endtime = fields[2].GetUInt64();
-            pGameEvent.end = time_t(endtime);
-            pGameEvent.occurence = fields[3].GetUInt32();
-            pGameEvent.length = fields[4].GetUInt32();
-            pGameEvent.holiday_id = HolidayIds(fields[5].GetUInt32());
+            uint64 starttime        = fields[1].GetUInt64();
+            pGameEvent.start        = time_t(starttime);
+            uint64 endtime          = fields[2].GetUInt64();
+            pGameEvent.end          = time_t(endtime);
+            pGameEvent.occurence    = fields[3].GetUInt32();
+            pGameEvent.length       = fields[4].GetUInt32();
+            pGameEvent.holiday_id   = HolidayIds(fields[5].GetUInt32());
 
-            if (pGameEvent.length == 0) // length>0 is validity check
+            if (pGameEvent.length == 0)                         // length>0 is validity check
             {
                 sLog.outErrorDb("Table `game_event` game event id (%i) have length 0 and can't be used.", event_id);
                 continue;
             }
 
-            pGameEvent.description = fields[6].GetCppString();
-            pGameEvent.hardcoded = fields[7].GetUInt8();
-            pGameEvent.disabled = fields[8].GetUInt8();
+            pGameEvent.description  = fields[6].GetCppString();
+            pGameEvent.hardcoded    = fields[7].GetUInt8();
+            pGameEvent.disabled     = fields[8].GetUInt8();
             pGameEvent.requiredPhase = fields[9].GetUInt8();
 
             if (pGameEvent.requiredPhase > sWorld.GetContentPhase())
@@ -243,9 +251,9 @@ void GameEventMgr::LoadFromDB()
     // initialize hardcoded events
     LoadHardcodedEvents(mGameEventHardcodedList);
 
-    std::map<uint16, int16> pool2event; // for check unique spawn event associated with pool
-    std::map<uint32, int16> creature2event; // for check unique spawn event associated with creature
-    std::map<uint32, int16> go2event; // for check unique spawn event associated with gameobject
+    std::map<uint16, int16> pool2event;                     // for check unique spawn event associated with pool
+    std::map<uint32, int16> creature2event;                 // for check unique spawn event associated with creature
+    std::map<uint32, int16> go2event;                       // for check unique spawn event associated with gameobject
 
     // list only positive event top pools, filled at creature/gameobject loading
     mGameEventSpawnPoolIds.resize(mGameEvent.size());
@@ -259,9 +267,9 @@ void GameEventMgr::LoadFromDB()
     {
         do
         {
-            Field* fields = result->Fetch();
+            Field *fields = result->Fetch();
 
-            uint32 guid = fields[0].GetUInt32();
+            uint32 guid    = fields[0].GetUInt32();
             int16 event_id = fields[1].GetInt16();
 
             if (event_id == 0)
@@ -284,7 +292,7 @@ void GameEventMgr::LoadFromDB()
                 creature2event[guid] = event_id;
 
                 // not list explicitly creatures from pools in event creature list
-                if (uint16 topPoolId = sPoolMgr.IsPartOfTopPool<Creature>(guid))
+                if (uint16 topPoolId =  sPoolMgr.IsPartOfTopPool<Creature>(guid))
                 {
                     int16& eventRef = pool2event[topPoolId];
                     if (eventRef != 0)
@@ -305,6 +313,7 @@ void GameEventMgr::LoadFromDB()
 
             GuidList& crelist = mGameEventCreatureGuids[internal_event_id];
             crelist.push_back(guid);
+
         }
         while (result->NextRow());
         delete result;
@@ -319,9 +328,9 @@ void GameEventMgr::LoadFromDB()
     {
         do
         {
-            Field* fields = result->Fetch();
+            Field *fields = result->Fetch();
 
-            uint32 guid = fields[0].GetUInt32();
+            uint32 guid    = fields[0].GetUInt32();
             int16 event_id = fields[1].GetInt16();
 
             if (event_id == 0)
@@ -344,7 +353,7 @@ void GameEventMgr::LoadFromDB()
                 go2event[guid] = event_id;
 
                 // not list explicitly gameobjects from pools in event gameobject list
-                if (uint16 topPoolId = sPoolMgr.IsPartOfTopPool<GameObject>(guid))
+                if (uint16 topPoolId =  sPoolMgr.IsPartOfTopPool<GameObject>(guid))
                 {
                     int16& eventRef = pool2event[topPoolId];
                     if (eventRef != 0)
@@ -365,6 +374,7 @@ void GameEventMgr::LoadFromDB()
 
             GuidList& golist = mGameEventGameobjectGuids[internal_event_id];
             golist.push_back(guid);
+
         }
         while (result->NextRow());
         delete result;
@@ -392,14 +402,14 @@ void GameEventMgr::LoadFromDB()
     {
         do
         {
-            Field* fields = result->Fetch();
+            Field *fields = result->Fetch();
 
-            uint32 guid = fields[0].GetUInt32();
+            uint32 guid     = fields[0].GetUInt32();
             uint16 event_id = fields[1].GetUInt16();
 
             if (event_id == 0)
             {
-                sLog.outErrorDb("`game_event_creature_data` game event id (%i) is reserved and can't be used.", event_id);
+                sLog.outErrorDb("`game_event_creature_data` game event id (%i) is reserved and can't be used." , event_id);
                 continue;
             }
 
@@ -446,9 +456,12 @@ void GameEventMgr::LoadFromDB()
 
             equiplist.push_back(GameEventCreatureDataPair(guid, newData));
             mGameEventCreatureDataPerGuid.insert(GameEventCreatureDataPerGuidMap::value_type(guid, event_id));
+
         }
         while (result->NextRow());
         delete result;
+
+        
     }
 
     mGameEventQuests.resize(mGameEvent.size());
@@ -459,9 +472,9 @@ void GameEventMgr::LoadFromDB()
     {
         do
         {
-            Field* fields = result->Fetch();
+            Field *fields = result->Fetch();
 
-            uint32 quest = fields[0].GetUInt32();
+            uint32 quest    = fields[0].GetUInt32();
             uint16 event_id = fields[1].GetUInt16();
 
             if (event_id == 0)
@@ -489,6 +502,7 @@ void GameEventMgr::LoadFromDB()
 
             QuestList& questlist = mGameEventQuests[event_id];
             questlist.push_back(quest);
+
         }
         while (result->NextRow());
         delete result;
@@ -502,15 +516,15 @@ void GameEventMgr::LoadFromDB()
     {
         do
         {
-            Field* fields = result->Fetch();
+            Field *fields = result->Fetch();
 
             uint16 event_id = fields[0].GetUInt16();
 
             GameEventMail mail;
-            mail.raceMask = fields[1].GetUInt32();
-            mail.questId = fields[2].GetUInt32();
+            mail.raceMask       = fields[1].GetUInt32();
+            mail.questId        = fields[2].GetUInt32();
             mail.mailTemplateId = fields[3].GetUInt32();
-            mail.senderEntry = fields[4].GetUInt32();
+            mail.senderEntry    = fields[4].GetUInt32();
 
             if (event_id == 0)
             {
@@ -552,23 +566,24 @@ void GameEventMgr::LoadFromDB()
 
             MailList& maillist = mGameEventMails[internal_event_id];
             maillist.push_back(mail);
+
         }
         while (result->NextRow());
         delete result;
     }
 }
 
-uint32 GameEventMgr::Initialize() // return the next event delay in ms
+uint32 GameEventMgr::Initialize()                           // return the next event delay in ms
 {
     m_ActiveEvents.clear();
 
     ActiveEvents activeAtShutdown;
 
-    if (QueryResult* result = CharacterDatabase.Query("SELECT event FROM game_event_status"))
+    if (QueryResult *result = CharacterDatabase.Query("SELECT event FROM game_event_status"))
     {
         do
         {
-            Field* fields = result->Fetch();
+            Field *fields = result->Fetch();
             uint16 event_id = fields[0].GetUInt16();
             activeAtShutdown.insert(event_id);
         }
@@ -598,13 +613,16 @@ uint32 GameEventMgr::Update(ActiveEvents const* activeAtShutdown /*= nullptr*/)
 {
     // process hardcoded events
     time_t currenttime = time(nullptr);
-    uint32 nextEventDelay = max_ge_check_delay; // 1 day
+    uint32 nextEventDelay = max_ge_check_delay;             // 1 day
 
     for (const auto& hEvent_iter : mGameEventHardcodedList)
     {
         if (!mGameEvent[hEvent_iter->m_eventId].disabled)
         {
             hEvent_iter->Update();
+            if (GameEventScript* script = ScriptRegistry<GameEventScript>::GetScriptById(hEvent_iter->m_eventId))
+                script->OnUpdate(hEvent_iter->m_eventId);
+
             uint32 calcDelay = hEvent_iter->GetNextUpdateDelay();
             if (calcDelay < nextEventDelay)
                 nextEventDelay = calcDelay;
@@ -614,13 +632,15 @@ uint32 GameEventMgr::Update(ActiveEvents const* activeAtShutdown /*= nullptr*/)
     for (uint16 itr = 1; itr < mGameEvent.size(); ++itr)
     {
         // ignore hardcoded and disabled events
-        if (mGameEvent[itr].hardcoded || mGameEvent[itr].disabled)
-            continue;
+        if (mGameEvent[itr].hardcoded || mGameEvent[itr].disabled) continue;
 
-        // sLog.outErrorDb("Checking event %u",itr);
+        //sLog.outErrorDb("Checking event %u",itr);
         if (CheckOneGameEvent(itr, currenttime))
         {
-            // DEBUG_LOG("GameEvent %u is active",itr->first);
+            if (GameEventScript* script = ScriptRegistry<GameEventScript>::GetScriptById(itr))
+                script->OnUpdate(itr);
+
+            //DEBUG_LOG("GameEvent %u is active",itr->first);
             if (!IsActiveEvent(itr))
             {
                 bool resume = activeAtShutdown && activeAtShutdown->find(itr) != activeAtShutdown->end();
@@ -629,7 +649,7 @@ uint32 GameEventMgr::Update(ActiveEvents const* activeAtShutdown /*= nullptr*/)
         }
         else
         {
-            // DEBUG_LOG("GameEvent %u is not active",itr->first);
+            //DEBUG_LOG("GameEvent %u is not active",itr->first);
             if (IsActiveEvent(itr))
                 StopEvent(itr);
             else
@@ -647,9 +667,9 @@ uint32 GameEventMgr::Update(ActiveEvents const* activeAtShutdown /*= nullptr*/)
             nextEventDelay = calcDelay;
     }
 
-    //    BASIC_LOG("Next game event check in %u seconds.", nextEventDelay + 1);
+//    BASIC_LOG("Next game event check in %u seconds.", nextEventDelay + 1);
 
-    return (nextEventDelay + 1) * IN_MILLISECONDS; // Add 1 second to be sure event has started/stopped at next call
+    return (nextEventDelay + 1) * IN_MILLISECONDS;           // Add 1 second to be sure event has started/stopped at next call
 }
 
 void GameEventMgr::UnApplyEvent(uint16 event_id)
@@ -874,7 +894,8 @@ GameEventCreatureData const* GameEventMgr::GetCreatureUpdateDataForActiveEvent(u
 
 struct GameEventUpdateCreatureDataInMapsWorker
 {
-    GameEventUpdateCreatureDataInMapsWorker(ObjectGuid guid, CreatureData const* data, GameEventCreatureData* event_data, bool activate) : i_guid(guid), i_data(data), i_event_data(event_data), i_activate(activate) {}
+    GameEventUpdateCreatureDataInMapsWorker(ObjectGuid guid, CreatureData const* data, GameEventCreatureData* event_data, bool activate)
+        : i_guid(guid), i_data(data), i_event_data(event_data), i_activate(activate) {}
 
     void operator()(Map* map) const
     {
@@ -931,8 +952,11 @@ void GameEventMgr::SendEventMails(int16 event_id)
             // need special query
             std::ostringstream ss;
             ss << "SELECT characters.guid FROM characters, character_queststatus "
-                  "WHERE (1 << (characters.race - 1)) & "
-               << mail.raceMask << " AND characters.deleteDate IS NULL AND character_queststatus.guid = characters.guid AND character_queststatus.quest = " << mail.questId << " AND character_queststatus.rewarded <> 0";
+               "WHERE (1 << (characters.race - 1)) & "
+               << mail.raceMask
+               << " AND characters.deleteDate IS NULL AND character_queststatus.guid = characters.guid AND character_queststatus.quest = "
+               << mail.questId
+               << " AND character_queststatus.rewarded <> 0";
             sMassMailMgr.AddMassMailTask(new MailDraft(mail.mailTemplateId), MailSender(MAIL_CREATURE, mail.senderEntry), ss.str().c_str());
         }
         else
@@ -947,7 +971,7 @@ int16 GameEventMgr::GetGameEventId<Creature>(uint32 guid_or_poolid)
     for (uint16 i = 0; i < mGameEventCreatureGuids.size(); i++) // 0 <= i <= 2*(S := mGameEvent.size()) - 2
         for (GuidList::const_iterator itr = mGameEventCreatureGuids[i].begin(); itr != mGameEventCreatureGuids[i].end(); ++itr)
             if (*itr == guid_or_poolid)
-                return i + 1 - mGameEvent.size(); // -S *1 + 1 <= . <= 1*S - 1
+                return i + 1 - mGameEvent.size();       // -S *1 + 1 <= . <= 1*S - 1
     return 0;
 }
 
@@ -958,7 +982,7 @@ int16 GameEventMgr::GetGameEventId<GameObject>(uint32 guid_or_poolid)
     for (uint16 i = 0; i < mGameEventGameobjectGuids.size(); i++)
         for (GuidList::const_iterator itr = mGameEventGameobjectGuids[i].begin(); itr != mGameEventGameobjectGuids[i].end(); ++itr)
             if (*itr == guid_or_poolid)
-                return i + 1 - mGameEvent.size(); // -S *1 + 1 <= . <= 1*S - 1
+                return i + 1 - mGameEvent.size();       // -S *1 + 1 <= . <= 1*S - 1
     return 0;
 }
 
@@ -994,9 +1018,15 @@ bool GameEventMgr::IsActiveHoliday(HolidayIds id)
 /*
  * Silithus PvP
  */
-bool GameEventMgr::GetSilithusPVPEventCompleted() const { return m_IsSilithusEventCompleted; }
+bool GameEventMgr::GetSilithusPVPEventCompleted() const
+{
+    return m_IsSilithusEventCompleted;
+}
 
-void GameEventMgr::SetSilithusPVPEventCompleted(bool state) { m_IsSilithusEventCompleted = state; }
+void GameEventMgr::SetSilithusPVPEventCompleted(bool state)
+{
+    m_IsSilithusEventCompleted = state;
+}
 
 void GameEventMgr::UpdateSilithusPVP()
 {

@@ -1,7 +1,7 @@
 
-#include <vector>
-#include "naxxramas.h"
 #include "scriptPCH.h"
+#include "naxxramas.h"
+#include <vector>
 
 enum AnubrekhanData
 {
@@ -15,16 +15,16 @@ enum AnubrekhanData
     SAY_TAUNT4 = 13009,
     SAY_SLAY = 13005,
 
-    EMOTE_GENERIC_ENRAGE = 7798, // Used by crypt guards
+    EMOTE_GENERIC_ENRAGE = 7798,            // Used by crypt guards
 
-    SPELL_IMPALE = 28783, // May be wrong spell id. Causes more dmg than I expect
-    SPELL_LOCUSTSWARM = 28785, // This is a self buff that triggers the dmg debuff
+    SPELL_IMPALE = 28783,                   // May be wrong spell id. Causes more dmg than I expect
+    SPELL_LOCUSTSWARM = 28785,              // This is a self buff that triggers the dmg debuff
 
-    SPELL_SELF_SPAWN_5 = 29105, // These spells should spawn corpse scarabs, but only show the explosion anim.
-    SPELL_SELF_SPAWN_10 = 28864, // If we fix them to spawn scarbs, code must be changed to not manually spawn them too.
+    SPELL_SELF_SPAWN_5 = 29105,             // These spells should spawn corpse scarabs, but only show the explosion anim.
+    SPELL_SELF_SPAWN_10 = 28864,            // If we fix them to spawn scarbs, code must be changed to not manually spawn them too.
 
-    SPELL_CRYPTGUARD_ENRAGE = 28747, // 50% attackspeed increase and 100 extra dmg on attack. PROBABLY WRONG SPELL!!!
-    SPELL_CRYPTGUARD_CLEAVE = 26350, // could be wrong spell.
+    SPELL_CRYPTGUARD_ENRAGE = 28747,        // 50% attackspeed increase and 100 extra dmg on attack. PROBABLY WRONG SPELL!!!
+    SPELL_CRYPTGUARD_CLEAVE = 26350,        // could be wrong spell. 
     SPELL_CRYPTGUARD_WEB = 28991,
     SPELL_CRYPTGUARD_ACID = 28969,
 
@@ -32,14 +32,17 @@ enum AnubrekhanData
     MOB_CORPSE_SCARAB = 16698
 };
 
-static float const CGs[3][4] = {
-    {3291.26f, -3502.08f, 287.26f, 2.14f}, {3285.29f, -3446.64f, 287.26f, 4.2f}, {3316.46f, -3476.23f, 287.26f, 3.18f} // this third entry is used as spawn loc during fight.
+static float const CGs[3][4] =
+{
+    { 3291.26f, -3502.08f, 287.26f, 2.14f },
+    { 3285.29f, -3446.64f, 287.26f, 4.2f },
+    { 3316.46f, -3476.23f, 287.26f, 3.18f } // this third entry is used as spawn loc during fight.
 };
 
-static constexpr uint32 CRYPTGUARD_CLEAVE_CD = 6000; // Todo: find correct timer
-static constexpr uint32 CRYPTGUARD_WEB_CD = 12000; // 10 second duration, so 12sec cd makes sense.
-                                                   // From videos you can see there is 1-2sec between consecutive nets.
-static constexpr uint32 CRYPTGUARD_ACID_CD = 5000; // Todo: find correct timer.
+static constexpr uint32 CRYPTGUARD_CLEAVE_CD = 6000;  // Todo: find correct timer
+static constexpr uint32 CRYPTGUARD_WEB_CD = 12000;    // 10 second duration, so 12sec cd makes sense. 
+                                                      // From videos you can see there is 1-2sec between consecutive nets.
+static constexpr uint32 CRYPTGUARD_ACID_CD = 5000;    // Todo: find correct timer. 
 
 static uint32 IMPALE_CD() { return urand(12000, 18000); }
 
@@ -109,12 +112,12 @@ struct boss_anubrekhanAI : public ScriptedAI
         GetCreatureListWithEntryInGrid(scarabs, m_creature, MOB_CORPSE_SCARAB, 300.0f);
         for (auto it = scarabs.begin(); it != scarabs.end();)
         {
-            // if (scarabs.size() < 31)
-            //     break;
+            //if (scarabs.size() < 31)
+            //    break;
             Creature* pC = *it;
             if (pC)
             {
-                static_cast<TemporarySummon*>(pC)->UnSummon();
+                static_cast<TemporarySummon *>(pC)->UnSummon();
                 it = scarabs.erase(it);
             }
         }
@@ -130,8 +133,7 @@ struct boss_anubrekhanAI : public ScriptedAI
         {
             if (Creature* cg = m_pInstance->GetCreature((*it)))
             {
-                if (TemporarySummon* tmpSumm = static_cast<TemporarySummon*>(cg))
-                {
+                if (TemporarySummon* tmpSumm = static_cast<TemporarySummon*>(cg)) {
                     tmpSumm->UnSummon();
                 }
             }
@@ -143,8 +145,7 @@ struct boss_anubrekhanAI : public ScriptedAI
         {
             if (Creature* cg = m_pInstance->GetCreature((*it)))
             {
-                if (TemporarySummon* tmpSumm = static_cast<TemporarySummon*>(cg))
-                {
+                if (TemporarySummon* tmpSumm = static_cast<TemporarySummon*>(cg)) {
                     tmpSumm->UnSummon();
                 }
             }
@@ -202,7 +203,11 @@ struct boss_anubrekhanAI : public ScriptedAI
 
     void MoveInLineOfSight(Unit* pWho) override
     {
-        if (pWho->GetTypeId() == TYPEID_PLAYER && !m_creature->IsInCombat() && m_creature->IsWithinDistInMap(pWho, 55.0f) && !pWho->HasAuraType(SPELL_AURA_FEIGN_DEATH) && !pWho->HasAuraType(SPELL_AURA_MOD_UNATTACKABLE))
+        if (pWho->GetTypeId() == TYPEID_PLAYER
+            && !m_creature->IsInCombat()
+            && m_creature->IsWithinDistInMap(pWho, 55.0f)
+            && !pWho->HasAuraType(SPELL_AURA_FEIGN_DEATH)
+            && !pWho->HasAuraType(SPELL_AURA_MOD_UNATTACKABLE))
         {
             AttackStart(pWho);
         }
@@ -224,7 +229,7 @@ struct boss_anubrekhanAI : public ScriptedAI
         {
             // The cryptguard casts SPELL_SELF_SPAWN_10 on itself. The spell is bugged and
             // wont spawn any adds, but it will show the visual.
-            // cg->AI()->DoCast(cg, SPELL_SELF_SPAWN_10, true);
+            //cg->AI()->DoCast(cg, SPELL_SELF_SPAWN_10, true);
             cg->SendSpellGo(cg, SPELL_SELF_SPAWN_10);
             // Manually summoning 10 corpse scarabs under the Crypt Guard
             for (int i = 0; i < 10; i++)
@@ -244,8 +249,7 @@ struct boss_anubrekhanAI : public ScriptedAI
             }
 
             // Despawning the Crypt guard
-            if (TemporarySummon* tmpSumm = static_cast<TemporarySummon*>(cg))
-            {
+            if (TemporarySummon* tmpSumm = static_cast<TemporarySummon*>(cg)) {
                 tmpSumm->UnSummon(250);
                 return true;
             }
@@ -290,7 +294,8 @@ struct boss_anubrekhanAI : public ScriptedAI
                     m_uiRestoreTargetTimer = 1000;
                     m_uiImpaleTimer = IMPALE_CD();
 
-                    if (Creature* pC = m_creature->SummonCreature(533003, m_creature->GetPositionX(), m_creature->GetPositionY(), m_creature->GetPositionZ(), m_creature->GetAngle(target), TEMPSUMMON_TIMED_DESPAWN, 4000))
+                    if (Creature* pC = m_creature->SummonCreature(533003, m_creature->GetPositionX(), m_creature->GetPositionY(), m_creature->GetPositionZ(), m_creature->GetAngle(target),
+                        TEMPSUMMON_TIMED_DESPAWN, 4000))
                     {
                         pC->CastSpell(pC, SPELL_IMPALE, true);
                     }
@@ -470,11 +475,20 @@ struct anub_doorAI : public GameObjectAI
     }
 };
 
-CreatureAI* GetAI_boss_anubrekhan(Creature* pCreature) { return new boss_anubrekhanAI(pCreature); }
+CreatureAI* GetAI_boss_anubrekhan(Creature* pCreature)
+{
+    return new boss_anubrekhanAI(pCreature);
+}
 
-CreatureAI* GetAI_mob_cryptguards(Creature* pCreature) { return new mob_cryptguardsAI(pCreature); }
+CreatureAI* GetAI_mob_cryptguards(Creature* pCreature)
+{
+    return new mob_cryptguardsAI(pCreature);
+}
 
-GameObjectAI* GetAI_anub_door(GameObject* pGo) { return new anub_doorAI(pGo); }
+GameObjectAI* GetAI_anub_door(GameObject* pGo)
+{
+    return new anub_doorAI(pGo);
+}
 
 void AddSC_boss_anubrekhan()
 {

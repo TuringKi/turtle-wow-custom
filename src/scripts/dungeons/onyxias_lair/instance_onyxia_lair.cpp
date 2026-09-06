@@ -1,5 +1,5 @@
-#include "instance_onyxia_lair.h"
 #include "scriptPCH.h"
+#include "instance_onyxia_lair.h"
 
 #define MAX_ENCOUNTER 1
 
@@ -11,10 +11,13 @@ enum
 
 struct instance_onyxia_lair : public ScriptedInstance
 {
-    instance_onyxia_lair(Map* pMap) : ScriptedInstance(pMap) { Initialize(); };
+    instance_onyxia_lair(Map* pMap) : ScriptedInstance(pMap)
+    {
+        Initialize();
+    };
     uint32 m_auiEncounter[MAX_ENCOUNTER];
 
-    void Initialize() override {}
+    void Initialize() override { }
 
     bool IsEncounterInProgress() const override
     {
@@ -29,8 +32,8 @@ struct instance_onyxia_lair : public ScriptedInstance
     {
         switch (identifier)
         {
-        case DATA_ONYXIA_EVENT:
-            return m_auiEncounter[0];
+            case DATA_ONYXIA_EVENT:
+                return m_auiEncounter[0];
         }
         return 0;
     }
@@ -39,9 +42,9 @@ struct instance_onyxia_lair : public ScriptedInstance
     {
         switch (uiType)
         {
-        case DATA_ONYXIA_EVENT:
-            m_auiEncounter[0] = uiData;
-            break;
+            case DATA_ONYXIA_EVENT:
+                m_auiEncounter[0] = uiData;
+                break;
         }
     }
 
@@ -49,18 +52,21 @@ struct instance_onyxia_lair : public ScriptedInstance
     {
         switch (pGo->GetEntry())
         {
-        case GO_WHELP_SPAWNER:
-            pGo->CastSpell(pGo->GetPositionX(), pGo->GetPositionY(), pGo->GetPositionZ(), SPELL_SUMMON_WHELP, true);
-            break;
+            case GO_WHELP_SPAWNER:
+                pGo->CastSpell(pGo->GetPositionX(), pGo->GetPositionY(), pGo->GetPositionZ(), SPELL_SUMMON_WHELP, true);
+                break;
         }
     }
 };
 
-InstanceData* GetInstanceData_instance_onyxia_lair(Map* pMap) { return new instance_onyxia_lair(pMap); }
+InstanceData* GetInstanceData_instance_onyxia_lair(Map* pMap)
+{
+    return new instance_onyxia_lair(pMap);
+}
 
 void AddSC_instance_onyxia_lair()
 {
-    Script* newscript;
+    Script *newscript;
 
     newscript = new Script;
     newscript->Name = "instance_onyxia_lair";

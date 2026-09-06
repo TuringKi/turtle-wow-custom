@@ -21,8 +21,8 @@ SDComment: event gambit de l'aube : Chakor
 SDCategory: Scholomance
 EndScriptData */
 
-#include "scholomance.h"
 #include "scriptPCH.h"
+#include "scholomance.h"
 
 enum
 {
@@ -35,7 +35,7 @@ enum
 
     GO_DAWN_S_GAMBIT = 177304,
 
-    SPELL_VIEWING_ROOM_STUDENT_TRANSFORM_EFFECT = 18115, // spell qui transforme les �tudiants �lites en squelettes
+    SPELL_VIEWING_ROOM_STUDENT_TRANSFORM_EFFECT = 18115,    //spell qui transforme les �tudiants �lites en squelettes
     SPELL_FLAMESTRIKE = 18399,
     SPELL_BLAST_WAVE = 16046
 };
@@ -57,10 +57,10 @@ struct boss_vectusAI : public ScriptedAI
     uint32 m_uiBlastWave_Timer;
     uint32 m_uiFrenzy_Timer;
     uint32 m_uiGambitEvent_Timer;
-    bool _fullAggroDone;
-    bool eventGambitDone;
-    bool eventGambitStart;
-    bool findGambit;
+    bool   _fullAggroDone;
+    bool   eventGambitDone;
+    bool   eventGambitStart;
+    bool   findGambit;
     GameObject* pGambit;
 
     bool m_bStartedDialogue;
@@ -82,7 +82,11 @@ struct boss_vectusAI : public ScriptedAI
 
         if (!m_bStartedDialogue)
         {
-            if (pWho->GetTypeId() == TYPEID_PLAYER && m_creature->IsWithinDistInMap(pWho, 32.0f) && m_creature->IsWithinLOSInMap(pWho) && !pWho->HasAuraType(SPELL_AURA_FEIGN_DEATH) && !pWho->HasAuraType(SPELL_AURA_MOD_UNATTACKABLE))
+            if (pWho->GetTypeId() == TYPEID_PLAYER
+                && m_creature->IsWithinDistInMap(pWho, 32.0f)
+                && m_creature->IsWithinLOSInMap(pWho)
+                && !pWho->HasAuraType(SPELL_AURA_FEIGN_DEATH)
+                && !pWho->HasAuraType(SPELL_AURA_MOD_UNATTACKABLE))
             {
                 m_creature->SetDefaultMovementType(WAYPOINT_MOTION_TYPE);
                 m_creature->GetMotionMaster()->Initialize();
@@ -172,7 +176,7 @@ struct boss_vectusAI : public ScriptedAI
             _fullAggroDone = true;
         }
 
-        // m_uiFlameStrike_Timer
+        //m_uiFlameStrike_Timer
         if (m_uiFlameStrike_Timer < uiDiff)
         {
             DoCastSpellIfCan(m_creature, SPELL_FLAMESTRIKE);
@@ -181,7 +185,7 @@ struct boss_vectusAI : public ScriptedAI
         else
             m_uiFlameStrike_Timer -= uiDiff;
 
-        // BlastWave_Timer
+        //BlastWave_Timer
         if (m_uiBlastWave_Timer < uiDiff)
         {
             DoCastSpellIfCan(m_creature->GetVictim(), SPELL_BLAST_WAVE);
@@ -194,7 +198,10 @@ struct boss_vectusAI : public ScriptedAI
     }
 };
 
-CreatureAI* GetAI_boss_vectus(Creature* pCreature) { return new boss_vectusAI(pCreature); }
+CreatureAI* GetAI_boss_vectus(Creature* pCreature)
+{
+    return new boss_vectusAI(pCreature);
+}
 
 /*######
 ## npc_scholomance_student
@@ -204,7 +211,7 @@ struct npc_scholomance_studentAI : public ScriptedAI
 {
     npc_scholomance_studentAI(Creature* pCreature) : ScriptedAI(pCreature)
     {
-        m_pInstance = (ScriptedInstance*)pCreature->GetInstanceData();
+        m_pInstance = (ScriptedInstance*) pCreature->GetInstanceData();
         isTransformed = false;
         Reset();
     }
@@ -213,7 +220,7 @@ struct npc_scholomance_studentAI : public ScriptedAI
 
     void Reset() override {}
 
-    void SpellHit(WorldObject* pCaster, const SpellEntry* pSpell) override
+    void SpellHit(WorldObject* pCaster, const SpellEntry *pSpell) override
     {
         if (pSpell->Id == SPELL_VIEWING_ROOM_STUDENT_TRANSFORM_EFFECT)
         {
@@ -239,23 +246,23 @@ struct npc_scholomance_studentAI : public ScriptedAI
             pMarduck->SetFactionTemplateId(FACTION_MONSTER);
 
         if (Creature* pVectus = m_creature->FindNearestCreature(NPC_VECTUS, 100.0f))
-            pVectus->SetFactionTemplateId(FACTION_MONSTER);
+			pVectus->SetFactionTemplateId(FACTION_MONSTER);
     }
 
     void JustDied(Unit* Killer) override
     {
         if (isTransformed)
         {
-            if (!m_creature->FindNearestCreature(NPC_STUDENT, 100.0f, true) && m_pInstance)
+            if(!m_creature->FindNearestCreature(NPC_STUDENT, 100.0f, true) && m_pInstance)
             {
-                // delink les deux boss
-                Creature* Vectus = (Creature*)m_creature->GetMap()->GetUnit(m_pInstance->GetData64(DATA_VECTUS));
-                Creature* Marduke = (Creature*)m_creature->GetMap()->GetUnit(m_pInstance->GetData64(DATA_MARDUKE));
-                if (Vectus && Marduke)
+                //delink les deux boss
+                Creature * Vectus = (Creature*) m_creature->GetMap()->GetUnit(m_pInstance->GetData64(DATA_VECTUS));
+                Creature * Marduke = (Creature*) m_creature->GetMap()->GetUnit(m_pInstance->GetData64(DATA_MARDUKE));
+                if ( Vectus && Marduke )
                 {
                     if (CreatureGroup* myGroup = Vectus->GetCreatureGroup())
                     {
-                        if (myGroup == Marduke->GetCreatureGroup())
+                        if(myGroup == Marduke->GetCreatureGroup())
                         {
                             myGroup->RemoveMember(Vectus->GetGUID());
                             myGroup->RemoveMember(Marduke->GetGUID());
@@ -266,7 +273,7 @@ struct npc_scholomance_studentAI : public ScriptedAI
                 }
             }
 
-            // this was already there
+            //this was already there
             m_creature->ForcedDespawn();
         }
     }
@@ -298,11 +305,14 @@ struct npc_scholomance_studentAI : public ScriptedAI
     }
 };
 
-CreatureAI* GetAI_npc_scholomance_student(Creature* pCreature) { return new npc_scholomance_studentAI(pCreature); }
+CreatureAI* GetAI_npc_scholomance_student(Creature* pCreature)
+{
+    return new npc_scholomance_studentAI(pCreature);
+}
 
 void AddSC_boss_vectus()
 {
-    Script* newscript;
+    Script *newscript;
     newscript = new Script;
     newscript->Name = "boss_vectus";
     newscript->GetAI = &GetAI_boss_vectus;

@@ -28,8 +28,12 @@ bool TellReputationAction::Execute(Event event)
         return false;
     }
     const FactionTemplateEntry* factionTemplate = sObjectMgr.GetFactionTemplateEntry(unit->GetFactionTemplateId());
+    if (!factionTemplate)
+        return false;
     uint32 faction = factionTemplate->faction;
-    const FactionEntry* entry = sFactionStore.LookupEntry(faction);
+    const FactionEntry* entry = sObjectMgr.GetFactionEntry(faction);
+    if (!entry)
+        return false;
     int32 reputation = bot->GetReputationMgr().GetReputation(faction);
 
     ostringstream out;

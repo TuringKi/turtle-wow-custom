@@ -22,26 +22,31 @@
  * and lore are copyrighted by Blizzard Entertainment, Inc.
  */
 
-#include "LFGMgr.h"
-#include "Chat.h"
+#include "Policies/SingletonImp.h"
 #include "Common.h"
-#include "Group.h"
-#include "LFGHandler.h"
-#include "Language.h"
+#include "SharedDefines.h"
+#include "Player.h"
 #include "Map.h"
 #include "ObjectMgr.h"
-#include "Player.h"
-#include "Policies/SingletonImp.h"
-#include "SharedDefines.h"
+#include "Chat.h"
 #include "World.h"
 #include "WorldPacket.h"
 #include "WorldSession.h"
+#include "Language.h"
+#include "Group.h"
+#include "LFGMgr.h"
+#include "LFGHandler.h"
 
 #include <array>
 
 LFGQueue sLFGMgr;
 
-std::array<ClassRoles, 3> PotentialRoles = {LFG_ROLE_TANK, LFG_ROLE_HEALER, LFG_ROLE_DPS};
+std::array<ClassRoles, 3> PotentialRoles =
+{
+    LFG_ROLE_TANK,
+    LFG_ROLE_HEALER,
+    LFG_ROLE_DPS
+};
 
 void LFGPlayerQueueInfo::CalculateRoles(Classes playerClass)
 {
@@ -73,8 +78,8 @@ void LFGQueue::AddToQueue(Player* leader, uint32 queueAreaID)
 
     Group* grp = leader->GetGroup();
 
-    // add players from group to queue list & group to group list
-    //  Calculate what roles group need and add it to the GroupQueueList, (DONT'ADD PLAYERS!)
+    //add players from group to queue list & group to group list
+    // Calculate what roles group need and add it to the GroupQueueList, (DONT'ADD PLAYERS!)
     if (grp && grp->IsLeader(leader->GetObjectGuid()))
     {
         // Add group to queued groups list
@@ -132,26 +137,16 @@ ClassRoles LFGQueue::CalculateRoles(Classes playerClass)
 {
     switch (playerClass)
     {
-    case CLASS_DRUID:
-        return (ClassRoles)(LFG_ROLE_TANK | LFG_ROLE_DPS | LFG_ROLE_HEALER);
-    case CLASS_HUNTER:
-        return (ClassRoles)(LFG_ROLE_DPS);
-    case CLASS_MAGE:
-        return (ClassRoles)(LFG_ROLE_DPS);
-    case CLASS_PALADIN:
-        return (ClassRoles)(LFG_ROLE_TANK | LFG_ROLE_DPS | LFG_ROLE_HEALER);
-    case CLASS_PRIEST:
-        return (ClassRoles)(LFG_ROLE_DPS | LFG_ROLE_HEALER);
-    case CLASS_ROGUE:
-        return (ClassRoles)(LFG_ROLE_DPS);
-    case CLASS_SHAMAN:
-        return (ClassRoles)(LFG_ROLE_DPS | LFG_ROLE_HEALER);
-    case CLASS_WARLOCK:
-        return (ClassRoles)(LFG_ROLE_DPS);
-    case CLASS_WARRIOR:
-        return (ClassRoles)(LFG_ROLE_TANK | LFG_ROLE_DPS);
-    default:
-        return (ClassRoles)(LFG_ROLE_NONE);
+        case CLASS_DRUID:   return (ClassRoles)(LFG_ROLE_TANK | LFG_ROLE_DPS | LFG_ROLE_HEALER);
+        case CLASS_HUNTER:  return (ClassRoles)(LFG_ROLE_DPS);
+        case CLASS_MAGE:    return (ClassRoles)(LFG_ROLE_DPS);
+        case CLASS_PALADIN: return (ClassRoles)(LFG_ROLE_TANK | LFG_ROLE_DPS | LFG_ROLE_HEALER);
+        case CLASS_PRIEST:  return (ClassRoles)(LFG_ROLE_DPS | LFG_ROLE_HEALER);
+        case CLASS_ROGUE:   return (ClassRoles)(LFG_ROLE_DPS);
+        case CLASS_SHAMAN:  return (ClassRoles)(LFG_ROLE_DPS | LFG_ROLE_HEALER);
+        case CLASS_WARLOCK: return (ClassRoles)(LFG_ROLE_DPS);
+        case CLASS_WARRIOR: return (ClassRoles)(LFG_ROLE_TANK | LFG_ROLE_DPS);
+        default:            return (ClassRoles)(LFG_ROLE_NONE);
     }
 }
 
@@ -159,71 +154,51 @@ RolesPriority LFGQueue::getPriority(Classes playerClass, ClassRoles playerRoles)
 {
     switch (playerRoles)
     {
-    case LFG_ROLE_TANK:
+        case LFG_ROLE_TANK:
         {
             switch (playerClass)
             {
-            case CLASS_DRUID:
-                return LFG_PRIORITY_NORMAL;
-            case CLASS_PALADIN:
-                return LFG_PRIORITY_NORMAL;
-            case CLASS_WARRIOR:
-                return LFG_PRIORITY_HIGH;
-            default:
-                return LFG_PRIORITY_NONE;
+                case CLASS_DRUID:   return LFG_PRIORITY_NORMAL;
+                case CLASS_PALADIN: return LFG_PRIORITY_NORMAL;
+                case CLASS_WARRIOR: return LFG_PRIORITY_HIGH;
+                default:            return LFG_PRIORITY_NONE;
             }
             break;
         }
 
-    case LFG_ROLE_HEALER:
+        case LFG_ROLE_HEALER:
         {
             switch (playerClass)
             {
-            case CLASS_DRUID:
-                return LFG_PRIORITY_HIGH;
-            case CLASS_PALADIN:
-                return LFG_PRIORITY_HIGH;
-            case CLASS_PRIEST:
-                return LFG_PRIORITY_HIGH;
-            case CLASS_SHAMAN:
-                return LFG_PRIORITY_HIGH;
-            default:
-                return LFG_PRIORITY_NONE;
+                case CLASS_DRUID:   return LFG_PRIORITY_HIGH;
+                case CLASS_PALADIN: return LFG_PRIORITY_HIGH;
+                case CLASS_PRIEST:  return LFG_PRIORITY_HIGH;
+                case CLASS_SHAMAN:  return LFG_PRIORITY_HIGH;
+                default:            return LFG_PRIORITY_NONE;
             }
 
             break;
         }
 
-    case LFG_ROLE_DPS:
+        case LFG_ROLE_DPS:
         {
             switch (playerClass)
             {
-            case CLASS_DRUID:
-                return LFG_PRIORITY_NORMAL;
-            case CLASS_HUNTER:
-                return LFG_PRIORITY_HIGH;
-            case CLASS_MAGE:
-                return LFG_PRIORITY_HIGH;
-            case CLASS_PALADIN:
-                return LFG_PRIORITY_NORMAL;
-            case CLASS_PRIEST:
-                return LFG_PRIORITY_LOW;
-            case CLASS_ROGUE:
-                return LFG_PRIORITY_HIGH;
-            case CLASS_SHAMAN:
-                return LFG_PRIORITY_NORMAL;
-            case CLASS_WARLOCK:
-                return LFG_PRIORITY_HIGH;
-            case CLASS_WARRIOR:
-                return LFG_PRIORITY_NORMAL;
-            default:
-                return LFG_PRIORITY_NONE;
+                case CLASS_DRUID:   return LFG_PRIORITY_NORMAL;
+                case CLASS_HUNTER:  return LFG_PRIORITY_HIGH;
+                case CLASS_MAGE:    return LFG_PRIORITY_HIGH;
+                case CLASS_PALADIN: return LFG_PRIORITY_NORMAL;
+                case CLASS_PRIEST:  return LFG_PRIORITY_LOW;
+                case CLASS_ROGUE:   return LFG_PRIORITY_HIGH;
+                case CLASS_SHAMAN:  return LFG_PRIORITY_NORMAL;
+                case CLASS_WARLOCK: return LFG_PRIORITY_HIGH;
+                case CLASS_WARRIOR: return LFG_PRIORITY_NORMAL;
+                default:            return LFG_PRIORITY_NONE;
             }
 
             break;
         }
-    default:
-        return LFG_PRIORITY_NONE;
+        default:                    return LFG_PRIORITY_NONE;
     }
 }
 
@@ -301,7 +276,9 @@ void LFGQueue::Update(uint32 diff)
                 ++next;
 
                 // Check here that players team and areaId they're in queue are same
-                if (qPlayer->second.team == qGroup->second.team && qPlayer->second.areaId == qGroup->second.areaId && qPlayer->second.isHardcore == qGroup->second.isHardcore)
+                if (qPlayer->second.team == qGroup->second.team &&
+                   qPlayer->second.areaId == qGroup->second.areaId &&
+                    qPlayer->second.isHardcore == qGroup->second.isHardcore)
                 {
                     bool groupFound = false;
                     // Find any role that this player matches and that the group requires. If none,
@@ -362,7 +339,7 @@ void LFGQueue::Update(uint32 diff)
         FindInArea(playersInArea, leader->second.areaId, leader->second.team, leader->first);
 
         // 4 players + the leader
-        if (playersInArea.size() >= _groupSize - 1)
+        if (playersInArea.size() >= _groupSize-1)
         {
             Player* pLeader = sObjectMgr.GetPlayer(leader->first);
             Player* pMember = sObjectMgr.GetPlayer(playersInArea.front());
@@ -444,21 +421,21 @@ bool LFGQueue::FindRoleToGroup(ObjectGuid playerGuid, Group* group, ClassRoles r
 
         switch (role)
         {
-        case LFG_ROLE_TANK:
+            case LFG_ROLE_TANK:
             {
                 // Remove tank flag if player can perform tank role.
                 qGroup->second.availableRoles &= ~LFG_ROLE_TANK;
                 break;
             }
 
-        case LFG_ROLE_HEALER:
+            case LFG_ROLE_HEALER:
             {
                 // Remove healer flag if player can perform healer role.
                 qGroup->second.availableRoles &= ~LFG_ROLE_HEALER;
                 break;
             }
 
-        case LFG_ROLE_DPS:
+            case LFG_ROLE_DPS:
             {
                 if (qGroup->second.dpsCount < LFGQueue::GetMaximumDPSSlots())
                 {
@@ -472,7 +449,7 @@ bool LFGQueue::FindRoleToGroup(ObjectGuid playerGuid, Group* group, ClassRoles r
                 break;
             }
 
-        default:
+            default:
             {
                 return false;
             }
@@ -495,7 +472,10 @@ bool LFGQueue::FindRoleToGroup(ObjectGuid playerGuid, Group* group, ClassRoles r
     return false;
 }
 
-bool LFGQueue::IsPlayerInQueue(const ObjectGuid& plrGuid) const { return m_QueuedPlayers.find(plrGuid) != m_QueuedPlayers.end(); }
+bool LFGQueue::IsPlayerInQueue(const ObjectGuid& plrGuid) const
+{
+    return m_QueuedPlayers.find(plrGuid) != m_QueuedPlayers.end();
+}
 
 void LFGQueue::RemovePlayerFromQueue(const ObjectGuid& plrGuid, PlayerLeaveMethod leaveMethod)
 {
@@ -563,19 +543,25 @@ void LFGQueue::FindInArea(std::list<ObjectGuid>& players, uint32 area, uint32 te
     }
 }
 
-void LFGQueue::BuildSetQueuePacket(WorldPacket& data, uint32 areaId, uint8 status)
+void LFGQueue::BuildSetQueuePacket(WorldPacket &data, uint32 areaId, uint8 status)
 {
     data.Initialize(SMSG_MEETINGSTONE_SETQUEUE, 5);
     data << uint32(areaId);
     data << uint8(status);
 }
 
-void LFGQueue::BuildMemberAddedPacket(WorldPacket& data, ObjectGuid plrGuid)
+void LFGQueue::BuildMemberAddedPacket(WorldPacket &data, ObjectGuid plrGuid)
 {
     data.Initialize(SMSG_MEETINGSTONE_MEMBER_ADDED, 8);
     data << uint64(plrGuid);
 }
 
-void LFGQueue::BuildInProgressPacket(WorldPacket& data) { data.Initialize(SMSG_MEETINGSTONE_IN_PROGRESS, 0); }
+void LFGQueue::BuildInProgressPacket(WorldPacket &data)
+{
+    data.Initialize(SMSG_MEETINGSTONE_IN_PROGRESS, 0);
+}
 
-void LFGQueue::BuildCompletePacket(WorldPacket& data) { data.Initialize(SMSG_MEETINGSTONE_COMPLETE, 0); }
+void LFGQueue::BuildCompletePacket(WorldPacket &data)
+{
+    data.Initialize(SMSG_MEETINGSTONE_COMPLETE, 0);
+}

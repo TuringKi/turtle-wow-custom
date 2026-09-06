@@ -39,16 +39,30 @@ HardcoreModeLogFile = "hardcore.log"
 
 LoginDatabase.Info = "127.0.0.1;3306;mangos;mangos;tw_logon"
 WorldDatabase.Info = "127.0.0.1;3306;mangos;mangos;tw_world"
-CharacterDatabase.Info = "127.0.0.1;3306;mangos;mangos;tw_chars"
+CharacterDatabase.Info = "127.0.0.1;3306;mangos;mangos;tw_char"
 LogsDatabase.Info = "127.0.0.1;3306;mangos;mangos;tw_logs"
 
 # DB Auto-updater
 
-Database.AutoUpdate.Enabled = 1
-Database.AutoUpdate.Path = "../../sql/"
-Database.AutoUpdate.AuthUpdateName = "unused"
-Database.AutoUpdate.CharUpdateName = "unused"
-Database.AutoUpdate.WorldUpdateName = "database_updates"
+# Existing custom databases require the reviewed, data-preserving upgrade guide.
+# Do not enable automatic replay of upstream dumps on an existing database.
+# See docs/integration/sql-upgrade-118.md.
+Database.AutoUpdate.Enabled = 0
+Database.AutoUpdate.Path = "../../sql/database_updates/"
+Database.AutoUpdate.AuthUpdateName = "auth"
+Database.AutoUpdate.CharUpdateName = "character"
+Database.AutoUpdate.WorldUpdateName = "world"
+
+# Database.AutoUpdate.AllowedModules. Comma-separated module names to include for
+# module SQL updates, or "all" to scan every enabled module.
+
+Database.AutoUpdate.AllowedModules = "all"
+
+# Database.AutoUpdate.SortByName. Controls the order in which SQL migration files are applied.  
+#   0 = Sort by file modification time ascending (oldest first); alphabetical name as tiebreaker. (Default)  
+#   1 = Sort alphabetically by file name ascending; modification time as tiebreaker.  
+  
+Database.AutoUpdate.SortByName = 1
 
 # Automatically committing world changes to github. Set to 0 to disable.
 
@@ -78,7 +92,11 @@ WorldServerPort = 8090
 
 # BindIP. This option is useful for running multiple worldd/realmd instances on different IP addresses using default ports.
 
-BindIP = "51.89.212.98"
+BindIP = "0.0.0.0"
+
+# HttpApi.Enable - Enables or disables http api used for character transfers
+
+HttpApi.Enable = 0
 
 # UseProcessors. Used processors mask for multi-processors system. (Used only at Windows)
 
@@ -87,6 +105,28 @@ UseProcessors = 0
 # ProcessPriority. Process priority setting. (Used only at Windows)
 
 ProcessPriority = 1
+
+# AiPlayerbot.ConfigFile. Where to read the bot settings from.
+#     Empty means: look next to this file, and if that fails fall back to the
+#     path compiled in at build time. Set it when the two live apart, which is
+#     easy to end up with when the server runs out of its build directory.
+
+AiPlayerbot.ConfigFile = ""
+
+# Malloc.ArenaMax. Caps how many malloc arenas glibc may create. (Linux only)
+#     glibc gives each thread its own arena, up to eight per core - 64 on an
+#     eight core machine. Every arena holds on to what it frees, so a workload
+#     that allocates constantly across many threads scatters its freed memory
+#     and returns little of it. The symptom is a resident size climbing steadily
+#     at a constant player count while nothing leaks.
+#     Measured with a thousand bots: capping at 4 took RSS after nine and a half
+#     hours from 13.4 GB to 9.9 GB, and growth from ~810 MB/h to 483, with no
+#     cost to the world tick. Fewer arenas do mean more contention, so measure
+#     rather than assume.
+#     0 leaves glibc alone. Worth setting on a server with many bots, pointless
+#     on a small one.
+
+Malloc.ArenaMax = 0
 
 # Compression. Compression level for update packages sent to client. (1-9)
 
@@ -142,6 +182,17 @@ GridUnload = 0
 
 CleanupTerrain = 1
 
+#    MMapTileUnload
+#        Remove navmesh tiles from the mesh again at runtime.
+#        dtNavMesh::removeTile zeroes tile->polys, and dtNavMeshQuery reads it
+#        through getTileAndPolyByRefUnsafe without validating - any polyRef
+#        that outlives the removal resolves to nullptr + index and takes the
+#        server down. Left off, tiles stay loaded: that costs memory but
+#        cannot go wrong.
+#        Default: 0 (off)
+
+MMapTileUnload = 0
+
 # GridCleanUpDelay. Grid clean up delay.
 
 GridCleanUpDelay = 300000
@@ -171,8 +222,8 @@ PlayerSave.Stats.SaveOnlyOnLogout = 1
 # Enable/Disable to load all terrain data on server startup.
 # Recommended value: 1. Else, can cause crashes if 'MapUpdate.Threads' > 1
 
-Terrain.Preload.Continents = 1
-Terrain.Preload.Instances  = 1
+Terrain.Preload.Continents = 0
+Terrain.Preload.Instances  = 0
 
 # vmap.enableLOS | vmap.enableHeight. Enable/Disable VMaps support for line of sight and height calculation.
 
@@ -377,7 +428,7 @@ Progression.UnlinkedAuctionHouses = 1
 # DebuffLimit
 # How many debuffs can be present on a target simultaneously
 
-DebuffLimit = 0
+DebuffLimit = 40
 
 # LogSQL
 # Enable logging of GM commands. (All SQL code will be written to a log file)
@@ -606,6 +657,16 @@ DBC.Locale = 255
 
 LoadLocales = 1
 
+# LoadSpellsFromSql
+#    Load spell data from the world database `spell_template` table (1) instead of the
+#    client's Spell.dbc (0). Turtle WoW keeps its server-side spell changes ONLY in
+#    spell_template - the 1.18 Paladin changes, the appearance-changing items and every
+#    custom spell. With 0 those spells come out wrong or missing (reported 2026-09-05).
+#    Leave this at 1 unless you are debugging the DBC loader itself.
+#    Default: 1 - True
+
+LoadSpellsFromSql = 1
+
 # StrictPlayerNames. Limit player name to language specific symbols set, not allow create characters, 
 # and set rename request and disconnect at not allowed symbols name.
 
@@ -649,7 +710,7 @@ SkipCinematics = 0
 
 # ShowHealthValues. Show real NPC & player health values instead of percentages.
 
-ShowHealthValues = 0
+ShowHealthValues = 1
 
 # MaxPlayerLevel. Max level that can be reached by a player for experience. (1 - 255)
 
@@ -674,6 +735,10 @@ StartHonorPoints = 0
 # MinHonorKills. Min kills that players must obtain to enter in weekly honor calculation.
 
 MinHonorKills = 1
+
+# WeeklyHonorCap. Max honor that can be credited each week. Rank points are still awarded after this cap.
+
+WeeklyHonorCap = 20000
 
 # MaintenanceDay. The day of the week is performed server maintenance.
 
@@ -848,13 +913,13 @@ AllowTwoSide.Accounts = 1
 
 # AllowTwoSide.Interaction. Allow interaction with the hostiled faction.
 
-AllowTwoSide.Interaction.Chat = 0
+AllowTwoSide.Interaction.Chat = 1
 AllowTwoSide.Interaction.Channel = 1
-AllowTwoSide.Interaction.Group = 0
+AllowTwoSide.Interaction.Group = 1
 AllowTwoSide.Interaction.Guild = 1
-AllowTwoSide.Interaction.Trade = 0
+AllowTwoSide.Interaction.Trade = 1
 AllowTwoSide.Interaction.Auction = 1
-AllowTwoSide.Interaction.Mail = 0
+AllowTwoSide.Interaction.Mail = 1
 
 # AllowTwoSide.WhoList. Allow show player from both team in who list.
 
@@ -1058,6 +1123,10 @@ WhisperRestriction = 0
 # SayMinLevel. Minimum level to /say in chat.
 
 SayMinLevel = 1
+
+# Chat.MinLevel. Minimum level to use general/trade/LFG channels.
+
+Chat.MinLevel = 1
 
 # SayEmoteMinLevel. Minimum level to /emote in chat.
 
@@ -2004,6 +2073,38 @@ BeginnersGuilds = 1
 BeginnersGuildHorde = 126
 BeginnersGuildAlliance = 126
 
+# --- Fork additions (see README About this fork) ---
+
+# AutoWorldBuff. Periodically applies world buffs to real online players (bots
+# and the Discord bridge are excluded). Each buff has its own independent timer
+# so they do not all fire at the same moment:
+#   Spirit of Zandalar               - anyone in Stranglethorn Vale
+#   Warchief's Blessing              - Horde only, in Crossroads or Orgrimmar
+#   Rallying Cry of the Dragonslayer - Alliance in Stormwind City,
+#                                      Horde in Orgrimmar
+# FirstMin/FirstMaxInterval apply to the first roll after a (re)start and are
+# kept short so frequent restarts do not delay the buffs by a full interval
+# every time. Min/MaxInterval apply to every roll after that. All values in ms.
+
+AutoWorldBuff.Enable = 0
+AutoWorldBuff.FirstMinInterval = 600000
+AutoWorldBuff.FirstMaxInterval = 7200000
+AutoWorldBuff.MinInterval = 3600000
+AutoWorldBuff.MaxInterval = 10800000
+AutoWorldBuff.WarningInterval = 600000
+
+# AutoDonationPoints. Grants donation points (shop_coins) to real online players
+# for time spent online, tracked per account. Requires the
+# donation_point_progress table in the LOGIN database - see
+# sql/logon/donation_point_progress.sql. Without it the feature still runs but
+# progress is lost on every restart. FlushIntervalMs controls how often progress
+# is written out; at worst that much time is lost on an unclean shutdown.
+
+AutoDonationPoints.Enable = 0
+AutoDonationPoints.IntervalMs = 3600000
+AutoDonationPoints.Amount = 1
+AutoDonationPoints.FlushIntervalMs = 300000
+
 # AutoBroadcast.Timer. Print broadcast messages in players chat.
 
 AutoBroadcast.Timer = 2400000
@@ -2100,3 +2201,121 @@ Perf.Enable = 1
 
 # Report to logs DB. Time in seconds
 Perf.ReportInterval = 600
+
+
+# Leech Module
+# Enables a baseline heal on damage
+Leech.Enable = 0
+
+# Sets the percentage of damage to leech
+Leech.Amount = 0.05
+
+# Leech restrictions. Without them the leech applies to every player -
+# including the random bots - and in PvP as well.
+#   PvEOnly          against non-players only
+#   RealPlayersOnly  no random bots (RNDBOT accounts)
+#   SoloOnly         only while not in a party or raid
+#   DungeonOnly      instances only (dungeons and raids), not the open world
+Leech.PvEOnly = 1
+Leech.RealPlayersOnly = 1
+Leech.SoloOnly = 1
+Leech.DungeonOnly = 1
+
+# SoloDungeonRepopAlive. A player who dies ALONE inside an instance is brought
+# back alive just inside the entrance instead of having to walk their corpse
+# back - solo there is nobody who could resurrect them. Does nothing while in a
+# group, since a group can resurrect. Map::IsDungeon() covers raids too.
+SoloDungeonRepopAlive.Enable = 0
+
+# GuildBank.NpcEntries*. Which creatures count as guild vault keepers - a player
+# has to stand next to one of them for guild bank actions to be accepted.
+# Previously 80917/80918 were hardcoded, so only Stormwind and Orgrimmar worked.
+# Turtle places decorative vault keepers in the other capitals that were never
+# wired up; they are listed here.
+#   62008 Faredin (Darnassus), 62009 Lorien (gnome bank), 62011 Golgan (Ironforge)
+#   62010 Gewana (Thunder Bluff), 62012 Arthur (Undercity)
+# They also need gossip_menu_id set, see sql/guildbank_trigger.sql.
+GuildBank.NpcEntriesAlliance = 80917
+GuildBank.NpcEntriesHorde = 80918
+
+# LFT.BotFill. Fills a waiting player's dungeon queue with random bots.
+#
+# Bots are put into the same queue real players sit in, so the existing matcher
+# handles roles, faction, hardcore and group building. Getting to the dungeon is
+# not automated: the party leader types "summon" in party chat.
+#
+#   DelaySeconds  how long a real player waits before bots are added. Filling
+#                 instantly would mean nobody ever waits for a human again.
+#   LevelRangeBelow / LevelRangeAbove
+#                 how far under or over the waiting player a bot's level may
+#                 sit. Not the same number on both sides: a bot a few levels
+#                 above still hits, holds threat and survives, while one below
+#                 misses and dies - and the group sets off believing it has a
+#                 tank. The instance names the client sends carry no level
+#                 information, so the player is the reference.
+#
+# Real players always take priority: when one joins the queue, every bot that is
+# not already part of an offer is dropped again. An offer already sent out is
+# left alone rather than breaking a group mid-formation.
+#   LevelRangeBelowHealer
+#                 the same limit for a healer, which can afford to be further
+#                 under the group: it keeps its distance and is not the one
+#                 being hit. Healers are also the scarcer half of the shortage,
+#                 so a tighter bound here costs groups that would otherwise
+#                 have formed.
+LFT.BotFill.Enable = 0
+LFT.BotFill.DelaySeconds = 60
+LFT.BotFill.LevelRangeBelow = 2
+LFT.BotFill.LevelRangeBelowHealer = 4
+LFT.BotFill.LevelRangeAbove = 6
+
+
+# AutoScaler.Enable. Enable or disable instance auto-scaling. 0 = off, 1 = on.
+AutoScalerEnable = 0
+
+# AutoScaler scalar clamp values for instances of different sizes.
+# 
+ScalarMin5ManHP = 0.6
+ScalarMin5ManDMG = 0.4
+ScalarMin10ManHP = 0.3
+ScalarMin10ManDMG = 0.3
+ScalarMin20ManHP = 0.1
+ScalarMin20ManDMG = 0.1
+ScalarMin40ManHP = 0.01
+ScalarMin40ManDMG = 0.01
+
+###################################################################################################################
+# ELUNA LUA ENGINE
+#
+# Eluna.Enabled
+#     Enables the Lua engine. Default: 1.
+# Eluna.TraceBack
+#     Includes a Lua debug traceback in script errors. Default: false.
+# Eluna.ReloadCommand
+#     Enables the `.reload eluna` command. Default: true.
+# Eluna.UseUnsafeMethods
+#     Exposes methods that can be harmful or expensive when misused.
+# Eluna.UseDeprecatedMethods
+#     Exposes compatibility methods that may be removed by Eluna.
+# Eluna.OnlyOnMaps
+#     Comma-separated map IDs that receive a Lua state; empty means all maps.
+# Eluna.ScriptPath
+#     Lua script directory, absolute or relative to the server working directory.
+# Eluna.RequirePaths / Eluna.RequireCPaths
+#     Additional Lua and native-module search paths using Lua path patterns.
+# Eluna.ReloadSecurityLevel
+#     Minimum account security for `.reload eluna` (0 player .. 4 console).
+# ElunaErrorLogFile
+#     Dedicated Eluna log file. Empty disables the dedicated file.
+###################################################################################################################
+Eluna.Enabled = 1
+Eluna.TraceBack = false
+Eluna.ReloadCommand = true
+Eluna.UseUnsafeMethods = false
+Eluna.UseDeprecatedMethods = false
+Eluna.OnlyOnMaps = ""
+Eluna.ScriptPath = "./lua_scripts"
+Eluna.RequirePaths = ""
+Eluna.RequireCPaths = ""
+Eluna.ReloadSecurityLevel = 3
+ElunaErrorLogFile = "ElunaErrors.log"

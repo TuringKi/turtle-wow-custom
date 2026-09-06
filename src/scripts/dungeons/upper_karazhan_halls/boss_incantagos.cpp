@@ -1,30 +1,79 @@
 #include "scriptPCH.h"
 
+namespace
+{
+template <class T>
+SpellScript* GetSpellScript(SpellEntry const*)
+{
+    return new T();
+}
+
+void RegisterSpellScript(char const* name, SpellScript* (*getter)(SpellEntry const*))
+{
+    Script* script = new Script;
+    script->Name = name;
+    script->GetSpellScript = getter;
+    script->RegisterSelf();
+}
+
+struct spell_ley_line_disturbance : public SpellScript
+{
+    bool OnEffectExecute(Spell* spell, SpellEffectIndex /*effIdx*/) const override
+    {
+        Creature* caster = ToCreature(spell->m_caster);
+        if (!caster)
+            return false;
+
+        Position const& home = caster->GetHomePosition();
+        static uint32 const affinities[] = { 59987, 59986, 59985, 59984, 59983, 59982 };
+        if (Creature* affinity = spell->m_caster->SummonCreature(affinities[urand(0, 5)], home.x, home.y, home.z, M_PI_F, TEMPSUMMON_DEAD_DESPAWN, 30000))
+        {
+            affinity->m_Events.AddLambdaEventAtOffset([affinity, guid = caster->GetObjectGuid()]()
+            {
+                if (!affinity->IsAlive())
+                    return;
+
+                if (Creature* summoner = affinity->GetMap()->GetCreature(guid))
+                {
+                    summoner->CastSpell(summoner, 26662, true);
+                    summoner->PMonsterEmote(2384, summoner);
+                }
+
+                affinity->SendSpellGo(affinity, 1449);
+                affinity->DoKillUnit();
+            }, 15000);
+        }
+
+        return false;
+    }
+};
+}
+
 enum
 {
-    NPC_LEY_SEEKER = 59989,
-    NPC_CRYSTAL_AFFINITY = 59987,
-    NPC_RED_AFFINITY = 59986,
-    NPC_GREEN_AFFINITY = 59985,
-    NPC_BLUE_AFFINITY = 59984,
-    NPC_BLACK_AFFINITY = 59983,
-    NPC_MANA_AFFINITY = 59982,
+    NPC_LEY_SEEKER             = 59989,
+    NPC_CRYSTAL_AFFINITY       = 59987,
+    NPC_RED_AFFINITY           = 59986,
+    NPC_GREEN_AFFINITY         = 59985,
+    NPC_BLUE_AFFINITY          = 59984,
+    NPC_BLACK_AFFINITY         = 59983,
+    NPC_MANA_AFFINITY          = 59982,
 
-    SPELL_DRACONIC_LEY_CHARGE = 51176,
-    SPELL_SUMMON_LEY_SEEKER = 51178,
-    SPELL_SUMMON_WHELPS = 51179,
-    SPELL_BLIZZARD = 51180,
-    SPELL_GAZE_OF_INCANTAGOS = 51181,
-    SPELL_GUIDED_LEY_BEAM = 51182,
-    SPELL_ARCANE_MISSILES = 51184,
+    SPELL_DRACONIC_LEY_CHARGE  = 51176,
+    SPELL_SUMMON_LEY_SEEKER    = 51178,
+    SPELL_SUMMON_WHELPS        = 51179,
+    SPELL_BLIZZARD             = 51180,
+    SPELL_GAZE_OF_INCANTAGOS   = 51181,
+    SPELL_GUIDED_LEY_BEAM      = 51182,
+    SPELL_ARCANE_MISSILES      = 51184,
     SPELL_LEY_LINE_DISTURBANCE = 51185,
-    SPELL_CURSE_OF_MANASCALE = 51186,
-    SPELL_ARCANE_CHANNELING = 51187,
+    SPELL_CURSE_OF_MANASCALE   = 51186,
+    SPELL_ARCANE_CHANNELING    = 51187,
 
-    SAY_SIPHON_AFFINITY = 52133,
-    SAY_PHASE_1 = 52134,
-    SAY_AGGRO = 52135,
-    SAY_PHASE_2 = 52136,
+    SAY_SIPHON_AFFINITY        = 52133,
+    SAY_PHASE_1                = 52134,
+    SAY_AGGRO                  = 52135,
+    SAY_PHASE_2                = 52136,
 };
 
 struct boss_incantagosAI : public ScriptedAI
@@ -58,7 +107,10 @@ struct boss_incantagosAI : public ScriptedAI
         m_creature->RemoveGuardians();
     }
 
-    void EnterCombat(Unit* pVictim) override { DoScriptText(SAY_AGGRO, m_creature, pVictim); }
+    void EnterCombat(Unit* pVictim) override
+    {
+        DoScriptText(SAY_AGGRO, m_creature, pVictim);
+    }
 
     void JustReachedHome() override
     {
@@ -141,18 +193,21 @@ struct boss_incantagosAI : public ScriptedAI
         }
     }
 
-    void JustDied(Unit* pKiller) override { UnsummonLeyWatchers(); }
+    void JustDied(Unit* pKiller) override
+    {
+        UnsummonLeyWatchers();
+    }
 
     void JustSummoned(Creature* pSummon) override
     {
         switch (pSummon->GetEntry())
         {
-        case NPC_CRYSTAL_AFFINITY:
-        case NPC_RED_AFFINITY:
-        case NPC_GREEN_AFFINITY:
-        case NPC_BLUE_AFFINITY:
-        case NPC_BLACK_AFFINITY:
-        case NPC_MANA_AFFINITY:
+            case NPC_CRYSTAL_AFFINITY:
+            case NPC_RED_AFFINITY:
+            case NPC_GREEN_AFFINITY:
+            case NPC_BLUE_AFFINITY:
+            case NPC_BLACK_AFFINITY:
+            case NPC_MANA_AFFINITY:
             {
                 DoScriptText(SAY_SIPHON_AFFINITY, m_creature, pSummon);
                 m_creature->CastSpell(pSummon, SPELL_ARCANE_CHANNELING, true);
@@ -253,7 +308,7 @@ struct boss_incantagosAI : public ScriptedAI
 
         if (m_arcaneMissilesTimer <= uiDiff)
         {
-            if (DoCastSpellIfCan(m_creature->GetVictim(), (urand(0, 3) ? SPELL_ARCANE_MISSILES : SPELL_GUIDED_LEY_BEAM)) == CAST_OK)
+            if (DoCastSpellIfCan(m_creature->GetVictim(), (urand(0,3) ? SPELL_ARCANE_MISSILES : SPELL_GUIDED_LEY_BEAM)) == CAST_OK)
             {
                 m_arcaneMissilesTimer = urand(8000, 12000);
                 return;
@@ -266,7 +321,10 @@ struct boss_incantagosAI : public ScriptedAI
     }
 };
 
-CreatureAI* GetAI_boss_incantagos(Creature* pCreature) { return new boss_incantagosAI(pCreature); }
+CreatureAI* GetAI_boss_incantagos(Creature* pCreature)
+{
+    return new boss_incantagosAI(pCreature);
+}
 
 void AddSC_boss_incantagos()
 {
@@ -276,4 +334,6 @@ void AddSC_boss_incantagos()
     newscript->Name = "boss_incantagos";
     newscript->GetAI = &GetAI_boss_incantagos;
     newscript->RegisterSelf();
+
+    RegisterSpellScript("spell_ley_line_disturbance", &GetSpellScript<spell_ley_line_disturbance>);
 }

@@ -18,38 +18,42 @@
  * limitations under the License.
  *
  ************************************************************************************/
-#include <dpp/discordevents.h>
-#include <dpp/nlohmann/json.hpp>
 #include <dpp/stage_instance.h>
+#include <dpp/discordevents.h>
 #include <dpp/stringops.h>
+#include <dpp/nlohmann/json.hpp>
 
-namespace dpp
+namespace dpp {
+
+using json = nlohmann::json;
+
+stage_instance::stage_instance() :
+	managed(0),
+	guild_id(0),
+	channel_id(0),	
+	privacy_level(sp_public),
+	discoverable_disabled(false)
 {
+}
 
-    using json = nlohmann::json;
+stage_instance& stage_instance::fill_from_json(const json* j) {
+	set_snowflake_not_null(j, "id", this->id);
+	set_snowflake_not_null(j, "guild_id", this->guild_id);
+	set_snowflake_not_null(j, "channel_id", this->channel_id);
+	set_string_not_null(j, "topic", this->topic) ;
+	this->privacy_level = static_cast<dpp::stage_privacy_level>(int8_not_null(j, "privacy_level"));
+	set_bool_not_null(j, "discoverable_disabled", this->discoverable_disabled);
 
-    stage_instance::stage_instance() : managed(0), guild_id(0), channel_id(0), privacy_level(sp_public), discoverable_disabled(false) {}
+	return *this;
+}
 
-    stage_instance& stage_instance::fill_from_json(const json* j)
-    {
-        set_snowflake_not_null(j, "id", this->id);
-        set_snowflake_not_null(j, "guild_id", this->guild_id);
-        set_snowflake_not_null(j, "channel_id", this->channel_id);
-        set_string_not_null(j, "topic", this->topic);
-        this->privacy_level = static_cast<dpp::stage_privacy_level>(int8_not_null(j, "privacy_level"));
-        set_bool_not_null(j, "discoverable_disabled", this->discoverable_disabled);
+std::string stage_instance::build_json(bool with_id) const {
+	json j;
+	j["topic"] = this->topic;
+	j["privacy_level"] = this->privacy_level;
+	j["channel_id"] = std::to_string(this->channel_id);
 
-        return *this;
-    }
+	return j.dump();
+}
 
-    std::string stage_instance::build_json(bool with_id) const
-    {
-        json j;
-        j["topic"] = this->topic;
-        j["privacy_level"] = this->privacy_level;
-        j["channel_id"] = std::to_string(this->channel_id);
-
-        return j.dump();
-    }
-
-}; // namespace dpp
+};

@@ -41,13 +41,26 @@ struct sSpawnLocation
     float m_fX, m_fY, m_fZ, m_fO;
 };
 
-static sSpawnLocation m_aAddspawnLocs[NPC_ADD_COUNT] = {
-    {NPC_ANVILRAGE_RESERVIST, 716.8168f, 23.03471f, -45.34414f, 3.159046f}, {NPC_ANVILRAGE_RESERVIST, 719.8195f, 25.44250f, -45.32854f, 3.193953f}, {NPC_ANVILRAGE_RESERVIST, 720.0683f, 22.93752f, -45.34140f, 3.159046f}, {NPC_ANVILRAGE_RESERVIST, 719.9299f, 19.80474f, -45.35873f, 3.106686f}, {NPC_ANVILRAGE_RESERVIST, 724.4819f, 25.27536f, -45.31646f, 3.193953f}, {NPC_ANVILRAGE_RESERVIST, 724.4958f, 22.62163f, -45.32786f, 3.159046f}, {NPC_ANVILRAGE_RESERVIST, 724.7056f, 19.89114f, -45.33829f, 3.124139f}, {NPC_ANVILRAGE_RESERVIST, 728.7010f, 18.92765f, -46.00228f, 3.106686f}, {NPC_ANVILRAGE_MEDIC, 728.5464f, 21.52842f, -45.89260f, 3.141593f}, {NPC_ANVILRAGE_MEDIC, 728.6478f, 24.58055f, -45.94735f, 3.176499f},
+static sSpawnLocation m_aAddspawnLocs[NPC_ADD_COUNT] =
+{
+    { NPC_ANVILRAGE_RESERVIST,  716.8168f, 23.03471f, -45.34414f, 3.159046f },
+    { NPC_ANVILRAGE_RESERVIST,  719.8195f, 25.44250f, -45.32854f, 3.193953f },
+    { NPC_ANVILRAGE_RESERVIST,  720.0683f, 22.93752f, -45.34140f, 3.159046f },
+    { NPC_ANVILRAGE_RESERVIST,  719.9299f, 19.80474f, -45.35873f, 3.106686f },
+    { NPC_ANVILRAGE_RESERVIST,  724.4819f, 25.27536f, -45.31646f, 3.193953f },
+    { NPC_ANVILRAGE_RESERVIST,  724.4958f, 22.62163f, -45.32786f, 3.159046f },
+    { NPC_ANVILRAGE_RESERVIST,  724.7056f, 19.89114f, -45.33829f, 3.124139f },
+    { NPC_ANVILRAGE_RESERVIST,  728.7010f, 18.92765f, -46.00228f, 3.106686f },
+    { NPC_ANVILRAGE_MEDIC,      728.5464f, 21.52842f, -45.89260f, 3.141593f },
+    { NPC_ANVILRAGE_MEDIC,      728.6478f, 24.58055f, -45.94735f, 3.176499f },
 };
 
 struct boss_general_angerforgeAI : public ScriptedAI
 {
-    boss_general_angerforgeAI(Creature* pCreature) : ScriptedAI(pCreature) { Reset(); }
+    boss_general_angerforgeAI(Creature* pCreature) : ScriptedAI(pCreature)
+    {
+        Reset();
+    }
 
     uint32 m_uiSunderArmorTimer;
     uint32 m_uiAlarmTimer;
@@ -58,11 +71,14 @@ struct boss_general_angerforgeAI : public ScriptedAI
         m_uiAlarmTimer = 0;
     }
 
-    void JustSummoned(Creature* pSummoned) override { pSummoned->GetMotionMaster()->MoveFollow(m_creature, 0.0f, 0.0f); }
+    void JustSummoned(Creature* pSummoned) override
+    {
+        pSummoned->GetMotionMaster()->MoveFollow(m_creature, 0.0f, 0.0f);
+    }
 
     void UpdateAI(const uint32 uiDiff) override
     {
-        // Return since we have no target
+        //Return since we have no target
         if (!m_creature->SelectHostileTarget() || !m_creature->GetVictim())
             return;
 
@@ -94,11 +110,14 @@ struct boss_general_angerforgeAI : public ScriptedAI
         DoMeleeAttackIfReady();
     }
 };
-CreatureAI* GetAI_boss_general_angerforge(Creature* pCreature) { return new boss_general_angerforgeAI(pCreature); }
+CreatureAI* GetAI_boss_general_angerforge(Creature* pCreature)
+{
+    return new boss_general_angerforgeAI(pCreature);
+}
 
 void AddSC_boss_general_angerforge()
 {
-    Script* newscript;
+    Script *newscript;
     newscript = new Script;
     newscript->Name = "boss_general_angerforge";
     newscript->GetAI = &GetAI_boss_general_angerforge;

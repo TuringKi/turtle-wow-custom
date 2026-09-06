@@ -25,15 +25,18 @@ EndScriptData */
 
 enum
 {
-    SPELL_SHOOT = 16496,
-    SPELL_STUNBOMB = 16497,
+    SPELL_SHOOT          = 16496,
+    SPELL_STUNBOMB       = 16497,
     SPELL_HEALING_POTION = 15504,
-    SPELL_HOOKEDNET = 15609
+    SPELL_HOOKEDNET      = 15609
 };
 
 struct boss_quatermasterzigrisAI : public ScriptedAI
 {
-    boss_quatermasterzigrisAI(Creature* pCreature) : ScriptedAI(pCreature) { Reset(); }
+    boss_quatermasterzigrisAI(Creature* pCreature) : ScriptedAI(pCreature)
+    {
+        Reset();
+    }
 
     uint32 m_uiShootTimer;
     uint32 m_uiStunBombTimer;
@@ -52,7 +55,7 @@ struct boss_quatermasterzigrisAI : public ScriptedAI
         if (!m_creature->SelectHostileTarget() || !m_creature->GetVictim())
             return;
 
-        if (m_bPulledByPet || (m_creature->GetPositionZ() < 50.0f) /* || (m_creature->GetPositionZ > 100.0f)*/) // Anti-Exploit: His position is approx at 87.0f be default, make a large leeway
+        if (m_bPulledByPet || (m_creature->GetPositionZ() < 50.0f)/* || (m_creature->GetPositionZ > 100.0f)*/) // Anti-Exploit: His position is approx at 87.0f be default, make a large leeway
         {
             EnterEvadeMode();
             return;
@@ -80,7 +83,10 @@ struct boss_quatermasterzigrisAI : public ScriptedAI
     }
 };
 
-CreatureAI* GetAI_boss_quatermasterzigris(Creature* pCreature) { return new boss_quatermasterzigrisAI(pCreature); }
+CreatureAI* GetAI_boss_quatermasterzigris(Creature* pCreature)
+{
+    return new boss_quatermasterzigrisAI(pCreature);
+}
 
 void AddSC_boss_quatermasterzigris()
 {

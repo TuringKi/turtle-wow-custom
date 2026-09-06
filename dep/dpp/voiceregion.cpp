@@ -2,7 +2,7 @@
  *
  * D++, A Lightweight C++ library for Discord
  *
- * Copyright 2021 Craig Edwards and D++ contributors
+ * Copyright 2021 Craig Edwards and D++ contributors 
  * (https://github.com/brainboxdotcc/DPP/graphs/contributors)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,41 +18,59 @@
  * limitations under the License.
  *
  ************************************************************************************/
+#include <dpp/voiceregion.h>
 #include <dpp/discordevents.h>
 #include <dpp/nlohmann/json.hpp>
-#include <dpp/voiceregion.h>
 
-namespace dpp
+namespace dpp {
+
+using json = nlohmann::json;
+
+voiceregion::voiceregion() : flags(0) 
 {
+}
 
-    using json = nlohmann::json;
+voiceregion& voiceregion::fill_from_json(nlohmann::json* j) {
+	id = string_not_null(j, "id");
+	name = string_not_null(j, "id");
+	if (bool_not_null(j, "optimal"))
+		flags |= v_optimal;
+	if (bool_not_null(j, "deprecated"))
+		flags |= v_deprecated;
+	if (bool_not_null(j, "custom"))
+		flags |= v_custom;
+	if (bool_not_null(j, "vip"))
+		flags |= v_vip;
+	return *this;
+}
 
-    voiceregion::voiceregion() : flags(0) {}
+std::string voiceregion::build_json(bool with_id) const {
+	return json({
+		{ "id", id },
+		{ "name", name },
+		{ "optimal", is_optimal() },
+		{ "deprecated", is_deprecated() },
+		{ "custom", is_custom() },
+		{ "vip", is_vip() }
+	}).dump();
+}
 
-    voiceregion& voiceregion::fill_from_json(nlohmann::json* j)
-    {
-        id = string_not_null(j, "id");
-        name = string_not_null(j, "id");
-        if (bool_not_null(j, "optimal"))
-            flags |= v_optimal;
-        if (bool_not_null(j, "deprecated"))
-            flags |= v_deprecated;
-        if (bool_not_null(j, "custom"))
-            flags |= v_custom;
-        if (bool_not_null(j, "vip"))
-            flags |= v_vip;
-        return *this;
-    }
+bool voiceregion::is_optimal() const {
+	return flags & v_optimal;
+}
 
-    std::string voiceregion::build_json(bool with_id) const { return json({{"id", id}, {"name", name}, {"optimal", is_optimal()}, {"deprecated", is_deprecated()}, {"custom", is_custom()}, {"vip", is_vip()}}).dump(); }
+bool voiceregion::is_deprecated() const {
+	return flags & v_deprecated;
+}
 
-    bool voiceregion::is_optimal() const { return flags & v_optimal; }
+bool voiceregion::is_custom() const {
+	return flags & v_custom;
+}
 
-    bool voiceregion::is_deprecated() const { return flags & v_deprecated; }
-
-    bool voiceregion::is_custom() const { return flags & v_custom; }
-
-    bool voiceregion::is_vip() const { return flags & v_vip; }
+bool voiceregion::is_vip() const {
+	return flags & v_vip;
+}
 
 
-}; // namespace dpp
+};
+

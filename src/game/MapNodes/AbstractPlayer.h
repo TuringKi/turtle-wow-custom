@@ -2,28 +2,28 @@
 
 #include <memory>
 #include "Common.h"
-#include "ObjectGuid.h"
 #include "SharedDefines.h" // For "Team"
+#include "ObjectGuid.h"
 
 // 2^n values
 enum PlayerExtraFlags
 {
     // gm abilities
-    PLAYER_EXTRA_GM_ON = 0x0001,
-    PLAYER_EXTRA_GM_ACCEPT_TICKETS = 0x0002,
-    PLAYER_EXTRA_ACCEPT_WHISPERS = 0x0004,
-    PLAYER_EXTRA_TAXICHEAT = 0x0008,
-    PLAYER_EXTRA_GM_INVISIBLE = 0x0010,
-    PLAYER_EXTRA_GM_CHAT = 0x0020, // Show GM badge in chat messages
-    PLAYER_EXTRA_AUCTION_NEUTRAL = 0x0040,
-    PLAYER_EXTRA_AUCTION_ENEMY = 0x0080, // overwrite PLAYER_EXTRA_AUCTION_NEUTRAL
+    PLAYER_EXTRA_GM_ON              = 0x0001,
+    PLAYER_EXTRA_GM_ACCEPT_TICKETS  = 0x0002,
+    PLAYER_EXTRA_ACCEPT_WHISPERS    = 0x0004,
+    PLAYER_EXTRA_TAXICHEAT          = 0x0008,
+    PLAYER_EXTRA_GM_INVISIBLE       = 0x0010,
+    PLAYER_EXTRA_GM_CHAT            = 0x0020,               // Show GM badge in chat messages
+    PLAYER_EXTRA_AUCTION_NEUTRAL    = 0x0040,
+    PLAYER_EXTRA_AUCTION_ENEMY      = 0x0080,               // overwrite PLAYER_EXTRA_AUCTION_NEUTRAL
 
     // other states
-    PLAYER_EXTRA_PVP_DEATH = 0x0100, // store PvP death status until corpse creating.
-    PLAYER_EXTRA_WHISP_RESTRICTION = 0x0200,
-    PLAYER_EXTRA_GM_DISABLE_SOCIAL = 0x0400,
-    PLAYER_EXTRA_WAS_TRANSFERRED = 0x0800,
-    PLAYER_EXTRA_DISABLE_HC_CHAT = 0x1000
+    PLAYER_EXTRA_PVP_DEATH          = 0x0100,               // store PvP death status until corpse creating.
+    PLAYER_EXTRA_WHISP_RESTRICTION  = 0x0200,
+    PLAYER_EXTRA_GM_DISABLE_SOCIAL  = 0x0400,
+    PLAYER_EXTRA_WAS_TRANSFERRED    = 0x0800,
+    PLAYER_EXTRA_DISABLE_HC_CHAT    = 0x1000
 };
 
 class MasterPlayer;
@@ -52,8 +52,8 @@ public:
     virtual WorldSession* GetSession() const = 0;
     virtual PlayerSocial* GetSocial() const = 0;
 
-    virtual void JoinedChannel(::Channel* c) = 0;
-    virtual void LeftChannel(::Channel* c) = 0;
+    virtual void JoinedChannel(::Channel *c) = 0;
+    virtual void LeftChannel(::Channel *c) = 0;
 
     virtual Player* ToPlayer() const = 0;
     virtual MasterPlayer* ToMasterPlayer() const = 0;
@@ -61,7 +61,7 @@ public:
 };
 
 template <typename T>
-class PlayerWrapper final : public AbstractPlayer
+class PlayerWrapper final: public AbstractPlayer
 {
 public:
     PlayerWrapper(T& pl);
@@ -85,14 +85,13 @@ public:
     WorldSession* GetSession() const override;
     PlayerSocial* GetSocial() const override;
 
-    void JoinedChannel(::Channel* c) override;
-    void LeftChannel(::Channel* c) override;
+    void JoinedChannel(::Channel *c) override;
+    void LeftChannel(::Channel *c) override;
 
     Player* ToPlayer() const override;
     MasterPlayer* ToMasterPlayer() const override;
 
     bool ok() const override;
-
 protected:
     T& player;
 };

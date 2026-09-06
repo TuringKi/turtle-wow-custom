@@ -5,7 +5,7 @@
 #ifndef UTIL_UTIL_H_
 #define UTIL_UTIL_H_
 
-#define arraysize(array) (sizeof(array) / sizeof((array)[0]))
+#define arraysize(array) (sizeof(array)/sizeof((array)[0]))
 
 #ifndef ATTRIBUTE_NORETURN
 #if defined(__GNUC__)
@@ -31,11 +31,7 @@
 #elif defined(__GNUC__) && __GNUC__ >= 7
 #define FALLTHROUGH_INTENDED [[gnu::fallthrough]]
 #else
-#define FALLTHROUGH_INTENDED                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          \
-    do                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                \
-    {                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 \
-    }                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 \
-    while (0)
+#define FALLTHROUGH_INTENDED do {} while (0)
 #endif
 #endif
 
@@ -43,4 +39,4 @@
 #define NO_THREAD_SAFETY_ANALYSIS
 #endif
 
-#endif // UTIL_UTIL_H_
+#endif  // UTIL_UTIL_H_

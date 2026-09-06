@@ -1,13 +1,17 @@
 #include "CharacterDatabaseCache.h"
-#include "Database/DatabaseEnv.h"
 #include "Log.h"
+#include "Database/DatabaseEnv.h"
 #include "Pet.h"
 
 CharacterDatabaseCache sCharacterDatabaseCache;
 
-CharacterDatabaseCache::~CharacterDatabaseCache() {}
+CharacterDatabaseCache::~CharacterDatabaseCache()
+{
+}
 
-CharacterDatabaseCache::CharacterDatabaseCache() {}
+CharacterDatabaseCache::CharacterDatabaseCache()
+{
+}
 
 void CharacterDatabaseCache::LoadAll(uint32 singlePetId)
 {
@@ -25,17 +29,20 @@ void CharacterDatabaseCache::LoadCharacterPet(uint32 singlePetId)
     std::unique_ptr<QueryResult> result;
     if (singlePetId)
     {
-        result.reset(CharacterDatabase.PQuery("SELECT id, entry, owner, modelid, level, exp, Reactstate, loyaltypoints, loyalty, trainpoint, "
-                                              "slot, name, renamed, curhealth, curmana, curhappiness, abdata, TeachSpelldata, savetime, resettalents_cost, "
-                                              "resettalents_time, CreatedBySpell, PetType FROM character_pet WHERE id=%u",
-                                              singlePetId));
+        result.reset(CharacterDatabase.PQuery(
+                     "SELECT id, entry, owner, modelid, level, exp, Reactstate, loyaltypoints, loyalty, trainpoint, "
+                     "slot, name, renamed, curhealth, curmana, curhappiness, abdata, TeachSpelldata, savetime, resettalents_cost, "
+                     "resettalents_time, CreatedBySpell, PetType FROM character_pet WHERE id=%u", singlePetId
+                 ));
     }
     else if (!singlePetId)
     {
         m_petsByCharacter.clear();
-        result.reset(CharacterDatabase.Query("SELECT id, entry, owner, modelid, level, exp, Reactstate, loyaltypoints, loyalty, trainpoint, "
-                                             "slot, name, renamed, curhealth, curmana, curhappiness, abdata, TeachSpelldata, savetime, resettalents_cost, "
-                                             "resettalents_time, CreatedBySpell, PetType FROM character_pet"));
+        result.reset(CharacterDatabase.Query(
+                     "SELECT id, entry, owner, modelid, level, exp, Reactstate, loyaltypoints, loyalty, trainpoint, "
+                     "slot, name, renamed, curhealth, curmana, curhappiness, abdata, TeachSpelldata, savetime, resettalents_cost, "
+                     "resettalents_time, CreatedBySpell, PetType FROM character_pet"
+                 ));
     }
 
     if (!result)
@@ -44,7 +51,7 @@ void CharacterDatabaseCache::LoadCharacterPet(uint32 singlePetId)
     uint32 count = 0;
     do
     {
-        Field* fields = result->Fetch();
+        Field *fields = result->Fetch();
         CharacterPetCache* pCache = new CharacterPetCache;
         pCache->id = fields[0].GetUInt32();
         pCache->entry = fields[1].GetUInt32();
@@ -73,7 +80,7 @@ void CharacterDatabaseCache::LoadCharacterPet(uint32 singlePetId)
         InsertCharacterPet(pCache);
     }
     while (result->NextRow());
-
+    
     if (!singlePetId)
         sLog.outString("-> %u rows loaded.", count);
 }
@@ -83,9 +90,10 @@ void CharacterDatabaseCache::LoadPetSpell(uint32 singlePetId)
     std::unique_ptr<QueryResult> result;
     if (singlePetId)
     {
-        result.reset(CharacterDatabase.PQuery("SELECT guid,spell,active "
-                                              "FROM pet_spell WHERE guid=%u",
-                                              singlePetId));
+        result.reset(CharacterDatabase.PQuery(
+                     "SELECT guid,spell,active "
+                     "FROM pet_spell WHERE guid=%u", singlePetId
+                 ));
     }
     else
     {
@@ -93,8 +101,10 @@ void CharacterDatabaseCache::LoadPetSpell(uint32 singlePetId)
         for (const auto& it : m_petsByGuid)
             it.second->spells.clear();
 
-        result.reset(CharacterDatabase.Query("SELECT guid,spell,active "
-                                             "FROM pet_spell ORDER BY guid ASC"));
+        result.reset(CharacterDatabase.Query(
+                     "SELECT guid,spell,active "
+                     "FROM pet_spell ORDER BY guid ASC"
+                 ));
     }
 
     if (!result)
@@ -104,10 +114,10 @@ void CharacterDatabaseCache::LoadPetSpell(uint32 singlePetId)
     CharacterPetCache* lastPetCache = nullptr;
     do
     {
-        Field* fields = result->Fetch();
+        Field *fields = result->Fetch();
         uint32 lowGuid = fields[0].GetUInt32();
         uint32 spellId = fields[1].GetUInt32();
-        uint8 active = fields[2].GetUInt32();
+        uint8  active  = fields[2].GetUInt32();
         if (!lastPetCache || lastPetCache->id != lowGuid)
             lastPetCache = GetCharacterPetById(lowGuid);
         if (!lastPetCache)
@@ -119,7 +129,7 @@ void CharacterDatabaseCache::LoadPetSpell(uint32 singlePetId)
         ++count;
     }
     while (result->NextRow());
-
+    
     if (!singlePetId)
         sLog.outString("-> %u rows loaded.", count);
 }
@@ -129,9 +139,10 @@ void CharacterDatabaseCache::LoadPetSpellCooldown(uint32 singlePetId)
     std::unique_ptr<QueryResult> result;
     if (singlePetId)
     {
-        result.reset(CharacterDatabase.PQuery("SELECT guid,spell,time "
-                                              "FROM pet_spell_cooldown WHERE guid=%u",
-                                              singlePetId));
+        result.reset(CharacterDatabase.PQuery(
+                     "SELECT guid,spell,time "
+                     "FROM pet_spell_cooldown WHERE guid=%u", singlePetId
+                 ));
     }
     else
     {
@@ -139,8 +150,10 @@ void CharacterDatabaseCache::LoadPetSpellCooldown(uint32 singlePetId)
         for (const auto& it : m_petsByGuid)
             it.second->spellCooldown.clear();
 
-        result.reset(CharacterDatabase.Query("SELECT guid,spell,time "
-                                             "FROM pet_spell_cooldown ORDER BY guid ASC"));
+        result.reset(CharacterDatabase.Query(
+                     "SELECT guid,spell,time "
+                     "FROM pet_spell_cooldown ORDER BY guid ASC"
+                 ));
     }
 
     if (!result)
@@ -151,17 +164,17 @@ void CharacterDatabaseCache::LoadPetSpellCooldown(uint32 singlePetId)
 
     do
     {
-        Field* fields = result->Fetch();
+        Field *fields = result->Fetch();
         uint32 lowGuid = fields[0].GetUInt32();
         uint32 spellId = fields[1].GetUInt32();
-        uint64 time = fields[2].GetUInt64();
+        uint64 time    = fields[2].GetUInt64();
         if (!lastPetCache || lastPetCache->id != lowGuid)
             lastPetCache = GetCharacterPetById(lowGuid);
         if (!lastPetCache)
             continue;
         PetSpellCoodown _spellStruct;
         _spellStruct.spell = spellId;
-        _spellStruct.time = time;
+        _spellStruct.time  = time;
         lastPetCache->spellCooldown.push_back(_spellStruct);
         ++count;
     }
@@ -176,10 +189,11 @@ void CharacterDatabaseCache::LoadPetAura(uint32 singlePetId)
     std::unique_ptr<QueryResult> result;
     if (singlePetId)
     {
-        result.reset(CharacterDatabase.PQuery("SELECT guid, caster_guid, item_guid, spell, stackcount, remaincharges, maxduration, remaintime, effIndexMask, "
-                                              "basepoints0, basepoints1, basepoints2, periodictime0, periodictime1, periodictime2 "
-                                              "FROM pet_aura WHERE guid=%u",
-                                              singlePetId));
+        result.reset(CharacterDatabase.PQuery(
+                     "SELECT guid, caster_guid, item_guid, spell, stackcount, remaincharges, maxduration, remaintime, effIndexMask, "
+                     "basepoints0, basepoints1, basepoints2, periodictime0, periodictime1, periodictime2 "
+                     "FROM pet_aura WHERE guid=%u", singlePetId
+                 ));
     }
     else
     {
@@ -188,11 +202,12 @@ void CharacterDatabaseCache::LoadPetAura(uint32 singlePetId)
             it.second->auras.clear();
 
         result.reset(CharacterDatabase.Query(
-            //          0     1             2           3    4           5              6            7              8
-            "SELECT guid, caster_guid, item_guid, spell, stackcount, remaincharges, maxduration, remaintime, effIndexMask, "
-            // 9 -> 11                              12 -> 14
-            "basepoints0, basepoints1, basepoints2, periodictime0, periodictime1, periodictime2 "
-            "FROM pet_aura ORDER BY guid ASC"));
+                                  //          0     1             2           3    4           5              6            7              8
+                                  "SELECT guid, caster_guid, item_guid, spell, stackcount, remaincharges, maxduration, remaintime, effIndexMask, "
+                                  // 9 -> 11                              12 -> 14
+                                  "basepoints0, basepoints1, basepoints2, periodictime0, periodictime1, periodictime2 "
+                                  "FROM pet_aura ORDER BY guid ASC"
+                              ));
     }
 
     if (!result)
@@ -203,7 +218,7 @@ void CharacterDatabaseCache::LoadPetAura(uint32 singlePetId)
 
     do
     {
-        Field* fields = result->Fetch();
+        Field *fields = result->Fetch();
         uint32 lowGuid = fields[0].GetUInt32();
 
         if (!lastPetCache || lastPetCache->id != lowGuid)
@@ -212,7 +227,7 @@ void CharacterDatabaseCache::LoadPetAura(uint32 singlePetId)
             continue;
 
         PetAuraCache _auraStruct;
-        _auraStruct.caster_guid = fields[1].GetUInt64();
+        _auraStruct.caster_guid   = fields[1].GetUInt64();
         _auraStruct.item_guid = fields[2].GetUInt32();
         _auraStruct.spell = fields[3].GetUInt32();
         _auraStruct.stackcount = fields[4].GetUInt32();
@@ -223,7 +238,7 @@ void CharacterDatabaseCache::LoadPetAura(uint32 singlePetId)
 
         for (int i = 0; i < 3; ++i)
         {
-            _auraStruct.basepoints[i] = fields[9 + i].GetInt32();
+            _auraStruct.basepoints[i]   = fields[9 + i].GetInt32();
             _auraStruct.periodictime[i] = fields[12 + i].GetUInt32();
         }
 
@@ -234,7 +249,7 @@ void CharacterDatabaseCache::LoadPetAura(uint32 singlePetId)
         ++count;
     }
     while (result->NextRow());
-
+    
     if (!singlePetId)
         sLog.outString("-> %u rows loaded.", count);
 }

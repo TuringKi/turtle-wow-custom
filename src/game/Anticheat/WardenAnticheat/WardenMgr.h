@@ -19,8 +19,8 @@
 
 #include <map>
 #include <mutex>
-#include "Anticheat.h"
 #include "Auth/BigNumber.h"
+#include "Anticheat.h"
 
 enum
 {
@@ -68,39 +68,39 @@ struct WardenModule
 
 class WardenMgr
 {
-private:
-    WardenMgr();
-    ~WardenMgr();
+    private:
+        WardenMgr();
+        ~WardenMgr();
 
-public:
-    static WardenMgr* instance()
-    {
-        static WardenMgr instance;
-        return &instance;
-    }
+    public:
+        static WardenMgr* instance()
+        {
+            static WardenMgr instance;
+            return &instance;
+        }
 
-    WardenCheck* GetWardenDataById(uint16 /*build*/, uint16 /*id*/);
-    WardenCheckResult* GetWardenResultById(uint16 /*build*/, uint16 /*id*/);
-    void GetWardenCheckIds(bool isMemCheck /* true = MEM */, uint16 build, std::list<uint16>& list);
+        WardenCheck* GetWardenDataById(uint16 /*build*/, uint16 /*id*/);
+        WardenCheckResult* GetWardenResultById(uint16 /*build*/, uint16 /*id*/);
+        void GetWardenCheckIds(bool isMemCheck /* true = MEM */, uint16 build, std::list<uint16>& list);
 
-    WardenModule* GetRandomWardenModule(bool windows);
+        WardenModule* GetRandomWardenModule(bool windows);
 
-    void LoadWardenChecks();
-    void LoadWardenModules();
-    void LoadWardenModule(std::string module_name);
+        void LoadWardenChecks();
+        void LoadWardenModules();
+        void LoadWardenModule(std::string module_name);
 
-private:
-    typedef std::multimap<uint16, WardenCheck*> CheckMap;
-    typedef std::multimap<uint16, WardenCheckResult*> CheckResultMap;
+    private:
+        typedef std::multimap< uint16, WardenCheck* > CheckMap;
+        typedef std::multimap< uint16, WardenCheckResult* > CheckResultMap;
 
-    typedef std::lock_guard<std::mutex> ReadGuard;
-    typedef std::lock_guard<std::mutex> WriteGuard;
+        typedef std::lock_guard<std::mutex> ReadGuard;
+        typedef std::lock_guard<std::mutex> WriteGuard;
 
-    std::mutex m_lock;
-    CheckMap CheckStore;
-    CheckResultMap CheckResultStore;
-    std::vector<WardenModule> m_vWindowsModules;
-    std::vector<WardenModule> m_vMacModules;
+        std::mutex m_lock;
+        CheckMap CheckStore;
+        CheckResultMap CheckResultStore;
+        std::vector<WardenModule> m_vWindowsModules;
+        std::vector<WardenModule> m_vMacModules;
 };
 
 #define sWardenMgr WardenMgr::instance()

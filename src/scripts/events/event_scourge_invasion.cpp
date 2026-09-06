@@ -9,48 +9,54 @@ Trad :
 
 enum
 {
-    NPC_PALLID_HORROR = 16394,
-    NPC_PATCHWORK_TERROR = 16382,
+    NPC_PALLID_HORROR           = 16394,
+    NPC_PATCHWORK_TERROR        = 16382,
     // Alliance
-    NPC_CRYSTAL_A = 16431,
-    QUEST_CRYSTAL_A = 9292,
+    NPC_CRYSTAL_A               = 16431,
+    QUEST_CRYSTAL_A             = 9292,
     // Horde
-    NPC_CRYSTAL_H = 16531,
-    QUEST_CRYSTAL_H = 9310,
+    NPC_CRYSTAL_H               = 16531,
+    QUEST_CRYSTAL_H             = 9310,
 
-    NPC_FLAMESHOCKER = 16383,
+    NPC_FLAMESHOCKER            = 16383,
     NPC_SPAWNPOINT_PALLID_HORROR = 20099,
     NPC_SPAWNPOINT_FLAMESHOCKER = 20100,
-    NPC_WAYPOINT = 20101,
-    NPC_PREINVASION_SPAWNER = 20102,
+    NPC_WAYPOINT                = 20101,
+    NPC_PREINVASION_SPAWNER     = 20102,
     NPC_STORMWIND_GARNISON_GUARD = 68,
     NPC_UNDERCITY_GARNISON_GUARD = 5624,
 
-    NPC_TRASH_1 = 16437,
-    NPC_TRASH_2 = 16438,
+    NPC_TRASH_1                 = 16437,
+    NPC_TRASH_2                 = 16438,
 
-    SPELL_AURA_OF_FEAR = 28313,
-    SPELL_FLAMESHOCKERS_TOUCH = 28314,
+    SPELL_AURA_OF_FEAR          = 28313,
+    SPELL_FLAMESHOCKERS_TOUCH   = 28314,
     SPELL_FLAMESHOCKERS_REVENGE = 28323,
-    SPELL_FLAMESHOCKERS_VISUAL = 28330,
-    SPELL_PURPLE_VISUAL = 28126,
+    SPELL_FLAMESHOCKERS_VISUAL  = 28330,
+    SPELL_PURPLE_VISUAL         = 28126,
 
-    LANG_PALLID_HORROR_YELL1 = 12326, // The Lich King say to tell you... DIE!
-    LANG_PALLID_HORROR_YELL2 = 12343, // No worry, we find you.
-    LANG_SCOURGE_ATTACK_UC = 12334, // Scourge in the Sewers! We need help!
-    LANG_SCOURGE_ATTACK_SW = 12310, // To arms!  Scourge spotted in the Cathedral of Light!
-    LANG_SCOURGE_ATTACK_H_YELL = 12356, // I just saw a Scourge!  Kill it!
-    LANG_SCOURGE_ATTACK_A_YELL = 12367, // I just saw a Scourge!  Kill it!
+    LANG_PALLID_HORROR_YELL1    = 12326, // The Lich King say to tell you... DIE!
+    LANG_PALLID_HORROR_YELL2    = 12343, // No worry, we find you.
+    LANG_SCOURGE_ATTACK_UC      = 12334, // Scourge in the Sewers! We need help!
+    LANG_SCOURGE_ATTACK_SW      = 12310, // To arms!  Scourge spotted in the Cathedral of Light!
+    LANG_SCOURGE_ATTACK_H_YELL  = 12356, // I just saw a Scourge!  Kill it!
+    LANG_SCOURGE_ATTACK_A_YELL  = 12367, // I just saw a Scourge!  Kill it!
 };
 
 struct npc_flameshocker_spawn_pointAI : public ScriptedAI
 {
-    npc_flameshocker_spawn_pointAI(Creature* crea) : ScriptedAI(crea) { Reset(); }
+    npc_flameshocker_spawn_pointAI(Creature* crea) : ScriptedAI(crea)
+    {
+        Reset();
+    }
 
     ObjectGuid _myMonster;
     uint32 _checkTimer;
 
-    void Reset() override { _checkTimer = urand(2000, 5000); }
+    void Reset() override
+    {
+        _checkTimer = urand(2000, 5000);
+    }
 
     void UpdateAI(const uint32 diff) override
     {
@@ -72,17 +78,26 @@ struct npc_flameshocker_spawn_pointAI : public ScriptedAI
     }
 };
 
-CreatureAI* GetAI_npc_flameshocker_spawn_point(Creature* pCreature) { return new npc_flameshocker_spawn_pointAI(pCreature); }
+CreatureAI* GetAI_npc_flameshocker_spawn_point(Creature* pCreature)
+{
+    return new npc_flameshocker_spawn_pointAI(pCreature);
+}
 
 
 struct npc_horror_pallid_spawn_pointAI : public ScriptedAI
 {
-    npc_horror_pallid_spawn_pointAI(Creature* crea) : ScriptedAI(crea) { Reset(); }
+    npc_horror_pallid_spawn_pointAI(Creature* crea) : ScriptedAI(crea)
+    {
+        Reset();
+    }
 
     ObjectGuid _myMonster;
     uint32 _checkTimer;
 
-    void Reset() override { _checkTimer = urand(12000, 30000); }
+    void Reset() override
+    {
+        _checkTimer = urand(12000, 30000);
+    }
 
     void UpdateAI(const uint32 diff) override
     {
@@ -105,14 +120,21 @@ struct npc_horror_pallid_spawn_pointAI : public ScriptedAI
     }
 };
 
-CreatureAI* GetAI_npc_horror_pallid_spawn_point(Creature* pCreature) { return new npc_horror_pallid_spawn_pointAI(pCreature); }
+CreatureAI* GetAI_npc_horror_pallid_spawn_point(Creature* pCreature)
+{
+    return new npc_horror_pallid_spawn_pointAI(pCreature);
+}
 
 /** Flameshocker */
 class WaypointForFlameshocker
 {
 public:
-    WaypointForFlameshocker(Creature const& obj, std::set<ObjectGuid> const& visited) : i_obj(obj), i_visited(visited), i_range(300.f) {}
-    Creature const& GetFocusObject() const { return i_obj; }
+    WaypointForFlameshocker(Creature const& obj, std::set<ObjectGuid> const& visited)
+        : i_obj(obj), i_visited(visited), i_range(300.f) {}
+    Creature const& GetFocusObject() const
+    {
+        return i_obj;
+    }
     bool operator()(Creature* u)
     {
         if (u->GetEntry() != NPC_WAYPOINT)
@@ -127,8 +149,10 @@ public:
         }
         return false;
     }
-    float GetLastRange() const { return i_range; }
-
+    float GetLastRange() const
+    {
+        return i_range;
+    }
 private:
     Creature const& i_obj;
     std::set<ObjectGuid> const& i_visited;
@@ -138,8 +162,12 @@ private:
 class TriggerGuardsReactions
 {
 public:
-    TriggerGuardsReactions(Creature& obj) : i_obj(obj) {}
-    Creature& GetFocusObject() { return i_obj; }
+    TriggerGuardsReactions(Creature& obj)
+        : i_obj(obj) {}
+    Creature& GetFocusObject()
+    {
+        return i_obj;
+    }
     bool operator()(Creature* u)
     {
         if (!u->IsGuard())
@@ -157,7 +185,6 @@ public:
         u->UpdateLeashExtensionTime();
         return false;
     }
-
 private:
     Creature& i_obj;
 };
@@ -178,7 +205,9 @@ struct ScourgeInvasion_RandomAttackerAI : public ScriptedAI
     bool _alliance;
     bool _enableAutoMove;
 
-    void Reset() override {}
+    void Reset() override
+    {
+    }
 
     void MoveInLineOfSight(Unit* who) override
     {
@@ -236,7 +265,8 @@ struct ScourgeInvasion_RandomAttackerAI : public ScriptedAI
         {
             if (!_enableAutoMove)
                 return;
-            if (m_creature->GetMotionMaster()->GetCurrentMovementGeneratorType() == POINT_MOTION_TYPE || m_creature->GetMotionMaster()->GetCurrentMovementGeneratorType() == HOME_MOTION_TYPE)
+            if (m_creature->GetMotionMaster()->GetCurrentMovementGeneratorType() == POINT_MOTION_TYPE ||
+                    m_creature->GetMotionMaster()->GetCurrentMovementGeneratorType() == HOME_MOTION_TYPE)
                 return;
             if (_moveTimer < diff)
             {
@@ -261,7 +291,10 @@ struct ScourgeInvasion_RandomAttackerAI : public ScriptedAI
             c->UpdateLeashExtensionTime();
         DoMeleeAttackIfReady();
     }
-    void CorpseRemoved(uint32&) override { m_creature->DeleteLater(); }
+    void CorpseRemoved(uint32&) override
+    {
+        m_creature->DeleteLater();
+    }
     void EnterCombat(Unit* who) override
     {
         // Riposte !
@@ -337,7 +370,10 @@ struct FlameshockerAI : public ScourgeInvasion_RandomAttackerAI
     uint32 _revengeTimer;
 
 
-    void Reset() override { m_creature->AddAura(SPELL_FLAMESHOCKERS_VISUAL); }
+    void Reset() override
+    {
+        m_creature->AddAura(SPELL_FLAMESHOCKERS_VISUAL);
+    }
 
     void InformGuid(const ObjectGuid guid, uint32 type = 0) override
     {
@@ -388,7 +424,10 @@ struct FlameshockerAI : public ScourgeInvasion_RandomAttackerAI
     }
 };
 
-CreatureAI* GetAI_Flameshocker(Creature* pCreature) { return new FlameshockerAI(pCreature); }
+CreatureAI* GetAI_Flameshocker(Creature* pCreature)
+{
+    return new FlameshockerAI(pCreature);
+}
 
 struct PallidHorrorAI : public ScourgeInvasion_RandomAttackerAI
 {
@@ -403,12 +442,12 @@ struct PallidHorrorAI : public ScourgeInvasion_RandomAttackerAI
         Reset();
         switch (urand(0, 1))
         {
-        case 0:
-            m_creature->MonsterYell(LANG_PALLID_HORROR_YELL1);
-            break;
-        case 1:
-            m_creature->MonsterYell(LANG_PALLID_HORROR_YELL2);
-            break;
+            case 0:
+                m_creature->MonsterYell(LANG_PALLID_HORROR_YELL1);
+                break;
+            case 1:
+                m_creature->MonsterYell(LANG_PALLID_HORROR_YELL2);
+                break;
         }
     }
 
@@ -439,11 +478,17 @@ struct PallidHorrorAI : public ScourgeInvasion_RandomAttackerAI
     }
 };
 
-CreatureAI* GetAI_PallidHorrorAI(Creature* pCreature) { return new PallidHorrorAI(pCreature); }
+CreatureAI* GetAI_PallidHorrorAI(Creature* pCreature)
+{
+    return new PallidHorrorAI(pCreature);
+}
 
 struct QuestGiverCrystalAI : public ScriptedAI
 {
-    QuestGiverCrystalAI(Creature* crea) : ScriptedAI(crea) { _dieTimer = 30000; }
+    QuestGiverCrystalAI(Creature* crea) : ScriptedAI(crea)
+    {
+        _dieTimer = 30000;
+    }
 
     uint32 _dieTimer;
     void Reset() override {}
@@ -456,7 +501,10 @@ struct QuestGiverCrystalAI : public ScriptedAI
     }
 };
 
-CreatureAI* GetAI_npc_faint_necrotic_crystal(Creature* pCreature) { return new QuestGiverCrystalAI(pCreature); }
+CreatureAI* GetAI_npc_faint_necrotic_crystal(Creature* pCreature)
+{
+    return new QuestGiverCrystalAI(pCreature);
+}
 
 bool GossipHello_npc_faint_necrotic_crystal(Player* player, Creature* creature)
 {
@@ -464,7 +512,8 @@ bool GossipHello_npc_faint_necrotic_crystal(Player* player, Creature* creature)
     if (creature->GetEntry() == NPC_CRYSTAL_H)
         questId = QUEST_CRYSTAL_H;
     if (Quest const* quest = sObjectMgr.GetQuestTemplate(questId))
-        if (player->GetQuestStatus(questId) != QUEST_STATUS_COMPLETE && player->CanTakeQuest(quest, false))
+        if (player->GetQuestStatus(questId) != QUEST_STATUS_COMPLETE &&
+                player->CanTakeQuest(quest, false))
             player->PlayerTalkClass->SendQuestGiverQuestDetails(quest, creature->GetObjectGuid(), true);
     return true;
 }

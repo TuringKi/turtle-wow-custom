@@ -25,40 +25,40 @@ EndScriptData */
 #include "zulgurub.h"
 
 
-#define SAY_AGGRO -1309009
-#define SAY_DEATH -1309010
+#define SAY_AGGRO               -1309009
+#define SAY_DEATH               -1309010
 
-#define EMOTE_DIES -1309027
-#define EMOTE_RESURRECT -1309028
+#define EMOTE_DIES              -1309027
+#define EMOTE_RESURRECT         -1309028
 
-#define SPELL_MORTALCLEAVE 22859
-#define SPELL_SILENCE 22666
-#define SPELL_FRENZY 24185
-#define SPELL_FORCEPUNCH 24189
-#define SPELL_CHARGE 24408
-#define SPELL_ENRAGE 8269
-#define SPELL_SUMMONTIGERS 24183
-#define NPC_TIGER 15068
-#define SPELL_TIGER_FORM 24169
-#define SPELL_RESURRECT 24173 // We will not use this spell.
+#define SPELL_MORTALCLEAVE        22859
+#define SPELL_SILENCE             22666
+#define SPELL_FRENZY              24185
+#define SPELL_FORCEPUNCH          24189
+#define SPELL_CHARGE              24408
+#define SPELL_ENRAGE              8269
+#define SPELL_SUMMONTIGERS        24183
+#define NPC_TIGER                 15068
+#define SPELL_TIGER_FORM          24169
+#define SPELL_RESURRECT           24173                     //We will not use this spell.
 
-// Zealot Lor'Khan Spells
-#define SPELL_SHIELD 25020
-#define SPELL_BLOODLUST 24185
-#define SPELL_GREATERHEAL 24208
-#define SPELL_DISARM 22691
+//Zealot Lor'Khan Spells
+#define SPELL_SHIELD              25020
+#define SPELL_BLOODLUST           24185
+#define SPELL_GREATERHEAL         24208
+#define SPELL_DISARM              22691
 
-// Zealot Lor'Khan Spells
-#define SPELL_SWEEPINGSTRIKES 18765
-#define SPELL_SINISTERSTRIKE 15667
-#define SPELL_GOUGE 24698
-#define SPELL_KICK 15614
-#define SPELL_BLIND 21060
+//Zealot Lor'Khan Spells
+#define SPELL_SWEEPINGSTRIKES     18765
+#define SPELL_SINISTERSTRIKE      15667
+#define SPELL_GOUGE               24698
+#define SPELL_KICK                15614
+#define SPELL_BLIND               21060
 
-#define ZELOTH_LOR_KHAN 11347
-#define ZELOTH_ZATH 11348
+#define ZELOTH_LOR_KHAN           11347
+#define ZELOTH_ZATH               11348
 
-#define RESSURECT_TIMER 7000
+#define RESSURECT_TIMER           7000
 
 /*
 INSERT INTO creature_template SET entry=14966, modelid_1=14792, modelid_2=14792, name="High Priest Thekal Transform Visual";
@@ -68,7 +68,10 @@ INSERT INTO creature_template SET entry=15109, modelid_1=15214, modelid_2=15214,
 class ChargeUnitSelector : public ThreatListProcesser
 {
 public:
-    ChargeUnitSelector(Unit* thekal) : _victim(nullptr), _charger(thekal) { ASSERT(_charger); }
+    ChargeUnitSelector(Unit* thekal) : _victim(nullptr), _charger(thekal)
+    {
+        ASSERT(_charger);
+    }
     bool Process(Unit* unit) override
     {
         ASSERT(unit);
@@ -91,7 +94,10 @@ public:
             _victim = unit;
         return false;
     }
-    Unit* GetUnit() { return _victim; }
+    Unit* GetUnit()
+    {
+        return _victim;
+    }
     Unit* _victim;
     Unit* _charger;
 };
@@ -100,10 +106,20 @@ void DoRessurectUnit(Unit* pUnit, Unit* pVictim);
 
 struct zg_rez_add : public ScriptedAI
 {
-    zg_rez_add(Creature* pCreature, uint32 instMobType) : ScriptedAI(pCreature), m_uiInstMobType(instMobType), m_uiRessurectTimer(0), m_uiRezzeurGUID(0), m_reallyDead(false), m_justRevived(false) { m_pInstance = (instance_zulgurub*)pCreature->GetInstanceData(); }
-    void SetRealyDead(bool value) { m_reallyDead = value; }
-    bool CanBeLooted() const override { return m_reallyDead; }
-    void Aggro(Unit* who) override
+    zg_rez_add(Creature* pCreature, uint32 instMobType) : ScriptedAI(pCreature),
+        m_uiInstMobType(instMobType), m_uiRessurectTimer(0), m_uiRezzeurGUID(0), m_reallyDead(false), m_justRevived(false)
+    {
+        m_pInstance = (instance_zulgurub*)pCreature->GetInstanceData();
+    }
+    void SetRealyDead(bool value)
+    {
+        m_reallyDead = value;
+    }
+    bool CanBeLooted() const override
+    {
+        return m_reallyDead;
+    }
+    void Aggro(Unit *who) override
     {
         if (m_pInstance)
             m_pInstance->SetData(m_uiInstMobType, IN_PROGRESS);
@@ -179,9 +195,9 @@ struct zg_rez_add : public ScriptedAI
         if (!m_pInstance)
             return;
 
-        Creature* pThekal = m_creature->GetMap()->GetCreature(m_pInstance->GetData64(DATA_THEKAL));
-        Creature* pZath = m_creature->GetMap()->GetCreature(m_pInstance->GetData64(DATA_ZATH));
-        Creature* pLorkhan = m_creature->GetMap()->GetCreature(m_pInstance->GetData64(DATA_LORKHAN));
+        Creature *pThekal = m_creature->GetMap()->GetCreature(m_pInstance->GetData64(DATA_THEKAL));
+        Creature *pZath = m_creature->GetMap()->GetCreature(m_pInstance->GetData64(DATA_ZATH));
+        Creature *pLorkhan = m_creature->GetMap()->GetCreature(m_pInstance->GetData64(DATA_LORKHAN));
         if (pThekal && pThekal->AI())
             pThekal->AI()->AttackStart(who);
         if (pZath && pZath->AI())
@@ -247,7 +263,7 @@ struct boss_thekalAI : public zg_rez_add
 {
     boss_thekalAI(Creature* pCreature) : zg_rez_add(pCreature, TYPE_THEKAL)
     {
-        for (uint64& guid : TigerGUIDs)
+        for (uint64 & guid : TigerGUIDs)
             guid = 0;
         Reset();
     }
@@ -271,7 +287,8 @@ struct boss_thekalAI : public zg_rez_add
         handler.PSendSysMessage("Can be looted : [%s]", CanBeLooted() ? "YES" : "NO");
         handler.PSendSysMessage("PhaseTwo = %s, Enraged = %s", PhaseTwo ? "true" : "false", Enraged ? "true" : "false");
         handler.SendSysMessage("Timers :");
-        handler.PSendSysMessage("[%u:%u:%u:%u:%u:%u:%u:%u]", MortalCleave_Timer, Silence_Timer, Frenzy_Timer, ForcePunch_Timer, Charge_Timer, Enrage_Timer, CheckTigers_Timer, NoTargetReset_Timer);
+        handler.PSendSysMessage("[%u:%u:%u:%u:%u:%u:%u:%u]",
+                                MortalCleave_Timer, Silence_Timer, Frenzy_Timer, ForcePunch_Timer, Charge_Timer, Enrage_Timer, CheckTigers_Timer, NoTargetReset_Timer);
     }
     void Reset() override
     {
@@ -358,7 +375,7 @@ struct boss_thekalAI : public zg_rez_add
         zg_rez_add::EnterEvadeMode();
     }
 
-    void Aggro(Unit* who) override
+    void Aggro(Unit *who) override
     {
         if (m_pInstance)
             m_pInstance->SetData(TYPE_THEKAL, IN_PROGRESS);
@@ -376,7 +393,7 @@ struct boss_thekalAI : public zg_rez_add
         m_creature->SetStandState(UNIT_STAND_STATE_STAND);
         m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
 
-        const CreatureInfo* cinfo = m_creature->GetCreatureInfo();
+        const CreatureInfo *cinfo = m_creature->GetCreatureInfo();
         m_creature->SetBaseWeaponDamage(BASE_ATTACK, MINDAMAGE, (cinfo->dmg_min + ((cinfo->dmg_min / 100) * 40)));
         m_creature->SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, (cinfo->dmg_max + ((cinfo->dmg_max / 100) * 40)));
         m_creature->UpdateDamagePhysical(BASE_ATTACK);
@@ -498,7 +515,7 @@ struct boss_thekalAI : public zg_rez_add
 
             if (CheckTigers_Timer < diff)
             {
-                for (uint64& guid : TigerGUIDs)
+                for (uint64 & guid : TigerGUIDs)
                     CheckTiger(guid);
                 CheckTigers_Timer = 10000;
             }
@@ -510,7 +527,7 @@ struct boss_thekalAI : public zg_rez_add
     }
 };
 
-// Zealot Lor'Khan
+//Zealot Lor'Khan
 struct mob_zealot_lorkhanAI : public zg_rez_add
 {
     mob_zealot_lorkhanAI(Creature* pCreature) : zg_rez_add(pCreature, TYPE_LORKHAN)
@@ -543,7 +560,10 @@ struct mob_zealot_lorkhanAI : public zg_rez_add
         zg_rez_add::Reset();
     }
 
-    void JustDied(Unit* Killer) override { zg_rez_add::JustDied(Killer); }
+    void JustDied(Unit* Killer) override
+    {
+        zg_rez_add::JustDied(Killer);
+    }
 
     void UpdateAI_corpse(const uint32 uiDiff) override
     {
@@ -557,25 +577,23 @@ struct mob_zealot_lorkhanAI : public zg_rez_add
         if (!m_creature->SelectHostileTarget() || !m_creature->GetVictim())
             return;
 
-        // Shield_Timer
+        //Shield_Timer
         if (Shield_Timer < diff)
         {
             DoCastSpellIfCan(m_creature, SPELL_SHIELD);
             Shield_Timer = 61000;
         }
-        else
-            Shield_Timer -= diff;
+        else Shield_Timer -= diff;
 
-        // BloodLust_Timer
+        //BloodLust_Timer
         if (BloodLust_Timer < diff)
         {
             DoCastSpellIfCan(m_creature, SPELL_BLOODLUST);
             BloodLust_Timer = urand(20000, 28000);
         }
-        else
-            BloodLust_Timer -= diff;
+        else BloodLust_Timer -= diff;
 
-        // GreaterHeal
+        //GreaterHeal
         if (GreaterHeal_Timer < diff)
         {
             // Lorkhan prioritizes himself with heal when under 50%
@@ -593,20 +611,19 @@ struct mob_zealot_lorkhanAI : public zg_rez_add
         else
             GreaterHeal_Timer -= diff;
 
-        // Disarm_Timer
+        //Disarm_Timer
         if (Disarm_Timer < diff)
         {
             DoCastSpellIfCan(m_creature->GetVictim(), SPELL_DISARM);
             Disarm_Timer = urand(15000, 25000);
         }
-        else
-            Disarm_Timer -= diff;
+        else Disarm_Timer -= diff;
 
         DoMeleeAttackIfReady();
     }
 };
 
-// Zealot Zath
+//Zealot Zath
 struct mob_zealot_zathAI : public zg_rez_add
 {
     mob_zealot_zathAI(Creature* pCreature) : zg_rez_add(pCreature, TYPE_ZATH)
@@ -641,7 +658,10 @@ struct mob_zealot_zathAI : public zg_rez_add
         zg_rez_add::Reset();
     }
 
-    void JustDied(Unit* Killer) override { zg_rez_add::JustDied(Killer); }
+    void JustDied(Unit* Killer) override
+    {
+        zg_rez_add::JustDied(Killer);
+    }
 
     void UpdateAI_corpse(const uint32 uiDiff) override
     {
@@ -655,25 +675,23 @@ struct mob_zealot_zathAI : public zg_rez_add
         if (!m_creature->SelectHostileTarget() || !m_creature->GetVictim())
             return;
 
-        // SweepingStrikes_Timer
+        //SweepingStrikes_Timer
         if (SweepingStrikes_Timer < diff)
         {
             DoCastSpellIfCan(m_creature->GetVictim(), SPELL_SWEEPINGSTRIKES);
             SweepingStrikes_Timer = urand(22000, 26000);
         }
-        else
-            SweepingStrikes_Timer -= diff;
+        else SweepingStrikes_Timer -= diff;
 
-        // SinisterStrike_Timer
+        //SinisterStrike_Timer
         if (SinisterStrike_Timer < diff)
         {
             DoCastSpellIfCan(m_creature->GetVictim(), SPELL_SINISTERSTRIKE);
             SinisterStrike_Timer = urand(8000, 16000);
         }
-        else
-            SinisterStrike_Timer -= diff;
+        else SinisterStrike_Timer -= diff;
 
-        // Gouge_Timer
+        //Gouge_Timer
         if (Gouge_Timer < diff)
         {
             DoCastSpellIfCan(m_creature->GetVictim(), SPELL_GOUGE);
@@ -683,44 +701,50 @@ struct mob_zealot_zathAI : public zg_rez_add
 
             Gouge_Timer = urand(17000, 27000);
         }
-        else
-            Gouge_Timer -= diff;
+        else Gouge_Timer -= diff;
 
-        // Kick_Timer
+        //Kick_Timer
         if (Kick_Timer < diff)
         {
-            if (m_creature->GetVictim()->IsNonMeleeSpellCasted(false))
+            if(m_creature->GetVictim()->IsNonMeleeSpellCasted(false))
             {
                 DoCastSpellIfCan(m_creature->GetVictim(), SPELL_KICK);
                 Kick_Timer = urand(15000, 25000);
             }
         }
-        else
-            Kick_Timer -= diff;
+        else Kick_Timer -= diff;
 
-        // Blind_Timer
+        //Blind_Timer
         if (Blind_Timer < diff)
         {
             DoCastSpellIfCan(m_creature->GetVictim(), SPELL_BLIND);
             Blind_Timer = urand(10000, 20000);
         }
-        else
-            Blind_Timer -= diff;
+        else Blind_Timer -= diff;
 
 
         DoMeleeAttackIfReady();
     }
 };
 
-CreatureAI* GetAI_boss_thekal(Creature* pCreature) { return new boss_thekalAI(pCreature); }
+CreatureAI* GetAI_boss_thekal(Creature* pCreature)
+{
+    return new boss_thekalAI(pCreature);
+}
 
-CreatureAI* GetAI_mob_zealot_lorkhan(Creature* pCreature) { return new mob_zealot_lorkhanAI(pCreature); }
+CreatureAI* GetAI_mob_zealot_lorkhan(Creature* pCreature)
+{
+    return new mob_zealot_lorkhanAI(pCreature);
+}
 
-CreatureAI* GetAI_mob_zealot_zath(Creature* pCreature) { return new mob_zealot_zathAI(pCreature); }
+CreatureAI* GetAI_mob_zealot_zath(Creature* pCreature)
+{
+    return new mob_zealot_zathAI(pCreature);
+}
 
 void AddSC_boss_thekal()
 {
-    Script* newscript;
+    Script *newscript;
 
     newscript = new Script;
     newscript->Name = "boss_thekal";

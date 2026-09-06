@@ -21,116 +21,99 @@
 #include <dpp/cluster.h>
 #include <dpp/nlohmann/json.hpp>
 
-namespace dpp
+namespace dpp {
+
+
+confirmation_callback_t::confirmation_callback_t(cluster* creator, const confirmable_t& _value, const http_request_completion_t& _http)
+	: http_info(_http), value(_value), bot(creator)
 {
+	if (std::holds_alternative<confirmation>(_value)) {
+		confirmation newvalue = std::get<confirmation>(_value);
+		newvalue.success = (http_info.status < 400);
+		value = newvalue;
+	}
+}
 
+confirmation_callback_t::confirmation_callback_t(const http_request_completion_t& _http)
+	: http_info(_http),  value(), bot(nullptr)
+{
+}
 
-    confirmation_callback_t::confirmation_callback_t(cluster* creator, const confirmable_t& _value, const http_request_completion_t& _http) : http_info(_http), value(_value), bot(creator)
-    {
-        if (std::holds_alternative<confirmation>(_value))
-        {
-            confirmation newvalue = std::get<confirmation>(_value);
-            newvalue.success = (http_info.status < 400);
-            value = newvalue;
-        }
-    }
+confirmation_callback_t::confirmation_callback_t(cluster* creator) : bot(creator) {
+	http_info = {};
+	value = {};
+}
 
-    confirmation_callback_t::confirmation_callback_t(const http_request_completion_t& _http) : http_info(_http), value(), bot(nullptr) {}
+bool confirmation_callback_t::is_error() const {
+	if (http_info.status >= 400) {
+		/* Invalid JSON or 4xx/5xx response */
+		return true;
+	}
+	if (http_info.status == 204) {
+		/* Body is empty so we can't parse it but interaction is not an error*/
+		return false;
+	}
+	try {
+		json j = json::parse(this->http_info.body);
+		if (j.find("code") != j.end() && j.find("errors") != j.end() && j.find("message") != j.end()) {
+			if (j["code"].is_number_unsigned() && j["errors"].is_object() && j["message"].is_string()) {
+				return true;
+			} else {
+				return false;
+			}
+		}
+		return false;
+	}
+	catch (const std::exception &) {
+		/* JSON parse error indicates the content is not JSON.
+		 * This means that its an empty body e.g. 204 response, and not an actual error.
+		 */
+		return false;
+	}
+}
 
-    confirmation_callback_t::confirmation_callback_t(cluster* creator) : bot(creator)
-    {
-        http_info = {};
-        value = {};
-    }
+error_info confirmation_callback_t::get_error() const {
+	if (is_error()) {
+		json j = json::parse(this->http_info.body);
+		error_info e;
 
-    bool confirmation_callback_t::is_error() const
-    {
-        if (http_info.status >= 400)
-        {
-            /* Invalid JSON or 4xx/5xx response */
-            return true;
-        }
-        if (http_info.status == 204)
-        {
-            /* Body is empty so we can't parse it but interaction is not an error*/
-            return false;
-        }
-        try
-        {
-            json j = json::parse(this->http_info.body);
-            if (j.find("code") != j.end() && j.find("errors") != j.end() && j.find("message") != j.end())
-            {
-                if (j["code"].is_number_unsigned() && j["errors"].is_object() && j["message"].is_string())
-                {
-                    return true;
-                }
-                else
-                {
-                    return false;
-                }
-            }
-            return false;
-        }
-        catch (const std::exception&)
-        {
-            /* JSON parse error indicates the content is not JSON.
-             * This means that its an empty body e.g. 204 response, and not an actual error.
-             */
-            return false;
-        }
-    }
+		set_int32_not_null(&j, "code", e.code);
+		set_string_not_null(&j, "message", e.message);
+		json& errors = j["errors"];
+		for (auto obj = errors.begin(); obj != errors.end(); ++obj) {
 
-    error_info confirmation_callback_t::get_error() const
-    {
-        if (is_error())
-        {
-            json j = json::parse(this->http_info.body);
-            error_info e;
+			if (obj->find("0") != obj->end()) {
+				/* An array of error messages */
+				for (auto index = obj->begin(); index != obj->end(); ++index) {
+					for (auto fields = index->begin(); fields != index->end(); ++fields) {
+						for (auto errordetails = (*fields)["_errors"].begin(); errordetails != (*fields)["_errors"].end(); ++errordetails) {
+							error_detail detail;
+							detail.code = (*errordetails)["code"].get<std::string>();
+							detail.reason = (*errordetails)["message"].get<std::string>();
+							detail.field = fields.key();
+							detail.object = obj.key();
+							e.errors.emplace_back(detail);
+						}
+					}
+				}
 
-            set_int32_not_null(&j, "code", e.code);
-            set_string_not_null(&j, "message", e.message);
-            json& errors = j["errors"];
-            for (auto obj = errors.begin(); obj != errors.end(); ++obj)
-            {
+			} else if (obj->find("_errors") != obj->end()) {
+				/* An object of error messages */
+				e.errors.reserve((*obj)["_errors"].size());
+				for (auto errordetails = (*obj)["_errors"].begin(); errordetails != (*obj)["_errors"].end(); ++errordetails) {
+					error_detail detail;
+					detail.code = (*errordetails)["code"].get<std::string>();
+					detail.reason = (*errordetails)["message"].get<std::string>();
+					detail.object.clear();
+					detail.field = obj.key();
+					e.errors.emplace_back(detail);
+				}
+			}
+		}
 
-                if (obj->find("0") != obj->end())
-                {
-                    /* An array of error messages */
-                    for (auto index = obj->begin(); index != obj->end(); ++index)
-                    {
-                        for (auto fields = index->begin(); fields != index->end(); ++fields)
-                        {
-                            for (auto errordetails = (*fields)["_errors"].begin(); errordetails != (*fields)["_errors"].end(); ++errordetails)
-                            {
-                                error_detail detail;
-                                detail.code = (*errordetails)["code"].get<std::string>();
-                                detail.reason = (*errordetails)["message"].get<std::string>();
-                                detail.field = fields.key();
-                                detail.object = obj.key();
-                                e.errors.emplace_back(detail);
-                            }
-                        }
-                    }
-                }
-                else if (obj->find("_errors") != obj->end())
-                {
-                    /* An object of error messages */
-                    e.errors.reserve((*obj)["_errors"].size());
-                    for (auto errordetails = (*obj)["_errors"].begin(); errordetails != (*obj)["_errors"].end(); ++errordetails)
-                    {
-                        error_detail detail;
-                        detail.code = (*errordetails)["code"].get<std::string>();
-                        detail.reason = (*errordetails)["message"].get<std::string>();
-                        detail.object.clear();
-                        detail.field = obj.key();
-                        e.errors.emplace_back(detail);
-                    }
-                }
-            }
+		return e;
+	}
+	return error_info();
+}
 
-            return e;
-        }
-        return error_info();
-    }
-
-}; // namespace dpp
+};

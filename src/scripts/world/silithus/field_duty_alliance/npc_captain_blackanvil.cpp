@@ -16,9 +16,14 @@ npc_captain_blackanvil* npc_captain_blackanvil::GetBlackanvilAI(Creature* creatu
     return dynamic_cast<npc_captain_blackanvil*>(creature->AI());
 }
 
-npc_captain_blackanvil::npc_captain_blackanvil(Creature* pCreature) : ScriptedAI(pCreature) { npc_captain_blackanvil::Reset(); }
+npc_captain_blackanvil::npc_captain_blackanvil(Creature* pCreature) : ScriptedAI(pCreature)
+{
+    npc_captain_blackanvil::Reset();
+}
 
-void npc_captain_blackanvil::Reset() {}
+void npc_captain_blackanvil::Reset()
+{
+}
 
 void npc_captain_blackanvil::UpdateAI(const uint32 delta)
 {
@@ -61,7 +66,10 @@ void npc_captain_blackanvil::UpdateAI(const uint32 delta)
     DoMeleeAttackIfReady();
 }
 
-CreatureAI* npc_captain_blackanvil::GetAI(Creature* pCreature) { return new npc_captain_blackanvil(pCreature); }
+CreatureAI* npc_captain_blackanvil::GetAI(Creature* pCreature)
+{
+    return new npc_captain_blackanvil(pCreature);
+}
 
 bool npc_captain_blackanvil::GossipHello(Player* player, Creature* creature)
 {
@@ -81,7 +89,10 @@ bool npc_captain_blackanvil::GossipHello(Player* player, Creature* creature)
     return true;
 }
 
-bool npc_captain_blackanvil::GossipSelect(Player* player, Creature* creature, uint32_t sender, uint32_t action) { return false; }
+bool npc_captain_blackanvil::GossipSelect(Player* player, Creature* creature, uint32_t sender, uint32_t action)
+{
+    return false;
+}
 
 void npc_captain_blackanvil::RegisterScript()
 {

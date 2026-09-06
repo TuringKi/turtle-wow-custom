@@ -1,18 +1,19 @@
 #ifndef MANGOS_MOVEMENT_BROADCASTER_H
 #define MANGOS_MOVEMENT_BROADCASTER_H
 
-#include <array>
-#include <atomic>
-#include <chrono>
-#include <cstddef>
-#include <list>
-#include <memory>
-#include <shared_mutex>
-#include <thread>
-#include <unordered_map>
-#include <vector>
 #include "Log.h"
 #include "ObjectGuid.h"
+#include <array>
+#include <atomic>
+#include <array>
+#include <chrono>
+#include <unordered_map>
+#include <list>
+#include <vector>
+#include <cstddef>
+#include <memory>
+#include <thread>
+#include <shared_mutex>
 
 class PlayerBroadcaster;
 class MovementBroadcaster;
@@ -20,7 +21,7 @@ class MovementBroadcaster;
 class MovementBroadcasterWorker
 {
 public:
-    MovementBroadcasterWorker(int threadId, MovementBroadcaster* broadcaster) : m_threadId(threadId), m_broadcaster(broadcaster){};
+    MovementBroadcasterWorker(int threadId, MovementBroadcaster* broadcaster) : m_threadId(threadId), m_broadcaster(broadcaster) {};
     virtual void run();
     int m_threadId;
     MovementBroadcaster* m_broadcaster;
@@ -29,12 +30,12 @@ public:
 class MovementBroadcaster final
 {
     friend class MovementBroadcasterWorker;
-    typedef std::set<std::shared_ptr<PlayerBroadcaster>> PlayersBCastSet;
+    typedef std::set<std::shared_ptr<PlayerBroadcaster> > PlayersBCastSet;
 
     std::size_t m_num_threads;
 
     std::atomic_bool m_stop;
-    std::vector<std::unique_ptr<std::thread, std::function<void(std::thread*)>>> m_threads;
+    std::vector<std::unique_ptr<std::thread, std::function<void(std::thread *)>>> m_threads;
     std::chrono::milliseconds m_sleep_timer;
 
     std::vector<PlayersBCastSet> m_thread_players;

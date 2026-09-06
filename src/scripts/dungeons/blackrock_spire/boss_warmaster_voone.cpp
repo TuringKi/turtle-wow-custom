@@ -23,17 +23,20 @@ EndScriptData */
 
 #include "scriptPCH.h"
 
-#define SPELL_SNAPKICK 15618
-#define SPELL_CLEAVE 15284
-#define SPELL_UPPERCUT 10966
-#define SPELL_MORTALSTRIKE 15708
-#define SPELL_PUMMEL 15615
-#define SPELL_THROWAXE 16075
-#define SPELL_UNARMED_PASSIVE 16076
+#define SPELL_SNAPKICK          15618
+#define SPELL_CLEAVE            15284
+#define SPELL_UPPERCUT          10966
+#define SPELL_MORTALSTRIKE      15708
+#define SPELL_PUMMEL            15615
+#define SPELL_THROWAXE          16075
+#define SPELL_UNARMED_PASSIVE   16076
 
 struct boss_warmastervooneAI : public ScriptedAI
 {
-    boss_warmastervooneAI(Creature* pCreature) : ScriptedAI(pCreature) { Reset(); }
+    boss_warmastervooneAI(Creature* pCreature) : ScriptedAI(pCreature)
+    {
+        Reset();
+    }
 
     uint32 m_snapKickTimer;
     uint32 m_cleaveTimer;
@@ -60,13 +63,13 @@ struct boss_warmastervooneAI : public ScriptedAI
         {
             switch (m_axesThrownCount)
             {
-            case 0:
+                case 0:
                 {
                     m_creature->SetVirtualItem(VIRTUAL_ITEM_SLOT_0, 12348);
                     m_creature->SetVirtualItem(VIRTUAL_ITEM_SLOT_1, 0);
                     break;
                 }
-            case 1:
+                case 1:
                 {
                     m_creature->SetVirtualItem(VIRTUAL_ITEM_SLOT_0, 0);
                     m_creature->SetVirtualItem(VIRTUAL_ITEM_SLOT_1, 0);
@@ -80,76 +83,73 @@ struct boss_warmastervooneAI : public ScriptedAI
 
     void UpdateAI(uint32 const diff) override
     {
-        // Return since we have no target
+        //Return since we have no target
         if (!m_creature->SelectHostileTarget() || !m_creature->GetVictim())
             return;
 
-        // m_snapKickTimer
+        //m_snapKickTimer
         if (m_snapKickTimer < diff)
         {
             DoCastSpellIfCan(m_creature->GetVictim(), SPELL_SNAPKICK);
             m_snapKickTimer = 6000;
         }
-        else
-            m_snapKickTimer -= diff;
+        else m_snapKickTimer -= diff;
 
-        // m_cleaveTimer
+        //m_cleaveTimer
         if (m_cleaveTimer < diff)
         {
             DoCastSpellIfCan(m_creature->GetVictim(), SPELL_CLEAVE);
             m_cleaveTimer = 12000;
         }
-        else
-            m_cleaveTimer -= diff;
+        else m_cleaveTimer -= diff;
 
-        // m_uppercutTimer
+        //m_uppercutTimer
         if (m_uppercutTimer < diff)
         {
             DoCastSpellIfCan(m_creature->GetVictim(), SPELL_UPPERCUT);
             m_uppercutTimer = 14000;
         }
-        else
-            m_uppercutTimer -= diff;
+        else m_uppercutTimer -= diff;
 
-        // m_mortalStrikeTimer
+        //m_mortalStrikeTimer
         if (m_mortalStrikeTimer < diff)
         {
             DoCastSpellIfCan(m_creature->GetVictim(), SPELL_MORTALSTRIKE);
             m_mortalStrikeTimer = 10000;
         }
-        else
-            m_mortalStrikeTimer -= diff;
+        else m_mortalStrikeTimer -= diff;
 
-        // m_pummelTimer
+        //m_pummelTimer
         if (m_pummelTimer < diff)
         {
             DoCastSpellIfCan(m_creature->GetVictim(), SPELL_PUMMEL);
             m_pummelTimer = 16000;
         }
-        else
-            m_pummelTimer -= diff;
+        else m_pummelTimer -= diff;
 
         if (!m_creature->HasAura(SPELL_UNARMED_PASSIVE))
         {
-            // m_throwAxeTimer
+            //m_throwAxeTimer
             if (m_throwAxeTimer < diff)
             {
                 if (DoCastSpellIfCan(m_creature->GetVictim(), SPELL_THROWAXE) == CAST_OK)
                     m_throwAxeTimer = urand(5000, 15000);
             }
-            else
-                m_throwAxeTimer -= diff;
+            else m_throwAxeTimer -= diff;
         }
 
         DoMeleeAttackIfReady();
     }
 };
 
-CreatureAI* GetAI_boss_warmastervoone(Creature* pCreature) { return new boss_warmastervooneAI(pCreature); }
+CreatureAI* GetAI_boss_warmastervoone(Creature* pCreature)
+{
+    return new boss_warmastervooneAI(pCreature);
+}
 
 void AddSC_boss_warmastervoone()
 {
-    Script* newscript;
+    Script *newscript;
     newscript = new Script;
     newscript->Name = "boss_warmaster_voone";
     newscript->GetAI = &GetAI_boss_warmastervoone;

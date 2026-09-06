@@ -18,21 +18,23 @@
  */
 
 #include "PlayerAI.h"
+#include "Player.h"
 #include "DBCStores.h"
 #include "Log.h"
+#include "SpellMgr.h"
 #include "MotionMaster.h"
 #include "MoveSpline.h"
-#include "Player.h"
 #include "Spell.h"
-#include "SpellMgr.h"
 
 // Misc spells we dont want players to cast
-static std::vector<uint32> priestSkipSpells = {
-    453,  8123, 8192, 8193,  10953, 10954, // mind soothe
-    1150, 2096, 2097, 10909, 10910, // mind vision
-    1265, 9580, 9581, 9593,  10943, 10944, // fade
+static std::vector<uint32> priestSkipSpells =
+{
+    453,8123,8192,8193,10953,10954,  // mind soothe
+    1150,2096,2097,10909,10910,      // mind vision
+    1265,9580,9581,9593,10943,10944, // fade
 };
-static std::vector<uint32> hunterSkipSpells = {
+static std::vector<uint32> hunterSkipSpells =
+{
     75, // auto shot
 };
 
@@ -42,9 +44,11 @@ void PlayerAI::Remove()
     delete this;
 }
 
-PlayerAI::~PlayerAI() {}
+PlayerAI::~PlayerAI()
+{
+}
 
-CanCastResult PlayerAI::CanCastSpell(Unit* pTarget, const SpellEntry* pSpell, bool isTriggered, bool checkControlled)
+CanCastResult PlayerAI::CanCastSpell(Unit* pTarget, const SpellEntry *pSpell, bool isTriggered, bool checkControlled)
 {
     if (!pTarget)
         return CAST_FAIL_OTHER;
@@ -66,7 +70,7 @@ CanCastResult PlayerAI::CanCastSpell(Unit* pTarget, const SpellEntry* pSpell, bo
             return CAST_FAIL_POWER;
     }
 
-    if (const SpellRangeEntry* pSpellRange = sSpellRangeStore.LookupEntry(pSpell->rangeIndex))
+    if (const SpellRangeEntry *pSpellRange = sSpellRangeStore.LookupEntry(pSpell->rangeIndex))
     {
         if (pTarget != me)
         {
@@ -87,34 +91,36 @@ CanCastResult PlayerAI::CanCastSpell(Unit* pTarget, const SpellEntry* pSpell, bo
         return CAST_FAIL_OTHER;
 }
 
-void PlayerAI::UpdateAI(const uint32 /*diff*/) {}
+void PlayerAI::UpdateAI(const uint32 /*diff*/)
+{
+}
 
 PlayerControlledAI::PlayerControlledAI(Player* pPlayer, Unit* caster) : PlayerAI(pPlayer), controllerGuid(caster ? caster->GetObjectGuid() : ObjectGuid()), uiGlobalCD(0)
 {
     ASSERT(pPlayer);
     switch (pPlayer->GetClass())
     {
-    case CLASS_WARRIOR:
-    case CLASS_ROGUE:
-        bIsMelee = true;
-        isHealer = false;
-        break;
-    case CLASS_PALADIN:
-    case CLASS_DRUID:
-        bIsMelee = true;
-        isHealer = true;
-        break;
-    case CLASS_PRIEST:
-    case CLASS_SHAMAN:
-        isHealer = true;
-        bIsMelee = false;
-        break;
-    case CLASS_MAGE:
-    case CLASS_WARLOCK:
-    case CLASS_HUNTER:
-        isHealer = false;
-        bIsMelee = false;
-        break;
+        case CLASS_WARRIOR:
+        case CLASS_ROGUE:
+            bIsMelee = true;
+            isHealer = false;
+            break;
+        case CLASS_PALADIN:
+        case CLASS_DRUID:
+            bIsMelee = true;
+            isHealer = true;
+            break;
+        case CLASS_PRIEST:
+        case CLASS_SHAMAN:
+            isHealer = true;
+            bIsMelee = false;
+            break;
+        case CLASS_MAGE:
+        case CLASS_WARLOCK:
+        case CLASS_HUNTER:
+            isHealer = false;
+            bIsMelee = false;
+            break;
     }
 
     PlayerSpellMap spells = me->GetSpellMap();
@@ -163,7 +169,7 @@ PlayerControlledAI::PlayerControlledAI(Player* pPlayer, Unit* caster) : PlayerAI
     for (auto it = usableSpells.begin(); it != usableSpells.end();)
     {
         bool foundSupRank = false;
-        SpellEntry const* pCurrSpell_1 = sSpellMgr.GetSpellEntry(*(it));
+        SpellEntry const *pCurrSpell_1 = sSpellMgr.GetSpellEntry(*(it));
         for (const auto& usableSpell : usableSpells)
         {
             SpellEntry const* pCurrSpell_2 = sSpellMgr.GetSpellEntry(usableSpell);
@@ -186,15 +192,19 @@ PlayerControlledAI::PlayerControlledAI(Player* pPlayer, Unit* caster) : PlayerAI
         else
             ++it;
     }
-
+    
     me->GetMotionMaster()->Clear();
-
+    
     if (caster && caster->ToCreature())
         if (Unit* victim = caster->ToCreature()->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 0))
             UpdateTarget(victim);
+
 }
 
-Unit* PlayerControlledAI::FindController() { return me->GetMap()->GetUnit(controllerGuid); }
+Unit* PlayerControlledAI::FindController()
+{
+    return me->GetMap()->GetUnit(controllerGuid);
+}
 
 void PlayerControlledAI::UpdateTarget(Unit* victim)
 {
@@ -245,7 +255,7 @@ void PlayerControlledAI::UpdateTarget(Unit* victim)
         else
         {
             bool inMeleeRange = me->CanReachWithMeleeAutoAttack(victim);
-            if ((bIsMelee && inMeleeRange) || (!bIsMelee && !me->IsMoving() && me->IsWithinDist(victim, 30.0f)))
+            if ( (bIsMelee && inMeleeRange) || (!bIsMelee && !me->IsMoving() && me->IsWithinDist(victim, 30.0f)))
             {
                 me->GetMotionMaster()->Clear();
                 if (bIsMelee && !me->HasInArc(victim, 0.2f))
@@ -270,7 +280,9 @@ void PlayerControlledAI::UpdateTarget(Unit* victim)
     }
 }
 
-PlayerControlledAI::~PlayerControlledAI() {}
+PlayerControlledAI::~PlayerControlledAI()
+{
+}
 
 void PlayerControlledAI::UpdateAI(const uint32 uiDiff)
 {

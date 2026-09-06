@@ -7,6 +7,6 @@ int CreateVanillaCameraMesh_Main(int argc, char** argv);
 
 int main(int argc, char** argv)
 {
-    return OpenVanillaMesh_Main(argc, argv);
-    // return CreateVanillaCameraMesh_Main(argc, argv);
+	return OpenVanillaMesh_Main(argc, argv);
+	//return CreateVanillaCameraMesh_Main(argc, argv);
 }

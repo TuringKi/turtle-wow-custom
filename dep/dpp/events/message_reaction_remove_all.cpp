@@ -2,7 +2,7 @@
  *
  * D++, A Lightweight C++ library for Discord
  *
- * Copyright 2021 Craig Edwards and D++ contributors
+ * Copyright 2021 Craig Edwards and D++ contributors 
  * (https://github.com/brainboxdotcc/DPP/graphs/contributors)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,43 +18,36 @@
  * limitations under the License.
  *
  ************************************************************************************/
-#include <dpp/cluster.h>
 #include <dpp/discordevents.h>
+#include <dpp/cluster.h>
 #include <dpp/message.h>
-#include <dpp/nlohmann/json.hpp>
 #include <dpp/stringops.h>
+#include <dpp/nlohmann/json.hpp>
 
 using json = nlohmann::json;
 
-namespace dpp
-{
-    namespace events
-    {
+namespace dpp { namespace events {
 
-        using namespace dpp;
+using namespace dpp;
 
-        /**
-         * @brief Handle event
-         *
-         * @param client Websocket client (current shard)
-         * @param j JSON data for the event
-         * @param raw Raw JSON string
-         */
-        void message_reaction_remove_all::handle(discord_client* client, json& j, const std::string& raw)
-        {
-            if (!client->creator->on_message_reaction_remove_all.empty())
-            {
-                json& d = j["d"];
-                dpp::message_reaction_remove_all_t mrra(client, raw);
-                mrra.reacting_guild = dpp::find_guild(snowflake_not_null(&d, "guild_id"));
-                mrra.reacting_channel = dpp::find_channel(snowflake_not_null(&d, "channel_id"));
-                mrra.message_id = snowflake_not_null(&d, "message_id");
-                if (mrra.reacting_channel && mrra.message_id)
-                {
-                    client->creator->on_message_reaction_remove_all.call(mrra);
-                }
-            }
-        }
+/**
+ * @brief Handle event
+ * 
+ * @param client Websocket client (current shard)
+ * @param j JSON data for the event
+ * @param raw Raw JSON string
+ */
+void message_reaction_remove_all::handle(discord_client* client, json &j, const std::string &raw) {
+	if (!client->creator->on_message_reaction_remove_all.empty()) {
+		json &d = j["d"];
+		dpp::message_reaction_remove_all_t mrra(client, raw);
+		mrra.reacting_guild = dpp::find_guild(snowflake_not_null(&d, "guild_id"));
+		mrra.reacting_channel = dpp::find_channel(snowflake_not_null(&d, "channel_id"));
+		mrra.message_id = snowflake_not_null(&d, "message_id");
+		if (mrra.reacting_channel && mrra.message_id) {
+			client->creator->on_message_reaction_remove_all.call(mrra);
+		}
+	}
+}
 
-    } // namespace events
-}; // namespace dpp
+}};

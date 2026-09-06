@@ -28,7 +28,7 @@ class MovementGenerator;
 
 namespace FactorySelector
 {
-    CreatureAI* selectAI(Creature*);
-    MovementGenerator* selectMovementGenerator(Creature*);
-} // namespace FactorySelector
+    CreatureAI* selectAI(Creature *);
+    MovementGenerator* selectMovementGenerator(Creature *);
+}
 #endif

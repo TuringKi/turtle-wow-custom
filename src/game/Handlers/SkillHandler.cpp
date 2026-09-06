@@ -19,17 +19,18 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#include "Anticheat.h"
 #include "Common.h"
 #include "Database/DatabaseEnv.h"
-#include "Log.h"
 #include "Opcodes.h"
+#include "Log.h"
 #include "Player.h"
-#include "UpdateMask.h"
+#include "SpellMgr.h"
 #include "WorldPacket.h"
 #include "WorldSession.h"
+#include "UpdateMask.h"
+#include "Anticheat.h"
 
-void WorldSession::HandleLearnTalentOpcode(WorldPacket& recv_data)
+void WorldSession::HandleLearnTalentOpcode(WorldPacket & recv_data)
 {
     uint32 talent_id, requested_rank;
     recv_data >> talent_id >> requested_rank;
@@ -37,13 +38,13 @@ void WorldSession::HandleLearnTalentOpcode(WorldPacket& recv_data)
     _player->LearnTalent(talent_id, requested_rank);
 }
 
-void WorldSession::HandleTalentWipeConfirmOpcode(WorldPacket& recv_data)
+void WorldSession::HandleTalentWipeConfirmOpcode(WorldPacket & recv_data)
 {
     DETAIL_LOG("MSG_TALENT_WIPE_CONFIRM");
     ObjectGuid guid;
     recv_data >> guid;
 
-    Creature* unit = GetPlayer()->GetNPCIfCanInteractWith(guid, UNIT_NPC_FLAG_TRAINER);
+    Creature *unit = GetPlayer()->GetNPCIfCanInteractWith(guid, UNIT_NPC_FLAG_TRAINER);
     if (!unit)
     {
         DEBUG_LOG("WORLD: HandleTalentWipeConfirmOpcode - %s not found or you can't interact with him.", guid.GetString().c_str());
@@ -56,22 +57,22 @@ void WorldSession::HandleTalentWipeConfirmOpcode(WorldPacket& recv_data)
 
     if (!(_player->ResetTalents()))
     {
-        WorldPacket data(MSG_TALENT_WIPE_CONFIRM, 8 + 4); // you have not any talent
+        WorldPacket data(MSG_TALENT_WIPE_CONFIRM, 8 + 4);   //you have not any talent
         data << uint64(0);
         data << uint32(0);
         SendPacket(&data);
         return;
     }
 
-    unit->CastSpell(_player, 14867, true); // spell: "Untalent Visual Effect"
+    unit->CastSpell(_player, 14867, true);                  //spell: "Untalent Visual Effect"
 }
 
-void WorldSession::HandleUnlearnSkillOpcode(WorldPacket& recv_data)
+void WorldSession::HandleUnlearnSkillOpcode(WorldPacket & recv_data)
 {
     uint32 skill_id;
     recv_data >> skill_id;
-    SkillRaceClassInfoEntry const* rcEntry = GetSkillRaceClassInfo(skill_id, GetPlayer()->GetRace(), GetPlayer()->GetClass());
-
+    SkillRaceClassInfoEntry const* rcEntry = sSpellMgr.GetSkillRaceClassInfo(skill_id, GetPlayer()->GetRace(), GetPlayer()->GetClass());
+    
     if (!rcEntry || !(rcEntry->flags & SKILL_FLAG_UNLEARNABLE))
     {
         std::stringstream reason;
@@ -79,6 +80,6 @@ void WorldSession::HandleUnlearnSkillOpcode(WorldPacket& recv_data)
         ProcessAnticheatAction("PassiveAnticheat", reason.str().c_str(), CHEAT_ACTION_INFO_LOG);
         return;
     }
-
+    
     GetPlayer()->SetSkill(skill_id, 0, 0);
 }

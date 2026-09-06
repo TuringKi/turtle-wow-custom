@@ -20,14 +20,17 @@
  */
 
 /** \file WorldSocketMgr.cpp
- *  \ingroup u2w
- *  \author Derex <derex101@gmail.com>
- */
+*  \ingroup u2w
+*  \author Derex <derex101@gmail.com>
+*/
 
+#include "WorldSocket.h"
 #include "WorldSocketMgr.h"
 #include "MangosSocketMgrImpl.h"
-#include "WorldSocket.h"
 
 template class MangosSocketMgr<WorldSocket>;
 
-WorldSocketMgr* WorldSocketMgr::Instance() { return ACE_Singleton<WorldSocketMgr, ACE_Thread_Mutex>::instance(); }
+WorldSocketMgr* WorldSocketMgr::Instance()
+{
+    return ACE_Singleton<WorldSocketMgr, ACE_Thread_Mutex>::instance();
+}

@@ -27,11 +27,14 @@ include_directories(
     ../../src
     ../../src/shared
     ../../src/game
+    ../../src/game/Protocol
     ../../src/game/vmap
     ../../src/game/Maps
     ../../src/game/Commands
     ../../dep/include/g3dlite
     ../../src/framework
+    ../../dep/fmt/include
+    ../../dep/fmt
     ${ACE_INCLUDE_DIR}
     ${OPENSSL_INCLUDE_DIR}
     ../../dep/recastnavigation/

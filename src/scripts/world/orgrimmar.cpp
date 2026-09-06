@@ -39,7 +39,10 @@ enum
 
 struct npc_shenthulAI : public ScriptedAI
 {
-    npc_shenthulAI(Creature* pCreature) : ScriptedAI(pCreature) { Reset(); }
+    npc_shenthulAI(Creature* pCreature) : ScriptedAI(pCreature)
+    {
+        Reset();
+    }
 
     bool CanTalk;
     bool CanEmote;
@@ -81,8 +84,7 @@ struct npc_shenthulAI : public ScriptedAI
                 }
                 Reset();
             }
-            else
-                Reset_Timer -= diff;
+            else Reset_Timer -= diff;
         }
 
         if (CanTalk && !CanEmote)
@@ -93,8 +95,7 @@ struct npc_shenthulAI : public ScriptedAI
                 CanEmote = true;
                 Reset_Timer = 60000;
             }
-            else
-                Salute_Timer -= diff;
+            else Salute_Timer -= diff;
         }
 
         if (!m_creature->SelectHostileTarget() || !m_creature->GetVictim())
@@ -104,7 +105,10 @@ struct npc_shenthulAI : public ScriptedAI
     }
 };
 
-CreatureAI* GetAI_npc_shenthul(Creature* pCreature) { return new npc_shenthulAI(pCreature); }
+CreatureAI* GetAI_npc_shenthul(Creature* pCreature)
+{
+    return new npc_shenthulAI(pCreature);
+}
 
 bool QuestAccept_npc_shenthul(Player* pPlayer, Creature* pCreature, const Quest* pQuest)
 {
@@ -118,11 +122,11 @@ bool QuestAccept_npc_shenthul(Player* pPlayer, Creature* pCreature, const Quest*
 
 void AddSC_orgrimmar()
 {
-    Script* newscript;
+    Script *newscript;
 
     newscript = new Script;
     newscript->Name = "npc_shenthul";
     newscript->GetAI = &GetAI_npc_shenthul;
-    newscript->pQuestAcceptNPC = &QuestAccept_npc_shenthul;
+    newscript->pQuestAcceptNPC =  &QuestAccept_npc_shenthul;
     newscript->RegisterSelf();
 }

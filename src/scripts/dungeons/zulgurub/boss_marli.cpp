@@ -44,11 +44,11 @@ enum
     SPELL_CORROSIVE_POISON = 24111,
     SPELL_TRANSFORM_BACK = 24085,
     SPELL_TRASH = 3391,
-    SPELL_HATCH = 24083, // visual
+    SPELL_HATCH = 24083, //visual
     SPELL_AGGRANDIR = 24109,
 
-    // The Spider Spells
-    SPELL_LEVELUP = 24312 // visual
+    //The Spider Spells
+    SPELL_LEVELUP = 24312 //visual
 };
 
 struct boss_marliAI : public ScriptedAI
@@ -138,9 +138,9 @@ struct boss_marliAI : public ScriptedAI
             DoScriptText(SAY_SPIDER_SPAWN, m_creature);
             DoCastSpellIfCan(m_creature, SPELL_HATCH);
 
-            for (uint8 i = 0; i < 4; ++i)
+            for (uint8 i = 0; i < 4 ; ++i)
             {
-                if (GameObject* pEgg = SelectNextEgg())
+                if (GameObject *pEgg = SelectNextEgg())
                 {
                     pEgg->SetGoState(GO_STATE_ACTIVE);
                     m_creature->SummonCreature(NPC_SPAWN_OF_MARLI, pEgg->GetPositionX(), pEgg->GetPositionY(), pEgg->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 15000);
@@ -233,7 +233,7 @@ struct boss_marliAI : public ScriptedAI
                 uint32 uiInvocCount = urand(1, 4);
                 for (uint8 i = 0; i < uiInvocCount; ++i)
                 {
-                    if (GameObject* pEgg = SelectNextEgg())
+                    if (GameObject *pEgg = SelectNextEgg())
                     {
                         pEgg->SetGoState(GO_STATE_ACTIVE);
                         m_creature->SummonCreature(NPC_SPAWN_OF_MARLI, pEgg->GetPositionX(), pEgg->GetPositionY(), pEgg->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 15000);
@@ -253,6 +253,7 @@ struct boss_marliAI : public ScriptedAI
             }
             else
                 m_uiAggrandir_Timer -= uiDiff;
+
         }
         // Araignee
         else
@@ -269,7 +270,7 @@ struct boss_marliAI : public ScriptedAI
 
             if (m_bHasWebbed && m_uiCharge_Timer < uiDiff)
             {
-                // Shouldn't be random target but highestaggro not Webbed player
+                //Shouldn't be random target but highestaggro not Webbed player
                 if (Unit* pTarget = m_creature->SelectAttackingTarget(ATTACKING_TARGET_TOPAGGRO, 0))
                 {
                     DoCastSpellIfCan(pTarget, SPELL_CHARGE);
@@ -313,7 +314,7 @@ struct boss_marliAI : public ScriptedAI
                 DoScriptText(SAY_TRANSFORM, m_creature);
                 DoCastSpellIfCan(m_creature, SPELL_SPIDER_FORM);
 
-                const CreatureInfo* cinfo = m_creature->GetCreatureInfo();
+                const CreatureInfo *cinfo = m_creature->GetCreatureInfo();
                 m_creature->SetBaseWeaponDamage(BASE_ATTACK, MINDAMAGE, (cinfo->dmg_min + ((cinfo->dmg_min / 100) * 35)));
                 m_creature->SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, (cinfo->dmg_max + ((cinfo->dmg_max / 100) * 35)));
                 m_creature->UpdateDamagePhysical(BASE_ATTACK);
@@ -331,7 +332,7 @@ struct boss_marliAI : public ScriptedAI
 
                 m_creature->SetDisplayId(m_uiDefaultModel);
 
-                const CreatureInfo* cinfo = m_creature->GetCreatureInfo();
+                const CreatureInfo *cinfo = m_creature->GetCreatureInfo();
                 m_creature->SetBaseWeaponDamage(BASE_ATTACK, MINDAMAGE, (cinfo->dmg_min + ((cinfo->dmg_min / 100) * 1)));
                 m_creature->SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, (cinfo->dmg_max + ((cinfo->dmg_max / 100) * 1)));
                 m_creature->UpdateDamagePhysical(BASE_ATTACK);
@@ -356,7 +357,7 @@ struct boss_marliAI : public ScriptedAI
     }
 };
 
-// Spawn of Marli
+//Spawn of Marli
 struct mob_spawn_of_marliAI : public ScriptedAI
 {
     mob_spawn_of_marliAI(Creature* pCreature) : ScriptedAI(pCreature)
@@ -368,7 +369,10 @@ struct mob_spawn_of_marliAI : public ScriptedAI
     ScriptedInstance* m_pInstance;
     uint32 m_uiLevelUp_Timer;
 
-    void Reset() override { m_uiLevelUp_Timer = 3000; }
+    void Reset() override
+    {
+        m_uiLevelUp_Timer = 3000;
+    }
 
     void UpdateAI(const uint32 uiDiff) override
     {
@@ -388,9 +392,15 @@ struct mob_spawn_of_marliAI : public ScriptedAI
     }
 };
 
-CreatureAI* GetAI_boss_marli(Creature* pCreature) { return new boss_marliAI(pCreature); }
+CreatureAI* GetAI_boss_marli(Creature* pCreature)
+{
+    return new boss_marliAI(pCreature);
+}
 
-CreatureAI* GetAI_mob_spawn_of_marli(Creature* pCreature) { return new mob_spawn_of_marliAI(pCreature); }
+CreatureAI* GetAI_mob_spawn_of_marli(Creature* pCreature)
+{
+    return new mob_spawn_of_marliAI(pCreature);
+}
 
 void AddSC_boss_marli()
 {

@@ -2,8 +2,8 @@
  *
  */
 
-#include "event_dragons_of_nightmare.h"
 #include "scriptPCH.h"
+#include "event_dragons_of_nightmare.h"
 
 enum
 {
@@ -29,7 +29,10 @@ enum
  *
  */
 
-boss_taerarAI::boss_taerarAI(Creature* pCreature) : boss_dragon_of_nightmareAI(pCreature) { boss_taerarAI::Reset(); }
+boss_taerarAI::boss_taerarAI(Creature* pCreature) : boss_dragon_of_nightmareAI(pCreature)
+{
+    boss_taerarAI::Reset();
+}
 
 void boss_taerarAI::Reset()
 {
@@ -60,7 +63,7 @@ bool boss_taerarAI::DoSpecialAbility()
 {
     if (DoCastSpellIfCan(m_creature, SPELL_SELF_STUN) == CAST_OK)
     {
-        DoCastSpellIfCan(m_creature, SPELL_SHADE_OF_TAERAR_LEFT, CF_TRIGGERED);
+        DoCastSpellIfCan(m_creature, SPELL_SHADE_OF_TAERAR_LEFT,  CF_TRIGGERED);
         DoCastSpellIfCan(m_creature, SPELL_SHADE_OF_TAERAR_RIGHT, CF_TRIGGERED);
         DoCastSpellIfCan(m_creature, SPELL_SHADE_OF_TAERAR_FRONT, CF_TRIGGERED);
 
@@ -86,7 +89,7 @@ void boss_taerarAI::SummonedCreatureJustDied(Creature* pSummoned)
         {
             DoUnbanish();
             m_creature->RemoveGuardians();
-        }
+        }            
     }
 }
 

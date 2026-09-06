@@ -26,20 +26,20 @@
 
 class ReactorAI : public CreatureAI
 {
-public:
-    explicit ReactorAI(Creature* c) : CreatureAI(c), m_bCanSummonGuards(c->CanSummonGuards()) {}
+    public:
 
-    void MoveInLineOfSight(Unit*) override;
-    void AttackStart(Unit*) override;
-    void UpdateAI(const uint32) override;
-    void JustRespawned() override;
+        explicit ReactorAI(Creature* c) : CreatureAI(c), m_bCanSummonGuards(c->CanSummonGuards()) {}
 
-    bool CanSummonGuards() const { return m_bCanSummonGuards; }
+        void MoveInLineOfSight(Unit*) override;
+        void AttackStart(Unit*) override;
+        void UpdateAI(const uint32) override;
+        void JustRespawned() override;
 
-    static int Permissible(const Creature*);
+        bool CanSummonGuards() const { return m_bCanSummonGuards; }
 
-private:
-    bool m_bCanSummonGuards;
+        static int Permissible(const Creature*);
+    private:
+        bool m_bCanSummonGuards;
 };
 
 #endif

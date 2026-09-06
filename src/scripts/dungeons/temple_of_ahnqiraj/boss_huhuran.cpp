@@ -58,7 +58,11 @@ struct boss_huhuranAI : public ScriptedAI
 
     void MoveInLineOfSight(Unit* pWho) override
     {
-        if (pWho->GetTypeId() == TYPEID_PLAYER && !m_creature->IsInCombat() && m_creature->IsWithinDistInMap(pWho, 80.0f) && !pWho->HasAuraType(SPELL_AURA_FEIGN_DEATH) && !pWho->HasAuraType(SPELL_AURA_MOD_UNATTACKABLE))
+        if (pWho->GetTypeId() == TYPEID_PLAYER
+            && !m_creature->IsInCombat()
+            && m_creature->IsWithinDistInMap(pWho, 80.0f)
+            && !pWho->HasAuraType(SPELL_AURA_FEIGN_DEATH)
+            && !pWho->HasAuraType(SPELL_AURA_MOD_UNATTACKABLE))
         {
             AttackStart(pWho);
         }
@@ -95,11 +99,11 @@ struct boss_huhuranAI : public ScriptedAI
 
     void UpdateAI(const uint32 uiDiff) override
     {
-        // Return since we have no target
+        //Return since we have no target
         if (!m_creature->SelectHostileTarget() || !m_creature->GetVictim())
             return;
 
-        // m_uiFrenzyTimer
+        //m_uiFrenzyTimer
         if (m_uiFrenzyTimer < uiDiff && !m_creature->HasAura(SPELL_FRENZY) && !m_bBerserk)
         {
             if (DoCastSpellIfCan(m_creature, SPELL_FRENZY) == CAST_OK)
@@ -124,7 +128,7 @@ struct boss_huhuranAI : public ScriptedAI
                 m_uiWyvernTimer -= uiDiff;
         }
 
-        // Spit Timer
+        //Spit Timer
         if (m_uiSpitTimer < uiDiff)
         {
             if (DoCastSpellIfCan(m_creature->GetVictim(), SPELL_ACIDSPIT) == CAST_OK)
@@ -158,13 +162,43 @@ struct boss_huhuranAI : public ScriptedAI
     }
 };
 
-CreatureAI* GetAI_boss_huhuran(Creature* pCreature) { return new boss_huhuranAI(pCreature); }
+CreatureAI* GetAI_boss_huhuran(Creature* pCreature)
+{
+    return new boss_huhuranAI(pCreature);
+}
+
+namespace
+{
+template <class T>
+SpellScript* GetSpellScript(SpellEntry const*)
+{
+    return new T();
+}
+
+void RegisterSpellScript(char const* name, SpellScript* (*getter)(SpellEntry const*))
+{
+    Script* script = new Script;
+    script->Name = name;
+    script->GetSpellScript = getter;
+    script->RegisterSelf();
+}
+
+struct spell_huhuran_poison_bolt_volley : public SpellScript
+{
+    void OnSetTargetMap(Spell* /*spell*/, SpellEffectIndex /*effIdx*/, uint32& /*targetMode*/, float& /*radius*/, uint32& /*unMaxTargets*/, bool& selectClosestTargets) const override
+    {
+        selectClosestTargets = true;
+    }
+};
+}
 
 void AddSC_boss_huhuran()
 {
-    Script* newscript;
+    Script *newscript;
     newscript = new Script;
     newscript->Name = "boss_huhuran";
     newscript->GetAI = &GetAI_boss_huhuran;
     newscript->RegisterSelf();
+
+    RegisterSpellScript("spell_huhuran_poison_bolt_volley", &GetSpellScript<spell_huhuran_poison_bolt_volley>);
 }

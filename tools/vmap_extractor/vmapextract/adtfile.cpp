@@ -16,8 +16,8 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#include "adtfile.h"
 #include "vmapexport.h"
+#include "adtfile.h"
 
 #include <algorithm>
 #include <cstdio>
@@ -57,7 +57,7 @@ void fixnamen(char* name, size_t len)
             name[i] &= ~0x20;
         }
     }
-    // extension in lowercase
+    //extension in lowercase
     for (size_t i = len - 3; i < len; i++)
         name[i] |= 0x20;
 }
@@ -79,7 +79,10 @@ char const* GetExtension(char const* FileName)
     return NULL;
 }
 
-ADTFile::ADTFile(char* filename) : ADT(filename) { Adtfilename.append(filename); }
+ADTFile::ADTFile(char* filename): ADT(filename)
+{
+    Adtfilename.append(filename);
+}
 
 bool ADTFile::init(uint32 map_num, uint32 tileX, uint32 tileY, StringSet& failedPaths)
 {
@@ -98,10 +101,10 @@ bool ADTFile::init(uint32 map_num, uint32 tileX, uint32 tileY, StringSet& failed
     yMap = TempMapNumber.substr(TempMapNumber.find_last_of("_") + 1, (TempMapNumber.length()) - (TempMapNumber.find_last_of("_")));
     Adtfilename.erase((Adtfilename.length() - xMap.length() - yMap.length() - 2), (xMap.length() + yMap.length() + 2));
     string AdtMapNumber = xMap + ' ' + yMap + ' ' + GetPlainName((char*)Adtfilename.c_str());
-    // printf("Processing map %s...\n", AdtMapNumber.c_str());
-    // printf("MapNumber = %s\n", TempMapNumber.c_str());
-    // printf("xMap = %s\n", xMap.c_str());
-    // printf("yMap = %s\n", yMap.c_str());
+    //printf("Processing map %s...\n", AdtMapNumber.c_str());
+    //printf("MapNumber = %s\n", TempMapNumber.c_str());
+    //printf("xMap = %s\n", xMap.c_str());
+    //printf("yMap = %s\n", yMap.c_str());
 
     std::string dirname = std::string(szWorkDirWmo) + "/dir_bin";
     FILE* dirfile;
@@ -142,7 +145,7 @@ bool ADTFile::init(uint32 map_num, uint32 tileX, uint32 tileY, StringSet& failed
                     fixnamen(p, strlen(p));
                     char* s = GetPlainName(p);
                     fixname2(s, strlen(s));
-                    string path(p); // Store copy after name fixed
+                    string path(p);                         // Store copy after name fixed
 
                     std::string fixedName;
                     ExtractSingleModel(path, fixedName, failedPaths);
@@ -212,4 +215,7 @@ bool ADTFile::init(uint32 map_num, uint32 tileX, uint32 tileY, StringSet& failed
     return true;
 }
 
-ADTFile::~ADTFile() { ADT.close(); }
+ADTFile::~ADTFile()
+{
+    ADT.close();
+}

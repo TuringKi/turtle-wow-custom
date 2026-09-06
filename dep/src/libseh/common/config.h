@@ -56,74 +56,71 @@
          handling, so SEH will be disabled.
 #endif
 
-/*
+/* 
  * It is not recommended that one change the definitions below unless absolutely necessary.
- * If one simply wants different names, one should configure the section after this one.
+ * If one simply wants different names, one should configure the section after this one.  
  * (the ones beginning with __seh as opposed to __libseh).  Changing the __libseh macro names
  * below will break the tests in the tests directory.
  */
 
 #if defined(LIBSEH_USE_LIBSEH_WIN32_SEH_IMPL) || defined(LIBSEH_USE_LIBSEH_SIGNALS_SEH_IMPL)
 
-#define __libseh_try __LIBSEH_TRY
-#define __libseh_except(x) __LIBSEH_EXCEPT(x)
-#define __libseh_finally __LIBSEH_FINALLY
-#define __libseh_leave __LIBSEH_LEAVE
-#define __libseh_end_except __LIBSEH_END_EXCEPT
-#define __libseh_end_finally __LIBSEH_END_FINALLY
+#define __libseh_try                             __LIBSEH_TRY
+#define __libseh_except(x)                       __LIBSEH_EXCEPT(x)
+#define __libseh_finally                         __LIBSEH_FINALLY
+#define __libseh_leave                           __LIBSEH_LEAVE
+#define __libseh_end_except                      __LIBSEH_END_EXCEPT
+#define __libseh_end_finally                     __LIBSEH_END_FINALLY
 
-#define __libseh_get_exception_code() __LIBSEH_GET_EXCEPTION_CODE()
-#define __libseh_get_exception_information() __LIBSEH_GET_EXCEPTION_INFORMATION()
+#define __libseh_get_exception_code()            __LIBSEH_GET_EXCEPTION_CODE()
+#define __libseh_get_exception_information()     __LIBSEH_GET_EXCEPTION_INFORMATION()
 
 #elif defined(LIBSEH_USE_COMPILER_SEH_IMPL)
 
-#define __libseh_try __try
-#define __libseh_except(x) __except (x)
-#define __libseh_finally __finally
-#define __libseh_leave __leave
-#define __libseh_end_except
-#define __libseh_end_finally
-#define __libseh_get_exception_code() GetExceptionCode()
-#define __libseh_get_exception_information() GetExceptionInformation()
+#define __libseh_try                             __try
+#define __libseh_except(x)                       __except(x)
+#define __libseh_finally                         __finally
+#define __libseh_leave                           __leave
+#define __libseh_end_except   
+#define __libseh_end_finally  
+#define __libseh_get_exception_code()            GetExceptionCode()
+#define __libseh_get_exception_information()     GetExceptionInformation()
 
 #else
 
-#define __libseh_try do
-#define __libseh_except(x)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            \
-    while (0)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         \
-        ;                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             \
-    if (0)
-#define __libseh_finally if (1)
-#define __libseh_leave break
-#define __libseh_end_except
-#define __libseh_end_finally
-#define __libseh_get_exception_code() 0
-#define __libseh_get_exception_information() (LPEXCEPTION_POINTERS)0
+#define __libseh_try                             do
+#define __libseh_except(x)                       while(0); if(0) 
+#define __libseh_finally                         if(1)
+#define __libseh_leave                           break
+#define __libseh_end_except   
+#define __libseh_end_finally  
+#define __libseh_get_exception_code()            0
+#define __libseh_get_exception_information()     (LPEXCEPTION_POINTERS)0
 
 #endif
 
 #if !defined(LIBSEH_USE_COMPILER_SEH_IMPL)
-#define GetExceptionCode() __libseh_get_exception_code()
-#define GetExceptionInformation() __libseh_get_exception_information()
+#define GetExceptionCode()                       __libseh_get_exception_code()
+#define GetExceptionInformation()                __libseh_get_exception_information()
 #endif
 
-/*
+/* 
  * Below are the standard bindings for LibSEH __try, __except, and __finally blocks.
  * Using the names __try, __except, __finally, and __leave is not recommended as
  * some standard libraries (libstdc++) use these names in header files.
  *
- * One may reconfigure these to one's liking or add another set of definitions that
+ * One may reconfigure these to one's liking or add another set of definitions that 
  * map to the __seh_* macros.
  */
 
 #if !defined(LIBSEH_PREFIX_MACROS_ONLY)
 
-#define __seh_try __libseh_try
-#define __seh_except(x) __libseh_except(x)
-#define __seh_finally __libseh_finally
-#define __seh_leave __libseh_leave
-#define __seh_end_except __libseh_end_except
-#define __seh_end_finally __libseh_end_finally
+#define __seh_try                                __libseh_try
+#define __seh_except(x)                          __libseh_except(x)
+#define __seh_finally                            __libseh_finally
+#define __seh_leave                              __libseh_leave
+#define __seh_end_except                         __libseh_end_except
+#define __seh_end_finally                        __libseh_end_finally
 
 #endif
 
@@ -143,7 +140,8 @@
 
 /* If not, use an infinite loop */
 #if !defined(__LIBSEH_UNREACHABLE)
-#define __LIBSEH_UNREACHABLE() while (1)
+#define __LIBSEH_UNREACHABLE() while(1)
 #endif
 
 #endif /* __LIBSEH_CONFIG_H__ */
+

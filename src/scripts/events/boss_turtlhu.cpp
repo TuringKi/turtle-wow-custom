@@ -18,7 +18,10 @@ enum
 
 struct boss_concaviusAI : public ScriptedAI
 {
-    boss_concaviusAI(Creature* c) : ScriptedAI(c) { Reset(); }
+    boss_concaviusAI(Creature* c) : ScriptedAI(c)
+    {
+        Reset();
+    }
 
     uint32 VoidBolt_Timer;
     uint32 ManaBurn_Timer;
@@ -47,9 +50,15 @@ struct boss_concaviusAI : public ScriptedAI
         in_shadow_form = false;
     }
 
-    void Aggro(Unit* who) override { m_creature->PMonsterYell("Let the void claim you..."); }
+    void Aggro(Unit* who) override
+    {
+        m_creature->PMonsterYell("Let the void claim you...");
+    }
 
-    void Reset() override { SetDefaults(); }
+    void Reset() override
+    {
+        SetDefaults();
+    }
 
     void JustRespawned() override
     {
@@ -65,27 +74,27 @@ struct boss_concaviusAI : public ScriptedAI
         switch (victim->GetTypeId())
         {
         case TYPEID_PLAYER:
-            {
-                affectedPlayer = victim->GetAffectingPlayer();
-                if (!affectedPlayer)
-                    return;
+        {
+            affectedPlayer = victim->GetAffectingPlayer();
+            if (!affectedPlayer)
+                return;
 
-                if (affectedPlayer->GetLevel() < 50)
-                    return;
+            if (affectedPlayer->GetLevel() < 50)
+                return;
 
-                break;
-            }
+            break;
+        }
         case TYPEID_UNIT:
-            {
-                creature = victim->ToCreature();
-                if (!creature->IsPet() && !creature->IsTotem())
-                    return;
+        {
+            creature = victim->ToCreature();
+            if (!creature->IsPet() && !creature->IsTotem())
+                return;
 
-                if (creature->GetLevel() < 50)
-                    return;
+            if (creature->GetLevel() < 50)
+                return;
 
-                break;
-            }
+            break;
+        }
         default:
             return;
         }
@@ -94,13 +103,14 @@ struct boss_concaviusAI : public ScriptedAI
     }
 
     void JustDied(Unit* /*pKiller*/) override
-    {
+    {   
         m_creature->PMonsterSay(66111);
 
         uint32 m_respawn_delay_Timer = urand(3, 5) * DAY;
 
         /** DRRS */
-        if (m_creature->GetSpawnFlags() & SPAWN_FLAG_DYNAMIC_RESPAWN_TIME && sWorld.GetActiveSessionCount() > BLIZZLIKE_REALM_POPULATION)
+        if (m_creature->GetSpawnFlags() & SPAWN_FLAG_DYNAMIC_RESPAWN_TIME &&
+            sWorld.GetActiveSessionCount() > BLIZZLIKE_REALM_POPULATION)
 
             m_respawn_delay_Timer *= float(BLIZZLIKE_REALM_POPULATION) / float(sWorld.GetActiveSessionCount());
 
@@ -111,7 +121,7 @@ struct boss_concaviusAI : public ScriptedAI
 
     void UpdateAI(const uint32 diff) override
     {
-        // Return since we have no target
+        //Return since we have no target
         if (!m_creature->SelectHostileTarget() || !m_creature->GetVictim())
             return;
 
@@ -219,7 +229,7 @@ struct boss_concaviusAI : public ScriptedAI
             PiercingShadow_Timer -= diff;
         }
 
-        // ManaBurn_Timer
+        //ManaBurn_Timer
         if ((ManaBurn_Timer - 10000) <= diff && !mana_burn_warning_said)
         {
             std::list<Player*> players;
@@ -248,7 +258,7 @@ struct boss_concaviusAI : public ScriptedAI
         else
             ManaBurn_Timer -= diff;
 
-        // VoidBolt_Timer
+        //VoidBolt_Timer
         if (VoidBolt_Timer < diff && !in_shadow_form)
         {
             if (DoCastSpellIfCan(m_creature->GetVictim(), SPELL_VOIDBOLT) == CAST_OK)
@@ -259,9 +269,13 @@ struct boss_concaviusAI : public ScriptedAI
 
         DoMeleeAttackIfReady();
     }
+
 };
 
-CreatureAI* GetAI_boss_concavius(Creature* _Creature) { return new boss_concaviusAI(_Creature); }
+CreatureAI* GetAI_boss_concavius(Creature* _Creature)
+{
+    return new boss_concaviusAI(_Creature);
+}
 
 
 struct concavius_summonerAI : public ScriptedAI

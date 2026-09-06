@@ -1,6 +1,7 @@
 #include "GMCommandHandler.hpp"
-#include "LoginCommandHandler.hpp"
 #include "PlayerCommandHandler.hpp"
+#include "LoginCommandHandler.hpp"
+
 
 
 namespace DiscordBot
@@ -11,4 +12,4 @@ namespace DiscordBot
         new PlayerCommandHandler{};
         new LoginCommandHandler{};
     }
-} // namespace DiscordBot
+}

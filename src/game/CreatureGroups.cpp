@@ -16,10 +16,10 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "CreatureGroups.h"
 #include "Creature.h"
-#include "CreatureAI.h"
+#include "CreatureGroups.h"
 #include "ObjectMgr.h"
+#include "CreatureAI.h"
 
 CreatureGroupsManager sCreatureGroupsManager;
 
@@ -41,7 +41,7 @@ CreatureGroupMember* CreatureGroup::AddMember(ObjectGuid guid, float followDist,
     return member;
 }
 
-void CreatureGroup::OnMemberAttackStart(Creature* member, Unit* target)
+void CreatureGroup::OnMemberAttackStart(Creature* member, Unit *target)
 {
     if (!(m_options & OPTION_AGGRO_TOGETHER))
         return;
@@ -144,7 +144,8 @@ void CreatureGroup::OnRespawn(Creature* member)
 {
     // On respawn of original leader, make sure other members
     // follow him now instead of the temporary leader.
-    if ((m_leaderGuid != m_originalLeaderGuid) && (member->GetObjectGuid() == m_originalLeaderGuid))
+    if ((m_leaderGuid != m_originalLeaderGuid) &&
+        (member->GetObjectGuid() == m_originalLeaderGuid))
     {
         m_leaderGuid = m_originalLeaderGuid;
         for (const auto& itr : m_members)
@@ -230,8 +231,7 @@ void CreatureGroup::MemberAssist(Creature* member, Unit* target, Creature* allie
         if (member->GetVictim())
             member->SetLastLeashExtensionTimePtr(alliedAttacker->GetLastLeashExtensionTimePtr());
 
-        m_assistGuard = false;
-        ;
+        m_assistGuard = false;;
     }
 }
 
@@ -286,16 +286,20 @@ void CreatureGroup::DoForAllMembers(Map* pMap, std::function<void(Creature*)>&& 
     }
 }
 
-void CreatureGroup::DeleteFromDb() { sWorld.ExecuteUpdate("DELETE FROM creature_groups WHERE leader_guid=%u", m_originalLeaderGuid.GetCounter()); }
+void CreatureGroup::DeleteFromDb()
+{
+    sWorld.ExecuteUpdate("DELETE FROM creature_groups WHERE leader_guid=%u", m_originalLeaderGuid.GetCounter());
+}
 
 void CreatureGroup::SaveToDb()
 {
     DeleteFromDb();
     for (const auto& itr : m_members)
-        sWorld.ExecuteUpdate("INSERT INTO creature_groups SET leader_guid=%u, member_guid=%u, dist='%f', angle='%f', flags=%u", m_originalLeaderGuid.GetCounter(), itr.first.GetCounter(), itr.second->followDistance, itr.second->followAngle, itr.second->memberFlags);
+        sWorld.ExecuteUpdate("INSERT INTO creature_groups SET leader_guid=%u, member_guid=%u, dist='%f', angle='%f', flags=%u",
+            m_originalLeaderGuid.GetCounter(), itr.first.GetCounter(), itr.second->followDistance, itr.second->followAngle, itr.second->memberFlags);
 }
 
-bool CreatureGroupMember::ComputeRelativePosition(float leaderAngle, float& x, float& y) const
+bool CreatureGroupMember::ComputeRelativePosition(float leaderAngle, float &x, float &y) const
 {
     x = cos(followAngle + leaderAngle) * followDistance;
     y = sin(followAngle + leaderAngle) * followDistance;
@@ -325,14 +329,14 @@ void CreatureGroupsManager::Load()
     }
 
     uint32 count = 0;
-    Field* fields;
-    CreatureGroup* currentGroup = nullptr;
+    Field *fields;
+    CreatureGroup *currentGroup = nullptr;
 
     do
     {
         fields = result->Fetch();
 
-        // Load group member data
+        //Load group member data
         ObjectGuid leaderGuid = ConvertDBGuid(fields[0].GetUInt32());
         ObjectGuid memberGuid = ConvertDBGuid(fields[1].GetUInt32());
         if (leaderGuid.IsEmpty())

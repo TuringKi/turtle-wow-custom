@@ -19,12 +19,18 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#include "ObjectLifeTime.h"
 #include <cstdlib>
+#include "ObjectLifeTime.h"
 
 namespace MaNGOS
 {
-    extern "C" void external_wrapper(void* p) { std::atexit((void (*)())p); }
+    extern "C" void external_wrapper(void *p)
+    {
+        std::atexit((void (*)())p);
+    }
 
-    void at_exit(void (*func)()) { external_wrapper((void*)func); }
-} // namespace MaNGOS
+    void at_exit(void (*func)())
+    {
+        external_wrapper((void*)func);
+    }
+}

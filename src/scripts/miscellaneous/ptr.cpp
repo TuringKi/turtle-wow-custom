@@ -1,11 +1,14 @@
-#include "ptr.hpp"
-#include "Chat.h"
-#include "ItemPrototype.h"
 #include "scriptPCH.h"
+#include "Chat.h"
+#include "ptr.hpp"
+#include "ItemPrototype.h"
 
 struct ptr_npc_keklordAI : public ScriptedAI
 {
-    explicit ptr_npc_keklordAI(Creature* pCreature) : ScriptedAI(pCreature) { ptr_npc_keklordAI::Reset(); }
+    explicit ptr_npc_keklordAI(Creature* pCreature) : ScriptedAI(pCreature)
+    {
+        ptr_npc_keklordAI::Reset();
+    }
 
     void Reset() override
     {
@@ -28,7 +31,10 @@ struct ptr_npc_keklordAI : public ScriptedAI
 
 struct ptr_npc_vendorAI : public ScriptedAI
 {
-    explicit ptr_npc_vendorAI(Creature* pCreature) : ScriptedAI(pCreature) { ptr_npc_vendorAI::Reset(); }
+    explicit ptr_npc_vendorAI(Creature* pCreature) : ScriptedAI(pCreature)
+    {
+        ptr_npc_vendorAI::Reset();
+    }
 
     void Reset() override
     {
@@ -53,7 +59,7 @@ void LearnEverythingKEKW(Player* pPlayer, ClassesAndRoles const classesAndRoles)
 {
     if (!pPlayer)
         return;
-
+    
     if (pPlayer->GetLevel() < 60)
     {
         pPlayer->SetLevel(60);
@@ -63,8 +69,8 @@ void LearnEverythingKEKW(Player* pPlayer, ClassesAndRoles const classesAndRoles)
 
     if (pPlayer->GetMoney() < MONEY_AMOUNT) // Prevent overflow
         pPlayer->ModifyMoney(MONEY_AMOUNT); // 1K Gold
-
-    for (auto bags{(pPlayer->GetItemCount(ITEM_BAG) + (pPlayer->GetClass() == CLASS_HUNTER ? 1 : 0))}; bags < 4; ++bags) // If player hunter -> Free up a quiver slot
+        
+    for (auto bags{ (pPlayer->GetItemCount(ITEM_BAG) + (pPlayer->GetClass() == CLASS_HUNTER ? 1 : 0))}; bags < 4; ++bags) // If player hunter -> Free up a quiver slot
     {
         pPlayer->StoreNewItemInBestSlots(ITEM_BAG, 1);
     }
@@ -81,7 +87,7 @@ void LearnEverythingKEKW(Player* pPlayer, ClassesAndRoles const classesAndRoles)
                 }
             }
 
-            for (int i{EQUIPMENT_SLOT_START}; i < EQUIPMENT_SLOT_END; ++i)
+            for (int i{ EQUIPMENT_SLOT_START }; i < EQUIPMENT_SLOT_END; ++i)
             {
                 pPlayer->AutoUnequipItemFromSlot(i);
             }
@@ -90,7 +96,7 @@ void LearnEverythingKEKW(Player* pPlayer, ClassesAndRoles const classesAndRoles)
             {
                 if (!pPlayer->GetItemCount(item))
                 {
-                    ItemPrototype const* pItem{sObjectMgr.GetItemPrototype(item)};
+                    ItemPrototype const* pItem{ sObjectMgr.GetItemPrototype(item) };
 
                     pPlayer->SatisfyItemRequirements(pItem);
                     pPlayer->StoreNewItemInBestSlots(item, 1);
@@ -101,17 +107,17 @@ void LearnEverythingKEKW(Player* pPlayer, ClassesAndRoles const classesAndRoles)
         }
     }
 
-    if (ChrClassesEntry const* clsEntry{sChrClassesStore.LookupEntry(pPlayer->GetClass())})
+    if (ChrClassesEntry const* clsEntry{ sChrClassesStore.LookupEntry(pPlayer->GetClass()) })
     {
-        const uint32 family{clsEntry->spellfamily};
+        const uint32 family{ clsEntry->spellfamily };
 
-        for (auto i{0}; i < sObjectMgr.GetMaxSkillLineAbilityId(); ++i)
+        for (auto i{ 0 }; i < sObjectMgr.GetMaxSkillLineAbilityId(); ++i)
         {
-            SkillLineAbilityEntry const* entry{sObjectMgr.GetSkillLineAbility(i)};
+            SkillLineAbilityEntry const* entry{ sObjectMgr.GetSkillLineAbility(i) };
             if (!entry)
                 continue;
 
-            SpellEntry const* spellInfo{sSpellMgr.GetSpellEntry(entry->spellId)};
+            SpellEntry const* spellInfo{ sSpellMgr.GetSpellEntry(entry->spellId) };
             if (!spellInfo)
                 continue;
 
@@ -128,7 +134,7 @@ void LearnEverythingKEKW(Player* pPlayer, ClassesAndRoles const classesAndRoles)
                 continue;
 
             // Skip spells with first rank learned as talent (and all talents then also)
-            const uint32 first_rank{sSpellMgr.GetFirstSpellInChain(spellInfo->Id)};
+            const uint32 first_rank{ sSpellMgr.GetFirstSpellInChain(spellInfo->Id) };
             if (GetTalentSpellCost(first_rank) > 0)
                 continue;
 
@@ -157,66 +163,66 @@ bool GossipHello_ptr_npc_keklord(Player* pPlayer, Creature* pCreature)
 
     switch (pPlayer->GetClass())
     {
-    case CLASS_WARLOCK:
+        case CLASS_WARLOCK:
         {
             pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_TALK, "Warlock.", GOSSIP_SENDER_MAIN, static_cast<uint32>(ClassesAndRoles::WARLOCK));
             break;
         }
-    case CLASS_MAGE:
+        case CLASS_MAGE:
         {
             pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_TALK, "Mage.", GOSSIP_SENDER_MAIN, static_cast<uint32>(ClassesAndRoles::MAGE));
             break;
         }
-    case CLASS_HUNTER:
+        case CLASS_HUNTER:
         {
             pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_TALK, "Hunter.", GOSSIP_SENDER_MAIN, static_cast<uint32>(ClassesAndRoles::HUNTER));
             break;
         }
-    case CLASS_PALADIN:
+        case CLASS_PALADIN:
         {
-            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_TALK, "Holy Paladin.", GOSSIP_SENDER_MAIN, static_cast<uint32>(ClassesAndRoles::PALADIN_HOLY));
+            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_TALK, "Holy Paladin.",        GOSSIP_SENDER_MAIN, static_cast<uint32>(ClassesAndRoles::PALADIN_HOLY));
             pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_TALK, "Retribution Paladin.", GOSSIP_SENDER_MAIN, static_cast<uint32>(ClassesAndRoles::PALADIN_RETRIBUTION));
-            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_TALK, "Protection Paladin.", GOSSIP_SENDER_MAIN, static_cast<uint32>(ClassesAndRoles::PALADIN_PROTECTION));
+            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_TALK, "Protection Paladin.",  GOSSIP_SENDER_MAIN, static_cast<uint32>(ClassesAndRoles::PALADIN_PROTECTION));
             break;
         }
-    case CLASS_PRIEST:
+        case CLASS_PRIEST:
         {
-            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_TALK, "Holy Priest.", GOSSIP_SENDER_MAIN, static_cast<uint32>(ClassesAndRoles::PRIEST_HOLY));
+            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_TALK, "Holy Priest.",   GOSSIP_SENDER_MAIN, static_cast<uint32>(ClassesAndRoles::PRIEST_HOLY));
             pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_TALK, "Shadow Priest.", GOSSIP_SENDER_MAIN, static_cast<uint32>(ClassesAndRoles::PRIEST_SHADOW));
             break;
         }
-    case CLASS_ROGUE:
+        case CLASS_ROGUE:
         {
-            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_TALK, "Sword Rogue.", GOSSIP_SENDER_MAIN, static_cast<uint32>(ClassesAndRoles::ROGUE_SWORD));
+            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_TALK, "Sword Rogue.",  GOSSIP_SENDER_MAIN, static_cast<uint32>(ClassesAndRoles::ROGUE_SWORD));
             pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_TALK, "Dagger Rogue.", GOSSIP_SENDER_MAIN, static_cast<uint32>(ClassesAndRoles::ROGUE_DAGGER));
             break;
         }
-    case CLASS_SHAMAN:
+        case CLASS_SHAMAN:
         {
             pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_TALK, "Restoration Shaman.", GOSSIP_SENDER_MAIN, static_cast<uint32>(ClassesAndRoles::SHAMAN_RESTORATION));
-            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_TALK, "Elemental Shaman.", GOSSIP_SENDER_MAIN, static_cast<uint32>(ClassesAndRoles::SHAMAN_ELEMENTAL));
+            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_TALK, "Elemental Shaman.",   GOSSIP_SENDER_MAIN, static_cast<uint32>(ClassesAndRoles::SHAMAN_ELEMENTAL));
             pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_TALK, "Enhancement Shaman.", GOSSIP_SENDER_MAIN, static_cast<uint32>(ClassesAndRoles::SHAMAN_ENCHANCEMENT));
             break;
         }
-    case CLASS_DRUID:
+        case CLASS_DRUID:
         {
             pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_TALK, "Restoration Druid.", GOSSIP_SENDER_MAIN, static_cast<uint32>(ClassesAndRoles::DRUID_RESTORATION));
-            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_TALK, "Tank Druid.", GOSSIP_SENDER_MAIN, static_cast<uint32>(ClassesAndRoles::DRUID_TANK));
-            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_TALK, "Balance Druid.", GOSSIP_SENDER_MAIN, static_cast<uint32>(ClassesAndRoles::DRUID_BALANCE));
-            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_TALK, "Feral Druid.", GOSSIP_SENDER_MAIN, static_cast<uint32>(ClassesAndRoles::DRUID_FERAL));
+            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_TALK, "Tank Druid.",        GOSSIP_SENDER_MAIN, static_cast<uint32>(ClassesAndRoles::DRUID_TANK));
+            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_TALK, "Balance Druid.",     GOSSIP_SENDER_MAIN, static_cast<uint32>(ClassesAndRoles::DRUID_BALANCE));
+            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_TALK, "Feral Druid.",       GOSSIP_SENDER_MAIN, static_cast<uint32>(ClassesAndRoles::DRUID_FERAL));
             break;
         }
-    case CLASS_WARRIOR:
+        case CLASS_WARRIOR:
         {
             pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_TALK, "Protection Warrior.", GOSSIP_SENDER_MAIN, static_cast<uint32>(ClassesAndRoles::WARRIOR_PROTECTION));
-            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_TALK, "Fury Warrior.", GOSSIP_SENDER_MAIN, static_cast<uint32>(ClassesAndRoles::WARRIOR_FURY));
+            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_TALK, "Fury Warrior.",       GOSSIP_SENDER_MAIN, static_cast<uint32>(ClassesAndRoles::WARRIOR_FURY));
             break;
         }
     }
 
     pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_TALK, "Worldbuff me.", GOSSIP_SENDER_MAIN, (GOSSIP_ACTION_INFO_DEF + 1));
 
-    if (Group const* pGroup{pPlayer->GetGroup()})
+    if (Group const* pGroup{ pPlayer->GetGroup() })
     {
         if (pGroup->isRaidGroup())
         {
@@ -237,30 +243,30 @@ bool GossipSelect_ptr_npc_keklord(Player* pPlayer, Creature* pCreature, uint32 u
 
     switch (uiAction)
     {
-    case static_cast<uint32>(ClassesAndRoles::WARLOCK):
-    case static_cast<uint32>(ClassesAndRoles::MAGE):
-    case static_cast<uint32>(ClassesAndRoles::HUNTER):
-    case static_cast<uint32>(ClassesAndRoles::PALADIN_HOLY):
-    case static_cast<uint32>(ClassesAndRoles::PALADIN_RETRIBUTION):
-    case static_cast<uint32>(ClassesAndRoles::PALADIN_PROTECTION):
-    case static_cast<uint32>(ClassesAndRoles::PRIEST_HOLY):
-    case static_cast<uint32>(ClassesAndRoles::PRIEST_SHADOW):
-    case static_cast<uint32>(ClassesAndRoles::ROGUE_SWORD):
-    case static_cast<uint32>(ClassesAndRoles::ROGUE_DAGGER):
-    case static_cast<uint32>(ClassesAndRoles::SHAMAN_RESTORATION):
-    case static_cast<uint32>(ClassesAndRoles::SHAMAN_ELEMENTAL):
-    case static_cast<uint32>(ClassesAndRoles::SHAMAN_ENCHANCEMENT):
-    case static_cast<uint32>(ClassesAndRoles::DRUID_RESTORATION):
-    case static_cast<uint32>(ClassesAndRoles::DRUID_TANK):
-    case static_cast<uint32>(ClassesAndRoles::DRUID_BALANCE):
-    case static_cast<uint32>(ClassesAndRoles::DRUID_FERAL):
-    case static_cast<uint32>(ClassesAndRoles::WARRIOR_PROTECTION):
-    case static_cast<uint32>(ClassesAndRoles::WARRIOR_FURY):
+        case static_cast<uint32>(ClassesAndRoles::WARLOCK):
+        case static_cast<uint32>(ClassesAndRoles::MAGE):
+        case static_cast<uint32>(ClassesAndRoles::HUNTER):
+        case static_cast<uint32>(ClassesAndRoles::PALADIN_HOLY):
+        case static_cast<uint32>(ClassesAndRoles::PALADIN_RETRIBUTION):
+        case static_cast<uint32>(ClassesAndRoles::PALADIN_PROTECTION):
+        case static_cast<uint32>(ClassesAndRoles::PRIEST_HOLY):
+        case static_cast<uint32>(ClassesAndRoles::PRIEST_SHADOW):
+        case static_cast<uint32>(ClassesAndRoles::ROGUE_SWORD):
+        case static_cast<uint32>(ClassesAndRoles::ROGUE_DAGGER):
+        case static_cast<uint32>(ClassesAndRoles::SHAMAN_RESTORATION):
+        case static_cast<uint32>(ClassesAndRoles::SHAMAN_ELEMENTAL):
+        case static_cast<uint32>(ClassesAndRoles::SHAMAN_ENCHANCEMENT):
+        case static_cast<uint32>(ClassesAndRoles::DRUID_RESTORATION):
+        case static_cast<uint32>(ClassesAndRoles::DRUID_TANK):
+        case static_cast<uint32>(ClassesAndRoles::DRUID_BALANCE):
+        case static_cast<uint32>(ClassesAndRoles::DRUID_FERAL):
+        case static_cast<uint32>(ClassesAndRoles::WARRIOR_PROTECTION):
+        case static_cast<uint32>(ClassesAndRoles::WARRIOR_FURY):
         {
             LearnEverythingKEKW(pPlayer, static_cast<ClassesAndRoles>(uiAction));
             break;
         }
-    case (GOSSIP_ACTION_INFO_DEF + 1):
+        case (GOSSIP_ACTION_INFO_DEF + 1):
         {
             for (const auto& buffs : m_lWorldBuffs)
             {
@@ -269,16 +275,20 @@ bool GossipSelect_ptr_npc_keklord(Player* pPlayer, Creature* pCreature, uint32 u
 
             break;
         }
-    case (GOSSIP_ACTION_INFO_DEF + 2):
+        case (GOSSIP_ACTION_INFO_DEF + 2):
         {
-            if (Group const* pGroup{pPlayer->GetGroup()})
+            if (Group const* pGroup{ pPlayer->GetGroup() })
             {
                 if (pGroup->isRaidGroup())
                 {
-                    const uint8 currentGroupSize{static_cast<uint8>(pGroup->GetMembersCount())};
+                    const uint8 currentGroupSize{ static_cast<uint8>(pGroup->GetMembersCount())};
                     if (currentGroupSize == PLAYERS_REQUIRED && pPlayer->IsAlive())
                     {
-                        pPlayer->TeleportTo(MAP, bossLocation[0].m_fX, bossLocation[0].m_fY, bossLocation[0].m_fZ, bossLocation[0].m_fO);
+                        pPlayer->TeleportTo(MAP,
+                            bossLocation[0].m_fX,
+                            bossLocation[0].m_fY,
+                            bossLocation[0].m_fZ,
+                            bossLocation[0].m_fO);
                     }
                     else
                     {
@@ -294,9 +304,15 @@ bool GossipSelect_ptr_npc_keklord(Player* pPlayer, Creature* pCreature, uint32 u
     return true;
 }
 
-CreatureAI* GetAI_ptr_npc_keklord(Creature* pCreature) { return new ptr_npc_keklordAI(pCreature); }
+CreatureAI* GetAI_ptr_npc_keklord(Creature* pCreature)
+{
+    return new ptr_npc_keklordAI(pCreature);
+}
 
-CreatureAI* GetAI_ptr_npc_vendorAI(Creature* pCreature) { return new ptr_npc_vendorAI(pCreature); }
+CreatureAI* GetAI_ptr_npc_vendorAI(Creature* pCreature)
+{
+    return new ptr_npc_vendorAI(pCreature);
+}
 
 void AddSC_npc_ptr()
 {

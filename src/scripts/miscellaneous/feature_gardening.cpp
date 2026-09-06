@@ -3,11 +3,11 @@
 
 enum GardenObjects
 {
-    LIFESPAN_PLANTER = 60 * MINUTE * IN_MILLISECONDS,
-    LIFESPAN_GROWING = 10 * MINUTE * IN_MILLISECONDS,
-    LIFESPAN_GROWING_TICK = 9 * MINUTE * IN_MILLISECONDS,
-    LIFESPAN_BUTTON = 5 * MINUTE * IN_MILLISECONDS,
-    LIFESPAN_SPLASH = 2,
+    LIFESPAN_PLANTER = 60 * MINUTE * IN_MILLISECONDS, 
+    LIFESPAN_GROWING = 10 * MINUTE * IN_MILLISECONDS, 
+    LIFESPAN_GROWING_TICK =  9 * MINUTE * IN_MILLISECONDS, 
+    LIFESPAN_BUTTON =  5 * MINUTE * IN_MILLISECONDS, 
+    LIFESPAN_SPLASH =  2,
 
     PUMPKIN_SEEDS = 51706,
     BERRY_SEEDS = 51707,
@@ -61,12 +61,12 @@ enum GardenObjects
 
 bool GOHello_go_simple_wooden_planter(Player* pPlayer, GameObject* pGo)
 {
-    if (pPlayer->HasItemCount(PUMPKIN_SEEDS, 1))
+    if (pPlayer->HasItemCount(PUMPKIN_SEEDS, 1)) 
         pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_DOT, "Plant Country Pumpkin Seeds.", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-    if (pPlayer->HasItemCount(BERRY_SEEDS, 1))
+    if (pPlayer->HasItemCount(BERRY_SEEDS, 1)) 
         pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_DOT, "Plant Mountain Berries Seeds.", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
-    if (pPlayer->HasItemCount(WATERMELON_SEEDS, 1))
-        pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_DOT, "Plant Striped Melon Seeds.", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 3);
+    if (pPlayer->HasItemCount(WATERMELON_SEEDS, 1)) 
+        pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_DOT, "Plant Striped Melon Seeds.", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 3);  
     if (pPlayer->HasItemCount(MUSHROOM_SEEDS, 1))
         pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_DOT, "Plant Magic Mushroom Spores.", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 4);
 
@@ -84,32 +84,32 @@ bool GOSelect_go_simple_wooden_planter(Player* pPlayer, GameObject* pGo, uint32 
 
     switch (action)
     {
-    case GOSSIP_ACTION_INFO_DEF + 1:
+        case GOSSIP_ACTION_INFO_DEF + 1:
         {
             currency = PUMPKIN_SEEDS;
             static_go = PUMPKIN_SPROUTLING;
             break;
         }
-    case GOSSIP_ACTION_INFO_DEF + 2:
+        case GOSSIP_ACTION_INFO_DEF + 2:
         {
             currency = BERRY_SEEDS;
             static_go = BERRY_SPROUTLING;
             break;
         }
-    case GOSSIP_ACTION_INFO_DEF + 3:
+        case GOSSIP_ACTION_INFO_DEF + 3:
         {
             currency = WATERMELON_SEEDS;
             static_go = WATERMELON_SPROUTLING;
             break;
         }
-    case GOSSIP_ACTION_INFO_DEF + 4:
+        case GOSSIP_ACTION_INFO_DEF + 4:
         {
             currency = MUSHROOM_SEEDS;
             static_go = MUSHROOM_SPROUTLING;
             break;
         }
-    default:
-        break;
+        default:
+            break;
     }
     if (pPlayer->HasItemCount(currency, 1, false))
     {
@@ -189,7 +189,7 @@ struct go_farm_vegetable_growing_stage : public GameObjectAI
                 }
 
                 me->SummonGameObject(active_go, x, y, z, 0.0F, 0.0f, 0.0f, 0.0f, 0.0f, LIFESPAN_BUTTON, true);
-                me->Despawn();
+                me->Despawn(); 
                 me->UpdateObjectVisibility();
                 m_uiUpdateTimer = LIFESPAN_GROWING_TICK;
             }
@@ -207,7 +207,10 @@ struct go_farm_vegetable_growing_stage : public GameObjectAI
     }
 };
 
-GameObjectAI* GetAI_go_farm_vegetable_growing_stage(GameObject* gameobject) { return new go_farm_vegetable_growing_stage(gameobject); }
+GameObjectAI* GetAI_go_farm_vegetable_growing_stage(GameObject* gameobject)
+{
+    return new go_farm_vegetable_growing_stage(gameobject);
+}
 
 bool GOHello_go_farm_grow_activate(Player* pPlayer, GameObject* pGo)
 {
@@ -221,81 +224,81 @@ bool GOHello_go_farm_grow_activate(Player* pPlayer, GameObject* pGo)
     switch (pGo->GetEntry())
     {
     case PUMPKIN_SPROUTLING_ACTIVE:
-        {
-            currency = UNGORO_SOIL;
-            static_go = PUMPKIN_SMALL;
-            break;
-        }
+    {
+        currency = UNGORO_SOIL;
+        static_go = PUMPKIN_SMALL;
+        break;
+    }
     case PUMPKIN_SMALL_ACTIVE:
-        {
-            currency = REFRESHING_SPRING_WATER;
-            static_go = PUMPKIN_MEDIUM;
-            break;
-        }
+    {
+        currency = REFRESHING_SPRING_WATER;
+        static_go = PUMPKIN_MEDIUM;
+        break;
+    }
     case PUMPKIN_MEDIUM_ACTIVE:
-        {
-            currency = REFRESHING_SPRING_WATER;
-            static_go = PUMPKIN_HARVEST;
-            harvest = true;
-            break;
-        }
+    {
+        currency = REFRESHING_SPRING_WATER;
+        static_go = PUMPKIN_HARVEST;
+        harvest = true;
+        break;
+    }
     case BERRY_SPROUTLING_ACTIVE:
-        {
-            currency = UNGORO_SOIL;
-            static_go = BERRY_SMALL;
-            break;
-        }
+    {
+        currency = UNGORO_SOIL;
+        static_go = BERRY_SMALL;
+        break;
+    }
     case BERRY_SMALL_ACTIVE:
-        {
-            currency = REFRESHING_SPRING_WATER;
-            static_go = BERRY_MEDIUM;
-            break;
-        }
+    {
+        currency = REFRESHING_SPRING_WATER;
+        static_go = BERRY_MEDIUM;
+        break;
+    }
     case BERRY_MEDIUM_ACTIVE:
-        {
-            currency = REFRESHING_SPRING_WATER;
-            static_go = BERRY_HARVEST;
-            harvest = true;
-            break;
-        }
+    {
+        currency = REFRESHING_SPRING_WATER;
+        static_go = BERRY_HARVEST;
+        harvest = true;
+        break;
+    }
     case WATERMELON_SPROUTLING_ACTIVE:
-        {
-            currency = UNGORO_SOIL;
-            static_go = WATERMELON_SMALL;
-            break;
-        }
+    {
+        currency = UNGORO_SOIL;
+        static_go = WATERMELON_SMALL;
+        break;
+    }
     case WATERMELON_SMALL_ACTIVE:
-        {
-            currency = REFRESHING_SPRING_WATER;
-            static_go = WATERMELON_MEDIUM;
-            break;
-        }
+    {
+        currency = REFRESHING_SPRING_WATER;
+        static_go = WATERMELON_MEDIUM;
+        break;
+    }
     case WATERMELON_MEDIUM_ACTIVE:
-        {
-            currency = REFRESHING_SPRING_WATER;
-            static_go = WATERMELON_HARVEST;
-            harvest = true;
-            break;
-        }
+    {
+        currency = REFRESHING_SPRING_WATER;
+        static_go = WATERMELON_HARVEST;
+        harvest = true;
+        break;
+    }
     case MUSHROOM_SPROUTLING_ACTIVE:
-        {
-            currency = UNGORO_SOIL;
-            static_go = MUSHROOM_SMALL;
-            break;
-        }
+    {
+        currency = UNGORO_SOIL;
+        static_go = MUSHROOM_SMALL;
+        break;
+    }
     case MUSHROOM_SMALL_ACTIVE:
-        {
-            currency = REFRESHING_SPRING_WATER;
-            static_go = MUSHROOM_MEDIUM;
-            break;
-        }
+    {
+        currency = REFRESHING_SPRING_WATER;
+        static_go = MUSHROOM_MEDIUM;
+        break;
+    }
     case MUSHROOM_MEDIUM_ACTIVE:
-        {
-            currency = REFRESHING_SPRING_WATER;
-            static_go = MUSHROOM_HARVEST;
-            harvest = true;
-            break;
-        }
+    {
+        currency = REFRESHING_SPRING_WATER;
+        static_go = MUSHROOM_HARVEST;
+        harvest = true;
+        break;
+    }
     default:
         break;
     }
@@ -319,7 +322,7 @@ bool GOHello_go_farm_grow_activate(Player* pPlayer, GameObject* pGo)
 
 void AddSC_gardening()
 {
-    Script* newscript;
+    Script *newscript;
 
     newscript = new Script;
     newscript->Name = "go_farm_grow_activate";

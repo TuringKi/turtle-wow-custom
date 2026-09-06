@@ -22,33 +22,48 @@
 #ifndef CONFIG_H
 #define CONFIG_H
 
-#include <shared_mutex>
 #include "Common.h"
 #include "Platform/Define.h"
+#include "ace/Configuration_Import_Export.h"
 #include "Policies/SingletonImp.h"
 #include "Policies/ThreadingModel.h"
-#include "ace/Configuration_Import_Export.h"
+#include <shared_mutex>
 
 class ACE_Configuration_Heap;
 
 class Config
 {
-public:
-    using Lock = MaNGOS::ClassLevelLockable<Config, std::shared_mutex>;
+    public:
+        using Lock = MaNGOS::ClassLevelLockable<Config, std::shared_mutex>;
 
     Config();
     ~Config();
 
-    bool SetSource(const char* file);
+    bool SetSource(const char *file);
+    // bot calls SetSource with config-key prefix arg.
+    bool SetSource(std::string const& file) { return SetSource(file.c_str()); }
+    bool SetSource(const char* file, const char* /*prefix*/) { return SetSource(file); }
+    bool SetSource(std::string const& file, std::string const& /*prefix*/) { return SetSource(file.c_str()); }
+    bool SetSource(const char* file, std::string const& /*prefix*/) { return SetSource(file); }
     bool Reload();
+    bool LoadModulesConfigs();
 
     std::string GetStringDefault(const char* name, const char* def);
+    // cmangos's 1-arg form (default = "").
+    std::string GetStringDefault(const char* name) { return GetStringDefault(name, ""); }
+    std::string GetStringDefault(std::string const& name) { return GetStringDefault(name.c_str(), ""); }
+    std::string GetStringDefault(std::string const& name, const char* def) { return GetStringDefault(name.c_str(), def); }
+    std::string GetStringDefault(std::string const& name, std::string const& def) { return GetStringDefault(name.c_str(), def.c_str()); }
     bool GetBoolDefault(const char* name, const bool def = false);
     int32 GetIntDefault(const char* name, const int32 def);
     float GetFloatDefault(const char* name, const float def);
+    // bot passes std::string keys.
+    bool GetBoolDefault(std::string const& name, const bool def = false) { return GetBoolDefault(name.c_str(), def); }
+    int32 GetIntDefault(std::string const& name, const int32 def) { return GetIntDefault(name.c_str(), def); }
+    float GetFloatDefault(std::string const& name, const float def) { return GetFloatDefault(name.c_str(), def); }
 
     std::string GetFilename() const { return mFilename; }
-    bool GetValueHelper(const char* name, ACE_TString& result);
+    bool GetValueHelper(const char* name, ACE_TString &result);
 
     // for a profile configs
     std::string GetStringDefaultInSection(const char* name, const char* section, const char* def);
@@ -57,17 +72,20 @@ public:
     void GetSections(const char* SectionName, std::vector<std::string>& OutSectionList);
     void GetKeys(const char* SectionName, std::vector<std::string>& OutKeysList);
 
-private:
-    friend class MaNGOS::Singleton<Config, Lock>;
+    private:
+        friend class MaNGOS::Singleton<Config, Lock>;
 
-    std::string mFilename;
-    ACE_Configuration_Heap* mConf;
+        std::string mFilename;
+        ACE_Configuration_Heap* mConf;
 
-    using LockType = std::mutex;
-    using GuardType = std::unique_lock<LockType>;
+        std::vector<std::string> GetModuleConfigFiles() const;
+        std::string GetConfigDirectory() const;
 
-    std::string _filename;
-    LockType m_configLock;
+        using LockType = std::mutex;
+        using GuardType = std::unique_lock<LockType>;
+
+        std::string _filename;
+        LockType m_configLock;
 };
 
 // Nostalrius : multithreading lock

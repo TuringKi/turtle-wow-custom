@@ -23,9 +23,9 @@
 #define MANGOSSERVER_ITEM_H
 
 #include "Common.h"
-#include "ItemPrototype.h"
-#include "LootMgr.h"
 #include "Object.h"
+#include "LootMgr.h"
+#include "ItemPrototype.h"
 
 class SpellEntry;
 class Bag;
@@ -162,28 +162,36 @@ struct ItemRequiredTarget
     bool IsFitToRequirements(Unit* pUnitTarget) const;
 };
 
-bool ItemCanGoIntoBag(ItemPrototype const* proto, ItemPrototype const* pBagProto);
+bool ItemCanGoIntoBag(ItemPrototype const *proto, ItemPrototype const *pBagProto);
 
 class Item : public Object
 {
-public:
+    public:
     static Item* CreateItem(uint32 item, uint32 count, Player const* player = nullptr);
+        static Item* CreateItem(uint32 item, uint32 count, ObjectGuid ownerGuid);
     Item* CloneItem(uint32 count, Player const* player = nullptr) const;
 
     Item();
     virtual ~Item();
+        // bot calls item->SetUsedInSpell(true) when queued.
+        // Penqle has no equivalent; stub no-op.
+        void SetUsedInSpell(bool /*used*/) {}
 
     virtual bool Create(uint32 guidlow, uint32 itemid, ObjectGuid ownerGuid = ObjectGuid());
     void RemoveFromWorld() override;
 
     ItemPrototype const* GetProto() const;
+        // AzerothCore spelling.
+#ifndef ENABLE_ELUNA
+        ItemPrototype const* GetTemplate() const { return GetProto(); }
+#endif
     bool ChangeEntry(ItemPrototype const* pNewProto);
 
     ObjectGuid const& GetOwnerGuid() const { return GetGuidValue(ITEM_FIELD_OWNER); }
     void SetOwnerGuid(ObjectGuid guid) { SetGuidValue(ITEM_FIELD_OWNER, guid); }
-    Player* GetOwner() const;
+        Player* GetOwner()const;
 
-    void SetBinding(bool val) { ApplyModFlag(ITEM_FIELD_FLAGS, ITEM_DYNFLAG_BINDED, val); }
+        void SetBinding(bool val) { ApplyModFlag(ITEM_FIELD_FLAGS, ITEM_DYNFLAG_BINDED,val); }
     bool IsSoulBound() const { return HasFlag(ITEM_FIELD_FLAGS, ITEM_DYNFLAG_BINDED) || HasFlag(ITEM_FIELD_FLAGS, ITEM_DYNFLAG_BOA); }
     bool IsAccountBound() const { return HasFlag(ITEM_FIELD_FLAGS, ITEM_DYNFLAG_BOA); }
     bool IsBindedNotWith(Player const* player) const;
@@ -196,11 +204,22 @@ public:
 
     static void DeleteAllFromDB(uint32 guidLow);
 
-    bool isWeapon() const { return GetProto()->Class == ITEM_CLASS_WEAPON; }
+        bool isWeapon() const{ return GetProto()->Class == ITEM_CLASS_WEAPON; }
     bool isProjectile() const { return GetProto()->Class == ITEM_CLASS_PROJECTILE; }
-    bool isOneHandedWeapon() const { return (isWeapon() && (GetProto()->SubClass == ITEM_SUBCLASS_WEAPON_AXE || GetProto()->SubClass == ITEM_SUBCLASS_WEAPON_SWORD || GetProto()->SubClass == ITEM_SUBCLASS_WEAPON_MACE || GetProto()->SubClass == ITEM_SUBCLASS_WEAPON_FIST || GetProto()->SubClass == ITEM_SUBCLASS_WEAPON_DAGGER || GetProto()->SubClass == ITEM_SUBCLASS_WEAPON_EXOTIC)); }
+        bool isOneHandedWeapon() const 
+        {
+            return (isWeapon() &&
+                (GetProto()->SubClass == ITEM_SUBCLASS_WEAPON_AXE ||
+                GetProto()->SubClass == ITEM_SUBCLASS_WEAPON_SWORD ||
+                GetProto()->SubClass == ITEM_SUBCLASS_WEAPON_MACE ||
+                GetProto()->SubClass == ITEM_SUBCLASS_WEAPON_FIST ||
+                GetProto()->SubClass == ITEM_SUBCLASS_WEAPON_DAGGER ||
+                GetProto()->SubClass == ITEM_SUBCLASS_WEAPON_EXOTIC));
+        }
 
     bool IsBag() const { return GetProto()->InventoryType == INVTYPE_BAG; }
+        bool IsLocked() const { return GetProto()->LockID && !HasFlag(ITEM_FIELD_FLAGS, ITEM_DYNFLAG_UNLOCKED); }
+        bool IsNotEmptyBag() const;
     bool IsQuiver() const { return GetProto()->InventoryType == INVTYPE_BAG && GetProto()->Class == ITEM_CLASS_QUIVER; }
     bool IsBroken() const { return GetUInt32Value(ITEM_FIELD_MAXDURABILITY) > 0 && GetUInt32Value(ITEM_FIELD_DURABILITY) == 0; }
     bool CanBeTraded() const;
@@ -211,30 +230,20 @@ public:
     bool IsTargetValidForItemUse(Unit* pUnitTarget);
     bool IsLimitedToAnotherMapOrZone(uint32 cur_mapId, uint32 cur_zoneId) const;
 
-    Bag* ToBag()
-    {
-        if (IsBag())
-            return reinterpret_cast<Bag*>(this);
-        return nullptr;
-    }
-    const Bag* ToBag() const
-    {
-        if (IsBag())
-            return reinterpret_cast<const Bag*>(this);
-        return nullptr;
-    }
+        Bag* ToBag() { if (IsBag()) return reinterpret_cast<Bag*>(this); return nullptr; }
+        const Bag* ToBag() const { if (IsBag()) return reinterpret_cast<const Bag*>(this); return nullptr; }
 
-    uint32 GetCount() const { return GetUInt32Value(ITEM_FIELD_STACK_COUNT); }
-    void SetCount(uint32 value) { SetUInt32Value(ITEM_FIELD_STACK_COUNT, value); }
+        uint32 GetCount() const { return GetUInt32Value (ITEM_FIELD_STACK_COUNT); }
+        void SetCount(uint32 value) { SetUInt32Value (ITEM_FIELD_STACK_COUNT, value); }
     uint32 GetMaxStackCount() const { return GetProto()->GetMaxStackSize(); }
     InventoryResult CanBeMergedPartlyWith(ItemPrototype const* proto) const;
 
-    uint8 GetSlot() const { return m_slot; }
+        uint8 GetSlot() const {return m_slot;}
     Bag* GetContainer() { return m_container; }
     uint8 GetBagSlot() const;
-    void SetSlot(uint8 slot) { m_slot = slot; }
+        void SetSlot(uint8 slot) {m_slot = slot;}
     uint16 GetPos() const { return uint16(GetBagSlot()) << 8 | GetSlot(); }
-    void SetContainer(Bag* container) { m_container = container; }
+        void SetContainer(Bag *container) { m_container = container; }
 
     bool IsInBag() const { return m_container != nullptr; }
     bool IsEquipped() const;
@@ -248,16 +257,16 @@ public:
     void SetEnchantmentDuration(EnchantmentSlot slot, uint32 duration);
     void SetEnchantmentCharges(EnchantmentSlot slot, uint32 charges);
     void ClearEnchantment(EnchantmentSlot slot);
-    uint32 GetEnchantmentId(EnchantmentSlot slot) const { return GetUInt32Value(ITEM_FIELD_ENCHANTMENT + slot * MAX_ENCHANTMENT_OFFSET + ENCHANTMENT_ID_OFFSET); }
-    uint32 GetEnchantmentDuration(EnchantmentSlot slot) const { return GetUInt32Value(ITEM_FIELD_ENCHANTMENT + slot * MAX_ENCHANTMENT_OFFSET + ENCHANTMENT_DURATION_OFFSET); }
-    uint32 GetEnchantmentCharges(EnchantmentSlot slot) const { return GetUInt32Value(ITEM_FIELD_ENCHANTMENT + slot * MAX_ENCHANTMENT_OFFSET + ENCHANTMENT_CHARGES_OFFSET); }
+        uint32 GetEnchantmentId(EnchantmentSlot slot)       const { return GetUInt32Value(ITEM_FIELD_ENCHANTMENT + slot*MAX_ENCHANTMENT_OFFSET + ENCHANTMENT_ID_OFFSET);}
+        uint32 GetEnchantmentDuration(EnchantmentSlot slot) const { return GetUInt32Value(ITEM_FIELD_ENCHANTMENT + slot*MAX_ENCHANTMENT_OFFSET + ENCHANTMENT_DURATION_OFFSET);}
+        uint32 GetEnchantmentCharges(EnchantmentSlot slot)  const { return GetUInt32Value(ITEM_FIELD_ENCHANTMENT + slot*MAX_ENCHANTMENT_OFFSET + ENCHANTMENT_CHARGES_OFFSET);}
 
     void SendTimeUpdate(Player const* owner) const;
     void UpdateDuration(Player* owner, uint32 diff);
 
     // spell charges (negative means that once charges are consumed the item should be deleted)
-    int32 GetSpellCharges(uint8 index /*0..5*/ = 0) const { return GetInt32Value(ITEM_FIELD_SPELL_CHARGES + index); }
-    void SetSpellCharges(uint8 index /*0..5*/, int32 value) { SetInt32Value(ITEM_FIELD_SPELL_CHARGES + index, value); }
+        int32 GetSpellCharges(uint8 index/*0..5*/ = 0) const { return GetInt32Value(ITEM_FIELD_SPELL_CHARGES + index); }
+        void SetSpellCharges(uint8 index/*0..5*/, int32 value) { SetInt32Value(ITEM_FIELD_SPELL_CHARGES + index,value); }
 
     Loot loot;
 
@@ -301,11 +310,7 @@ public:
     void SetTransmogrification(uint32 value) { transmogrifyId = value; }
 
     uint32 GetOriginMapId() const { return m_obtainedFromMapId; }
-    void SetCanTradeWithRaidUntil(time_t tradeUntil, uint32 mapId)
-    {
-        m_tradeAllowedUntil = tradeUntil;
-        m_obtainedFromMapId = mapId;
-    }
+        void SetCanTradeWithRaidUntil(time_t tradeUntil, uint32 mapId) { m_tradeAllowedUntil = tradeUntil; m_obtainedFromMapId = mapId; }
     bool CanBeTradedEvenIfSoulBound() const;
     void AddPlayerToAllowedTradeList(ObjectGuid guid) { m_canBeTradedWithPlayers.insert(guid); }
     bool CanTradeSoulBoundToPlayer(ObjectGuid guid) const { return m_canBeTradedWithPlayers.find(guid) != m_canBeTradedWithPlayers.end(); }
@@ -313,7 +318,7 @@ public:
 
     bool preventCancel = false;
 
-private:
+    private:
     uint32 transmogrifyId;
     bool generatedLoot;
     uint8 m_slot;

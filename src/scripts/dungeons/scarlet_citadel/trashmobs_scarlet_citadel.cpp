@@ -5,9 +5,9 @@
  * absent permission of Nolin.
  */
 
-#include "trashmobs_scarlet_citadel.hpp"
-#include "scarlet_citadel.h"
 #include "scriptPCH.h"
+#include "scarlet_citadel.h"
+#include "trashmobs_scarlet_citadel.hpp"
 
 
 //////////////////////////////////////////
@@ -17,9 +17,13 @@
 class npc_citadel_inquisitor_AI : public ScriptedAI
 {
 public:
-    explicit npc_citadel_inquisitor_AI(Creature* pCreature) : ScriptedAI(pCreature) { npc_citadel_inquisitor_AI::Reset(); }
+    explicit npc_citadel_inquisitor_AI(Creature* pCreature) : ScriptedAI(pCreature)
+    {
+        npc_citadel_inquisitor_AI::Reset();
+    }
 
 private:
+
     bool m_bCastedDivineShieldOnce{};
 
     uint32 m_uiCounterSpell_Timer{};
@@ -42,7 +46,7 @@ public:
     {
         if (m_uiCounterSpell_Timer < uiDiff)
         {
-            if (Unit * pRandomTarget{m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 0, nullptr, SELECT_FLAG_PLAYER | SELECT_FLAG_POWER_MANA)})
+            if (Unit* pRandomTarget{ m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 0, nullptr, SELECT_FLAG_PLAYER | SELECT_FLAG_POWER_MANA) })
             {
                 if (pRandomTarget->IsNonMeleeSpellCasted(true))
                 {
@@ -63,7 +67,7 @@ public:
     {
         if (m_uiHolyNova_Timer < uiDiff)
         {
-            if (Unit * pFriendlyTarget{m_creature->SelectRandomFriendlyTarget(nullptr, 12.f)})
+            if (Unit* pFriendlyTarget{ m_creature->SelectRandomFriendlyTarget(nullptr, 12.f) })
             {
                 if (pFriendlyTarget->GetHealthPercent() < 90.f)
                 {
@@ -95,7 +99,7 @@ public:
     {
         if (m_uiGreaterHeal_Timer < uiDiff)
         {
-            if (Unit * pFriendlyTarget{m_creature->FindLowestHpFriendlyUnit(40.f)})
+            if (Unit* pFriendlyTarget{ m_creature->FindLowestHpFriendlyUnit(40.f) })
             {
                 if (m_creature->IsWithinLOSInMap(pFriendlyTarget))
                 {
@@ -129,15 +133,22 @@ public:
     }
 };
 
-CreatureAI* GetAI_npc_citadel_inquisitor(Creature* pCreature) { return new npc_citadel_inquisitor_AI(pCreature); }
+CreatureAI* GetAI_npc_citadel_inquisitor(Creature* pCreature)
+{
+    return new npc_citadel_inquisitor_AI(pCreature);
+}
 
 
 class npc_citadel_valiant_AI : public ScriptedAI
 {
 public:
-    explicit npc_citadel_valiant_AI(Creature* pCreature) : ScriptedAI(pCreature) { npc_citadel_valiant_AI::Reset(); }
+    explicit npc_citadel_valiant_AI(Creature* pCreature) : ScriptedAI(pCreature)
+    {
+        npc_citadel_valiant_AI::Reset();
+    }
 
 private:
+
     uint32 m_uiCharge_Timer{};
     uint32 m_uiCleave_Timer{};
 
@@ -154,7 +165,7 @@ public:
     {
         if (m_uiCharge_Timer < uiDiff)
         {
-            if (Unit * chargeTarget{m_creature->GetHostileCasterInRange(0, 50.f)})
+            if (Unit* chargeTarget{ m_creature->GetHostileCasterInRange(0, 50.f) })
             {
                 if (m_creature->IsWithinLOSInMap(chargeTarget))
                 {
@@ -206,15 +217,22 @@ public:
     }
 };
 
-CreatureAI* GetAI_npc_citadel_valiant(Creature* pCreature) { return new npc_citadel_valiant_AI(pCreature); }
+CreatureAI* GetAI_npc_citadel_valiant(Creature* pCreature)
+{
+    return new npc_citadel_valiant_AI(pCreature);
+}
 
 
 class npc_citadel_footman_AI : public ScriptedAI
 {
 public:
-    explicit npc_citadel_footman_AI(Creature* pCreature) : ScriptedAI(pCreature) { npc_citadel_footman_AI::Reset(); }
+    explicit npc_citadel_footman_AI(Creature* pCreature) : ScriptedAI(pCreature)
+    {
+        npc_citadel_footman_AI::Reset();
+    }
 
 private:
+
     uint32 m_uiDisarm_Timer{};
     uint32 m_uiFrenzy_Timer{};
 
@@ -273,7 +291,10 @@ public:
     }
 };
 
-CreatureAI* GetAI_npc_citadel_footman(Creature* pCreature) { return new npc_citadel_footman_AI(pCreature); }
+CreatureAI* GetAI_npc_citadel_footman(Creature* pCreature)
+{
+    return new npc_citadel_footman_AI(pCreature);
+}
 
 
 //////////////////////////////////////////
@@ -284,7 +305,10 @@ CreatureAI* GetAI_npc_citadel_footman(Creature* pCreature) { return new npc_cita
 class npc_citadel_interrogator_AI : public ScriptedAI
 {
 public:
-    explicit npc_citadel_interrogator_AI(Creature* pCreature) : ScriptedAI(pCreature) { npc_citadel_interrogator_AI::Reset(); }
+    explicit npc_citadel_interrogator_AI(Creature* pCreature) : ScriptedAI(pCreature)
+    {
+        npc_citadel_interrogator_AI::Reset();
+    }
 
 private:
     bool m_bAlreadyUsedFrenzy{};
@@ -333,7 +357,10 @@ public:
         }
     }
 
-    void DoEviscerate() { DoCastSpellIfCan(m_creature->GetVictim(), nsCitadelInterrogator::SPELL_EVISCERATE); }
+    void DoEviscerate()
+    {
+        DoCastSpellIfCan(m_creature->GetVictim(), nsCitadelInterrogator::SPELL_EVISCERATE);
+    }
 
     void DoBlind(const uint32& uiDiff)
     {
@@ -407,7 +434,10 @@ public:
     }
 };
 
-CreatureAI* GetAI_npc_citadel_interrogator(Creature* pCreature) { return new npc_citadel_interrogator_AI(pCreature); }
+CreatureAI* GetAI_npc_citadel_interrogator(Creature* pCreature)
+{
+    return new npc_citadel_interrogator_AI(pCreature);
+}
 
 
 class npc_chaplain_and_sister_AI : public ScriptedAI
@@ -420,6 +450,7 @@ public:
     }
 
 private:
+
     bool m_bEventStarted{};
 
     uint32 m_uiCHeckPulse_Timer{};
@@ -443,12 +474,17 @@ public:
 
         if (m_uiCHeckPulse_Timer < uiDiff)
         {
-            Map::PlayerList const& PlayerList{m_creature->GetMap()->GetPlayers()};
+            Map::PlayerList const& PlayerList{ m_creature->GetMap()->GetPlayers() };
             for (const auto& itr : PlayerList)
             {
                 if (!itr.getSource()->IsGameMaster() && itr.getSource()->IsAlive())
                 {
-                    if (itr.getSource()->IsInRange3d(nsChaplainAndSister::vfAreaTrigger[0][0], nsChaplainAndSister::vfAreaTrigger[0][1], nsChaplainAndSister::vfAreaTrigger[0][2], nsChaplainAndSister::vfAreaTrigger[0][3], nsChaplainAndSister::vfAreaTrigger[0][4]))
+                    if (itr.getSource()->IsInRange3d(
+                        nsChaplainAndSister::vfAreaTrigger[0][0],
+                        nsChaplainAndSister::vfAreaTrigger[0][1],
+                        nsChaplainAndSister::vfAreaTrigger[0][2],
+                        nsChaplainAndSister::vfAreaTrigger[0][3],
+                        nsChaplainAndSister::vfAreaTrigger[0][4]))
                     {
                         if (!m_bEventStarted)
                         {
@@ -469,81 +505,82 @@ public:
 
     void StartEvent()
     {
-        Creature* pScarletChaplain{m_pInstance->GetSingleCreatureFromStorage(NPC_SCARLET_CHAPLAIN)};
+        Creature* pScarletChaplain{ m_pInstance->GetSingleCreatureFromStorage(NPC_SCARLET_CHAPLAIN) };
         if (!pScarletChaplain)
             return;
 
-        Creature* pScarletSister{m_pInstance->GetSingleCreatureFromStorage(NPC_SCARLET_SISTER)};
+        Creature* pScarletSister{ m_pInstance->GetSingleCreatureFromStorage(NPC_SCARLET_SISTER) };
         if (!pScarletSister)
             return;
 
-        static const uint32 uiRndEvent{urand(0, 1)};
-        DoAfterTime(pScarletChaplain, (2 * IN_MILLISECONDS),
-                    [chaplain = pScarletChaplain]()
-                    {
-                        if (chaplain)
-                        {
-                            chaplain->MonsterSay(nsChaplainAndSister::strConversation[uiRndEvent ? 0 : 7], LANG_UNIVERSAL);
-                        }
-                    });
-        DoAfterTime(pScarletSister, (10 * IN_MILLISECONDS),
-                    [sister = pScarletSister]()
-                    {
-                        if (sister)
-                        {
-                            sister->MonsterSay(nsChaplainAndSister::strConversation[uiRndEvent ? 1 : 8], LANG_UNIVERSAL);
-                        }
-                    });
-        DoAfterTime(pScarletChaplain, (18 * IN_MILLISECONDS),
-                    [chaplain = pScarletChaplain]()
-                    {
-                        if (chaplain)
-                        {
-                            chaplain->MonsterSay(nsChaplainAndSister::strConversation[uiRndEvent ? 2 : 9], LANG_UNIVERSAL);
-                        }
-                    });
-        DoAfterTime(pScarletSister, (26 * IN_MILLISECONDS),
-                    [sister = pScarletSister]()
-                    {
-                        if (sister)
-                        {
-                            sister->MonsterSay(nsChaplainAndSister::strConversation[uiRndEvent ? 3 : 10], LANG_UNIVERSAL);
-                        }
-                    });
-        DoAfterTime(pScarletChaplain, (34 * IN_MILLISECONDS),
-                    [chaplain = pScarletChaplain]()
-                    {
-                        if (chaplain)
-                        {
-                            chaplain->MonsterSay(nsChaplainAndSister::strConversation[uiRndEvent ? 4 : 11], LANG_UNIVERSAL);
-                        }
-                    });
-        DoAfterTime(pScarletSister, (42 * IN_MILLISECONDS),
-                    [sister = pScarletSister]()
-                    {
-                        if (sister)
-                        {
-                            sister->MonsterSay(nsChaplainAndSister::strConversation[uiRndEvent ? 5 : 12], LANG_UNIVERSAL);
-                        }
-                    });
-        DoAfterTime(pScarletChaplain, (50 * IN_MILLISECONDS),
-                    [chaplain = pScarletChaplain]()
-                    {
-                        if (chaplain)
-                        {
-                            chaplain->MonsterSay(nsChaplainAndSister::strConversation[uiRndEvent ? 6 : 13], LANG_UNIVERSAL);
-                        }
-                    });
+        static const uint32 uiRndEvent{ urand(0, 1) };
+        DoAfterTime(pScarletChaplain, (2 * IN_MILLISECONDS), [chaplain = pScarletChaplain]()
+        {
+            if (chaplain)
+            {
+                chaplain->MonsterSay(nsChaplainAndSister::strConversation[uiRndEvent ? 0 : 7], LANG_UNIVERSAL);
+            }
+        });
+        DoAfterTime(pScarletSister, (10 * IN_MILLISECONDS), [sister = pScarletSister]()
+        {
+            if (sister)
+            {
+                sister->MonsterSay(nsChaplainAndSister::strConversation[uiRndEvent ? 1 : 8], LANG_UNIVERSAL);
+            }
+        });
+        DoAfterTime(pScarletChaplain, (18 * IN_MILLISECONDS), [chaplain = pScarletChaplain]()
+        {
+            if (chaplain)
+            {
+                chaplain->MonsterSay(nsChaplainAndSister::strConversation[uiRndEvent ? 2 : 9], LANG_UNIVERSAL);
+            }
+        });
+        DoAfterTime(pScarletSister, (26 * IN_MILLISECONDS), [sister = pScarletSister]()
+        {
+            if (sister)
+            {
+                sister->MonsterSay(nsChaplainAndSister::strConversation[uiRndEvent ? 3 : 10], LANG_UNIVERSAL);
+            }
+        });
+        DoAfterTime(pScarletChaplain, (34 * IN_MILLISECONDS), [chaplain = pScarletChaplain]()
+        {
+            if (chaplain)
+            {
+                chaplain->MonsterSay(nsChaplainAndSister::strConversation[uiRndEvent ? 4 : 11], LANG_UNIVERSAL);
+            }
+        });
+        DoAfterTime(pScarletSister, (42 * IN_MILLISECONDS), [sister = pScarletSister]()
+        {
+            if (sister)
+            {
+                sister->MonsterSay(nsChaplainAndSister::strConversation[uiRndEvent ? 5 : 12], LANG_UNIVERSAL);
+            }
+        });
+        DoAfterTime(pScarletChaplain, (50 * IN_MILLISECONDS), [chaplain = pScarletChaplain]()
+        {
+            if (chaplain)
+            {
+                chaplain->MonsterSay(nsChaplainAndSister::strConversation[uiRndEvent ? 6 : 13], LANG_UNIVERSAL);
+            }
+        });
     }
 
-    void UpdateAI(const uint32 uiDiff) override { AreaTriggerActivated(uiDiff); }
+    void UpdateAI(const uint32 uiDiff) override
+    {
+        AreaTriggerActivated(uiDiff);
+    }
 };
 
-CreatureAI* GetAI_npc_chaplain_and_sister(Creature* pCreature) { return new npc_chaplain_and_sister_AI(pCreature); }
+CreatureAI* GetAI_npc_chaplain_and_sister(Creature* pCreature)
+{
+    return new npc_chaplain_and_sister_AI(pCreature);
+}
 
 //////////////////////////////////////////
 // Shadow Wing
 //////////////////////////////////////////
+
+
 
 
 //////////////////////////////////////////
@@ -553,9 +590,13 @@ CreatureAI* GetAI_npc_chaplain_and_sister(Creature* pCreature) { return new npc_
 class npc_citadel_anti_exploit_AI : public ScriptedAI
 {
 public:
-    explicit npc_citadel_anti_exploit_AI(Creature* pCreature) : ScriptedAI(pCreature) { npc_citadel_anti_exploit_AI::Reset(); }
+    explicit npc_citadel_anti_exploit_AI(Creature* pCreature) : ScriptedAI(pCreature)
+    {
+        npc_citadel_anti_exploit_AI::Reset();
+    }
 
 private:
+
     uint32 m_uiCheckPulse{};
 
 public:
@@ -571,32 +612,40 @@ public:
     {
         if (m_uiCheckPulse < uiDiff)
         {
-            Map::PlayerList const& list{m_creature->GetMap()->GetPlayers()};
+            Map::PlayerList const& list{ m_creature->GetMap()->GetPlayers() };
             for (const auto& player : list)
             {
-                if (Player * pPlayer{player.getSource()})
+                if (Player* pPlayer{ player.getSource() })
                 {
-                    if (!pPlayer->IsGameMaster() && pPlayer->IsInRange3d(m_creature->GetPositionX(), m_creature->GetPositionY(), m_creature->GetPositionZ(), 0.0f, nsAntiExploit::PERMITTED_AREA))
+                    if (!pPlayer->IsGameMaster() && pPlayer->IsInRange3d(
+                        m_creature->GetPositionX(),
+                        m_creature->GetPositionY(),
+                        m_creature->GetPositionZ(),
+                        0.0f, nsAntiExploit::PERMITTED_AREA))
                     {
                         pPlayer->AddAura(nsAntiExploit::SPELL_STUN);
 
-                        DoAfterTime(pPlayer, (3 * IN_MILLISECONDS),
-                                    [player = pPlayer]()
-                                    {
-                                        if (player)
-                                        {
-                                            static_cast<Unit*>(player)->NearTeleportTo(nsAntiExploit::vfTeleportDestinations[0][0], nsAntiExploit::vfTeleportDestinations[0][1], nsAntiExploit::vfTeleportDestinations[0][2], nsAntiExploit::vfTeleportDestinations[0][3]);
-                                        }
-                                    });
+                        DoAfterTime(pPlayer, (3 * IN_MILLISECONDS), [player = pPlayer]()
+                        {
+                            if (player)
+                            {
+                                static_cast<Unit*>(player)->NearTeleportTo
+                                (
+                                    nsAntiExploit::vfTeleportDestinations[0][0],
+                                    nsAntiExploit::vfTeleportDestinations[0][1],
+                                    nsAntiExploit::vfTeleportDestinations[0][2],
+                                    nsAntiExploit::vfTeleportDestinations[0][3]
+                                );
+                            }
+                        });
 
-                        DoAfterTime(pPlayer, (5 * IN_MILLISECONDS),
-                                    [player = pPlayer]()
-                                    {
-                                        if (player)
-                                        {
-                                            ChatHandler(player).SendSysMessage(nsAntiExploit::WARNING_MESSAGE);
-                                        }
-                                    });
+                        DoAfterTime(pPlayer, (5 * IN_MILLISECONDS), [player = pPlayer]()
+                        {
+                            if (player)
+                            {
+                                ChatHandler(player).SendSysMessage(nsAntiExploit::WARNING_MESSAGE);
+                            }
+                        });
                     }
                 }
             }
@@ -610,7 +659,10 @@ public:
     }
 };
 
-CreatureAI* GetAI_npc_citadel_anti_exploit(Creature* pCreature) { return new npc_citadel_anti_exploit_AI(pCreature); }
+CreatureAI* GetAI_npc_citadel_anti_exploit(Creature* pCreature)
+{
+    return new npc_citadel_anti_exploit_AI(pCreature);
+}
 
 
 void AddSC_trash_mobs_scarlet_citadel()

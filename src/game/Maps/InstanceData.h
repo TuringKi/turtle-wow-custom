@@ -23,8 +23,8 @@
 #define MANGOS_INSTANCE_DATA_H
 
 #include "Common.h"
-#include "ObjectGuid.h"
 #include "ZoneScript.h"
+#include "ObjectGuid.h"
 
 class Map;
 class Unit;
@@ -35,48 +35,66 @@ class WorldObject;
 
 class InstanceData : public ZoneScript
 {
-public:
-    explicit InstanceData(Map* map) : instance(map) { SetMap(map); }
-    virtual ~InstanceData() {}
+    public:
 
-    Map* instance;
+        explicit InstanceData(Map *map) : instance(map) { SetMap(map); }
+        virtual ~InstanceData() {}
 
-    // On creation, NOT load.
-    virtual void Initialize() {}
+        Map *instance;
 
-    // On load
-    virtual void Load(const char* /*data*/) {}
-    virtual void Create() {} // A la creation. Pas au chargement.
+        //On creation, NOT load.
+        virtual void Initialize() {}
 
-    // When save is needed, this function generates the data
-    virtual const char* Save() { return ""; }
+        //On load
+        virtual void Load(const char* /*data*/) {}
+        virtual void Create() {} // A la creation. Pas au chargement.
 
-    void SaveToDB();
+        //When save is needed, this function generates the data
+        virtual const char* Save() { return ""; }
 
-    // Called every map update
-    void Update(uint32 /*diff*/) override {}
+        void SaveToDB();
 
-    // Used by the map's CanEnter function.
-    // This is to prevent players from entering during boss encounters.
-    virtual bool IsEncounterInProgress() const { return false; }
+        //Called every map update
+        void Update(uint32 /*diff*/) override {}
 
-    // Spells
-    virtual void CustomSpellCasted(uint32 /*spellId*/, Unit* /*caster*/ = nullptr, Unit* /*target*/ = nullptr) {}
+        //Used by the map's CanEnter function.
+        //This is to prevent players from entering during boss encounters.
+        virtual bool IsEncounterInProgress() const { return false; }
 
-    // All-purpose data storage 64 bit
-    virtual uint64 GetData64(uint32 /*Data*/) { return 0; }
-    virtual void SetData64(uint32 /*Data*/, uint64 /*Value*/) {}
+        // Spells
+        virtual void CustomSpellCasted (uint32 /*spellId*/, Unit* /*caster*/ = nullptr, Unit* /*target*/ = nullptr) {}
 
-    // Guid data storage (wrapper for set/get from uint64 storage
-    ObjectGuid GetGuid(uint32 dataIdx) { return ObjectGuid(GetData64(dataIdx)); }
-    void SetGuid(uint32 dataIdx, ObjectGuid value) { SetData64(dataIdx, value.GetRawValue()); }
+        //All-purpose data storage 64 bit
+        virtual uint64 GetData64(uint32 /*Data*/) { return 0; }
+        virtual void SetData64(uint32 /*Data*/, uint64 /*Value*/) { }
 
-    // All-purpose data storage 32 bit
-    virtual uint32 GetData(uint32 /*Type*/) { return 0; }
-    virtual void SetData(uint32 /*Type*/, uint32 /*Data*/) {}
+        //Guid data storage (wrapper for set/get from uint64 storage
+        ObjectGuid GetGuid(uint32 dataIdx) { return ObjectGuid(GetData64(dataIdx)); }
+        void SetGuid(uint32 dataIdx, ObjectGuid value) { SetData64(dataIdx, value.GetRawValue()); }
 
-    // Condition criteria additional requirements check
-    // This is used for such things are heroic loot
-    virtual bool CheckConditionCriteriaMeet(Player const* player, uint32 map_id, WorldObject const* source, uint32 instance_condition_id) const;
+        //All-purpose data storage 32 bit
+        // AzerothCore encounter faces, honest defaults. There is no encounter
+        // state machine on this core: NOT_STARTED (0) and an empty mask mean a
+        // ported caller never skips a boss it should fight - it only walks to
+        // one it could have skipped. GetPersistentData mirrors GetData, which
+        // is this core's only per-instance store. ProcessEvent has no general
+        // dispatcher here; scripts wire their events directly, so the default
+        // swallows the call.
+        virtual uint8 GetBossState(uint32 /*id*/) const { return 0; }
+        virtual uint32 GetCompletedEncounterMask() const { return 0; }
+        virtual uint32 GetPersistentData(uint32 type) { return GetData(type); }
+        virtual void ProcessEvent(WorldObject* /*source*/, uint32 /*eventId*/) {}
+        // Cross-faction instances arrived later; on this core the group's
+        // faction is the instance's faction and nothing remaps it.
+        // 2 is TEAM_NEUTRAL in the AzerothCore numbering the ported caller
+        // compares against - the value that says "no faction stamped", which
+        // is the truth here. 0 would read as "stamped Alliance".
+        virtual uint32 GetTeamIdInInstance() const { return 2; }
+        virtual uint32 GetData(uint32 /*Type*/) { return 0; }
+        virtual void SetData(uint32 /*Type*/, uint32 /*Data*/) {}
+
+        // Condition criteria additional requirements check
+        // This is used for such things are heroic loot
+        virtual bool CheckConditionCriteriaMeet(Player const* player, uint32 map_id, WorldObject const* source, uint32 instance_condition_id) const;
 };
 #endif

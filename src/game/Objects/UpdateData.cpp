@@ -19,26 +19,37 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
+#include "Common.h"
 #include "UpdateData.h"
 #include "ByteBuffer.h"
-#include "Common.h"
+#include "WorldPacket.h"
 #include "Log.h"
-#include "ObjectGuid.h"
 #include "Opcodes.h"
 #include "World.h"
-#include "WorldPacket.h"
+#include "ObjectGuid.h"
 
 #include "libdeflate.h"
 
 #define MAX_UNCOMPRESSED_PACKET_SIZE 0x8000 // 32ko
 
-UpdateData::UpdateData() {}
+UpdateData::UpdateData()
+{
+}
 
-UpdateData::~UpdateData() { Clear(); }
+UpdateData::~UpdateData()
+{
+    Clear();
+}
 
-void UpdateData::AddOutOfRangeGUID(ObjectGuidSet& guids) { m_outOfRangeGUIDs.insert(guids.begin(), guids.end()); }
+void UpdateData::AddOutOfRangeGUID(ObjectGuidSet& guids)
+{
+    m_outOfRangeGUIDs.insert(guids.begin(), guids.end());
+}
 
-void UpdateData::AddOutOfRangeGUID(ObjectGuid const& guid) { m_outOfRangeGUIDs.insert(guid); }
+void UpdateData::AddOutOfRangeGUID(ObjectGuid const &guid)
+{
+    m_outOfRangeGUIDs.insert(guid);
+}
 
 ByteBuffer& UpdateData::AddUpdateBlockAndGetBuffer()
 {
@@ -56,9 +67,13 @@ ByteBuffer& UpdateData::AddUpdateBlockAndGetBuffer()
     return it->data;
 }
 
-inline auto GetCompressor() { return std::unique_ptr<libdeflate_compressor, decltype(&libdeflate_free_compressor)>{libdeflate_alloc_compressor(sWorld.getConfig(CONFIG_UINT32_COMPRESSION)), libdeflate_free_compressor}; }
+inline auto GetCompressor()
+{
+    return std::unique_ptr<libdeflate_compressor, decltype(&libdeflate_free_compressor)>{
+        libdeflate_alloc_compressor(sWorld.getConfig(CONFIG_UINT32_COMPRESSION)), libdeflate_free_compressor };
+}
 
-void PacketCompressor::Compress(void* dst, uint32* dst_size, void* src, int src_size)
+void PacketCompressor::Compress(void* dst, uint32 *dst_size, void* src, int src_size)
 {
     auto compressor = GetCompressor();
     *dst_size = libdeflate_zlib_compress(compressor.get(), src, src_size, dst, *dst_size);
@@ -71,7 +86,7 @@ size_t PacketCompressor::Bound(size_t size)
 }
 
 
-bool UpdateData::BuildPacket(WorldPacket* packet, bool hasTransport)
+bool UpdateData::BuildPacket(WorldPacket *packet, bool hasTransport)
 {
     if (m_datas.empty())
         return BuildPacket(packet, nullptr, hasTransport);
@@ -79,9 +94,9 @@ bool UpdateData::BuildPacket(WorldPacket* packet, bool hasTransport)
     return BuildPacket(packet, &(m_datas.front()), hasTransport);
 }
 
-bool UpdateData::BuildPacket(WorldPacket* packet, UpdatePacket const* updPacket, bool hasTransport)
+bool UpdateData::BuildPacket(WorldPacket *packet, UpdatePacket const* updPacket, bool hasTransport)
 {
-    MANGOS_ASSERT(packet->empty()); // shouldn't happen
+    MANGOS_ASSERT(packet->empty());                         // shouldn't happen
 
     ByteBuffer buf(4 + 1 + (m_outOfRangeGUIDs.empty() ? 0 : 1 + 4 + 9 * m_outOfRangeGUIDs.size()) + (updPacket ? updPacket->data.wpos() : 0));
 
@@ -91,8 +106,8 @@ bool UpdateData::BuildPacket(WorldPacket* packet, UpdatePacket const* updPacket,
 
     if (!m_outOfRangeGUIDs.empty())
     {
-        buf << (uint8)UPDATETYPE_OUT_OF_RANGE_OBJECTS;
-        buf << (uint32)m_outOfRangeGUIDs.size();
+        buf << (uint8) UPDATETYPE_OUT_OF_RANGE_OBJECTS;
+        buf << (uint32) m_outOfRangeGUIDs.size();
 
         for (const auto& guid : m_outOfRangeGUIDs)
             buf << guid.WriteAsPacked();
@@ -101,9 +116,9 @@ bool UpdateData::BuildPacket(WorldPacket* packet, UpdatePacket const* updPacket,
     if (updPacket)
         buf.append(updPacket->data);
 
-    size_t pSize = buf.wpos(); // use real used data size
+    size_t pSize = buf.wpos();                              // use real used data size
 
-    if (pSize > 100) // compress large packets
+    if (pSize > 100)                                       // compress large packets
     {
         if (pSize >= 900000)
             sLog.outInfo("[CRASH-CLIENT] Too large packet: %u", pSize);
@@ -119,7 +134,7 @@ bool UpdateData::BuildPacket(WorldPacket* packet, UpdatePacket const* updPacket,
         packet->resize(destsize + sizeof(uint32));
         packet->SetOpcode(SMSG_COMPRESSED_UPDATE_OBJECT);
     }
-    else // send small packets without compression
+    else                                                    // send small packets without compression
     {
         packet->append(buf);
         packet->SetOpcode(SMSG_UPDATE_OBJECT);
@@ -186,7 +201,7 @@ bool MovementData::BuildPacket(WorldPacket& packet)
 {
     MANGOS_ASSERT(packet.empty()); // We want a clean packet !
 
-    size_t pSize = _buffer.wpos(); // use real used data size
+    size_t pSize = _buffer.wpos();                              // use real used data size
 
     if (pSize >= 900000)
         sLog.outInfo("[CRASH-CLIENT] Too large packet size %u (SMSG_COMPRESSED_MOVES)", pSize);

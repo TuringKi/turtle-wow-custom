@@ -1,8 +1,8 @@
 #pragma once
-#include <Common.h>
-#include <SystemConfig.h>
 #include <ctime>
 #include <vector>
+#include <SystemConfig.h>
+#include <Common.h>
 
 constexpr uint32 CheckUpdateTimer = 60 * IN_MILLISECONDS;
 

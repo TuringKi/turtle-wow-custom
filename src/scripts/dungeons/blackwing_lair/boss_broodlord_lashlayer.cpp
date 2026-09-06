@@ -21,8 +21,8 @@ SDComment:
 SDCategory: Blackwing Lair
 EndScriptData */
 
-#include "blackwing_lair.h"
 #include "scriptPCH.h"
+#include "blackwing_lair.h"
 
 enum
 {
@@ -55,7 +55,7 @@ struct boss_broodlordAI : public ScriptedAI
 
     void Reset() override
     {
-        m_uiCleaveTimer = 8000; // These times are probably wrong
+        m_uiCleaveTimer = 8000;                     // These times are probably wrong
         m_uiBlastWaveTimer = 20000;
         m_uiMortalStrikeTimer = 25000;
         m_uiKnockAwayTimer = urand(20000, 25000);
@@ -93,7 +93,13 @@ struct boss_broodlordAI : public ScriptedAI
 
     void MoveInLineOfSight(Unit* pWho) override
     {
-        if (pWho->GetTypeId() == TYPEID_PLAYER && !m_creature->IsInCombat() && m_creature->IsWithinDistInMap(pWho, 40.0f) && m_creature->IsWithinLOSInMap(pWho) && !pWho->HasStealthAura() && !pWho->HasAuraType(SPELL_AURA_FEIGN_DEATH) && !pWho->HasAuraType(SPELL_AURA_MOD_UNATTACKABLE))
+        if (pWho->GetTypeId() == TYPEID_PLAYER
+            && !m_creature->IsInCombat()
+            && m_creature->IsWithinDistInMap(pWho, 40.0f)
+            && m_creature->IsWithinLOSInMap(pWho)
+            && !pWho->HasStealthAura()
+            && !pWho->HasAuraType(SPELL_AURA_FEIGN_DEATH)
+            && !pWho->HasAuraType(SPELL_AURA_MOD_UNATTACKABLE))
         {
             m_creature->SetInCombatWithZone();
         }
@@ -193,7 +199,10 @@ struct boss_broodlordAI : public ScriptedAI
     }
 };
 
-CreatureAI* GetAI_boss_broodlord(Creature* pCreature) { return new boss_broodlordAI(pCreature); }
+CreatureAI* GetAI_boss_broodlord(Creature* pCreature)
+{
+    return new boss_broodlordAI(pCreature);
+}
 
 void AddSC_boss_broodlord()
 {

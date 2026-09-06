@@ -19,22 +19,22 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#include "event_naxxramas.h"
 #include "scriptPCH.h"
+#include "event_naxxramas.h"
 
 bool IsPermanent(uint32 zone)
 {
     switch (zone)
     {
-    case ZONEID_TANARIS:
-    case ZONEID_AZSHARA:
-    case ZONEID_EASTERN_PLAGUELANDS:
-    case ZONEID_WINTERSPRING:
-    case ZONEID_BLASTED_LANDS:
-    case ZONEID_BURNING_STEPPES:
-        return false;
-    default:
-        return true;
+        case ZONEID_TANARIS:
+        case ZONEID_AZSHARA:
+        case ZONEID_EASTERN_PLAGUELANDS:
+        case ZONEID_WINTERSPRING:
+        case ZONEID_BLASTED_LANDS:
+        case ZONEID_BURNING_STEPPES:
+            return false;
+        default:
+            return true;
     }
 }
 /*
@@ -43,15 +43,25 @@ Notes: For communiation between necropolis and the shard
 */
 struct NecropolisProxyAI : public ScriptedAI
 {
-    NecropolisProxyAI(Creature* pCreature) : ScriptedAI(pCreature) { Reset(); }
+    NecropolisProxyAI(Creature* pCreature) : ScriptedAI(pCreature)
+    {
+        Reset();
+    }
 
     ObjectGuid _necropolisGuid;
 
-    void Reset() override {}
+    void Reset() override
+    {
+    }
 
-    void Aggro(Unit* pWho) override {}
+    void Aggro(Unit* pWho) override
+    {
+    }
 
-    void InformGuid(const ObjectGuid necropolis, uint32 type = 0) override { _necropolisGuid = necropolis; }
+    void InformGuid(const ObjectGuid necropolis, uint32 type = 0) override
+    {
+        _necropolisGuid = necropolis;
+    }
 
     void SpellHit(WorldObject* caster, const SpellEntry* spell) override
     {
@@ -66,10 +76,15 @@ struct NecropolisProxyAI : public ScriptedAI
                 crea->AI()->InformGuid(_necropolisGuid);
     }
 
-    void UpdateAI(const uint32 uiDiff) override {}
+    void UpdateAI(const uint32 uiDiff) override
+    {
+    }
 };
 
-CreatureAI* GetAI_NecropolisProxy(Creature* pCreature) { return new NecropolisProxyAI(pCreature); }
+CreatureAI* GetAI_NecropolisProxy(Creature* pCreature)
+{
+    return new NecropolisProxyAI(pCreature);
+}
 
 /*
 Necropolis Relay
@@ -87,15 +102,24 @@ struct NecropolisRelayAI : public ScriptedAI
 
     uint32 despawnTimer;
 
-    uint32 _checkStatusTimer;
+    uint32     _checkStatusTimer;
     ObjectGuid _necropolisGuid;
     std::vector<ObjectGuid> SpawnedShards;
 
-    void Reset() override { m_creature->CastSpell(m_creature, SPELL_COMMUNICATION_NAXXRAMAS, true); }
+    void Reset() override
+    {
+        m_creature->CastSpell(m_creature, SPELL_COMMUNICATION_NAXXRAMAS, true);
+    }
 
-    void JustSummoned(GameObject* pGobj) override { _necropolisGuid = pGobj->GetObjectGuid(); }
-
-    void JustSummoned(Creature* pCreature) override { SpawnedShards.push_back(pCreature->GetObjectGuid()); }
+    void JustSummoned(GameObject* pGobj) override
+    {
+        _necropolisGuid = pGobj->GetObjectGuid();
+    }
+    
+    void JustSummoned(Creature* pCreature) override
+    {
+        SpawnedShards.push_back(pCreature->GetObjectGuid());
+    }
     void SpellHitTarget(Unit* target, const SpellEntry* spell) override
     {
         if (spell->Id == SPELL_COMMUNICATION_TRIGGER && target != m_creature)
@@ -104,7 +128,7 @@ struct NecropolisRelayAI : public ScriptedAI
                 crea->AI()->InformGuid(_necropolisGuid);
         }
     }
-
+    
     void SpellHit(WorldObject* caster, const SpellEntry* spell) override
     {
         if (spell->Id == SPELL_COMMUNICATION_CAMP_RELAY)
@@ -135,7 +159,7 @@ struct NecropolisRelayAI : public ScriptedAI
             {
                 if (GameObject* necropolis = m_creature->GetMap()->GetGameObject(_necropolisGuid))
                     necropolis->Delete();
-
+                
                 me->DeleteLater();
                 despawnTimer = 0;
             }
@@ -145,7 +169,10 @@ struct NecropolisRelayAI : public ScriptedAI
     }
 };
 
-CreatureAI* GetAI_NecropolisRelay(Creature* pCreature) { return new NecropolisRelayAI(pCreature); }
+CreatureAI* GetAI_NecropolisRelay(Creature* pCreature)
+{
+    return new NecropolisRelayAI(pCreature);
+}
 
 /*
 Necropolis
@@ -159,10 +186,15 @@ public:
         me->SetActiveObjectState(true);
         me->SetVisibilityModifier(3000.0f);
     }
-    void UpdateAI(const uint32 diff) override {}
+    void UpdateAI(const uint32 diff) override
+    {
+    }
 };
 
-GameObjectAI* GetAI_go_necropolis(GameObject* go) { return new go_necropolis(go); }
+GameObjectAI* GetAI_go_necropolis(GameObject* go)
+{
+    return new go_necropolis(go);
+}
 
 /*
 Necrotic Shard
@@ -177,25 +209,25 @@ struct npc_necrotic_shard : public ScriptedAI
         creature->SetHealth(creature->GetMaxHealth());
         SetCombatMovement(false);
 
-        switch (urand(0, 2))
+        switch (urand(0,2))
         {
-        case 0:
-            _spawnEntry1 = NPC_SKELETAL_SHOCKTROOPER;
-            _spawnEntry2 = NPC_GHOUL_BERSERKER;
-            break;
-        case 1:
-            _spawnEntry1 = NPC_SPECTRAL_SOLDIER;
-            _spawnEntry2 = NPC_GHOUL_BERSERKER;
-            break;
-        case 2:
-            _spawnEntry1 = NPC_SKELETAL_SHOCKTROOPER;
-            _spawnEntry2 = NPC_SPECTRAL_SOLDIER;
-            break;
+            case 0:
+                _spawnEntry1 = NPC_SKELETAL_SHOCKTROOPER;
+                _spawnEntry2 = NPC_GHOUL_BERSERKER;
+                break;
+            case 1:
+                _spawnEntry1 = NPC_SPECTRAL_SOLDIER;
+                _spawnEntry2 = NPC_GHOUL_BERSERKER;
+                break;
+            case 2:
+                _spawnEntry1 = NPC_SKELETAL_SHOCKTROOPER;
+                _spawnEntry2 = NPC_SPECTRAL_SOLDIER;
+                break;
         }
 
         SpawnAdds();
         Reset();
-
+        
         eliteSpawnTimer = urand(ELITE_SPAWN_MINIMUM, ELITE_SPAWN_MAXIMUM);
         if (m_creature->IsAlive())
             me->SetVisibility(VISIBILITY_ON);
@@ -207,7 +239,10 @@ struct npc_necrotic_shard : public ScriptedAI
     uint32 eliteSpawnTimer;
     std::set<ObjectGuid> _adds;
 
-    void OnRemoveFromWorld() override { DespawnAdds(); }
+    void OnRemoveFromWorld() override
+    {
+        DespawnAdds();
+    }
 
     void DespawnAdds()
     {
@@ -217,7 +252,10 @@ struct npc_necrotic_shard : public ScriptedAI
         _adds.clear();
     }
 
-    uint32 GenerateAddEntry() { return urand(0, 1) ? _spawnEntry1 : _spawnEntry2; }
+    uint32 GenerateAddEntry()
+    {
+        return urand(0, 1) ? _spawnEntry1 : _spawnEntry2;
+    }
 
     void SpawnAdds()
     {
@@ -232,7 +270,7 @@ struct npc_necrotic_shard : public ScriptedAI
             m_creature->UpdateGroundPositionZ(x, y, z);
             if (Creature* add = m_creature->SummonCreature(GenerateAddEntry(), x, y, z, 0.0f, TEMPSUMMON_MANUAL_DESPAWN))
             {
-                add->SetCorpseDelay(120); // 2 min for corpse to despawn
+                add->SetCorpseDelay(120);  // 2 min for corpse to despawn
                 add->SetRespawnDelay(30); // 30 sec to respawn after despawn(?)
                 add->SetWanderDistance(20.0f);
                 _adds.insert(add->GetObjectGuid());
@@ -240,30 +278,38 @@ struct npc_necrotic_shard : public ScriptedAI
         }
     }
 
-    void Reset() override {}
-
-    void Aggro(Unit* who) override {}
-
-    void AttackStart(Unit* who) override {}
-
-    void SummonedCreatureJustDied(Creature* unit) override
+    void Reset() override
     {
-        // switch (unit->GetEntry())
-        //{
-        // case NPC_SKELETAL_SHOCKTROOPER:
-        // case NPC_SPECTRAL_SOLDIER:
-        // case NPC_GHOUL_BERSERKER:
-        //     //unit->SetRespawnTime(150);
-        //     break;
-        // }
     }
-    void JustRespawned() override { m_creature->UpdateEntry(NPC_NECROTIC_SHARD); }
+
+    void Aggro(Unit* who) override
+    {
+    }
+
+    void AttackStart(Unit* who) override
+    {
+    }
+
+    void SummonedCreatureJustDied(Creature* unit) override {
+        //switch (unit->GetEntry())
+        //{
+        //case NPC_SKELETAL_SHOCKTROOPER:
+        //case NPC_SPECTRAL_SOLDIER:
+        //case NPC_GHOUL_BERSERKER:
+        //    //unit->SetRespawnTime(150);
+        //    break;
+        //}
+    }
+    void JustRespawned() override
+    {
+        m_creature->UpdateEntry(NPC_NECROTIC_SHARD);
+    }
 
     void JustDied(Unit* pKiller) override
     {
         if (GameObject* necropolis = m_creature->GetMap()->GetGameObject(_necropolisGuid))
             necropolis->SendGameObjectCustomAnim();
-        // buff players around
+        // buff players around 
         DoCastSpellIfCan(m_creature, SPELL_DMG_BOOST_AT_PYLON_DEATH, CF_TRIGGERED);
 
         // send death to relay
@@ -294,7 +340,10 @@ struct npc_necrotic_shard : public ScriptedAI
                     float y = circle->GetPositionY() + 7.0f * sin(angle);
                     float z = circle->GetPositionZ() + 5.0f;
                     m_creature->UpdateGroundPositionZ(x, y, z);
-                    if (Creature* engineer = m_creature->SummonCreature(NPC_CULTIST_ENGINEER, x, y, z, angle - M_PI, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 1000 * m_creature->GetMaxHealth() / ENGINEER_MOD_HEALTH_PER_SEC))
+                    if (Creature* engineer = m_creature->SummonCreature(NPC_CULTIST_ENGINEER,
+                                             x, y, z,
+                                             angle - M_PI,
+                                             TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 1000 * m_creature->GetMaxHealth() / ENGINEER_MOD_HEALTH_PER_SEC))
                         engineer->AI()->DoAction(m_creature, ENGINEER_AI_ACTION_SET_PYLON);
                 }
             m_creature->UpdateEntry(NPC_DAMAGED_NECROTIC_SHARD);
@@ -311,29 +360,29 @@ struct npc_necrotic_shard : public ScriptedAI
     {
         if (eliteSpawnTimer < diff)
         {
-            uint32 entry = 0;
-            switch (urand(0, 2))
-            {
-            case 0:
-                entry = NPC_SPIRIT_OF_THE_DAMNED;
-                break;
-            case 1:
-                entry = NPC_BONE_WITCH;
-                break;
-            case 2:
-                entry = NPC_LUMBERING_HORROR;
-                break;
-            }
-            float a = rand_norm_f() * 2 * M_PI;
-            float d = urand(10, 30);
-            float x, y, z;
-            m_creature->GetPosition(x, y, z);
-            x += d * cos(a);
-            y += d * sin(a);
-            m_creature->UpdateGroundPositionZ(x, y, z);
-            m_creature->SummonCreature(entry, x, y, z, 0.0f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, ELITE_DESPAWN);
+                uint32 entry = 0;
+                switch (urand(0, 2))
+                {
+                    case 0:
+                        entry = NPC_SPIRIT_OF_THE_DAMNED;
+                        break;
+                    case 1:
+                        entry = NPC_BONE_WITCH;
+                        break;
+                    case 2:
+                        entry = NPC_LUMBERING_HORROR;
+                        break;
+                }
+                float a = rand_norm_f() * 2 * M_PI;
+                float d = urand(10, 30);
+                float x, y, z;
+                m_creature->GetPosition(x, y, z);
+                x += d * cos(a);
+                y += d * sin(a);
+                m_creature->UpdateGroundPositionZ(x, y, z);
+                m_creature->SummonCreature(entry, x, y, z, 0.0f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, ELITE_DESPAWN);
 
-            eliteSpawnTimer = ELITE_DESPAWN + urand(ELITE_SPAWN_MINIMUM, ELITE_SPAWN_MAXIMUM);
+                eliteSpawnTimer = ELITE_DESPAWN + urand(ELITE_SPAWN_MINIMUM,ELITE_SPAWN_MAXIMUM);
         }
         else
             eliteSpawnTimer -= diff;
@@ -345,7 +394,9 @@ struct npc_necrotic_shard : public ScriptedAI
         }
 
         /* If all 4 Cultists Engineers died or their transformation into Shadow of Doom died too, damaged shard is destroyed */
-        if (m_creature->GetEntry() == NPC_DAMAGED_NECROTIC_SHARD && !m_creature->FindNearestCreature(NPC_CULTIST_ENGINEER, 100.0f, true) && !m_creature->FindNearestCreature(NPC_SHADOW_OF_DOOM, 100.0f, true))
+        if (m_creature->GetEntry() == NPC_DAMAGED_NECROTIC_SHARD &&
+                !m_creature->FindNearestCreature(NPC_CULTIST_ENGINEER, 100.0f, true) &&
+                !m_creature->FindNearestCreature(NPC_SHADOW_OF_DOOM, 100.0f, true))
         {
             m_creature->CastSpell(m_creature, SPELL_DMG_BOOST_AT_PYLON_DEATH, true);
             m_creature->DoKillUnit();
@@ -353,19 +404,28 @@ struct npc_necrotic_shard : public ScriptedAI
     }
 };
 
-CreatureAI* GetAI_necrotic_shard(Creature* pCreature) { return new npc_necrotic_shard(pCreature); }
+CreatureAI* GetAI_necrotic_shard(Creature* pCreature)
+{
+    return new npc_necrotic_shard(pCreature);
+}
 
 /*
 npc_cultist_engineer
 */
 struct npc_cultist_engineer : public ScriptedAI
 {
-    npc_cultist_engineer(Creature* pCreature) : ScriptedAI(pCreature) { Reset(); }
+    npc_cultist_engineer(Creature* pCreature) : ScriptedAI(pCreature)
+    {
+        Reset();
+    }
 
     uint32 _healTimer;
     ObjectGuid _shardGuid;
 
-    void Reset() override { _healTimer = 1000; }
+    void Reset() override
+    {
+        _healTimer = 1000;
+    }
 
     void JustReachedHome() override
     {
@@ -373,7 +433,10 @@ struct npc_cultist_engineer : public ScriptedAI
         m_creature->SetChannelObjectGuid(_shardGuid);
     }
 
-    void JustSummoned(Creature* creature) override {}
+    void JustSummoned(Creature* creature) override
+    {
+
+    }
 
     void DoAction(Unit* unit, uint32 action) override
     {
@@ -387,7 +450,7 @@ struct npc_cultist_engineer : public ScriptedAI
         {
             ASSERT(unit);
 
-            // DoCastSpellIfCan(m_creature, SPELL_SUMMON_BOSS); // Boss summon spell
+            //DoCastSpellIfCan(m_creature, SPELL_SUMMON_BOSS); // Boss summon spell 
 
             if (Unit* invoked = m_creature->SummonCreature(NPC_SHADOW_OF_DOOM, m_creature->GetPositionX(), m_creature->GetPositionY(), m_creature->GetPositionZ(), m_creature->GetOrientation()))
             {
@@ -418,7 +481,10 @@ struct npc_cultist_engineer : public ScriptedAI
     }
 };
 
-CreatureAI* GetAI_npc_cultist_engineer(Creature* pCreature) { return new npc_cultist_engineer(pCreature); }
+CreatureAI* GetAI_npc_cultist_engineer(Creature* pCreature)
+{
+    return new npc_cultist_engineer(pCreature);
+}
 
 bool GossipSelect_npc_cultist_engineer(Player* player, Creature* creature, uint32 sender, uint32 action)
 {
@@ -451,7 +517,10 @@ struct ShadowOfDoomAI : public ScriptedAI
     uint32 m_uiMindFlay_Timer;
     uint32 m_uiScourgeStrike_Timer;
 
-    ShadowOfDoomAI(Creature* pCreature) : ScriptedAI(pCreature) { Reset(); }
+    ShadowOfDoomAI(Creature* pCreature) : ScriptedAI(pCreature)
+    {
+        Reset();
+    }
 
     void Reset() override
     {
@@ -460,7 +529,9 @@ struct ShadowOfDoomAI : public ScriptedAI
         m_uiScourgeStrike_Timer = 120000;
     }
 
-    void Aggro(Unit* pWho) override {}
+    void Aggro(Unit* pWho) override
+    {
+    }
 
     void JustSummoned(Creature* creature) override
     {
@@ -509,7 +580,10 @@ struct ShadowOfDoomAI : public ScriptedAI
     }
 };
 
-CreatureAI* GetAI_ShadowOfDoom(Creature* pCreature) { return new ShadowOfDoomAI(pCreature); }
+CreatureAI* GetAI_ShadowOfDoom(Creature* pCreature)
+{
+    return new ShadowOfDoomAI(pCreature);
+}
 
 /*
 npc_ghoul_berserker
@@ -517,7 +591,10 @@ Notes: Shard trash
 */
 struct GhoulBerserker : public ScriptedAI
 {
-    GhoulBerserker(Creature* pCreature) : ScriptedAI(pCreature) { Reset(); }
+    GhoulBerserker(Creature* pCreature) : ScriptedAI(pCreature)
+    {
+        Reset();
+    }
     uint32 _plagueTimer;
     uint32 _enrageTimer;
     void Reset() override
@@ -527,11 +604,18 @@ struct GhoulBerserker : public ScriptedAI
         _enrageTimer = 0;
     }
 
-    void JustSummoned(Creature* creature) override { DoCastSpellIfCan(creature, SPELL_SPAWN_SMOKE_1); }
+    void JustSummoned(Creature* creature) override
+    {
+        DoCastSpellIfCan(creature, SPELL_SPAWN_SMOKE_1);
+    }
 
-    void Aggro(Unit* pWho) override {}
+    void Aggro(Unit* pWho) override
+    {
+    }
 
-    void SpellHit(WorldObject* pCaster, const SpellEntry* pSpell) override {}
+    void SpellHit(WorldObject* pCaster, const SpellEntry* pSpell) override
+    {
+    }
 
     void JustDied(Unit*) override
     {
@@ -566,7 +650,10 @@ struct GhoulBerserker : public ScriptedAI
     }
 };
 
-CreatureAI* GetAI_GhoulBerserker(Creature* pCreature) { return new GhoulBerserker(pCreature); }
+CreatureAI* GetAI_GhoulBerserker(Creature* pCreature)
+{
+    return new GhoulBerserker(pCreature);
+}
 
 /*
 Spectral Soldier
@@ -574,7 +661,10 @@ Notes: Shard trash
 */
 struct SpectralSoldierAI : public ScriptedAI
 {
-    SpectralSoldierAI(Creature* pCreature) : ScriptedAI(pCreature) { Reset(); }
+    SpectralSoldierAI(Creature* pCreature) : ScriptedAI(pCreature)
+    {
+        Reset();
+    }
 
     uint32 _shoutTimer;
     uint32 _sunderArmorTimer;
@@ -586,7 +676,10 @@ struct SpectralSoldierAI : public ScriptedAI
         _sunderArmorTimer = 10000;
     }
 
-    void JustSummoned(Creature* creature) override { DoCastSpellIfCan(creature, SPELL_SPIRIT_SPAWN_IN); }
+    void JustSummoned(Creature* creature) override
+    {
+        DoCastSpellIfCan(creature, SPELL_SPIRIT_SPAWN_IN);
+    }
 
     void JustDied(Unit*) override
     {
@@ -619,7 +712,10 @@ struct SpectralSoldierAI : public ScriptedAI
     }
 };
 
-CreatureAI* GetAI_SpectralSoldierAI(Creature* pCreature) { return new SpectralSoldierAI(pCreature); }
+CreatureAI* GetAI_SpectralSoldierAI(Creature* pCreature)
+{
+    return new SpectralSoldierAI(pCreature);
+}
 
 /*
 Skeletal Shock Trooper
@@ -627,7 +723,10 @@ Notes: Shard trash
 */
 struct SkeletalShocktrooperAI : public ScriptedAI
 {
-    SkeletalShocktrooperAI(Creature* pCreature) : ScriptedAI(pCreature) { Reset(); }
+    SkeletalShocktrooperAI(Creature* pCreature) : ScriptedAI(pCreature)
+    {
+        Reset();
+    }
 
     uint32 _boneShardsTimer;
     uint32 _cleaveTimer;
@@ -639,7 +738,10 @@ struct SkeletalShocktrooperAI : public ScriptedAI
         _cleaveTimer = 8000;
     }
 
-    void JustSummoned(Creature* creature) override { DoCastSpellIfCan(creature, SPELL_SPIRIT_SPAWN_IN); }
+    void JustSummoned(Creature* creature) override
+    {
+        DoCastSpellIfCan(creature, SPELL_SPIRIT_SPAWN_IN);
+    }
 
     void JustDied(Unit*) override
     {
@@ -671,7 +773,10 @@ struct SkeletalShocktrooperAI : public ScriptedAI
         DoMeleeAttackIfReady();
     }
 };
-CreatureAI* GetAI_SkeletalShocktrooperAI(Creature* pCreature) { return new SkeletalShocktrooperAI(pCreature); }
+CreatureAI* GetAI_SkeletalShocktrooperAI(Creature* pCreature)
+{
+    return new SkeletalShocktrooperAI(pCreature);
+}
 
 /*
 Skeletal Trooper
@@ -679,7 +784,10 @@ Notes: Low level mobs in starting area's
 */
 struct SkeletalTrooperAI : public ScriptedAI
 {
-    SkeletalTrooperAI(Creature* pCreature) : ScriptedAI(pCreature) { Reset(); }
+    SkeletalTrooperAI(Creature* pCreature) : ScriptedAI(pCreature)
+    {
+        Reset();
+    }
 
     uint32 _ShadowWordPainTimer;
     uint32 _ScourgeStrikeTimer;
@@ -691,7 +799,10 @@ struct SkeletalTrooperAI : public ScriptedAI
         _ShadowWordPainTimer = 15000; // 15 sec
     }
 
-    void JustSummoned(Creature* creature) override { DoCastSpellIfCan(creature, SPELL_SPAWN_SMOKE_1); }
+    void JustSummoned(Creature* creature) override
+    {
+        DoCastSpellIfCan(creature, SPELL_SPAWN_SMOKE_1);
+    }
 
     void JustDied(Unit*) override
     {
@@ -724,7 +835,10 @@ struct SkeletalTrooperAI : public ScriptedAI
     }
 };
 
-CreatureAI* GetAI_SkeletalTrooperAI(Creature* pCreature) { return new SkeletalTrooperAI(pCreature); }
+CreatureAI* GetAI_SkeletalTrooperAI(Creature* pCreature)
+{
+    return new SkeletalTrooperAI(pCreature);
+}
 
 /*
 Spectral Spirit
@@ -732,11 +846,20 @@ Notes: Low level mobs in starting area's
 */
 struct SpectralSpiritAI : public ScriptedAI
 {
-    SpectralSpiritAI(Creature* pCreature) : ScriptedAI(pCreature) { Reset(); }
+    SpectralSpiritAI(Creature* pCreature) : ScriptedAI(pCreature)
+    {
+        Reset();
+    }
 
-    void Reset() override { m_creature->AddAura(SPELL_PURPLE_VISUAL); }
+    void Reset() override
+    {
+        m_creature->AddAura(SPELL_PURPLE_VISUAL);
+    }
 
-    void JustSummoned(Creature* creature) override { DoCastSpellIfCan(creature, SPELL_SPIRIT_SPAWN_IN); }
+    void JustSummoned(Creature* creature) override
+    {
+        DoCastSpellIfCan(creature, SPELL_SPIRIT_SPAWN_IN);
+    }
 
     void JustDied(Unit*) override
     {
@@ -753,7 +876,10 @@ struct SpectralSpiritAI : public ScriptedAI
     }
 };
 
-CreatureAI* GetAI_SpectralSpiritAI(Creature* pCreature) { return new SpectralSpiritAI(pCreature); }
+CreatureAI* GetAI_SpectralSpiritAI(Creature* pCreature)
+{
+    return new SpectralSpiritAI(pCreature);
+}
 
 /*
 Spectral Apparition
@@ -761,7 +887,10 @@ Notes: Low level mobs in starting area's
 */
 struct SpectralApparitionAI : public ScriptedAI
 {
-    SpectralApparitionAI(Creature* pCreature) : ScriptedAI(pCreature) { Reset(); }
+    SpectralApparitionAI(Creature* pCreature) : ScriptedAI(pCreature)
+    {
+        Reset();
+    }
 
     uint32 _ScourgeStrikeTimer;
 
@@ -771,7 +900,10 @@ struct SpectralApparitionAI : public ScriptedAI
         _ScourgeStrikeTimer = 120000; // 2 min
     }
 
-    void JustSummoned(Creature* creature) override { DoCastSpellIfCan(creature, SPELL_SPIRIT_SPAWN_IN); }
+    void JustSummoned(Creature* creature) override
+    {
+        DoCastSpellIfCan(creature, SPELL_SPIRIT_SPAWN_IN);
+    }
 
     void JustDied(Unit*) override
     {
@@ -796,7 +928,10 @@ struct SpectralApparitionAI : public ScriptedAI
     }
 };
 
-CreatureAI* GetAI_SpectralApparitionAI(Creature* pCreature) { return new SpectralApparitionAI(pCreature); }
+CreatureAI* GetAI_SpectralApparitionAI(Creature* pCreature)
+{
+    return new SpectralApparitionAI(pCreature);
+}
 
 /*
 naxx_event_rewards_giver
@@ -812,7 +947,9 @@ struct naxx_event_rewards_giverAI : public ScriptedAI
 
     bool _alliance;
 
-    void Reset() override {}
+    void Reset() override
+    {
+    }
 
     void UpdateAI(const uint32 diff) override
     {
@@ -829,7 +966,10 @@ struct naxx_event_rewards_giverAI : public ScriptedAI
     }
 };
 
-CreatureAI* GetAI_naxx_event_rewards_giverAI(Creature* c) { return new naxx_event_rewards_giverAI(c); }
+CreatureAI* GetAI_naxx_event_rewards_giverAI(Creature* c)
+{
+    return new naxx_event_rewards_giverAI(c);
+}
 
 bool GossipSelect_naxx_event_rewards_giver(Player* player, Creature* creature, uint32 sender, uint32 action)
 {
@@ -838,20 +978,20 @@ bool GossipSelect_naxx_event_rewards_giver(Player* player, Creature* creature, u
         uint32 spellId = 0;
         switch (creature->GetEntry())
         {
-        case NPC_ARGENT_DAWN_REW_GIVER_1H:
-        case NPC_ARGENT_DAWN_REW_GIVER_1A:
-            spellId = SPELL_CREATE_INF_MARK;
-            break;
-        case NPC_ARGENT_DAWN_REW_GIVER_2H:
-        case NPC_ARGENT_DAWN_REW_GIVER_2A:
-            spellId = SPELL_CREATE_MARK;
-            break;
-        case NPC_ARGENT_DAWN_REW_GIVER_3H:
-        case NPC_ARGENT_DAWN_REW_GIVER_3A:
-            spellId = SPELL_CREATE_SUP_MARK;
-            break;
-        default:
-            return false;
+            case NPC_ARGENT_DAWN_REW_GIVER_1H:
+            case NPC_ARGENT_DAWN_REW_GIVER_1A:
+                spellId = SPELL_CREATE_INF_MARK;
+                break;
+            case NPC_ARGENT_DAWN_REW_GIVER_2H:
+            case NPC_ARGENT_DAWN_REW_GIVER_2A:
+                spellId = SPELL_CREATE_MARK;
+                break;
+            case NPC_ARGENT_DAWN_REW_GIVER_3H:
+            case NPC_ARGENT_DAWN_REW_GIVER_3A:
+                spellId = SPELL_CREATE_SUP_MARK;
+                break;
+            default:
+                return false;
         }
         creature->CastSpell(player, spellId, false);
     }
@@ -895,26 +1035,26 @@ bool GossipSelect_npc_argent_emissary(Player* player, Creature* creature, uint32
 {
     switch (action)
     {
-    case GOSSIP_ACTION_INFO_DEF + 1:
-        player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, LANG_ARGENT_EMISSARY_OPTION, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 5);
-        player->SEND_GOSSIP_MENU(LANG_ARGENT_EMISSARY_AWNSER_0, creature->GetGUID());
-        break;
-    case GOSSIP_ACTION_INFO_DEF + 2:
-        player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, LANG_ARGENT_EMISSARY_OPTION, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 5);
-        player->SEND_GOSSIP_MENU(LANG_ARGENT_EMISSARY_AWNSER_1, creature->GetGUID());
-        break;
-    case GOSSIP_ACTION_INFO_DEF + 3:
-        player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, LANG_ARGENT_EMISSARY_OPTION_2_SUB_OPTION_4, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 10);
-        player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, LANG_ARGENT_EMISSARY_OPTION_2_SUB_OPTION_2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 8);
-        player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, LANG_ARGENT_EMISSARY_OPTION_2_SUB_OPTION_3, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 9);
-        player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, LANG_ARGENT_EMISSARY_OPTION_2_SUB_OPTION_1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 7);
-        player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, LANG_ARGENT_EMISSARY_OPTION_2_SUB_OPTION_5, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 11);
-        player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, LANG_ARGENT_EMISSARY_OPTION_2_SUB_OPTION_0, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 6);
-        player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, LANG_ARGENT_EMISSARY_OPTION, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 5);
+        case GOSSIP_ACTION_INFO_DEF + 1:
+            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, LANG_ARGENT_EMISSARY_OPTION, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 5);
+            player->SEND_GOSSIP_MENU(LANG_ARGENT_EMISSARY_AWNSER_0, creature->GetGUID());
+            break;
+        case GOSSIP_ACTION_INFO_DEF + 2:
+            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, LANG_ARGENT_EMISSARY_OPTION, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 5);
+            player->SEND_GOSSIP_MENU(LANG_ARGENT_EMISSARY_AWNSER_1, creature->GetGUID());
+            break;
+        case GOSSIP_ACTION_INFO_DEF + 3:
+            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, LANG_ARGENT_EMISSARY_OPTION_2_SUB_OPTION_4, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 10);
+            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, LANG_ARGENT_EMISSARY_OPTION_2_SUB_OPTION_2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 8);
+            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, LANG_ARGENT_EMISSARY_OPTION_2_SUB_OPTION_3, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 9);
+            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, LANG_ARGENT_EMISSARY_OPTION_2_SUB_OPTION_1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 7);
+            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, LANG_ARGENT_EMISSARY_OPTION_2_SUB_OPTION_5, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 11);
+            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, LANG_ARGENT_EMISSARY_OPTION_2_SUB_OPTION_0, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 6);
+            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, LANG_ARGENT_EMISSARY_OPTION, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 5);
 
-        player->SEND_GOSSIP_MENU(LANG_ARGENT_EMISSARY_AWNSER_2, creature->GetGUID());
-        break;
-    case GOSSIP_ACTION_INFO_DEF + 4:
+            player->SEND_GOSSIP_MENU(LANG_ARGENT_EMISSARY_AWNSER_2, creature->GetGUID());
+            break;
+        case GOSSIP_ACTION_INFO_DEF + 4:
         {
             player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, LANG_ARGENT_EMISSARY_OPTION, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 5);
 
@@ -927,59 +1067,59 @@ bool GossipSelect_npc_argent_emissary(Player* player, Creature* creature, uint32
                 player->SEND_GOSSIP_MENU(LANG_ARGENT_EMISSARY_AWBSER_3_2, creature->GetGUID());
             break;
         }
-    case GOSSIP_ACTION_INFO_DEF + 5:
-        player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, LANG_ARGENT_EMISSARY_OPTION_0, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-        player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, LANG_ARGENT_EMISSARY_OPTION_1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
-        player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, LANG_ARGENT_EMISSARY_OPTION_2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 3);
-        player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, LANG_ARGENT_EMISSARY_OPTION_3, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 4);
+        case GOSSIP_ACTION_INFO_DEF + 5:
+            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, LANG_ARGENT_EMISSARY_OPTION_0, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, LANG_ARGENT_EMISSARY_OPTION_1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
+            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, LANG_ARGENT_EMISSARY_OPTION_2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 3);
+            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, LANG_ARGENT_EMISSARY_OPTION_3, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 4);
 
-        // Send General Gossip
-        player->SEND_GOSSIP_MENU(LANG_ARGENT_EMISSARY_GOSSIP, creature->GetGUID());
-        break;
-    case GOSSIP_ACTION_INFO_DEF + 6:
-        player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, LANG_ARGENT_EMISSARY_OPTION, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 3);
-        if (sObjectMgr.GetSavedVariable(VARIABLE_SI_WINTERSPRING_REMAINING) > 0)
-            player->SEND_GOSSIP_MENU(LANG_ARGENT_EMISSARY_AWNSER_2_SUB_OPTION_0, creature->GetGUID());
-        else
-            player->SEND_GOSSIP_MENU(LANG_ARGENT_EMISSARY_FREE_OF_SCOURGE, creature->GetGUID());
-        break;
-    case GOSSIP_ACTION_INFO_DEF + 7:
-        player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, LANG_ARGENT_EMISSARY_OPTION, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 3);
-        if (sObjectMgr.GetSavedVariable(VARIABLE_SI_TANARIS_REMAINING) > 0)
-            player->SEND_GOSSIP_MENU(LANG_ARGENT_EMISSARY_AWNSER_2_SUB_OPTION_1, creature->GetGUID());
-        else
-            player->SEND_GOSSIP_MENU(LANG_ARGENT_EMISSARY_FREE_OF_SCOURGE, creature->GetGUID());
-        break;
-    case GOSSIP_ACTION_INFO_DEF + 8:
-        player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, LANG_ARGENT_EMISSARY_OPTION, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 3);
-        if (sObjectMgr.GetSavedVariable(VARIABLE_SI_BLASTED_LANDS_REMAINING) > 0)
-            player->SEND_GOSSIP_MENU(LANG_ARGENT_EMISSARY_AWNSER_2_SUB_OPTION_2, creature->GetGUID());
-        else
-            player->SEND_GOSSIP_MENU(LANG_ARGENT_EMISSARY_FREE_OF_SCOURGE, creature->GetGUID());
-        break;
-    case GOSSIP_ACTION_INFO_DEF + 9:
-        player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, LANG_ARGENT_EMISSARY_OPTION, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 3);
-        if (sObjectMgr.GetSavedVariable(VARIABLE_SI_BURNING_STEPPES_REMAINING) > 0)
-            player->SEND_GOSSIP_MENU(LANG_ARGENT_EMISSARY_AWNSER_2_SUB_OPTION_3, creature->GetGUID());
-        else
-            player->SEND_GOSSIP_MENU(LANG_ARGENT_EMISSARY_FREE_OF_SCOURGE, creature->GetGUID());
-        break;
-    case GOSSIP_ACTION_INFO_DEF + 10:
-        player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, LANG_ARGENT_EMISSARY_OPTION, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 3);
-        if (sObjectMgr.GetSavedVariable(VARIABLE_SI_AZSHARA_REMAINING) > 0)
-            player->SEND_GOSSIP_MENU(LANG_ARGENT_EMISSARY_AWNSER_2_SUB_OPTION_4, creature->GetGUID());
-        else
-            player->SEND_GOSSIP_MENU(LANG_ARGENT_EMISSARY_FREE_OF_SCOURGE, creature->GetGUID());
-        break;
-    case GOSSIP_ACTION_INFO_DEF + 11:
-        player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, LANG_ARGENT_EMISSARY_OPTION, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 3);
-        if (sObjectMgr.GetSavedVariable(VARIABLE_SI_EASTERN_PLAGUELANDS_REMAINING) > 0)
-            player->SEND_GOSSIP_MENU(LANG_ARGENT_EMISSARY_AWNSER_2_SUB_OPTION_5, creature->GetGUID());
-        else
-            player->SEND_GOSSIP_MENU(LANG_ARGENT_EMISSARY_FREE_OF_SCOURGE, creature->GetGUID());
-        break;
+            // Send General Gossip
+            player->SEND_GOSSIP_MENU(LANG_ARGENT_EMISSARY_GOSSIP, creature->GetGUID());
+            break;
+        case GOSSIP_ACTION_INFO_DEF + 6:
+            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, LANG_ARGENT_EMISSARY_OPTION, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 3);
+            if (sObjectMgr.GetSavedVariable(VARIABLE_SI_WINTERSPRING_REMAINING) > 0)
+                player->SEND_GOSSIP_MENU(LANG_ARGENT_EMISSARY_AWNSER_2_SUB_OPTION_0, creature->GetGUID());
+            else
+                player->SEND_GOSSIP_MENU(LANG_ARGENT_EMISSARY_FREE_OF_SCOURGE, creature->GetGUID());
+            break;
+        case GOSSIP_ACTION_INFO_DEF + 7:
+            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, LANG_ARGENT_EMISSARY_OPTION, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 3);
+            if (sObjectMgr.GetSavedVariable(VARIABLE_SI_TANARIS_REMAINING) > 0)
+                player->SEND_GOSSIP_MENU(LANG_ARGENT_EMISSARY_AWNSER_2_SUB_OPTION_1, creature->GetGUID());
+            else
+                player->SEND_GOSSIP_MENU(LANG_ARGENT_EMISSARY_FREE_OF_SCOURGE, creature->GetGUID());
+            break;
+        case GOSSIP_ACTION_INFO_DEF + 8:
+            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, LANG_ARGENT_EMISSARY_OPTION, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 3);
+            if (sObjectMgr.GetSavedVariable(VARIABLE_SI_BLASTED_LANDS_REMAINING) > 0)
+                player->SEND_GOSSIP_MENU(LANG_ARGENT_EMISSARY_AWNSER_2_SUB_OPTION_2, creature->GetGUID());
+            else
+                player->SEND_GOSSIP_MENU(LANG_ARGENT_EMISSARY_FREE_OF_SCOURGE, creature->GetGUID());
+            break;
+        case GOSSIP_ACTION_INFO_DEF + 9:
+            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, LANG_ARGENT_EMISSARY_OPTION, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 3);
+            if (sObjectMgr.GetSavedVariable(VARIABLE_SI_BURNING_STEPPES_REMAINING) > 0)
+                player->SEND_GOSSIP_MENU(LANG_ARGENT_EMISSARY_AWNSER_2_SUB_OPTION_3, creature->GetGUID());
+            else
+                player->SEND_GOSSIP_MENU(LANG_ARGENT_EMISSARY_FREE_OF_SCOURGE, creature->GetGUID());
+            break;
+        case GOSSIP_ACTION_INFO_DEF + 10:
+            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, LANG_ARGENT_EMISSARY_OPTION, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 3);
+            if (sObjectMgr.GetSavedVariable(VARIABLE_SI_AZSHARA_REMAINING) > 0)
+                player->SEND_GOSSIP_MENU(LANG_ARGENT_EMISSARY_AWNSER_2_SUB_OPTION_4, creature->GetGUID());
+            else
+                player->SEND_GOSSIP_MENU(LANG_ARGENT_EMISSARY_FREE_OF_SCOURGE, creature->GetGUID());
+            break;
+        case GOSSIP_ACTION_INFO_DEF + 11:
+            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, LANG_ARGENT_EMISSARY_OPTION, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 3);
+            if (sObjectMgr.GetSavedVariable(VARIABLE_SI_EASTERN_PLAGUELANDS_REMAINING) > 0)
+                player->SEND_GOSSIP_MENU(LANG_ARGENT_EMISSARY_AWNSER_2_SUB_OPTION_5, creature->GetGUID());
+            else
+                player->SEND_GOSSIP_MENU(LANG_ARGENT_EMISSARY_FREE_OF_SCOURGE, creature->GetGUID());
+            break;
     }
-    // player->CLOSE_GOSSIP_MENU();
+    //player->CLOSE_GOSSIP_MENU();
     return true;
 }
 

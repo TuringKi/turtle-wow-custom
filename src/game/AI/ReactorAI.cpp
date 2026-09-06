@@ -23,7 +23,7 @@
 #include "Creature.h"
 #include "GuardMgr.h"
 
-int ReactorAI::Permissible(const Creature* creature)
+int ReactorAI::Permissible(const Creature *creature)
 {
     if (creature->HasExtraFlag(CREATURE_FLAG_EXTRA_NO_AGGRO) || creature->IsNeutralToAll())
         return PERMIT_BASE_REACTIVE;
@@ -31,7 +31,10 @@ int ReactorAI::Permissible(const Creature* creature)
     return PERMIT_BASE_NO;
 }
 
-void ReactorAI::JustRespawned() { m_bCanSummonGuards = m_creature->CanSummonGuards(); }
+void ReactorAI::JustRespawned()
+{
+    m_bCanSummonGuards = m_creature->CanSummonGuards();
+}
 
 void ReactorAI::MoveInLineOfSight(Unit* pWho)
 {
@@ -48,7 +51,7 @@ void ReactorAI::MoveInLineOfSight(Unit* pWho)
         m_bCanSummonGuards = !sGuardMgr.SummonGuard(m_creature, static_cast<Player*>(pWho));
 }
 
-void ReactorAI::AttackStart(Unit* p)
+void ReactorAI::AttackStart(Unit *p)
 {
     if (!p)
         return;

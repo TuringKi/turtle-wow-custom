@@ -7,19 +7,22 @@
 
 #include "AsyncAcceptor.h"
 #include "Errors.h"
-#include "Log.h"
 #include "NetworkThread.h"
+#include "Log.h"
 
 #include <asio/ip/tcp.hpp>
 #include <memory>
 
 using asio::ip::tcp;
 
-template <class SocketType>
+template<class SocketType>
 class SocketMgr
 {
 public:
-    virtual ~SocketMgr() { ASSERT(!_threads && !_acceptor && !_threadCount, "StopNetwork must be called prior to SocketMgr destruction"); }
+    virtual ~SocketMgr()
+    {
+        ASSERT(!_threads && !_acceptor && !_threadCount, "StopNetwork must be called prior to SocketMgr destruction");
+    }
 
     virtual bool StartNetwork(Trinity::Asio::IoContext& ioContext, std::string const& bindIp, uint16 port, int threadCount)
     {
@@ -114,7 +117,9 @@ public:
     }
 
 protected:
-    SocketMgr() : _acceptor(nullptr), _threads(nullptr), _threadCount(0) {}
+    SocketMgr() : _acceptor(nullptr), _threads(nullptr), _threadCount(0)
+    {
+    }
 
     virtual NetworkThread<SocketType>* CreateThreads() const = 0;
 

@@ -20,14 +20,19 @@
  ************************************************************************************/
 #include <dpp/restrequest.h>
 
-namespace dpp
-{
+namespace dpp {
 
-    void cluster::guild_get_invites(snowflake guild_id, command_completion_event_t callback) { rest_request_list<invite>(this, API_PATH "/guilds", std::to_string(guild_id), "invites", m_get, "", callback, "code"); }
+void cluster::guild_get_invites(snowflake guild_id, command_completion_event_t callback) {
+	rest_request_list<invite>(this, API_PATH "/guilds", std::to_string(guild_id), "invites", m_get, "", callback, "code");
+}
 
-    void cluster::invite_delete(const std::string& invitecode, command_completion_event_t callback) { rest_request<invite>(this, API_PATH "/invites", utility::url_encode(invitecode), "", m_delete, "", callback); }
+void cluster::invite_delete(const std::string &invitecode, command_completion_event_t callback) {
+	rest_request<invite>(this, API_PATH "/invites", utility::url_encode(invitecode), "", m_delete, "", callback);
+}
 
 
-    void cluster::invite_get(const std::string& invitecode, command_completion_event_t callback) { rest_request<invite>(this, API_PATH "/invites", utility::url_encode(invitecode) + "?with_counts=true&with_expiration=true", "", m_get, "", callback); }
+void cluster::invite_get(const std::string &invitecode, command_completion_event_t callback) {
+	rest_request<invite>(this, API_PATH "/invites", utility::url_encode(invitecode) + "?with_counts=true&with_expiration=true", "", m_get, "", callback);
+}
 
-}; // namespace dpp
+};

@@ -1,7 +1,7 @@
 #pragma once
-#include <AI/AbilityTimer.h>
 #include <cstdint>
 #include <vector>
+#include <AI/AbilityTimer.h>
 
 #include "scriptPCH.h"
 
@@ -11,7 +11,7 @@ class CreatureAI;
 struct npc_hivezora_abomination : public ScriptedAI
 {
     uint32_t m_currentWaypoint;
-    std::vector<Movement::Location> m_waypoints;
+    std::vector <Movement::Location> m_waypoints;
 
     AbilityTimer m_gcdTimer = AbilityTimer(0, 1500, 1500, 0);
     AbilityTimer m_abominationSpitTimer = AbilityTimer(25262, 10000, 20000);

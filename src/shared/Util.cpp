@@ -20,25 +20,25 @@
  */
 
 #include "Util.h"
-#include "Log.h"
 #include "Timer.h"
+#include "Log.h"
 
+#include "utf8cpp/utf8.h"
 #include "Log.h"
 #include "mersennetwister/MersenneTwister.h"
-#include "utf8cpp/utf8.h"
 
-#include <ace/OS_NS_arpa_inet.h>
 #include <ace/TSS_T.h>
+#include <ace/OS_NS_arpa_inet.h>
 #include <openssl/md5.h>
 
 #include "Auth/Hmac.h"
 #include "Auth/base32.h"
 
 
-#include <fstream>
-#include <iomanip>
 #include <ios>
 #include <iostream>
+#include <fstream>
+#include <iomanip>
 #include <sstream>
 #include "AllocatorWithCategory.h"
 
@@ -47,7 +47,7 @@ static MTRandTSS mtRand;
 
 IPerfMonitor* gPerfMonitorInterface = nullptr;
 
-Tokenizer::Tokenizer(const std::string& src, const char sep, uint32 vectorReserve)
+Tokenizer::Tokenizer(const std::string &src, const char sep, uint32 vectorReserve)
 {
     m_str = new char[src.length() + 1];
     memcpy(m_str, src.c_str(), src.length() + 1);
@@ -91,49 +91,76 @@ uint32 WorldTimer::tickPrevTime() { return m_iPrevTime; }
 
 uint32 WorldTimer::tick()
 {
-    // save previous world tick time
+    //save previous world tick time
     m_iPrevTime = m_iTime;
 
-    // get the new one and don't forget to persist current system time in m_SystemTickTime
+    //get the new one and don't forget to persist current system time in m_SystemTickTime
     m_iTime = WorldTimer::getMSTime_internal(true);
 
-    // return tick diff
+    //return tick diff
     return getMSTimeDiff(m_iPrevTime, m_iTime);
 }
 
-uint32 WorldTimer::getMSTime() { return getMSTime_internal(); }
+uint32 WorldTimer::getMSTime()
+{
+    return getMSTime_internal();
+}
 
 uint32 WorldTimer::getMSTime_internal(bool /*savetime*/ /*= false*/)
 {
-    // get current time
+    //get current time
     const ACE_Time_Value currTime = ACE_OS::gettimeofday();
-    // calculate time diff between two world ticks
-    // special case: curr_time < old_time - we suppose that our time has not ticked at all
-    // this should be constant value otherwise it is possible that our time can start ticking backwards until next world tick!!!
+    //calculate time diff between two world ticks
+    //special case: curr_time < old_time - we suppose that our time has not ticked at all
+    //this should be constant value otherwise it is possible that our time can start ticking backwards until next world tick!!!
     uint64 diff = 0;
     (currTime - g_SystemTickTime).msec(diff);
 
-    // lets calculate current world time
+    //lets calculate current world time
     uint32 iRes = uint32(diff % UI64LIT(0x00000000FFFFFFFF));
     return iRes;
 }
 
 //////////////////////////////////////////////////////////////////////////
-int32 irand(int32 min, int32 max) { return int32(mtRand->randInt(max - min)) + min; }
+int32 irand (int32 min, int32 max)
+{
+    return int32 (mtRand->randInt (max - min)) + min;
+}
 
-uint32 urand(uint32 min, uint32 max) { return mtRand->randInt(max - min) + min; }
+uint32 urand (uint32 min, uint32 max)
+{
+    return mtRand->randInt (max - min) + min;
+}
 
-float frand(float min, float max) { return mtRand->randExc(max - min) + min; }
+float frand (float min, float max)
+{
+    return mtRand->randExc (max - min) + min;
+}
 
-int32 rand32() { return mtRand->randInt(); }
+int32 rand32 ()
+{
+    return mtRand->randInt ();
+}
 
-double rand_norm(void) { return mtRand->randExc(); }
+double rand_norm(void)
+{
+    return mtRand->randExc ();
+}
 
-float rand_norm_f(void) { return (float)mtRand->randExc(); }
+float rand_norm_f(void)
+{
+    return (float)mtRand->randExc ();
+}
 
-double rand_chance(void) { return mtRand->randExc(100.0); }
+double rand_chance (void)
+{
+    return mtRand->randExc (100.0);
+}
 
-float rand_chance_f(void) { return (float)mtRand->randExc(100.0); }
+float rand_chance_f(void)
+{
+    return (float)mtRand->randExc (100.0);
+}
 
 Milliseconds randtime(Milliseconds const& min, Milliseconds const& max)
 {
@@ -143,7 +170,7 @@ Milliseconds randtime(Milliseconds const& min, Milliseconds const& max)
     return min + Milliseconds(urand(0, diff));
 }
 
-Tokens StrSplit(const std::string& src, const std::string& sep)
+Tokens StrSplit(const std::string &src, const std::string &sep)
 {
     Tokens r;
     std::string s;
@@ -151,8 +178,7 @@ Tokens StrSplit(const std::string& src, const std::string& sep)
     {
         if (sep.find(*i) != std::string::npos)
         {
-            if (s.length())
-                r.push_back(s);
+            if (s.length()) r.push_back(s);
             s = "";
         }
         else
@@ -160,14 +186,13 @@ Tokens StrSplit(const std::string& src, const std::string& sep)
             s += *i;
         }
     }
-    if (s.length())
-        r.push_back(s);
+    if (s.length()) r.push_back(s);
     return r;
 }
 
 uint32 GetUInt32ValueFromArray(Tokens const& data, uint16 index)
 {
-    if (index >= data.size())
+    if(index >= data.size())
         return 0;
 
     return (uint32)atoi(data[index].c_str());
@@ -176,24 +201,24 @@ uint32 GetUInt32ValueFromArray(Tokens const& data, uint16 index)
 float GetFloatValueFromArray(Tokens const& data, uint16 index)
 {
     float result;
-    uint32 temp = GetUInt32ValueFromArray(data, index);
+    uint32 temp = GetUInt32ValueFromArray(data,index);
     memcpy(&result, &temp, sizeof(result));
 
     return result;
 }
 
-void stripLineInvisibleChars(std::string& str)
+void stripLineInvisibleChars(std::string &str)
 {
     static std::string invChars = " \t\7\n\r";
 
     size_t wpos = 0;
 
     bool space = false;
-    for (size_t pos = 0; pos < str.size(); ++pos)
+    for(size_t pos = 0; pos < str.size(); ++pos)
     {
-        if (invChars.find(str[pos]) != std::string::npos)
+        if(invChars.find(str[pos])!=std::string::npos)
         {
-            if (!space)
+            if(!space)
             {
                 str[wpos++] = ' ';
                 space = true;
@@ -201,7 +226,7 @@ void stripLineInvisibleChars(std::string& str)
         }
         else
         {
-            if (wpos != pos)
+            if(wpos!=pos)
                 str[wpos++] = str[pos];
             else
                 ++wpos;
@@ -209,19 +234,19 @@ void stripLineInvisibleChars(std::string& str)
         }
     }
 
-    if (wpos < str.size())
-        str.erase(wpos, str.size());
+    if(wpos < str.size())
+        str.erase(wpos,str.size());
 }
 
 std::string secsToTimeString(time_t timeInSecs, bool shortText, bool hoursOnly)
 {
-    time_t secs = timeInSecs % MINUTE;
+    time_t secs    = timeInSecs % MINUTE;
     time_t minutes = timeInSecs % HOUR / MINUTE;
-    time_t hours = timeInSecs % DAY / HOUR;
-    time_t days = timeInSecs / DAY;
+    time_t hours   = timeInSecs % DAY  / HOUR;
+    time_t days    = timeInSecs / DAY;
 
     std::ostringstream ss;
-    if (days)
+    if(days)
     {
         ss << days;
         if (shortText)
@@ -231,7 +256,7 @@ std::string secsToTimeString(time_t timeInSecs, bool shortText, bool hoursOnly)
         else
             ss << " Days ";
     }
-    if (hours || hoursOnly)
+    if(hours || hoursOnly)
     {
         ss << hours;
         if (shortText)
@@ -241,9 +266,9 @@ std::string secsToTimeString(time_t timeInSecs, bool shortText, bool hoursOnly)
         else
             ss << " Hours ";
     }
-    if (!hoursOnly)
+    if(!hoursOnly)
     {
-        if (minutes)
+        if(minutes)
         {
             ss << minutes;
             if (shortText)
@@ -270,39 +295,30 @@ std::string secsToTimeString(time_t timeInSecs, bool shortText, bool hoursOnly)
 
 uint32 TimeStringToSecs(const std::string& timestring)
 {
-    uint32 secs = 0;
-    uint32 buffer = 0;
+    uint32 secs       = 0;
+    uint32 buffer     = 0;
     uint32 multiplier = 0;
 
-    for (std::string::const_iterator itr = timestring.begin(); itr != timestring.end(); itr++)
+    for(std::string::const_iterator itr = timestring.begin(); itr != timestring.end(); itr++ )
     {
-        if (isdigit(*itr))
+        if(isdigit(*itr))
         {
-            buffer *= 10;
-            buffer += (*itr) - '0';
+            buffer*=10;
+            buffer+= (*itr)-'0';
         }
         else
         {
-            switch (*itr)
+            switch(*itr)
             {
-            case 'd':
-                multiplier = DAY;
-                break;
-            case 'h':
-                multiplier = HOUR;
-                break;
-            case 'm':
-                multiplier = MINUTE;
-                break;
-            case 's':
-                multiplier = 1;
-                break;
-            default:
-                return 0; // bad format
+                case 'd': multiplier = DAY;     break;
+                case 'h': multiplier = HOUR;    break;
+                case 'm': multiplier = MINUTE;  break;
+                case 's': multiplier = 1;       break;
+                default : return 0;                         //bad format
             }
-            buffer *= multiplier;
-            secs += buffer;
-            buffer = 0;
+            buffer*=multiplier;
+            secs+=buffer;
+            buffer=0;
         }
     }
 
@@ -319,7 +335,7 @@ std::string TimeToTimestampStr(time_t t)
     //       MM     minutes (2 digits 00-59)
     //       SS     seconds (2 digits 00-59)
     char buf[20];
-    snprintf(buf, 20, "%04d-%02d-%02d_%02d-%02d-%02d", aTm->tm_year + 1900, aTm->tm_mon + 1, aTm->tm_mday, aTm->tm_hour, aTm->tm_min, aTm->tm_sec);
+    snprintf(buf,20,"%04d-%02d-%02d_%02d-%02d-%02d",aTm->tm_year+1900,aTm->tm_mon+1,aTm->tm_mday,aTm->tm_hour,aTm->tm_min,aTm->tm_sec);
     return std::string(buf);
 }
 
@@ -338,7 +354,11 @@ std::string NormalizeString(const std::string& InStr)
     ClearedWideString.reserve(WideString.size());
     for (wchar_t ch : WideString)
     {
-        if (isExtendedLatinCharacter(ch) || isCyrillicCharacter(ch) || isEastAsianCharacter(ch) || isPrintableAsciiCharacter(ch) || (ch == 0xD)) // Symbols: CR
+        if (isExtendedLatinCharacter(ch) || 
+            isCyrillicCharacter(ch) || 
+            isEastAsianCharacter(ch) ||
+            isPrintableAsciiCharacter(ch)
+            || (ch == 0xD)) // Symbols: CR
         {
             ClearedWideString.push_back(ch);
         }
@@ -351,11 +371,11 @@ std::string NormalizeString(const std::string& InStr)
     std::string result;
 
     bConversionOk = WStrToUtf8(ClearedWideString, result);
-    if (!bConversionOk)
-    {
-        sLog.outError("Can't convert back to UTF8 %s. Someone hacking, or core goes crazy", InStr.c_str());
-        return "";
-    }
+	if (!bConversionOk)
+	{
+		sLog.outError("Can't convert back to UTF8 %s. Someone hacking, or core goes crazy", InStr.c_str());
+		return "";
+	}
 
     return result;
 }
@@ -363,7 +383,7 @@ std::string NormalizeString(const std::string& InStr)
 /// Check if the string is a valid ip address representation
 bool IsIPAddress(char const* ipaddress)
 {
-    if (!ipaddress)
+    if(!ipaddress)
         return false;
 
     // Let the big boys do it.
@@ -374,7 +394,7 @@ bool IsIPAddress(char const* ipaddress)
 /// create PID file
 uint32 CreatePIDFile(const std::string& filename)
 {
-    FILE* pid_file = fopen(filename.c_str(), "w");
+    FILE * pid_file = fopen (filename.c_str(), "w" );
     if (pid_file == nullptr)
         return 0;
 
@@ -384,7 +404,7 @@ uint32 CreatePIDFile(const std::string& filename)
     pid_t pid = getpid();
 #endif
 
-    fprintf(pid_file, "%lu", pid);
+    fprintf(pid_file, "%lu", pid );
     fclose(pid_file);
 
     return (uint32)pid;
@@ -416,7 +436,7 @@ void utf8truncate(std::string& utf8str, size_t len)
         utf8::utf8to16(utf8str.c_str(), utf8str.c_str() + utf8str.size(), &wstr[0]);
         wstr.resize(len);
         char* oend = utf8::utf16to8(wstr.c_str(), wstr.c_str() + wstr.size(), &utf8str[0]);
-        utf8str.resize(oend - (&utf8str[0])); // remove unused tail
+        utf8str.resize(oend - (&utf8str[0]));                 // remove unused tail
     }
     catch (std::exception const&)
     {
@@ -479,12 +499,12 @@ bool WStrToUtf8(wchar_t const* wstr, size_t size, std::string& utf8str)
     try
     {
         std::string utf8str2;
-        utf8str2.resize(size * 4); // allocate for most long case
+        utf8str2.resize(size * 4);                            // allocate for most long case
 
         if (size)
         {
             char* oend = utf8::utf16to8(wstr, wstr + size, &utf8str2[0]);
-            utf8str2.resize(oend - (&utf8str2[0])); // remove unused tail
+            utf8str2.resize(oend - (&utf8str2[0]));               // remove unused tail
         }
         utf8str = utf8str2;
     }
@@ -502,12 +522,12 @@ bool WStrToUtf8(std::wstring_view wstr, std::string& utf8str)
     try
     {
         std::string utf8str2;
-        utf8str2.resize(wstr.size() * 4); // allocate for most long case
+        utf8str2.resize(wstr.size() * 4);                     // allocate for most long case
 
         if (!wstr.empty())
         {
             char* oend = utf8::utf16to8(wstr.begin(), wstr.end(), &utf8str2[0]);
-            utf8str2.resize(oend - (&utf8str2[0])); // remove unused tail
+            utf8str2.resize(oend - (&utf8str2[0]));                // remove unused tail
         }
         utf8str = utf8str2;
     }
@@ -588,7 +608,7 @@ bool Utf8FitTo(const std::string& str, std::wstring search)
     return temp.find(search) != std::wstring::npos;
 }
 
-void utf8printf(FILE* out, const char* str, ...)
+void utf8printf(FILE* out, const char *str, ...)
 {
     va_list ap;
     va_start(ap, str);
@@ -596,14 +616,14 @@ void utf8printf(FILE* out, const char* str, ...)
     va_end(ap);
 }
 
-void vutf8printf(FILE* out, const char* str, va_list* ap)
+void vutf8printf(FILE *out, const char *str, va_list* ap)
 {
 #if PLATFORM == PLATFORM_WINDOWS
     char temp_buf[32 * 1024];
     wchar_t wtemp_buf[32 * 1024];
 
     size_t temp_len = vsnprintf(temp_buf, 32 * 1024, str, *ap);
-    // vsnprintf returns -1 if the buffer is too small
+    //vsnprintf returns -1 if the buffer is too small
     if (temp_len == size_t(-1))
         temp_len = 32 * 1024 - 1;
 
@@ -613,12 +633,12 @@ void vutf8printf(FILE* out, const char* str, va_list* ap)
     CharToOemBuffW(&wtemp_buf[0], &temp_buf[0], uint32(wtemp_len + 1));
     fprintf(out, "%s", temp_buf);
 
-    // Giperion: God knows how many times I reimplement that function in various mangos forks
-    if (IsDebuggerPresent())
-    {
-        OutputDebugStringW(wtemp_buf);
-        OutputDebugStringW(L"\n");
-    }
+    //Giperion: God knows how many times I reimplement that function in various mangos forks
+	if (IsDebuggerPresent())
+	{
+		OutputDebugStringW(wtemp_buf);
+		OutputDebugStringW(L"\n");
+	}
 
 #else
     vfprintf(out, str, *ap);
@@ -628,9 +648,9 @@ void vutf8printf(FILE* out, const char* str, va_list* ap)
 void hexEncodeByteArray(uint8* bytes, uint32 arrayLen, std::string& result)
 {
     std::ostringstream ss;
-    for (uint32 i = 0; i < arrayLen; ++i)
+    for (uint32 i = 0; i<arrayLen; ++i)
     {
-        for (uint8 j = 0; j < 2; ++j)
+        for (uint8 j = 0; j<2; ++j)
         {
             unsigned char nibble = 0x0F & (bytes[i] >> ((1 - j) * 4));
             char encodedNibble;
@@ -689,12 +709,15 @@ void HexStrToByteArray(std::string const& str, uint8* out, bool reverse /*= fals
     uint32 j = 0;
     for (int32 i = init; i != end; i += 2 * op)
     {
-        char buffer[3] = {str[i], str[i + 1], '\0'};
+        char buffer[3] = { str[i], str[i + 1], '\0' };
         out[j++] = strtoul(buffer, nullptr, 16);
     }
 }
 
-uint32 dither(float v) { return std::floor(v + frand(0, 1)); }
+uint32 dither(float v)
+{
+    return std::floor(v + frand(0, 1));
+}
 
 std::string MoneyToString(uint32 copper)
 {
@@ -730,22 +753,22 @@ std::string GetCurrentTimeString()
 }
 
 #ifdef WIN32
-#include <Psapi.h>
-#include <VersionHelpers.h>
 #include <windows.h>
+#include <VersionHelpers.h>
+#include <Psapi.h>
 
 bool Win10SupportNewThreadNameInit = false;
 
 using ThreadCall = HRESULT(WINAPI*)(HANDLE handle, PCWSTR name);
 ThreadCall pThreadCall = nullptr;
 
-#pragma pack(push, 8)
+#pragma pack(push,8)
 struct THREAD_NAME
 {
-    DWORD dwType;
-    const char* szName;
-    DWORD dwThreadID;
-    DWORD dwFlags;
+	DWORD dwType;
+	const char* szName;
+	DWORD dwThreadID;
+	DWORD dwFlags;
 };
 
 #pragma pack(pop)
@@ -753,37 +776,37 @@ struct THREAD_NAME
 void InternalThreadName(const char* name)
 {
 #ifdef _WIN32_WINNT_WIN10
-    if (IsWindows10OrGreater() && !Win10SupportNewThreadNameInit)
-    {
-        HMODULE KernelLib = GetModuleHandle("kernel32.dll");
-        pThreadCall = (ThreadCall)GetProcAddress(KernelLib, "SetThreadDescription");
-        Win10SupportNewThreadNameInit = true;
-    }
+	if (IsWindows10OrGreater() && !Win10SupportNewThreadNameInit)
+	{
+		HMODULE KernelLib = GetModuleHandle("kernel32.dll");
+		pThreadCall = (ThreadCall)GetProcAddress(KernelLib, "SetThreadDescription");
+		Win10SupportNewThreadNameInit = true;
+	}
 #endif
 
-    if (pThreadCall)
-    {
-        constexpr size_t cSize = 64;
-        wchar_t wc[cSize];
-        mbstowcs(wc, name, cSize);
+	if (pThreadCall)
+	{
+		constexpr size_t cSize = 64;
+		wchar_t wc[cSize];
+		mbstowcs(wc, name, cSize);
 
-        pThreadCall(GetCurrentThread(), wc);
-    }
-    else
-    {
-        THREAD_NAME tn;
-        tn.dwType = 0x1000;
-        tn.szName = name;
-        tn.dwThreadID = DWORD(-1);
-        tn.dwFlags = 0;
-        __try
-        {
-            RaiseException(0x406D1388, 0, sizeof(tn) / sizeof(size_t), (size_t*)&tn);
-        }
-        __except (EXCEPTION_CONTINUE_EXECUTION)
-        {
-        }
-    }
+		pThreadCall(GetCurrentThread(), wc);
+	}
+	else
+	{
+		THREAD_NAME tn;
+		tn.dwType = 0x1000;
+		tn.szName = name;
+		tn.dwThreadID = DWORD(-1);
+		tn.dwFlags = 0;
+		__try
+		{
+			RaiseException(0x406D1388, 0, sizeof(tn) / sizeof(size_t), (size_t*)&tn);
+		}
+		__except (EXCEPTION_CONTINUE_EXECUTION)
+		{
+		}
+	}
 }
 
 #else
@@ -794,6 +817,7 @@ void InternalThreadName(const char* name)
 #include <pthread.h>
 
 #endif
+
 
 
 void thread_name(const char* name)
@@ -810,24 +834,24 @@ void thread_name(const char* name)
 }
 
 #ifdef WIN32
-#pragma comment(lib, "Psapi.lib")
+#pragma comment(lib,"Psapi.lib")
 #endif
 
 namespace Memory
 {
-    uint64 GetProcessMemory()
-    {
+	uint64 GetProcessMemory()
+	{
 #ifdef WIN32
         PROCESS_MEMORY_COUNTERS_EX MemCounters;
         ZeroMemory(&MemCounters, sizeof(MemCounters));
         MemCounters.cb = sizeof(MemCounters);
         HANDLE hCurrentProcess = GetCurrentProcess();
-        GetProcessMemoryInfo(hCurrentProcess, (PPROCESS_MEMORY_COUNTERS)&MemCounters, sizeof(MemCounters));
+        GetProcessMemoryInfo(hCurrentProcess, (PPROCESS_MEMORY_COUNTERS) &MemCounters, sizeof(MemCounters));
 
         return MemCounters.PrivateUsage;
 #elif defined linux
-        using std::ifstream;
         using std::ios_base;
+        using std::ifstream;
         using std::string;
 
 
@@ -845,7 +869,10 @@ namespace Memory
         unsigned long vsize;
         long rss;
 
-        stat_stream >> pid >> comm >> state >> ppid >> pgrp >> session >> tty_nr >> tpgid >> flags >> minflt >> cminflt >> majflt >> cmajflt >> utime >> stime >> cutime >> cstime >> priority >> nice >> O >> itrealvalue >> starttime >> vsize >> rss; // don't care about the rest
+        stat_stream >> pid >> comm >> state >> ppid >> pgrp >> session >> tty_nr
+            >> tpgid >> flags >> minflt >> cminflt >> majflt >> cmajflt
+            >> utime >> stime >> cutime >> cstime >> priority >> nice
+            >> O >> itrealvalue >> starttime >> vsize >> rss; // don't care about the rest
 
         stat_stream.close();
 
@@ -853,8 +880,8 @@ namespace Memory
         return rss * page_size_kb * 1000;
 #endif
         return 0;
-    }
-} // namespace Memory
+	}
+}
 
 std::string FlagsToString(uint32 flags, ValueToStringFunc getNameFunc)
 {

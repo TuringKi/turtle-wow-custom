@@ -32,7 +32,7 @@
 #ifndef __LIBSEH_SEH_H__
 #define __LIBSEH_SEH_H__
 
-#if defined(WIN32) || defined(__WIN32__) || defined(_WIN32) || defined(_WIN32_WINNT)
+#if defined(WIN32) || defined(__WIN32__) || defined(_WIN32) || defined(_WIN32_WINNT) 
 #include "os/windows/seh-support.h"
 #elif defined(__CYGWIN32__) || defined(__linux__)
 #include "os/linux/seh-support.h"
@@ -40,7 +40,8 @@
 #error Operating system not supported with LIBSEH!
 #endif
 
-#include "common/sehpp.h"
 #include "common/stddefs.h"
+#include "common/sehpp.h"
 
 #endif
+

@@ -21,8 +21,8 @@ SDComment:
 SDCategory: Scholomance
 EndScriptData */
 
-#include "scholomance.h"
 #include "scriptPCH.h"
+#include "scholomance.h"
 
 #define SPELL_CALLOFGRAVES 17831
 #define SPELL_CORRUPTION 11672
@@ -32,7 +32,10 @@ EndScriptData */
 
 struct boss_instructormaliciaAI : public ScriptedAI
 {
-    boss_instructormaliciaAI(Creature* pCreature) : ScriptedAI(pCreature) { Reset(); }
+    boss_instructormaliciaAI(Creature* pCreature) : ScriptedAI(pCreature)
+    {
+        Reset();
+    }
 
     uint32 CallOfGraves_Timer;
     uint32 Corruption_Timer;
@@ -53,7 +56,7 @@ struct boss_instructormaliciaAI : public ScriptedAI
         TouchCounter = 0;
     }
 
-    void JustDied(Unit* killer) override
+    void JustDied(Unit *killer) override
     {
         if (ScriptedInstance* pInstance = (ScriptedInstance*)m_creature->GetInstanceData())
             pInstance->SetData(TYPE_MALICIA, DONE);
@@ -64,43 +67,39 @@ struct boss_instructormaliciaAI : public ScriptedAI
         if (!m_creature->SelectHostileTarget() || !m_creature->GetVictim())
             return;
 
-        // CallOfGraves_Timer
+        //CallOfGraves_Timer
         if (CallOfGraves_Timer < diff)
         {
             DoCastSpellIfCan(m_creature->GetVictim(), SPELL_CALLOFGRAVES);
             CallOfGraves_Timer = 65000;
         }
-        else
-            CallOfGraves_Timer -= diff;
+        else CallOfGraves_Timer -= diff;
 
-        // Corruption_Timer
+        //Corruption_Timer
         if (Corruption_Timer < diff)
         {
             Unit* target = nullptr;
             target = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 0);
-            if (target)
-                DoCastSpellIfCan(target, SPELL_CORRUPTION);
+            if (target) DoCastSpellIfCan(target, SPELL_CORRUPTION);
 
             Corruption_Timer = 24000;
         }
-        else
-            Corruption_Timer -= diff;
+        else Corruption_Timer -= diff;
 
-        // Renew_Timer
+        //Renew_Timer
         if (Renew_Timer < diff)
         {
             DoCastSpellIfCan(m_creature, SPELL_RENEW);
             Renew_Timer = 10000;
         }
-        else
-            Renew_Timer -= diff;
+        else Renew_Timer -= diff;
 
-        // FlashHeal_Timer
+        //FlashHeal_Timer
         if (FlashHeal_Timer < diff)
         {
             DoCastSpellIfCan(m_creature, SPELL_FLASHHEAL);
 
-            // 5 Flashheals will be casted
+            //5 Flashheals will be casted
             if (FlashCounter < 2)
             {
                 FlashHeal_Timer = 5000;
@@ -112,15 +111,14 @@ struct boss_instructormaliciaAI : public ScriptedAI
                 FlashHeal_Timer = 30000;
             }
         }
-        else
-            FlashHeal_Timer -= diff;
+        else FlashHeal_Timer -= diff;
 
-        // HealingTouch_Timer
+        //HealingTouch_Timer
         if (HealingTouch_Timer < diff)
         {
             DoCastSpellIfCan(m_creature, SPELL_HEALINGTOUCH);
 
-            // 3 Healingtouchs will be casted
+            //3 Healingtouchs will be casted
             if (HealingTouch_Timer < 2)
             {
                 HealingTouch_Timer = 5500;
@@ -132,17 +130,19 @@ struct boss_instructormaliciaAI : public ScriptedAI
                 HealingTouch_Timer = 30000;
             }
         }
-        else
-            HealingTouch_Timer -= diff;
+        else HealingTouch_Timer -= diff;
 
         DoMeleeAttackIfReady();
     }
 };
-CreatureAI* GetAI_boss_instructormalicia(Creature* pCreature) { return new boss_instructormaliciaAI(pCreature); }
+CreatureAI* GetAI_boss_instructormalicia(Creature* pCreature)
+{
+    return new boss_instructormaliciaAI(pCreature);
+}
 
 void AddSC_boss_instructormalicia()
 {
-    Script* newscript;
+    Script *newscript;
     newscript = new Script;
     newscript->Name = "boss_instructor_malicia";
     newscript->GetAI = &GetAI_boss_instructormalicia;

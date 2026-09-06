@@ -1,21 +1,23 @@
 #include "MasterPlayer.h"
 #include "Database/DatabaseEnv.h"
+#include "ObjectMgr.h"
+#include "SocialMgr.h"
 #include "Item.h"
 #include "Mail.h"
 #include "ObjectAccessor.h"
-#include "ObjectMgr.h"
-#include "SocialMgr.h"
 #include "WorldPacket.h"
 
-MasterPlayer::MasterPlayer(WorldSession* s) : m_speakTime(0), m_speakCount(0), m_social(nullptr), m_session(s), m_mailsUpdated(false) {}
+MasterPlayer::MasterPlayer(WorldSession* s): m_speakTime(0), m_speakCount(0), m_social(nullptr), m_session(s), m_mailsUpdated(false)
+{
+}
 
 MasterPlayer::~MasterPlayer()
 {
     CleanupChannels();
     sObjectAccessor.RemoveObject(this);
 
-    // all mailed items should be deleted, also all mail should be deallocated
-    for (PlayerMails::const_iterator itr = m_mail.begin(); itr != m_mail.end(); ++itr)
+    //all mailed items should be deleted, also all mail should be deallocated
+    for (PlayerMails::const_iterator itr =  m_mail.begin(); itr != m_mail.end(); ++itr)
         delete *itr;
 
     for (const auto& itr : mMitems)
@@ -72,24 +74,27 @@ void MasterPlayer::Update()
 }
 
 // ######################## MAIL SYSTEM    ###########################
-void MasterPlayer::AddMItem(Item* it) { mMitems[it->GetGUIDLow()] = it; }
+void MasterPlayer::AddMItem(Item* it)
+{
+    mMitems[it->GetGUIDLow()] = it;
+}
 
 void MasterPlayer::SaveMails()
 {
     if (!m_mailsUpdated)
         return;
 
-    static SqlStatementID updateMail;
-    static SqlStatementID deleteMailItems;
+    static SqlStatementID updateMail ;
+    static SqlStatementID deleteMailItems ;
 
-    static SqlStatementID deleteItem;
+    static SqlStatementID deleteItem ;
     static SqlStatementID deleteItemText;
-    static SqlStatementID deleteMain;
-    static SqlStatementID deleteItems;
+    static SqlStatementID deleteMain ;
+    static SqlStatementID deleteItems ;
 
     for (PlayerMails::iterator itr = m_mail.begin(); itr != m_mail.end(); ++itr)
     {
-        Mail* m = (*itr);
+        Mail *m = (*itr);
 
         if (m->state == MAIL_STATE_CHANGED)
         {
@@ -133,7 +138,7 @@ void MasterPlayer::SaveMails()
             }
             sLog.out(LOG_MAIL_AH, "SaveMails Now DELETING state DELETED mail for mail Id %u, player %s, item entry %u", m->messageID, name.c_str(), itemEntry);
 
-            if (m->HasItems())
+            if (m->HasItems()) 
             {
                 SqlStatement stmt = CharacterDatabase.CreateStatement(deleteItem, "DELETE FROM item_instance WHERE guid = ?");
                 for (const auto& item : m->items)
@@ -154,7 +159,7 @@ void MasterPlayer::SaveMails()
         }
     }
 
-    // deallocate deleted mails...
+    //deallocate deleted mails...
     for (PlayerMails::iterator itr = m_mail.begin(); itr != m_mail.end();)
     {
         if ((*itr)->state == MAIL_STATE_DELETED)
@@ -177,7 +182,7 @@ void MasterPlayer::RemoveMail(uint32 id, bool remove)
     {
         if ((*itr)->messageID == id)
         {
-            // do not delete item, because Player::removeMail() is called when returning mail to sender. DEFAULT CASE
+            //do not delete item, because Player::removeMail() is called when returning mail to sender. DEFAULT CASE
             m_mail.erase(itr);
 
             if (remove)
@@ -208,21 +213,21 @@ void MasterPlayer::UpdateNextMailTimeAndUnreads()
 
 void MasterPlayer::AddNewMailDeliverTime(time_t deliver_time)
 {
-    if (deliver_time <= time(nullptr)) // ready now
+    if (deliver_time <= time(nullptr))                         // ready now
     {
         ++unReadMails;
         GetSession()->SendNewMail();
     }
-    else // not ready and no have ready mails
+    else                                                    // not ready and no have ready mails
     {
         if (!m_nextMailDelivereTime || m_nextMailDelivereTime > deliver_time)
-            m_nextMailDelivereTime = deliver_time;
+            m_nextMailDelivereTime =  deliver_time;
     }
 }
 
 
 // load mailed item which should receive current player
-void MasterPlayer::LoadMailedItems(QueryResult* result)
+void MasterPlayer::LoadMailedItems(QueryResult *result)
 {
     // data needs to be at first place for Item::LoadFromDB
     //      0              1           2       3         4       5       6                 7               8              9        10     11        12         13          14
@@ -232,8 +237,8 @@ void MasterPlayer::LoadMailedItems(QueryResult* result)
 
     do
     {
-        Field* fields = result->Fetch();
-        uint32 mail_id = fields[11].GetUInt32();
+        Field *fields = result->Fetch();
+        uint32 mail_id       = fields[11].GetUInt32();
         uint32 item_guid_low = fields[12].GetUInt32();
         uint32 item_template = fields[13].GetUInt32();
 
@@ -242,7 +247,7 @@ void MasterPlayer::LoadMailedItems(QueryResult* result)
             continue;
         mail->AddItem(item_guid_low, item_template);
 
-        ItemPrototype const* proto = sObjectMgr.GetItemPrototype(item_template);
+        ItemPrototype const *proto = sObjectMgr.GetItemPrototype(item_template);
 
         if (!proto)
         {
@@ -253,9 +258,9 @@ void MasterPlayer::LoadMailedItems(QueryResult* result)
             continue;
         }
 
-        Item* item = NewItemOrBag(proto);
+        Item *item = NewItemOrBag(proto);
 
-        /*
+        /* 
          * LoadFromDB is called from multiple places but with a different set of fields - this is workaround
          * so I don't need to fix the mess of queries and probably break something until a later date
          */
@@ -266,7 +271,7 @@ void MasterPlayer::LoadMailedItems(QueryResult* result)
             sLog.outError("Player::_LoadMailedItems - Item in mail (%u) doesn't exist !!!! - item guid: %u, deleted from mail", mail->messageID, item_guid_low);
             CharacterDatabase.PExecute("DELETE FROM mail_items WHERE item_guid = '%u'", item_guid_low);
             item->FSetState(ITEM_REMOVED);
-            item->SaveToDB(); // it also deletes item object !
+            item->SaveToDB();                               // it also deletes item object !
             continue;
         }
 
@@ -275,7 +280,7 @@ void MasterPlayer::LoadMailedItems(QueryResult* result)
     while (result->NextRow());
 }
 
-void MasterPlayer::LoadMails(QueryResult* result)
+void MasterPlayer::LoadMails(QueryResult *result)
 {
     m_mail.clear();
     Player* player = GetSession()->GetPlayer();
@@ -287,8 +292,8 @@ void MasterPlayer::LoadMails(QueryResult* result)
 
     do
     {
-        Field* fields = result->Fetch();
-        Mail* m = new Mail;
+        Field *fields = result->Fetch();
+        Mail *m = new Mail;
         m->messageID = fields[0].GetUInt32();
         m->messageType = fields[1].GetUInt8();
         m->sender = fields[2].GetUInt32();
@@ -302,7 +307,7 @@ void MasterPlayer::LoadMails(QueryResult* result)
         m->checked = fields[10].GetUInt32();
         m->stationery = fields[11].GetUInt8();
         m->mailTemplateId = fields[12].GetInt16();
-        m->has_items = fields[13].GetBool(); // true, if mail have items or mail have template and items generated (maybe none)
+        m->has_items = fields[13].GetBool();                // true, if mail have items or mail have template and items generated (maybe none)
         m->state = MAIL_STATE_UNCHANGED;
 
         constexpr uint8 MailDeleted = 1;
@@ -326,12 +331,13 @@ void MasterPlayer::LoadMails(QueryResult* result)
             sLog.outError("Player::_LoadMail - Mail (%u) have nonexistent MailTemplateId (%u), remove at load", m->messageID, m->mailTemplateId);
             m->mailTemplateId = 0;
         }
-
+        
 
         m_mail.push_back(m);
 
         if (m->mailTemplateId && !m->has_items)
             m->prepareTemplateItems(player);
+
     }
     while (result->NextRow());
 }
@@ -383,22 +389,22 @@ void MasterPlayer::removeActionButton(uint8 button)
         return;
 
     if (buttonItr->second.uState == ACTIONBUTTON_NEW)
-        m_actionButtons.erase(buttonItr); // new and not saved
+        m_actionButtons.erase(buttonItr);                   // new and not saved
     else
-        buttonItr->second.uState = ACTIONBUTTON_DELETED; // saved, will deleted at next save
+        buttonItr->second.uState = ACTIONBUTTON_DELETED;    // saved, will deleted at next save
 }
 
-void MasterPlayer::LoadActions(QueryResult* result)
+void MasterPlayer::LoadActions(QueryResult *result)
 {
     m_actionButtons.clear();
 
-    // QueryResult *result = CharacterDatabase.PQuery("SELECT button,action,type FROM character_action WHERE guid = '%u' ORDER BY button",GetGUIDLow());
+    //QueryResult *result = CharacterDatabase.PQuery("SELECT button,action,type FROM character_action WHERE guid = '%u' ORDER BY button",GetGUIDLow());
 
     if (result)
     {
         do
         {
-            Field* fields = result->Fetch();
+            Field *fields = result->Fetch();
 
             uint8 button = fields[0].GetUInt8();
             uint32 action = fields[1].GetUInt32();
@@ -423,7 +429,7 @@ void MasterPlayer::SaveActions()
     {
         switch (itr->second.uState)
         {
-        case ACTIONBUTTON_NEW:
+            case ACTIONBUTTON_NEW:
             {
                 SqlStatement stmt = CharacterDatabase.CreateStatement(insertAction, "INSERT INTO character_action (guid,button,action,type) VALUES (?, ?, ?, ?)");
                 stmt.addUInt32(GetGUIDLow());
@@ -435,7 +441,7 @@ void MasterPlayer::SaveActions()
                 ++itr;
             }
             break;
-        case ACTIONBUTTON_CHANGED:
+            case ACTIONBUTTON_CHANGED:
             {
                 SqlStatement stmt = CharacterDatabase.CreateStatement(updateAction, "UPDATE character_action  SET action = ?, type = ? WHERE guid = ? AND button = ?");
                 stmt.addUInt32(itr->second.GetAction());
@@ -447,7 +453,7 @@ void MasterPlayer::SaveActions()
                 ++itr;
             }
             break;
-        case ACTIONBUTTON_DELETED:
+            case ACTIONBUTTON_DELETED:
             {
                 SqlStatement stmt = CharacterDatabase.CreateStatement(deleteAction, "DELETE FROM character_action WHERE guid = ? AND button = ?");
                 stmt.addUInt32(GetGUIDLow());
@@ -456,9 +462,9 @@ void MasterPlayer::SaveActions()
                 m_actionButtons.erase(itr++);
             }
             break;
-        default:
-            ++itr;
-            break;
+            default:
+                ++itr;
+                break;
         }
     }
 }

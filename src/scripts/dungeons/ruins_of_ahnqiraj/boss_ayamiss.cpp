@@ -21,8 +21,8 @@ SDComment: evade return to start position missing
 SDCategory: Ruins of Ahn'Qiraj
 EndScriptData */
 
-#include "ruins_of_ahnqiraj.h"
 #include "scriptPCH.h"
+#include "ruins_of_ahnqiraj.h"
 
 enum
 {
@@ -47,15 +47,25 @@ struct MoveLocations
     float x, y, z, an;
 };
 
-static SpawnLocations Larva[] = {
-    {-9700.200195f, 1567.980835f, 23.901463f}, // old value:  {-9695.0f, 1585.0f, 25.0f},
-    {-9659.252930f, 1530.876587f, 22.336987f} // old value:  {-9627.0f, 1538.0f, 21.44f}
+static SpawnLocations Larva[] =
+{
+    { -9700.200195f, 1567.980835f, 23.901463f}, //old value:  {-9695.0f, 1585.0f, 25.0f},
+    { -9659.252930f, 1530.876587f, 22.336987f} //old value:  {-9627.0f, 1538.0f, 21.44f}
 };
 
-static SpawnLocations Swarmers[] = {{-9650.0f, 1577.0f, 47.0f}};
+static SpawnLocations Swarmers[] =
+{
+    { -9650.0f, 1577.0f, 47.0f}
+};
 
 /** Waypoint used by Swarmer from the Hive'Zara to reach player sacrified */
-static MoveLocations LarvaMove[] = {{-9696.986328f, 1537.282959f, 21.444189f}, {-9703.679688f, 1530.602783f, 21.444435f}, {-9711.226562f, 1523.762695f, 27.463711f}, {-9715.258789f, 1519.577881f, 27.468229f}};
+static MoveLocations LarvaMove[] =
+{
+    { -9696.986328f, 1537.282959f, 21.444189f},
+    { -9703.679688f, 1530.602783f, 21.444435f},
+    { -9711.226562f, 1523.762695f, 27.463711f},
+    { -9715.258789f, 1519.577881f, 27.468229f}
+};
 
 struct boss_ayamissAI : public ScriptedAI
 {
@@ -156,11 +166,18 @@ struct boss_ayamissAI : public ScriptedAI
         }
     }
 
-    void JustSummoned(Creature* pSummoned) override { pSummoned->SetInCombatWithZone(); }
+    void JustSummoned(Creature* pSummoned) override
+    {
+        pSummoned->SetInCombatWithZone();
+    }
 
     void MoveInLineOfSight(Unit* pWho) override
     {
-        if (pWho->GetTypeId() == TYPEID_PLAYER && !m_creature->IsInCombat() && m_creature->IsWithinDistInMap(pWho, 40.0f) && !pWho->HasAuraType(SPELL_AURA_FEIGN_DEATH) && !pWho->HasAuraType(SPELL_AURA_MOD_UNATTACKABLE))
+        if (pWho->GetTypeId() == TYPEID_PLAYER
+            && !m_creature->IsInCombat()
+            && m_creature->IsWithinDistInMap(pWho, 40.0f)
+            && !pWho->HasAuraType(SPELL_AURA_FEIGN_DEATH)
+            && !pWho->HasAuraType(SPELL_AURA_MOD_UNATTACKABLE))
         {
             AttackStart(pWho);
         }
@@ -175,9 +192,14 @@ struct boss_ayamissAI : public ScriptedAI
 
         if (!m_bRelocated && m_uiRelocate_Timer < uiDiff && !m_bIsInPhaseTwo)
         {
-            m_creature->GetMotionMaster()->MovePoint(0, m_creature->GetPositionX(), m_creature->GetPositionY(), m_creature->GetPositionZ() + 20.0f);
+            m_creature->GetMotionMaster()->MovePoint(0,
+                    m_creature->GetPositionX(),
+                    m_creature->GetPositionY(),
+                    m_creature->GetPositionZ() + 20.0f);
 
-            m_creature->MonsterMove(m_creature->GetPositionX(), m_creature->GetPositionY(), m_creature->GetPositionZ() + 20.0f);
+            m_creature->MonsterMove(m_creature->GetPositionX(),
+                                    m_creature->GetPositionY(),
+                                    m_creature->GetPositionZ() + 20.0f);
 
             m_bRelocated = true;
         }
@@ -189,7 +211,7 @@ struct boss_ayamissAI : public ScriptedAI
             SetCombatMovement(true);
             m_creature->GetMotionMaster()->MoveChase(m_creature->GetVictim());
             m_creature->AttackerStateUpdate(m_creature->GetVictim(), BASE_ATTACK, true);
-            m_creature->AddUnitState(UNIT_STAT_IGNORE_PATHFINDING); // pathfinding desactivation
+            m_creature->AddUnitState(UNIT_STAT_IGNORE_PATHFINDING); //pathfinding desactivation
             m_bIsInPhaseTwo = true;
 
             /** Aggro list reset */
@@ -215,7 +237,13 @@ struct boss_ayamissAI : public ScriptedAI
         {
             for (uint8 i = 0; i < 20; ++i)
             {
-                m_creature->SummonCreature(NPC_HIVEZARA_SWARMER, Swarmers[0].x + rand() % 10, Swarmers[0].y + rand() % 10, Swarmers[0].z + rand() % 10, 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 15000);
+                m_creature->SummonCreature(NPC_HIVEZARA_SWARMER,
+                                           Swarmers[0].x + rand() % 10,
+                                           Swarmers[0].y + rand() % 10,
+                                           Swarmers[0].z + rand() % 10,
+                                           0,
+                                           TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT,
+                                           15000);
             }
             std::list<Creature*> SwarmerList;
             GetCreatureListWithEntryInGrid(SwarmerList, m_creature, NPC_HIVEZARA_SWARMER, 300.0f);
@@ -234,7 +262,8 @@ struct boss_ayamissAI : public ScriptedAI
                 if (DoCastSpellIfCan(pTarget, SPELL_PARALYZE) == CAST_OK)
                 {
                     uint32 random = urand(0, 1);
-                    if (Creature* m_larva = m_creature->SummonCreature(NPC_HIVEZARA_LARVA, Larva[random].x, Larva[random].y, Larva[random].z, 0, TEMPSUMMON_TIMED_DESPAWN, 15000))
+                    if (Creature *m_larva = m_creature->SummonCreature(NPC_HIVEZARA_LARVA,
+                        Larva[random].x, Larva[random].y, Larva[random].z, 0, TEMPSUMMON_TIMED_DESPAWN, 15000))
                     {
                         m_larva->SetFly(false);
                         m_larva->SetWalk(true);
@@ -278,6 +307,7 @@ struct boss_ayamissAI : public ScriptedAI
             }
             else
                 m_uiStingerSpray_Timer -= uiDiff;
+
         }
         else
         {
@@ -312,11 +342,14 @@ struct boss_ayamissAI : public ScriptedAI
 
 struct mob_zara_larvaAI : public ScriptedAI
 {
-    mob_zara_larvaAI(Creature* pCreature) : ScriptedAI(pCreature) { Reset(); }
+    mob_zara_larvaAI(Creature* pCreature) : ScriptedAI(pCreature)
+    {
+        Reset();
+    }
 
     uint32 Active;
     uint8 m_waypoint;
-    Unit* m_victim;
+    Unit * m_victim;
 
     void Reset() override
     {
@@ -333,28 +366,39 @@ struct mob_zara_larvaAI : public ScriptedAI
             Active -= uiDiff;
             return;
         }
-        Map::PlayerList const& liste = m_creature->GetMap()->GetPlayers();
+        Map::PlayerList const &liste = m_creature->GetMap()->GetPlayers();
         for (const auto& i : liste)
         {
 
-            if (i.getSource()->HasAura(SPELL_PARALYZE) && m_creature->GetPositionX() == LarvaMove[0].x && m_creature->GetPositionY() == LarvaMove[0].y && m_creature->GetPositionZ() == LarvaMove[0].z && m_waypoint == 1)
+            if (i.getSource()->HasAura(SPELL_PARALYZE) &&
+                    m_creature->GetPositionX() == LarvaMove[0].x &&
+                    m_creature->GetPositionY() == LarvaMove[0].y &&
+                    m_creature->GetPositionZ() == LarvaMove[0].z && m_waypoint == 1)
             {
                 m_creature->MonsterMove(LarvaMove[1].x, LarvaMove[1].y, LarvaMove[1].z);
                 ++m_waypoint;
             }
-            else if (i.getSource()->HasAura(SPELL_PARALYZE) && m_creature->GetPositionX() == LarvaMove[1].x && m_creature->GetPositionY() == LarvaMove[1].y && m_creature->GetPositionZ() == LarvaMove[1].z && m_waypoint == 2)
+            else if (i.getSource()->HasAura(SPELL_PARALYZE) &&
+                     m_creature->GetPositionX() == LarvaMove[1].x &&
+                     m_creature->GetPositionY() == LarvaMove[1].y &&
+                     m_creature->GetPositionZ() == LarvaMove[1].z && m_waypoint == 2)
             {
                 m_creature->MonsterMove(LarvaMove[2].x, LarvaMove[2].y, LarvaMove[2].z);
                 ++m_waypoint;
             }
-            else if (i.getSource()->HasAura(SPELL_PARALYZE) && m_creature->GetPositionX() == LarvaMove[2].x && m_creature->GetPositionY() == LarvaMove[2].y && m_creature->GetPositionZ() == LarvaMove[2].z && m_waypoint == 3)
+            else if (i.getSource()->HasAura(SPELL_PARALYZE) &&
+                     m_creature->GetPositionX() == LarvaMove[2].x &&
+                     m_creature->GetPositionY() == LarvaMove[2].y &&
+                     m_creature->GetPositionZ() == LarvaMove[2].z && m_waypoint == 3)
             {
                 m_creature->MonsterMove(LarvaMove[3].x, LarvaMove[3].y, LarvaMove[3].z);
                 ++m_waypoint;
             }
             else if (i.getSource()->HasAura(SPELL_PARALYZE) && m_waypoint == 0)
             {
-                m_creature->MonsterMove(LarvaMove[m_waypoint].x, LarvaMove[m_waypoint].y, LarvaMove[m_waypoint].z);
+                m_creature->MonsterMove(LarvaMove[m_waypoint].x,
+                                        LarvaMove[m_waypoint].y,
+                                        LarvaMove[m_waypoint].z);
                 ++m_waypoint;
                 m_victim = i.getSource();
                 m_creature->AI()->AttackStart(m_victim);
@@ -362,12 +406,16 @@ struct mob_zara_larvaAI : public ScriptedAI
             }
             else if (m_victim)
             {
-                if (i.getSource()->HasAura(SPELL_PARALYZE) && m_creature->GetPositionX() == LarvaMove[3].x && m_creature->GetPositionY() == LarvaMove[3].y && m_creature->GetPositionZ() == LarvaMove[3].z && m_waypoint == 4)
+                if (i.getSource()->HasAura(SPELL_PARALYZE) &&
+                        m_creature->GetPositionX() == LarvaMove[3].x &&
+                        m_creature->GetPositionY() == LarvaMove[3].y &&
+                        m_creature->GetPositionZ() == LarvaMove[3].z && m_waypoint == 4)
                 {
 
 
                     // Spell which summon a Hornet from Hive'Zara
                     m_creature->CastSpell(m_victim, SPELL_FEED, true);
+
                 }
             }
         }
@@ -375,13 +423,19 @@ struct mob_zara_larvaAI : public ScriptedAI
 };
 
 
-CreatureAI* GetAI_mob_zara_larva(Creature* pCreature) { return new mob_zara_larvaAI(pCreature); }
+CreatureAI* GetAI_mob_zara_larva(Creature* pCreature)
+{
+    return new mob_zara_larvaAI(pCreature);
+}
 
-CreatureAI* GetAI_boss_ayamiss(Creature* pCreature) { return new boss_ayamissAI(pCreature); }
+CreatureAI* GetAI_boss_ayamiss(Creature* pCreature)
+{
+    return new boss_ayamissAI(pCreature);
+}
 
 void AddSC_boss_ayamiss()
 {
-    Script* newscript;
+    Script *newscript;
     newscript = new Script;
     newscript->Name = "boss_ayamiss";
     newscript->GetAI = &GetAI_boss_ayamiss;

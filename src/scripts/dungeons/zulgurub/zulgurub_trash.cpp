@@ -21,7 +21,7 @@ struct GurubashiAxeThrowerAI : public ScriptedAI
 
     uint32 m_uiThrow_Timer;
     uint32 m_uiAxeFlurry_Timer;
-    bool m_bEnrage;
+    bool   m_bEnrage;
 
     void Reset() override
     {
@@ -30,7 +30,10 @@ struct GurubashiAxeThrowerAI : public ScriptedAI
         m_bEnrage = false;
     }
 
-    void Aggro(Unit* pWho) override { m_creature->SetInCombatWithZone(); }
+    void Aggro(Unit* pWho) override
+    {
+        m_creature->SetInCombatWithZone();
+    }
 
     void UpdateAI(const uint32 uiDiff) override
     {
@@ -66,14 +69,17 @@ struct GurubashiAxeThrowerAI : public ScriptedAI
     }
 };
 
-CreatureAI* GetAI_GurubashiAxeThrower(Creature* pCreature) { return new GurubashiAxeThrowerAI(pCreature); }
+CreatureAI* GetAI_GurubashiAxeThrower(Creature* pCreature)
+{
+    return new GurubashiAxeThrowerAI(pCreature);
+}
 
 enum
 {
-    SPELL_THUNDERCLAP = 15588,
-    SPELL_FEAR = 16508,
-    SPELL_ENRAGE = 8269,
-    SPELL_KNOCKBACK = 11130,
+    SPELL_THUNDERCLAP        =   15588,
+    SPELL_FEAR               =   16508,
+    SPELL_ENRAGE             =    8269,
+    SPELL_KNOCKBACK          =   11130,
 };
 
 struct GurubashiBerserkerAI : public ScriptedAI
@@ -89,17 +95,20 @@ struct GurubashiBerserkerAI : public ScriptedAI
     uint32 m_uiKnockBack_Timer;
     uint32 m_uiThunderClap_Timer;
     uint32 m_uiFear_Timer;
-    bool m_bEnrage;
+    bool   m_bEnrage;
 
     void Reset() override
     {
-        m_uiKnockBack_Timer = 10000;
+        m_uiKnockBack_Timer   = 10000;
         m_uiThunderClap_Timer = 5000;
-        m_uiFear_Timer = 15000;
-        m_bEnrage = false;
+        m_uiFear_Timer        = 15000;
+        m_bEnrage             = false;
     }
 
-    void Aggro(Unit* pWho) override { m_creature->SetInCombatWithZone(); }
+    void Aggro(Unit* pWho) override
+    {
+        m_creature->SetInCombatWithZone();
+    }
 
     void UpdateAI(const uint32 uiDiff) override
     {
@@ -146,7 +155,10 @@ struct GurubashiBerserkerAI : public ScriptedAI
     }
 };
 
-CreatureAI* GetAI_GurubashiBerserker(Creature* pCreature) { return new GurubashiBerserkerAI(pCreature); }
+CreatureAI* GetAI_GurubashiBerserker(Creature* pCreature)
+{
+    return new GurubashiBerserkerAI(pCreature);
+}
 
 
 // npc_hakkari_doctor (11831)
@@ -239,10 +251,16 @@ struct npc_hakkari_doctor : public ScriptedAI
         DoMeleeAttackIfReady();
     }
 
-    void JustDied(Unit* pKiller) override { m_creature->SummonCreatureAndAttack(15009, pKiller); }
+    void JustDied(Unit* pKiller) override
+    {
+        m_creature->SummonCreatureAndAttack(15009, pKiller);
+    }
 };
 
-CreatureAI* GetAI_npc_hakkari_doctor(Creature* pCreature) { return new npc_hakkari_doctor(pCreature); }
+CreatureAI* GetAI_npc_hakkari_doctor(Creature* pCreature)
+{
+    return new npc_hakkari_doctor(pCreature);
+}
 
 // npc_esprit_vaudou (15009)
 struct npc_esprit_vaudou : public ScriptedAI
@@ -254,7 +272,9 @@ struct npc_esprit_vaudou : public ScriptedAI
         Reset();
     }
 
-    void Reset() override {}
+    void Reset() override
+    {
+    }
 
     void UpdateAI(const uint32 uiDiff) override
     {
@@ -270,12 +290,18 @@ struct npc_esprit_vaudou : public ScriptedAI
     }
 };
 
-CreatureAI* GetAI_npc_esprit_vaudou(Creature* pCreature) { return new npc_esprit_vaudou(pCreature); }
+CreatureAI* GetAI_npc_esprit_vaudou(Creature* pCreature)
+{
+    return new npc_esprit_vaudou(pCreature);
+}
 
 // npc_fils_hakkar (11357)
 struct npc_fils_hakkar : public ScriptedAI
 {
-    npc_fils_hakkar(Creature* pCreature) : ScriptedAI(pCreature) { Reset(); }
+    npc_fils_hakkar(Creature* pCreature) : ScriptedAI(pCreature)
+    {
+        Reset();
+    }
 
     uint32 m_uiKnockDownTimer;
     uint32 m_uiTrashTimer;
@@ -312,18 +338,21 @@ struct npc_fils_hakkar : public ScriptedAI
 
     void JustDied(Unit* pKiller) override
     {
-        m_creature->CastSpell(m_creature, 24320, true); // 24840
+        m_creature->CastSpell(m_creature, 24320, true);//24840
     }
 };
 
-CreatureAI* GetAI_npc_fils_hakkar(Creature* pCreature) { return new npc_fils_hakkar(pCreature); }
+CreatureAI* GetAI_npc_fils_hakkar(Creature* pCreature)
+{
+    return new npc_fils_hakkar(pCreature);
+}
 
-struct go_pile_dechetsAI : public GameObjectAI
+struct go_pile_dechetsAI: public GameObjectAI
 {
     go_pile_dechetsAI(GameObject* pGo) : GameObjectAI(pGo), Actif(false), m_pGo(pGo) {}
 
     bool Actif;
-    GameObject* const m_pGo;
+    GameObject * const m_pGo;
 
     bool OnUse(Unit* pUser) override
     {
@@ -338,7 +367,8 @@ struct go_pile_dechetsAI : public GameObjectAI
                 for (const auto& itr : players)
                 {
                     Player* pPlayer = itr.getSource();
-                    if (pPlayer && pPlayer->IsAlive() && pUser->IsWithinDistInMap(pPlayer, 60.0f) && pUser->IsWithinLOSInMap(pPlayer) && pPlayer != pUser->ToPlayer() && !pPlayer->IsGameMaster())
+                    if (pPlayer && pPlayer->IsAlive() && pUser->IsWithinDistInMap(pPlayer, 60.0f) && pUser->IsWithinLOSInMap(pPlayer) &&
+                            pPlayer != pUser->ToPlayer() && !pPlayer->IsGameMaster())
                     {
                         Guru->AddThreat(pPlayer);
                         Guru->SetInCombatWith(pPlayer);
@@ -363,22 +393,22 @@ struct go_pile_dechetsAI : public GameObjectAI
                     // les amis de faction 28 (troll dans ZG) sont... faction 14 (monster) ???
                     // en attendant...
                     std::list<Creature*> MobList;
-                    GetCreatureListWithEntryInGrid(MobList, Guru, 11361, 45.0f); // Tigre Zulien
-                    GetCreatureListWithEntryInGrid(MobList, Guru, 11831, 45.0f); // Sorcier Docteur
-                    GetCreatureListWithEntryInGrid(MobList, Guru, 11350, 45.0f); // Lanceur de Haches
-                    GetCreatureListWithEntryInGrid(MobList, Guru, 11830, 45.0f); // Pr�tre
-                    GetCreatureListWithEntryInGrid(MobList, Guru, 11368, 45.0f); // Chauve Souris Sanguinaire
-                    GetCreatureListWithEntryInGrid(MobList, Guru, 11365, 45.0f); // Panth�re
-                    GetCreatureListWithEntryInGrid(MobList, Guru, 11353, 45.0f); // Buveur de sang
-                    GetCreatureListWithEntryInGrid(MobList, Guru, 11356, 45.0f); // Champion Guru
-                    GetCreatureListWithEntryInGrid(MobList, Guru, 14821, 45.0f); // Raptor razza
-                    GetCreatureListWithEntryInGrid(MobList, Guru, 14532, 45.0f); // Fils du venin
-                    GetCreatureListWithEntryInGrid(MobList, Guru, 11370, 45.0f); // Sombre veuve
-                    GetCreatureListWithEntryInGrid(MobList, Guru, 11360, 45.0f); // Jeune Zulien
-                    GetCreatureListWithEntryInGrid(MobList, Guru, 14825, 45.0f); // Maitresse dessech�e
-                    GetCreatureListWithEntryInGrid(MobList, Guru, 14882, 45.0f); // Maitresse Atalai
-                    GetCreatureListWithEntryInGrid(MobList, Guru, 14826, 45.0f); // Troll sacrifi�
-                    GetCreatureListWithEntryInGrid(MobList, Guru, 11351, 45.0f); // Chasseur t�te
+                    GetCreatureListWithEntryInGrid(MobList, Guru, 11361, 45.0f);          // Tigre Zulien
+                    GetCreatureListWithEntryInGrid(MobList, Guru, 11831, 45.0f);          // Sorcier Docteur
+                    GetCreatureListWithEntryInGrid(MobList, Guru, 11350, 45.0f);          // Lanceur de Haches
+                    GetCreatureListWithEntryInGrid(MobList, Guru, 11830, 45.0f);          // Pr�tre
+                    GetCreatureListWithEntryInGrid(MobList, Guru, 11368, 45.0f);          // Chauve Souris Sanguinaire
+                    GetCreatureListWithEntryInGrid(MobList, Guru, 11365, 45.0f);          // Panth�re
+                    GetCreatureListWithEntryInGrid(MobList, Guru, 11353, 45.0f);          // Buveur de sang
+                    GetCreatureListWithEntryInGrid(MobList, Guru, 11356, 45.0f);          // Champion Guru
+                    GetCreatureListWithEntryInGrid(MobList, Guru, 14821, 45.0f);          // Raptor razza
+                    GetCreatureListWithEntryInGrid(MobList, Guru, 14532, 45.0f);          // Fils du venin
+                    GetCreatureListWithEntryInGrid(MobList, Guru, 11370, 45.0f);          // Sombre veuve
+                    GetCreatureListWithEntryInGrid(MobList, Guru, 11360, 45.0f);          // Jeune Zulien
+                    GetCreatureListWithEntryInGrid(MobList, Guru, 14825, 45.0f);          // Maitresse dessech�e
+                    GetCreatureListWithEntryInGrid(MobList, Guru, 14882, 45.0f);          // Maitresse Atalai
+                    GetCreatureListWithEntryInGrid(MobList, Guru, 14826, 45.0f);          // Troll sacrifi�
+                    GetCreatureListWithEntryInGrid(MobList, Guru, 11351, 45.0f);          // Chasseur t�te
 
                     for (const auto& itr : MobList)
                     {
@@ -387,9 +417,9 @@ struct go_pile_dechetsAI : public GameObjectAI
                             if (Player* pPlay = pUser->ToPlayer())
                             {
                                 if (pPlay->GetTeam() == HORDE)
-                                    Guru->SetFactionTemplateId(1); // Human
+                                    Guru->SetFactionTemplateId(1);    // Human
                                 else if (pPlay->GetTeam() == ALLIANCE)
-                                    Guru->SetFactionTemplateId(2); // Orc
+                                    Guru->SetFactionTemplateId(2);    // Orc
 
                                 Guru->AddThreat(itr);
                                 Guru->SetInCombatWith(itr);
@@ -412,11 +442,14 @@ struct go_pile_dechetsAI : public GameObjectAI
     }
 };
 
-GameObjectAI* GetAIgo_pile_dechets(GameObject* pGo) { return new go_pile_dechetsAI(pGo); }
+GameObjectAI* GetAIgo_pile_dechets(GameObject *pGo)
+{
+    return new go_pile_dechetsAI(pGo);
+}
 
 void AddSC_zg_trash()
 {
-    Script* newscript;
+    Script *newscript;
 
     newscript = new Script;
     newscript->Name = "npc_gurubashi_berserker";

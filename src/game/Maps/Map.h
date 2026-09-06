@@ -25,33 +25,41 @@
 #include "Platform/Define.h"
 #include "Policies/ThreadingModel.h"
 
-#include "Cell.h"
-#include "CreatureLinkingMgr.h"
 #include "DBCStructure.h"
-#include "GameSystem/GridRefManager.h"
 #include "GridDefines.h"
-#include "GridMap.h"
-#include "MapRefManager.h"
-#include "MoveSplineInitArgs.h"
+#include "Cell.h"
 #include "Object.h"
-#include "SQLStorages.h"
-#include "ScriptMgr.h"
-#include "SharedDefines.h"
 #include "Timer.h"
+#include "SharedDefines.h"
+#include "GridMap.h"
+#include "GameSystem/GridRefManager.h"
+#include "MapRefManager.h"
 #include "Utilities/TypeList.h"
-#include "WorldSession.h"
+#include "ScriptMgr.h"
 #include "vmap/DynamicTree.h"
+#include "MoveSplineInitArgs.h"
+#include "WorldSession.h"
+#include "SQLStorages.h"
+#include "CreatureLinkingMgr.h"
+
+#ifdef ENABLE_ELUNA
+#include "LuaValue.h"
+#include "ElunaMgr.h"
+#endif
 
 #include <bitset>
 #include <list>
-#include <mutex>
 #include <set>
+#include <mutex>
 #include <shared_mutex>
 
 using Movement::Vector3;
 
 struct CreatureInfo;
 class Creature;
+#ifdef ENABLE_ELUNA
+class Eluna;
+#endif
 class Unit;
 class WorldPacket;
 class InstanceData;
@@ -59,6 +67,10 @@ class Group;
 
 class CreatureGroup;
 
+#include <memory>
+
+class dtNavMesh;
+class dtNavMeshQuery;
 class MapPersistentState;
 class WorldPersistentState;
 class DungeonPersistentState;
@@ -77,15 +89,16 @@ namespace VMAP
 };
 
 // GCC have alternative #pragma pack(N) syntax and old gcc version not support pack(push,N), also any gcc version not support it at some platform
-#if defined(__GNUC__)
+#if defined( __GNUC__ )
 #pragma pack(1)
 #else
-#pragma pack(push, 1)
+#pragma pack(push,1)
 #endif
 
 struct MapEntry
 {
-    uint32 id;
+    // bot uses MapID (cmangos); Penqle uses id.
+    union { uint32 id; uint32 MapID; };
     uint32 parent;
     uint32 mapType;
     uint32 linkedZone;
@@ -112,21 +125,25 @@ static AreaFlagByMapId sAreaFlagByMapId;
 
 struct AreaEntry
 {
-    uint32 Id;
+    // anonymous unions provide cmangos
+    // field-name aliases (area_level↔AreaLevel, area_name↔Name) sharing storage
+    // with Penqle's PascalCase names. Penqle code unchanged; bot module can use
+    // either name. Struct size unchanged.
+    union { uint32 Id; uint32 ID; };
     uint32 MapId;
-    uint32 ZoneId;
-    uint32 ExploreFlag;
-    uint32 Flags;
-    int32 AreaLevel;
-    char* Name;
-    uint32 Team;
+    union { uint32 ZoneId; uint32 zone; };
+    union { uint32 ExploreFlag; uint32 exploreFlag; };
+    union { uint32 Flags; uint32 flags; };
+    union { int32  AreaLevel = 0;  int32  area_level; };
+    union { char*  Name = nullptr; char*  area_name; };
+    union { uint32 Team; uint32 team; };
     uint32 LiquidTypeId;
 
     bool IsZone() const { return ZoneId == 0; }
 
     static int32 GetFlagById(uint32 id)
     {
-        const auto* areaEntry = sAreaStorage.LookupEntry<AreaEntry>(id);
+        const auto *areaEntry = sAreaStorage.LookupEntry<AreaEntry>(id);
         if (!areaEntry)
             return -1;
 
@@ -141,7 +158,10 @@ struct AreaEntry
         return itr->second;
     }
 
-    static const AreaEntry* GetById(uint32 id) { return sAreaStorage.LookupEntry<AreaEntry>(id); }
+    static const AreaEntry* GetById(uint32 id)
+    {
+        return sAreaStorage.LookupEntry<AreaEntry>(id);
+    }
 
     static const AreaEntry* GetByAreaFlagAndMap(uint32 areaFlag, uint32 mapId)
     {
@@ -161,14 +181,14 @@ struct AreaEntry
         if (areaEntry)
             return areaEntry;
 
-        if (const auto* mapEntry = sMapStorage.LookupEntry<MapEntry>(mapId))
+        if (const auto *mapEntry = sMapStorage.LookupEntry<MapEntry>(mapId))
             return sAreaStorage.LookupEntry<AreaEntry>(mapEntry->linkedZone);
 
         return nullptr;
     }
 };
 
-#if defined(__GNUC__)
+#if defined( __GNUC__ )
 #pragma pack()
 #else
 #pragma pack(pop)
@@ -193,12 +213,13 @@ enum TeleportLocation
     TELEPORT_LOCATION_BG_ENTRY_POINT = 1
 };
 
-typedef bool (Map::*ScriptCommandFunction)(const ScriptInfo& script, WorldObject* source, WorldObject* target);
+typedef bool(Map::*ScriptCommandFunction) (const ScriptInfo& script, WorldObject* source, WorldObject* target);
 
 // Additional target part of a ScriptedEvent.
 struct ScriptedEventTarget
 {
-    ScriptedEventTarget(ObjectGuid object, uint32 failureCondition, uint32 failureScript, uint32 successCondition, uint32 successScript) : target(object), uiFailureCondition(failureCondition), uiFailureScript(failureScript), uiSuccessCondition(successCondition), uiSuccessScript(successScript) {}
+    ScriptedEventTarget(ObjectGuid object, uint32 failureCondition, uint32 failureScript, uint32 successCondition, uint32 successScript) :
+        target(object), uiFailureCondition(failureCondition), uiFailureScript(failureScript), uiSuccessCondition(successCondition), uiSuccessScript(successScript) {}
 
     ObjectGuid target;
     uint32 uiFailureCondition;
@@ -218,7 +239,8 @@ struct ScriptedEventTarget
 // - Event targets can be accessed by scripts.
 struct ScriptedEvent
 {
-    ScriptedEvent(uint32 eventId, ObjectGuid source, ObjectGuid target, Map& map, time_t expireTime, uint32 failureCondition, uint32 failureScript, uint32 successCondition, uint32 successScript) : m_Source(source), m_Target(target), m_Map(map), m_uiEventId(eventId), m_tExpireTime(expireTime), m_bEnded(false), m_uiFailureCondition(failureCondition), m_uiFailureScript(failureScript), m_uiSuccessCondition(successCondition), m_uiSuccessScript(successScript) {}
+    ScriptedEvent(uint32 eventId, ObjectGuid source, ObjectGuid target, Map& map, time_t expireTime, uint32 failureCondition, uint32 failureScript, uint32 successCondition, uint32 successScript) :
+        m_Source(source), m_Target(target), m_Map(map), m_uiEventId(eventId), m_tExpireTime(expireTime), m_bEnded(false), m_uiFailureCondition(failureCondition), m_uiFailureScript(failureScript), m_uiSuccessCondition(successCondition), m_uiSuccessScript(successScript) {}
 
     ObjectGuid m_Source;
     ObjectGuid m_Target;
@@ -296,9 +318,15 @@ struct ScriptedEvent
         return 0;
     }
 
-    void SetData(uint32 uiIndex, uint32 uiValue) { m_mData[uiIndex] = uiValue; }
+    void SetData(uint32 uiIndex, uint32 uiValue)
+    {
+        m_mData[uiIndex] = uiValue;
+    }
 
-    void IncrementData(uint32 uiIndex, uint32 uiValue) { m_mData[uiIndex] += uiValue; }
+    void IncrementData(uint32 uiIndex, uint32 uiValue)
+    {
+        m_mData[uiIndex] += uiValue;
+    }
 
     void DecrementData(uint32 uiIndex, uint32 uiValue)
     {
@@ -319,22 +347,20 @@ class Map : public GridRefManager<NGridType>
     friend class ObjectGridLoader;
     friend class ObjectWorldLoader;
 
-protected:
+    protected:
     Map(uint32 id, time_t, uint32 InstanceId);
 
-public:
-    Map(const Map&) = delete;
-    const Map& operator=(const Map&) = delete;
+    public:
+        Map(const Map &) = delete;
+        const Map & operator=(const Map &) = delete;
     virtual ~Map() override;
     void PrintInfos(ChatHandler& handler);
     void SpawnActiveObjects();
     // currently unused for normal maps
     bool CanUnload(uint32 diff)
     {
-        if (!m_unloadTimer)
-            return false;
-        if (m_unloadTimer <= diff)
-            return true;
+            if(!m_unloadTimer) return false;
+            if(m_unloadTimer <= diff) return true;
         m_unloadTimer -= diff;
         return false;
     }
@@ -342,10 +368,8 @@ public:
     void ExistingPlayerLogin(Player*);
     virtual bool Add(Player*);
     virtual void Remove(Player*, bool);
-    template <class T>
-    void Add(T*);
-    template <class T>
-    void Remove(T*, bool);
+        template<class T> void Add(T*);
+        template<class T> void Remove(T*, bool);
 
     static void DeleteFromWorld(Player* player); // player object will deleted at call
 
@@ -367,21 +391,23 @@ public:
     void MessageDistBroadcast(Player const*, WorldPacket*, float dist, bool to_self, bool own_team_only = false);
     void MessageDistBroadcast(WorldObject const*, WorldPacket*, float dist);
 
-    float GetVisibilityDistance() const { return m_VisibleDistance; }
+        float GetVisibilityDistance() const 
+        { 
+            return m_VisibleDistance; 
+        }
 
     void SetVisibilityDistance(float dist) { m_VisibleDistance = dist; }
     float GetGridActivationDistance() const { return m_GridActivationDistance; }
 
-    // function for setting up visibility distance for maps on per-type/per-Id basis
+        //function for setting up visibility distance for maps on per-type/per-Id basis
     virtual void InitVisibilityDistance();
 
-    void PlayerRelocation(Player*, float x, float y, float z, float angl);
+        void PlayerRelocation(Player *, float x, float y, float z, float angl);
     // Used at extrapolation.
     void DoPlayerGridRelocation(Player*, float x, float y, float z, float angl);
-    void CreatureRelocation(Creature* creature, float x, float y, float z, float orientation);
+        void CreatureRelocation(Creature *creature, float x, float y, float z, float orientation);
 
-    template <class T, class CONTAINER>
-    void Visit(const Cell& cell, TypeContainerVisitor<T, CONTAINER>& visitor);
+        template<class T, class CONTAINER> void Visit(const Cell& cell, TypeContainerVisitor<T, CONTAINER> &visitor);
 
     bool IsRemovalGrid(float x, float y) const
     {
@@ -395,13 +421,16 @@ public:
         return loaded(p);
     }
 
-    bool GetUnloadLock(const GridPair& p) const { return getNGrid(p.x_coord, p.y_coord)->getUnloadLock(); }
-    void SetUnloadLock(const GridPair& p, bool on) { getNGrid(p.x_coord, p.y_coord)->setUnloadExplicitLock(on); }
+        bool GetUnloadLock(const GridPair &p) const { return getNGrid(p.x_coord, p.y_coord)->getUnloadLock(); }
+        void SetUnloadLock(const GridPair &p, bool on) { getNGrid(p.x_coord, p.y_coord)->setUnloadExplicitLock(on); }
     void LoadGrid(const Cell& cell, bool no_unload = false);
-    bool UnloadGrid(const uint32& x, const uint32& y, bool pForce);
+        bool UnloadGrid(const uint32 &x, const uint32 &y, bool pForce);
     virtual void UnloadAll(bool pForce);
 
-    void ResetGridExpiry(NGridType& grid, float factor = 1) const { grid.ResetTimeTracker((time_t)((float)i_gridExpiry * factor)); }
+        void ResetGridExpiry(NGridType &grid, float factor = 1) const
+        {
+            grid.ResetTimeTracker((time_t)((float)i_gridExpiry*factor));
+        }
 
     time_t GetGridExpiry(void) const { return i_gridExpiry; }
     time_t GetCreateTime() const { return m_createTime; }
@@ -412,11 +441,99 @@ public:
 
     virtual void RemoveAllObjectsInRemoveList();
 
-    bool CreatureRespawnRelocation(Creature* c, bool forGridUnload = false); // used only in CreatureRelocation and ObjectGridUnloader
+        bool CreatureRespawnRelocation(Creature *c, bool forGridUnload = false);        // used only in CreatureRelocation and ObjectGridUnloader
 
     static bool CheckGridIntegrity(Creature* c, bool moved);
 
     uint32 GetInstanceId() const { return i_InstanceId; }
+        // Dungeon difficulty arrived with The Burning Crusade. Every instance
+        // on this core is the only version of itself, so ported difficulty
+        // branches all take the normal arm.
+        // Returns the Difficulty type rather than a raw number so ported code
+        // can pass it straight on. There is only one value on this core.
+        Difficulty GetDifficulty() const { return DUNGEON_DIFFICULTY_NORMAL; }
+        // AzerothCore asks the map; here the terrain answers.
+        bool IsInWater(float x, float y, float z) const { return GetTerrain() && GetTerrain()->IsInWater(x, y, z); }
+        // AzerothCore threads a phase mask and a collision selector through the
+        // same question; one phase here, one backend, both drop. A template so
+        // this header stays ignorant of the module-declared selector type.
+        template<class TCollision>
+        bool IsInWater(uint32 /*phaseMask*/, float x, float y, float z, TCollision) const { return IsInWater(x, y, z); }
+        // Instanced dungeon maps are DungeonMap here; the AzerothCore name for
+        // the downcast. Nullptr outside instances, same as there.
+        class DungeonMap* ToInstanceMap() { return IsDungeon() ? reinterpret_cast<DungeonMap*>(this) : nullptr; }
+        // AzerothCore name; instance data IS the instance script here.
+        // Non-const out of a const map, deliberately: the script belongs to
+        // the running instance, not to this accessor, and AzerothCore hands it
+        // out mutable the same way.
+        InstanceData* GetInstanceScript() const { return const_cast<Map*>(this)->GetInstanceData(); }
+
+        // AzerothCore hands out the navmesh as a shared_ptr so a worker thread
+        // can pin it alive for the length of a job. This core owns its meshes
+        // through raw pointers in MMapData and unloads them on its own schedule,
+        // so there is no ownership to share.
+        //
+        // Returning an empty pointer is deliberate, and it is NOT a stub that
+        // silently does nothing: the one caller checks for empty and falls back
+        // to building the path synchronously, a path it documents as "sync (no
+        // navmesh)". So the behaviour is correct, at the cost of doing that work
+        // on the world thread instead of a worker.
+        //
+        // What must NOT be done here is wrap MMapManager's raw mesh in a
+        // shared_ptr with a no-op deleter. That satisfies the type and breaks the
+        // promise the type exists for - the worker would keep using a mesh this
+        // core is free to unload underneath it. Handing out a real one means
+        // giving MMapData shared ownership first.
+        struct MapCollisionData
+        {
+            uint32 mapId = 0;
+
+            // Real pass-through to the movemap manager: it owns one mesh per map
+            // and a per-thread query, which is exactly what these hand out on
+            // AzerothCore too. Bodies live in Map.cpp so this header stays free
+            // of the Detour and MoveMap includes.
+            struct MMapDataAccess
+            {
+                uint32 mapId = 0;
+                dtNavMesh const* GetNavMesh() const;
+                dtNavMeshQuery const* GetNavMeshQuery() const;
+            };
+            MMapDataAccess GetMMapData() const { return MMapDataAccess{ mapId }; }
+
+            // Deliberately empty - see the ownership note where the worker takes
+            // it: this core owns meshes through raw pointers and cannot promise a
+            // lifetime. The caller has a documented synchronous fallback.
+            std::shared_ptr<dtNavMesh> GetMMapNavMeshSharedPtr() const { return {}; }
+        };
+        MapCollisionData GetMapCollisionData() const { return MapCollisionData{ GetId() }; }
+
+        // AzerothCore keeps a live spawn-id index on the map. This core does
+        // not, so the call builds a snapshot from the object store - same
+        // contents, creatures in loaded grids, keyed by guid counter (the DB
+        // guid for a static spawn). Returned by value: callers range-for over
+        // it, and a snapshot cannot dangle when a grid unloads mid-iteration.
+        // Costs a copy per call; every caller is a per-decision path, not a
+        // per-tick one. Unlike upstream it also lists summons - their counter
+        // is from another guid space, and the callers filter by entry anyway.
+        // Same snapshot as the creature form below, for gameobjects.
+        std::unordered_map<uint32, GameObject*> GetGameObjectBySpawnIdStore()
+        {
+            std::unordered_map<uint32, GameObject*> store;
+            std::shared_lock<std::shared_mutex> lock(m_objectsStore_lock);
+            auto range = m_objectsStore.range<GameObject>();
+            for (auto it = range.first; it != range.second; ++it)
+                store.emplace(it->first.GetCounter(), it->second);
+            return store;
+        }
+        std::unordered_map<uint32, Creature*> GetCreatureBySpawnIdStore()
+        {
+            std::unordered_map<uint32, Creature*> store;
+            std::shared_lock<std::shared_mutex> lock(m_objectsStore_lock);
+            auto range = m_objectsStore.range<Creature>();
+            for (auto it = range.first; it != range.second; ++it)
+                store.emplace(it->first.GetCounter(), it->second);
+            return store;
+        }
     virtual bool CanEnter(Player* /*player*/) { return true; }
     const char* GetMapName() const;
     time_t GetTime() const;
@@ -428,17 +545,42 @@ public:
     bool IsRaid() const { return i_mapEntry && i_mapEntry->IsRaid(); }
     bool IsBattleGround() const { return i_mapEntry && i_mapEntry->IsBattleGround(); }
     bool IsContinent() const { return i_mapEntry && i_mapEntry->IsContinent(); }
+        // bot calls Map::IsMountAllowed.
+        bool IsMountAllowed() const { return i_mapEntry && i_mapEntry->IsMountAllowed(); }
+        // GetReachableRandomPointOnGround: cmangos has it; Penqle doesn't. Stub returns false.
+        bool GetReachableRandomPointOnGround(uint32 /*phase*/, float /*x*/, float /*y*/, float /*z*/, float /*dist*/, bool /*walk*/ = true) const { return false; }
+        bool GetReachableRandomPointOnGround(float& /*x*/, float& /*y*/, float& /*z*/, float /*dist*/, bool /*walk*/ = true) const { return false; }
+        // GraveyardManager: cmangos has Map::GetGraveyardManager(); Penqle has sObjectMgr.GetClosestGraveYard.
+        // Stub manager forwards to sObjectMgr.
+        struct GraveyardManagerStub {
+            WorldSafeLocsEntry const* GetClosestGraveYard(float x, float y, float z, uint32 MapId, Team team) const;
+        };
+        GraveyardManagerStub& GetGraveyardManager() { static GraveyardManagerStub s; return s; }
+        // HasActiveZone: cmangos has it; Penqle doesn't track active zones. Stub returns true.
+        bool HasActiveZone(uint32 /*zoneId*/) const { return true; }
+        bool HasActiveZones() const { return true; }
+        // HasRealPlayers: cmangos checks if any non-bot players are on the map. Stub returns true.
+        bool HasRealPlayers() const { return true; }
+        // GetTransports: cmangos has Map::GetTransports returning a set/vector.
+        // Note: GenericTransport is a typedef in shim; forward-decl as struct avoids "class" keyword conflict.
+        //
+        // This returned an empty vector for as long as it existed, while _transports
+        // right below was filled correctly all along - inserted in Add(Transport*),
+        // erased in Remove(Transport*, bool). Every caller asking the map for a live
+        // boat or zeppelin got nothing back, so no bot has ever boarded one: routed to
+        // a dock, it stands there while the vessel is moored ten yards away.
+        std::vector<class Transport*> GetTransports() const { return { _transports.begin(), _transports.end() }; }
 
     // can't be nullptr for loaded map
     MapPersistentState* GetPersistentState() const { return m_persistentState; }
 
-    void AddObjectToRemoveList(WorldObject* obj);
+        void AddObjectToRemoveList(WorldObject *obj);
 
     void UpdateObjectVisibility(WorldObject* obj, Cell cell, CellPair cellpair);
 
-    void UpdateActiveObjectVisibility(Player* player);
-    void UpdateActiveObjectVisibility(Player* player, ObjectGuidSet& visibleGuids);
-    void UpdateActiveObjectVisibility(Player* player, ObjectGuidSet& visibleGuids, UpdateData& data, std::set<WorldObject*>& visibleNow);
+        void UpdateActiveObjectVisibility(Player *player);
+        void UpdateActiveObjectVisibility(Player *player, ObjectGuidSet &visibleGuids);
+        void UpdateActiveObjectVisibility(Player *player, ObjectGuidSet &visibleGuids, UpdateData &data, std::set<WorldObject*> &visibleNow);
 
     bool HaveRealPlayers() const; // no bots
 
@@ -448,7 +590,7 @@ public:
 
     bool HavePlayers() const { return !m_mapRefManager.isEmpty(); }
     uint32 GetPlayersCountExceptGMs() const;
-    bool ActiveObjectsNearGrid(uint32 x, uint32 y) const;
+        bool ActiveObjectsNearGrid(uint32 x,uint32 y) const;
 
     // Send a Packet to all players on a map
     void SendToPlayers(WorldPacket const* data, Team team = TEAM_NONE) const;
@@ -480,7 +622,7 @@ public:
     ScriptedEvent* StartScriptedEvent(uint32 id, WorldObject* source, WorldObject* target, uint32 timelimit, uint32 failureCondition, uint32 failureScript, uint32 successCondition, uint32 successScript);
 
     // Adds all commands that are part of the provided script id to the queue.
-    void ScriptsStart(std::map<uint32, std::multimap<uint32, ScriptInfo>> const& scripts, uint32 id, ObjectGuid sourceGuid, ObjectGuid targetGuid);
+        void ScriptsStart(std::map<uint32, std::multimap<uint32, ScriptInfo> > const& scripts, uint32 id, ObjectGuid sourceGuid, ObjectGuid targetGuid);
     // Adds the provided command to the queue. Will be handled by ScriptsProcess.
     void ScriptCommandStart(ScriptInfo const& script, uint32 delay, ObjectGuid sourceGuid, ObjectGuid targetGuid);
     // Immediately executes the provided command.
@@ -515,27 +657,24 @@ public:
     WorldObject* GetWorldObject(ObjectGuid guid); // only use if sure that need objects at current map, specially for player case
     WorldObject* GetWorldObjectOrPlayer(ObjectGuid guid); // Returns a world object from current map, or player anywhere.
 
-    template <typename T>
-    void InsertObject(ObjectGuid const& guid, T* ptr)
+        template <typename T> void InsertObject(ObjectGuid const& guid, T* ptr)
     {
         std::unique_lock<std::shared_mutex> lock(m_objectsStore_lock);
         m_objectsStore.insert<T>(guid, ptr);
     }
-    template <typename T>
-    void EraseObject(ObjectGuid const& guid)
+        template <typename T> void EraseObject(ObjectGuid const& guid)
     {
         std::unique_lock<std::shared_mutex> lock(m_objectsStore_lock);
         m_objectsStore.erase<T>(guid, (T*)nullptr);
     }
-    template <typename T>
-    T* GetObject(ObjectGuid const& guid)
+        template <typename T> T* GetObject(ObjectGuid const& guid)
     {
         std::shared_lock<std::shared_mutex> lock(m_objectsStore_lock);
         return m_objectsStore.find<T>(guid, (T*)nullptr);
     }
-    void AddUpdateObject(Object* obj);
+        void AddUpdateObject(Object *obj);
 
-    void RemoveUpdateObject(Object* obj);
+        void RemoveUpdateObject(Object *obj);
     // May be called from a different map ...
     void AddRelocatedUnit(Unit* obj);
     void RemoveRelocatedUnit(Unit* obj);
@@ -545,8 +684,8 @@ public:
     // DynObjects currently
     uint32 GenerateLocalLowGuid(HighGuid guidhigh);
 
-    // get corresponding TerrainData object for this particular map
-    const TerrainInfo* GetTerrain() const { return m_TerrainData; }
+        //get corresponding TerrainData object for this particular map
+        const TerrainInfo * GetTerrain() const { return m_TerrainData; }
 
     void CreateInstanceData(bool load);
     InstanceData* GetInstanceData() { return i_data; }
@@ -561,11 +700,26 @@ public:
     float GetHeight(float x, float y, float z, bool vmap = true, float maxSearchDist = DEFAULT_HEIGHT_SEARCH) const;
     bool GetHeightInRange(float x, float y, float& z, float maxSearchDist = 4.0f) const;
     bool isInLineOfSight(float x1, float y1, float z1, float x2, float y2, float z2, bool checkDynLos = true) const;
+        // AzerothCore threads a phase mask, a backend selector and model-ignore
+        // flags through the same call. This core has one phase, one backend and
+        // ignores nothing, so all three are accepted and dropped.
+        // The ignore-flags argument is a template parameter because its type is
+        // declared by the module that needs this overload, not by the core - and
+        // the core has nothing to do with the value either way.
+        template<class TIgnoreFlags>
+        bool isInLineOfSight(float x1, float y1, float z1, float x2, float y2, float z2,
+                             uint32 /*phasemask*/, uint32 /*checks*/, TIgnoreFlags /*ignoreFlags*/) const
+        { return isInLineOfSight(x1, y1, z1, x2, y2, z2, true); }
     // First collision with object
     bool GetLosHitPosition(float srcX, float srcY, float srcZ, float& destX, float& destY, float& destZ, float modifyDist) const;
+        // cmangos calls this GetHitPosition.
+        bool GetHitPosition(float srcX, float srcY, float srcZ, float& destX, float& destY, float& destZ, uint32 /*phasemask*/ = 0, float modifyDist = -0.5f) const {
+            return GetLosHitPosition(srcX, srcY, srcZ, destX, destY, destZ, modifyDist);
+        }
     // Use navemesh to walk
-    bool GetWalkHitPosition(Transport* t, float srcX, float srcY, float srcZ, float& destX, float& destY, float& destZ, uint32 moveAllowedFlags = 0xF /*NAV_GROUND | NAV_WATER | NAV_MAGMA | NAV_SLIME*/, float zSearchDist = 20.0f, bool locatedOnSteepSlope = true) const;
-    bool GetWalkRandomPosition(Transport* t, float& x, float& y, float& z, float maxRadius, bool allowStraightPath = false, uint32 moveAllowedFlags = 0xF) const;
+        bool GetWalkHitPosition(Transport* t, float srcX, float srcY, float srcZ, float& destX, float& destY, float& destZ, 
+            uint32 moveAllowedFlags = 0xF /*NAV_GROUND | NAV_WATER | NAV_MAGMA | NAV_SLIME*/, float zSearchDist = 20.0f, bool locatedOnSteepSlope = true) const;
+        bool GetWalkRandomPosition(Transport* t, float &x, float &y, float &z, float maxRadius, bool allowStraightPath = false, uint32 moveAllowedFlags = 0xF) const;
     bool GetSwimRandomPosition(float& x, float& y, float& z, float radius, GridMapLiquidData& liquid_status, bool randomRange = true) const;
     VMAP::ModelInstance* FindCollisionModel(float x1, float y1, float z1, float x2, float y2, float z2);
 
@@ -610,33 +764,36 @@ public:
     void RemoveBones(Corpse* corpse);
     void ScheduleCorpseRemoval();
 
+#ifdef ENABLE_ELUNA
+        Eluna* GetEluna() const { return sElunaMgr->Get(m_elunaInfo); }
+        LuaVal lua_data = LuaVal({});
+#endif
+
     XStatTimer MovementPerfTimer;
     XStatTimer SpellPerfTimer;
     XStatTimer UpdateTimer;
 
-private:
+    private:
     void LoadMapAndVMap(int gx, int gy);
 
     void SetTimer(uint32 t) { i_gridExpiry = t < MIN_GRID_DELAY ? MIN_GRID_DELAY : t; }
 
     static void SendInitSelf(Player* player);
 
-    void SendInitTransports(Player* player);
-    void SendRemoveTransports(Player* player);
+        void SendInitTransports(Player * player);
+        void SendRemoveTransports(Player * player);
 
     bool CreatureCellRelocation(Creature* creature, Cell const& new_cell);
 
-    bool loaded(const GridPair&) const;
-    void EnsureGridCreated(const GridPair&);
+        bool loaded(const GridPair &) const;
+        void EnsureGridCreated(const GridPair &);
     bool EnsureGridLoaded(Cell const&);
     void EnsureGridLoadedAtEnter(Cell const&, Player* player = nullptr);
 
     void buildNGridLinkage(NGridType* pNGridType) { pNGridType->link(this); }
 
-    template <class T>
-    void AddType(T* obj);
-    template <class T>
-    void RemoveType(T* obj, bool);
+        template<class T> void AddType(T *obj);
+        template<class T> void RemoveType(T *obj, bool);
 
     NGridType* getNGrid(uint32 x, uint32 y) const
     {
@@ -656,12 +813,12 @@ private:
     bool _processingSendObjUpdates = false;
     uint32 _objUpdatesThreads = 0;
     mutable std::mutex i_objectsToClientUpdate_lock;
-    std::unordered_set<Object*> i_objectsToClientUpdate;
+        std::unordered_set<Object *> i_objectsToClientUpdate;
 
     bool _processingUnitsRelocation = false;
     uint32 _unitRelocationThreads = 0;
     mutable std::mutex i_unitsRelocated_lock;
-    std::unordered_set<Unit*> i_unitsRelocated;
+        std::unordered_set<Unit* > i_unitsRelocated;
 
     mutable std::mutex unitsMvtUpdate_lock;
     std::unordered_set<Unit*> unitsMvtUpdate;
@@ -683,7 +840,7 @@ private:
     std::unique_ptr<ThreadPool> m_visibilityThreads;
     std::unique_ptr<ThreadPool> m_cellThreads;
 
-protected:
+    protected:
     MapEntry const* i_mapEntry;
     uint32 i_id;
     uint32 i_InstanceId;
@@ -715,21 +872,20 @@ protected:
     bool m_updateFinished = false;
     uint32 m_updateDiffMod;
     uint32 m_lastMvtSpellsUpdate = 0;
-
-private:
+    private:
     time_t m_createTime; // time when map was created
     time_t i_gridExpiry;
 
     NGridType* i_grids[MAX_NUMBER_OF_GRIDS][MAX_NUMBER_OF_GRIDS];
 
-    // Shared geodata object with map coord info...
-    TerrainInfo* const m_TerrainData;
+        //Shared geodata object with map coord info...
+        TerrainInfo * const m_TerrainData;
     bool m_bLoadedGrids[MAX_NUMBER_OF_GRIDS][MAX_NUMBER_OF_GRIDS];
 
-    std::bitset<TOTAL_NUMBER_OF_CELLS_PER_MAP * TOTAL_NUMBER_OF_CELLS_PER_MAP> marked_cells;
+        std::bitset<TOTAL_NUMBER_OF_CELLS_PER_MAP*TOTAL_NUMBER_OF_CELLS_PER_MAP> marked_cells;
 
     mutable std::mutex i_objectsToRemove_lock;
-    std::set<WorldObject*> i_objectsToRemove;
+        std::set<WorldObject *> i_objectsToRemove;
 
     typedef std::multimap<time_t, ScriptAction> ScriptScheduleMap;
     mutable MapMutexType m_scriptSchedule_lock;
@@ -746,11 +902,11 @@ private:
     ObjectGuidGenerator<HIGHGUID_PET> m_PetGuids;
 
     // Type specific code for add/remove to/from grid
-    template <class T>
-    void AddToGrid(T*, NGridType*, Cell const&);
+        template<class T>
+            void AddToGrid(T*, NGridType *, Cell const&);
 
-    template <class T>
-    void RemoveFromGrid(T*, NGridType*, Cell const&);
+        template<class T>
+            void RemoveFromGrid(T*, NGridType *, Cell const&);
     // Custom
     uint32 _lastMapUpdate = 0;
     uint32 _lastPlayerLeftTime = 0;
@@ -871,7 +1027,8 @@ private:
     bool ScriptCommand_StartScriptOnZone(ScriptInfo const& script, WorldObject* source, WorldObject* target);
 
     // Add any new script command functions to the array.
-    const ScriptCommandFunction m_ScriptCommands[SCRIPT_COMMAND_MAX] = {
+        const ScriptCommandFunction m_ScriptCommands[SCRIPT_COMMAND_MAX] =
+        {
         &Map::ScriptCommand_Talk, // 0
         &Map::ScriptCommand_Emote, // 1
         &Map::ScriptCommand_FieldSet, // 2
@@ -967,16 +1124,21 @@ private:
         &Map::ScriptCommand_StartScriptOnZone, // 92
     };
 
-public:
+    public:
     CreatureGroupHolderType CreatureGroupHolder;
     uint32 GetLastPlayerLeftTime() const { return _lastPlayerLeftTime; }
+
+    private:
+#ifdef ENABLE_ELUNA
+        ElunaInfo m_elunaInfo;
+#endif
 };
 
 class WorldMap : public Map
 {
     using Map::GetPersistentState; // hide in subclass for overwrite
 
-public:
+    public:
     WorldMap(uint32 id, time_t expiry, uint32 instance = 0) : Map(id, expiry, instance) {}
     ~WorldMap() override {}
 
@@ -988,14 +1150,14 @@ class DungeonMap : public Map
 {
     using Map::GetPersistentState; // hide in subclass for overwrite
 
-public:
+    public:
     DungeonMap(uint32 id, time_t, uint32 InstanceId);
     ~DungeonMap() override;
     bool Add(Player*) override;
     void Remove(Player*, bool) override;
     void Update(uint32) override;
     bool Reset(InstanceResetMethod method);
-    void PermBindAllPlayers(Player* player);
+        void PermBindAllPlayers(Player *player);
     void UnloadAll(bool pForce) override;
     bool CanEnter(Player* player) override;
     void SendResetWarnings(uint32 timeLeft) const;
@@ -1003,7 +1165,7 @@ public:
     uint32 GetMaxPlayers() const;
 
     decltype(m_objectsStore_lock)& GetObjectLock() { return m_objectsStore_lock; }
-    decltype(m_objectsStore) const& GetObjectStore() const { return m_objectsStore; }
+        decltype(m_objectsStore) const & GetObjectStore() const { return m_objectsStore; }
 
     // can't be nullptr for loaded map
     DungeonPersistentState* GetPersistanceState() const;
@@ -1012,8 +1174,7 @@ public:
     void InitVisibilityDistance() override;
     // Activated at raid expiration. No one can enter.
     bool IsUnloadingBeforeReset() const { return m_resetAfterUnload; }
-
-private:
+    private:
     bool m_resetAfterUnload;
     bool m_unloadWhenEmpty;
 };
@@ -1022,7 +1183,7 @@ class BattleGroundMap : public Map
 {
     using Map::GetPersistentState; // hide in subclass for overwrite
 
-public:
+    public:
     BattleGroundMap(uint32 id, time_t, uint32 InstanceId);
     ~BattleGroundMap() override;
 
@@ -1040,12 +1201,12 @@ public:
     // can't be nullptr for loaded map
     BattleGroundPersistentState* GetPersistanceState() const;
 
-private:
+    private:
     BattleGround* m_bg;
 };
 
-template <class T, class CONTAINER>
-void Map::Visit(const Cell& cell, TypeContainerVisitor<T, CONTAINER>& visitor)
+template<class T, class CONTAINER>
+void Map::Visit(const Cell& cell, TypeContainerVisitor<T, CONTAINER> &visitor)
 {
     uint32 const x = cell.GridX();
     uint32 const y = cell.GridY();

@@ -31,24 +31,27 @@ EndContentData */
 ## npc_henze_faulk
 ######*/
 
-#define SAY_HEAL -1000187
+#define SAY_HEAL    -1000187
 
 struct npc_henze_faulkAI : public ScriptedAI
 {
     uint32 lifeTimer;
     bool spellHit;
 
-    npc_henze_faulkAI(Creature* pCreature) : ScriptedAI(pCreature) { Reset(); }
+    npc_henze_faulkAI(Creature* pCreature) : ScriptedAI(pCreature)
+    {
+        Reset();
+    }
 
     void Reset() override
     {
         lifeTimer = 120000;
         m_creature->SetUInt32Value(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_DEAD);
-        m_creature->SetStandState(UNIT_STAND_STATE_DEAD); // lay down
+        m_creature->SetStandState(UNIT_STAND_STATE_DEAD);   // lay down
         spellHit = false;
     }
 
-    void MoveInLineOfSight(Unit* who) override {}
+    void MoveInLineOfSight(Unit *who) override { }
 
     void UpdateAI(const uint32 diff) override
     {
@@ -61,7 +64,7 @@ struct npc_henze_faulkAI : public ScriptedAI
         }
     }
 
-    void SpellHit(WorldObject* pCaster, const SpellEntry* Spellkind) override
+    void SpellHit(WorldObject* pCaster, const SpellEntry *Spellkind) override
     {
         Unit* pUnitCaster = ToUnit(pCaster);
         if (!pUnitCaster)
@@ -72,18 +75,22 @@ struct npc_henze_faulkAI : public ScriptedAI
             DoCastSpellIfCan(m_creature, 32343);
             m_creature->SetStandState(UNIT_STAND_STATE_STAND);
             m_creature->SetUInt32Value(UNIT_DYNAMIC_FLAGS, 0);
-            // m_creature->RemoveAllAuras();
+            //m_creature->RemoveAllAuras();
             DoScriptText(SAY_HEAL, m_creature, pUnitCaster);
             spellHit = true;
         }
     }
+
 };
 
-CreatureAI* GetAI_npc_henze_faulk(Creature* pCreature) { return new npc_henze_faulkAI(pCreature); }
+CreatureAI* GetAI_npc_henze_faulk(Creature* pCreature)
+{
+    return new npc_henze_faulkAI(pCreature);
+}
 
 void AddSC_elwynn_forest()
 {
-    Script* newscript;
+    Script *newscript;
 
     newscript = new Script;
     newscript->Name = "npc_henze_faulk";

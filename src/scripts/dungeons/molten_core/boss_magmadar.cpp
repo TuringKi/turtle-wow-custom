@@ -14,19 +14,19 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#include "molten_core.h"
 #include "scriptPCH.h"
+#include "molten_core.h"
 
 enum
 {
-    EMOTE_GENERIC_FRENZY_KILL = 7797,
+    EMOTE_GENERIC_FRENZY_KILL   = 7797,
 
-    SPELL_LAVA_BREATH = 19272, // Triggered by SPELL_FRENZY (19451)
-    SPELL_FRENZY = 19451,
-    SPELL_MAGMASPIT = 19449, // This is actually a buff he gives himself
-    SPELL_PANIC = 19408,
-    SPELL_LAVABOMB = 19411, // This calls a dummy server side effect that cast spell 20494 to spawn GO 177704 for 30s
-    SPELL_LAVABOMB_MANA = 20474, // This calls a dummy server side effect that cast spell 20495 to spawn GO 177704 for 60s
+    SPELL_LAVA_BREATH           = 19272,                    // Triggered by SPELL_FRENZY (19451)
+    SPELL_FRENZY                = 19451,
+    SPELL_MAGMASPIT             = 19449,                    // This is actually a buff he gives himself
+    SPELL_PANIC                 = 19408,
+    SPELL_LAVABOMB              = 19411,                    // This calls a dummy server side effect that cast spell 20494 to spawn GO 177704 for 30s
+    SPELL_LAVABOMB_MANA         = 20474,                    // This calls a dummy server side effect that cast spell 20495 to spawn GO 177704 for 60s
 };
 
 struct boss_magmadarAI : public ScriptedAI
@@ -47,11 +47,11 @@ struct boss_magmadarAI : public ScriptedAI
 
     void Reset() override
     {
-        m_uiFrenzyTimer = 15000;
-        m_uiPanicTimer = 10000;
-        m_uiLavaBombTimer = 12000;
-        m_uiLavaBombManaTimer = 18000;
-        m_uiRestoreTargetTimer = 0;
+        m_uiFrenzyTimer          = 15000;
+        m_uiPanicTimer           = 10000;
+        m_uiLavaBombTimer        = 12000;
+        m_uiLavaBombManaTimer    = 18000;
+        m_uiRestoreTargetTimer   = 0;
 
         if (!m_creature->HasAura(SPELL_MAGMASPIT))
             m_creature->CastSpell(m_creature, SPELL_MAGMASPIT, true);
@@ -109,7 +109,7 @@ struct boss_magmadarAI : public ScriptedAI
                     m_creature->SetTargetGuid(pTarget->GetObjectGuid());
                     m_uiLavaBombTimer = urand(12000, 15000);
                     m_uiRestoreTargetTimer = 800;
-                }
+                }  
             }
         }
         else
@@ -126,7 +126,7 @@ struct boss_magmadarAI : public ScriptedAI
                     m_creature->SetTargetGuid(pTarget->GetObjectGuid());
                     m_uiLavaBombManaTimer = urand(12000, 15000);
                     m_uiRestoreTargetTimer = 800;
-                }
+                } 
             }
         }
         else
@@ -149,11 +149,14 @@ struct boss_magmadarAI : public ScriptedAI
     }
 };
 
-CreatureAI* GetAI_boss_magmadar(Creature* pCreature) { return new boss_magmadarAI(pCreature); }
+CreatureAI* GetAI_boss_magmadar(Creature* pCreature)
+{
+    return new boss_magmadarAI(pCreature);
+}
 
 void AddSC_boss_magmadar()
 {
-    Script* newscript;
+    Script *newscript;
     newscript = new Script;
     newscript->Name = "boss_magmadar";
     newscript->GetAI = &GetAI_boss_magmadar;

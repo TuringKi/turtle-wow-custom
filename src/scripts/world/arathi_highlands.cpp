@@ -33,26 +33,29 @@ EndContentData */
 
 enum
 {
-    SAY_PROGRESS_1 = -1000264,
-    SAY_PROGRESS_2 = -1000265,
-    SAY_PROGRESS_3 = -1000266,
-    EMOTE_PROGRESS_4 = -1000267,
-    SAY_AGGRO = -1000268,
-    SAY_PROGRESS_5 = -1000269,
-    SAY_PROGRESS_6 = -1000270,
-    SAY_PROGRESS_7 = -1000271,
-    EMOTE_PROGRESS_8 = -1000272,
-    SAY_PROGRESS_9 = -1000273,
+    SAY_PROGRESS_1          = -1000264,
+    SAY_PROGRESS_2          = -1000265,
+    SAY_PROGRESS_3          = -1000266,
+    EMOTE_PROGRESS_4        = -1000267,
+    SAY_AGGRO               = -1000268,
+    SAY_PROGRESS_5          = -1000269,
+    SAY_PROGRESS_6          = -1000270,
+    SAY_PROGRESS_7          = -1000271,
+    EMOTE_PROGRESS_8        = -1000272,
+    SAY_PROGRESS_9          = -1000273,
 
-    QUEST_SUNKEN_TREASURE = 665,
-    ENTRY_VENGEFUL_SURGE = 2776
+    QUEST_SUNKEN_TREASURE   = 665,
+    ENTRY_VENGEFUL_SURGE    = 2776
 };
 
 struct npc_professor_phizzlethorpeAI : public npc_escortAI
 {
-    npc_professor_phizzlethorpeAI(Creature* pCreature) : npc_escortAI(pCreature) { Reset(); }
+    npc_professor_phizzlethorpeAI(Creature* pCreature) : npc_escortAI(pCreature)
+    {
+        Reset();
+    }
 
-    void Reset() override {}
+    void Reset() override { }
 
     void WaypointReached(uint32 uiPointId) override
     {
@@ -63,40 +66,46 @@ struct npc_professor_phizzlethorpeAI : public npc_escortAI
 
         switch (uiPointId)
         {
-        case 4:
-            DoScriptText(SAY_PROGRESS_2, m_creature, pPlayer);
-            break;
-        case 5:
-            DoScriptText(SAY_PROGRESS_3, m_creature, pPlayer);
-            break;
-        case 8:
-            DoScriptText(EMOTE_PROGRESS_4, m_creature);
-            break;
-        case 9:
-            m_creature->SummonCreature(ENTRY_VENGEFUL_SURGE, -2056.41f, -2144.01f, 20.59f, 5.70f, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 600000);
-            m_creature->SummonCreature(ENTRY_VENGEFUL_SURGE, -2050.17f, -2140.02f, 19.54f, 5.17f, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 600000);
-            break;
-        case 10:
-            DoScriptText(SAY_PROGRESS_5, m_creature, pPlayer);
-            break;
-        case 11:
-            DoScriptText(SAY_PROGRESS_6, m_creature, pPlayer);
-            SetRun();
-            break;
-        case 19:
-            DoScriptText(SAY_PROGRESS_7, m_creature, pPlayer);
-            break;
-        case 20:
-            DoScriptText(EMOTE_PROGRESS_8, m_creature);
-            DoScriptText(SAY_PROGRESS_9, m_creature, pPlayer);
-            pPlayer->GroupEventHappens(QUEST_SUNKEN_TREASURE, m_creature);
-            break;
+            case 4:
+                DoScriptText(SAY_PROGRESS_2, m_creature, pPlayer);
+                break;
+            case 5:
+                DoScriptText(SAY_PROGRESS_3, m_creature, pPlayer);
+                break;
+            case 8:
+                DoScriptText(EMOTE_PROGRESS_4, m_creature);
+                break;
+            case 9:
+                m_creature->SummonCreature(ENTRY_VENGEFUL_SURGE, -2056.41f, -2144.01f, 20.59f, 5.70f, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 600000);
+                m_creature->SummonCreature(ENTRY_VENGEFUL_SURGE, -2050.17f, -2140.02f, 19.54f, 5.17f, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 600000);
+                break;
+            case 10:
+                DoScriptText(SAY_PROGRESS_5, m_creature, pPlayer);
+                break;
+            case 11:
+                DoScriptText(SAY_PROGRESS_6, m_creature, pPlayer);
+                SetRun();
+                break;
+            case 19:
+                DoScriptText(SAY_PROGRESS_7, m_creature, pPlayer);
+                break;
+            case 20:
+                DoScriptText(EMOTE_PROGRESS_8, m_creature);
+                DoScriptText(SAY_PROGRESS_9, m_creature, pPlayer);
+                pPlayer->GroupEventHappens(QUEST_SUNKEN_TREASURE, m_creature);
+                break;
         }
     }
 
-    void Aggro(Unit* pWho) override { DoScriptText(SAY_AGGRO, m_creature); }
+    void Aggro(Unit* pWho) override
+    {
+        DoScriptText(SAY_AGGRO, m_creature);
+    }
 
-    void JustSummoned(Creature* pSummoned) override { pSummoned->AI()->AttackStart(m_creature); }
+    void JustSummoned(Creature* pSummoned) override
+    {
+        pSummoned->AI()->AttackStart(m_creature);
+    }
 };
 
 bool QuestAccept_npc_professor_phizzlethorpe(Player* pPlayer, Creature* pCreature, const Quest* pQuest)
@@ -112,7 +121,10 @@ bool QuestAccept_npc_professor_phizzlethorpe(Player* pPlayer, Creature* pCreatur
     return true;
 }
 
-CreatureAI* GetAI_npc_professor_phizzlethorpe(Creature* pCreature) { return new npc_professor_phizzlethorpeAI(pCreature); }
+CreatureAI* GetAI_npc_professor_phizzlethorpe(Creature* pCreature)
+{
+    return new npc_professor_phizzlethorpeAI(pCreature);
+}
 
 /*####
 # npc_shakes_o_breen
@@ -120,21 +132,22 @@ CreatureAI* GetAI_npc_professor_phizzlethorpe(Creature* pCreature) { return new 
 
 enum
 {
-    QUEST_DEATH_FROM_BELOW = 667,
+    QUEST_DEATH_FROM_BELOW     = 667,
 
-    NPC_DAGGERSPINE_RAIDER = 2595,
-    NPC_DAGGERSPINE_SORCERESS = 2596,
+    NPC_DAGGERSPINE_RAIDER     = 2595,
+    NPC_DAGGERSPINE_SORCERESS  = 2596,
 };
 
-#define BREEN_YELL_1 "All hands to battle stations! Naga incoming!"
-#define NAGA_YELL_1 "You've plundered our treasures too long. Prepare to meet your watery grave!"
-#define BREEN_SAY_2 "If we can just hold them now, I am sure we will be in the clear."
+#define BREEN_YELL_1    "All hands to battle stations! Naga incoming!"
+#define NAGA_YELL_1     "You've plundered our treasures too long. Prepare to meet your watery grave!"
+#define BREEN_SAY_2     "If we can just hold them now, I am sure we will be in the clear."
 
-static float m_afNagaCoord[4][4] = {
-    {-2154.049f, -1969.738f, 15.371f, 5.54f},
-    {-2157.606f, -1972.530f, 15.552f, 5.54f},
-    {-2157.533f, -1968.904f, 15.410f, 5.54f},
-    {-2109.839f, -2017.029f, 6.0080f, 5.54f},
+static float m_afNagaCoord[4][4] =
+{
+    { -2154.049f, -1969.738f, 15.371f, 5.54f },
+    { -2157.606f, -1972.530f, 15.552f, 5.54f },
+    { -2157.533f, -1968.904f, 15.410f, 5.54f },
+    { -2109.839f, -2017.029f, 6.0080f, 5.54f },
 };
 
 struct npc_shakes_o_breenAI : npc_escortAI
@@ -165,7 +178,14 @@ struct npc_shakes_o_breenAI : npc_escortAI
 
     void WaypointReached(uint32 /*uiPointId*/) override {}
 
-    void DoSummon(uint32 entry, uint8 index) const { m_creature->SummonCreature(entry, m_afNagaCoord[index][0], m_afNagaCoord[index][1], m_afNagaCoord[index][2], m_afNagaCoord[index][3], TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, MINUTE * IN_MILLISECONDS); }
+    void DoSummon(uint32 entry, uint8 index) const
+    {
+        m_creature->SummonCreature(entry, 
+            m_afNagaCoord[index][0], 
+            m_afNagaCoord[index][1], 
+            m_afNagaCoord[index][2], 
+            m_afNagaCoord[index][3], TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, MINUTE*IN_MILLISECONDS);
+    }
 
     void DoWaveSummon()
     {
@@ -176,16 +196,16 @@ struct npc_shakes_o_breenAI : npc_escortAI
 
         switch (m_uiWaveId)
         {
-        case 1:
-        case 3:
-            DoSummon(NPC_DAGGERSPINE_RAIDER, 0);
-            DoSummon(NPC_DAGGERSPINE_RAIDER, 1);
-            DoSummon(NPC_DAGGERSPINE_SORCERESS, 2);
-            break;
-        case 2:
-            DoSummon(NPC_DAGGERSPINE_RAIDER, 0);
-            DoSummon(NPC_DAGGERSPINE_RAIDER, 1);
-            break;
+            case 1:
+            case 3:
+                DoSummon(NPC_DAGGERSPINE_RAIDER, 0);
+                DoSummon(NPC_DAGGERSPINE_RAIDER, 1);
+                DoSummon(NPC_DAGGERSPINE_SORCERESS, 2);
+                break;
+            case 2:
+                DoSummon(NPC_DAGGERSPINE_RAIDER, 0);
+                DoSummon(NPC_DAGGERSPINE_RAIDER, 1);
+                break;
         }
     }
 
@@ -194,7 +214,7 @@ struct npc_shakes_o_breenAI : npc_escortAI
         if (success)
         {
             if (Player* pPlayer = GetPlayerForEscort())
-                pPlayer->GroupEventHappens(QUEST_DEATH_FROM_BELOW, m_creature);
+                pPlayer->GroupEventHappens(QUEST_DEATH_FROM_BELOW, m_creature);            
         }
         else
         {
@@ -254,7 +274,7 @@ struct npc_shakes_o_breenAI : npc_escortAI
                 if (m_uiWaveId < 3)
                 {
                     DoWaveSummon();
-                    m_uiEventTimer = 20000;
+                    m_uiEventTimer = 20000;                
                 }
                 else
                 {
@@ -265,7 +285,7 @@ struct npc_shakes_o_breenAI : npc_escortAI
                 }
             }
             else
-                m_uiEventTimer -= uiDiff;
+                m_uiEventTimer -= uiDiff;            
         }
 
         npc_escortAI::UpdateEscortAI(uiDiff);
@@ -288,7 +308,10 @@ bool QuestAccept_npc_shakes_o_breen(Player* pPlayer, Creature* pCreature, const 
     return true;
 }
 
-CreatureAI* GetAI_npc_shakes_o_breen(Creature* pCreature) { return new npc_shakes_o_breenAI(pCreature); }
+CreatureAI* GetAI_npc_shakes_o_breen(Creature* pCreature)
+{
+    return new npc_shakes_o_breenAI(pCreature);
+}
 
 /*######
 ## npc_kinelory
@@ -296,29 +319,32 @@ CreatureAI* GetAI_npc_shakes_o_breen(Creature* pCreature) { return new npc_shake
 
 enum
 {
-    SAY_START = -1000948,
-    SAY_REACH_BOTTOM = -1000949,
-    SAY_AGGRO_KINELORY = -1000950,
-    SAY_AGGRO_JORELL = -1000951,
-    SAY_WATCH_BACK = -1000952,
-    EMOTE_BELONGINGS = -1000953,
-    SAY_DATA_FOUND = -1000954,
-    SAY_ESCAPE = -1000955,
-    SAY_FINISH = -1000956,
-    EMOTE_HAND_PACK = -1000957,
+    SAY_START               = -1000948,
+    SAY_REACH_BOTTOM        = -1000949,
+    SAY_AGGRO_KINELORY      = -1000950,
+    SAY_AGGRO_JORELL        = -1000951,
+    SAY_WATCH_BACK          = -1000952,
+    EMOTE_BELONGINGS        = -1000953,
+    SAY_DATA_FOUND          = -1000954,
+    SAY_ESCAPE              = -1000955,
+    SAY_FINISH              = -1000956,
+    EMOTE_HAND_PACK         = -1000957,
 
-    SPELL_REJUVENATION = 3627,
-    SPELL_BEAR_FORM = 4948,
+    SPELL_REJUVENATION      = 3627,
+    SPELL_BEAR_FORM         = 4948,
 
-    NPC_JORELL = 2733,
-    NPC_QUAE = 2712,
+    NPC_JORELL              = 2733,
+    NPC_QUAE                = 2712,
 
-    QUEST_HINTS_NEW_PLAGUE = 660
+    QUEST_HINTS_NEW_PLAGUE  = 660
 };
 
 struct npc_kineloryAI : public npc_escortAI
 {
-    npc_kineloryAI(Creature* pCreature) : npc_escortAI(pCreature) { Reset(); }
+    npc_kineloryAI(Creature* pCreature) : npc_escortAI(pCreature)
+    {
+        Reset();
+    }
 
     uint32 m_uiBearFormTimer;
     uint32 m_uiHealTimer;
@@ -326,7 +352,7 @@ struct npc_kineloryAI : public npc_escortAI
     void Reset() override
     {
         m_uiBearFormTimer = urand(5000, 7000);
-        m_uiHealTimer = urand(2000, 5000);
+        m_uiHealTimer     = urand(2000, 5000);
     }
 
     void JustRespawned() override
@@ -339,34 +365,34 @@ struct npc_kineloryAI : public npc_escortAI
     {
         switch (uiPointId)
         {
-        case 9:
-            DoScriptText(SAY_REACH_BOTTOM, m_creature);
-            break;
-        case 16:
-            DoScriptText(SAY_WATCH_BACK, m_creature);
-            DoScriptText(EMOTE_BELONGINGS, m_creature);
-            break;
-        case 17:
-            DoScriptText(SAY_DATA_FOUND, m_creature);
-            break;
-        case 18:
-            DoScriptText(SAY_ESCAPE, m_creature);
-            if (Player* pPlayer = GetPlayerForEscort())
-                m_creature->SetFacingToObject(pPlayer);
-            SetRun();
-            break;
-        case 33:
-            DoScriptText(SAY_FINISH, m_creature);
-            if (Creature* pQuae = GetClosestCreatureWithEntry(m_creature, NPC_QUAE, 10.0f))
-            {
-                DoScriptText(EMOTE_HAND_PACK, m_creature, pQuae);
-                m_creature->SetFacingToObject(pQuae);
-            }
-            break;
-        case 34:
-            if (Player* pPlayer = GetPlayerForEscort())
-                pPlayer->GroupEventHappens(QUEST_HINTS_NEW_PLAGUE, m_creature);
-            break;
+            case 9:
+                DoScriptText(SAY_REACH_BOTTOM, m_creature);
+                break;
+            case 16:
+                DoScriptText(SAY_WATCH_BACK, m_creature);
+                DoScriptText(EMOTE_BELONGINGS, m_creature);
+                break;
+            case 17:
+                DoScriptText(SAY_DATA_FOUND, m_creature);
+                break;
+            case 18:
+                DoScriptText(SAY_ESCAPE, m_creature);
+                if (Player* pPlayer = GetPlayerForEscort())
+                    m_creature->SetFacingToObject(pPlayer);
+                SetRun();
+                break;
+            case 33:
+                DoScriptText(SAY_FINISH, m_creature);
+                if (Creature* pQuae = GetClosestCreatureWithEntry(m_creature, NPC_QUAE, 10.0f))
+                {
+                    DoScriptText(EMOTE_HAND_PACK, m_creature, pQuae);
+                    m_creature->SetFacingToObject(pQuae);
+                }
+                break;
+            case 34:
+                if (Player* pPlayer = GetPlayerForEscort())
+                    pPlayer->GroupEventHappens(QUEST_HINTS_NEW_PLAGUE, m_creature);
+                break;
         }
     }
 
@@ -406,7 +432,10 @@ struct npc_kineloryAI : public npc_escortAI
     }
 };
 
-CreatureAI* GetAI_npc_kinelory(Creature* pCreature) { return new npc_kineloryAI(pCreature); }
+CreatureAI* GetAI_npc_kinelory(Creature* pCreature)
+{
+    return new npc_kineloryAI(pCreature);
+}
 
 bool QuestAccept_npc_kinelory(Player* pPlayer, Creature* pCreature, const Quest* pQuest)
 {
@@ -424,7 +453,7 @@ bool QuestAccept_npc_kinelory(Player* pPlayer, Creature* pCreature, const Quest*
 
 void AddSC_arathi_highlands()
 {
-    Script* newscript;
+    Script * newscript;
 
     newscript = new Script;
     newscript->Name = "npc_professor_phizzlethorpe";

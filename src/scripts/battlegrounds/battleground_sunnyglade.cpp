@@ -5,9 +5,9 @@ SDComment:
 SDCategory: BG
 EndScriptData */
 
-#include "GameEventMgr.h"
-#include "World.h"
 #include "scriptPCH.h"
+#include "World.h"
+#include "GameEventMgr.h"
 
 enum SV_Spells
 {
@@ -71,15 +71,18 @@ struct SV_heraldAI : public ScriptedAI
 
     EventMap m_events;
 
-    void Reset() override { m_events.Reset(); }
+    void Reset() override
+    {
+        m_events.Reset();
+    }
 
     void Aggro(Unit* pWho) override
     {
-        // m_events.ScheduleEvent(EVENT_HOLY_STRIKE, Seconds(urand(8, 15)));
-        // m_events.ScheduleEvent(EVENT_HAMMER_OF_JUSTICE, Seconds(urand(20, 45)));
+        //m_events.ScheduleEvent(EVENT_HOLY_STRIKE, Seconds(urand(8, 15)));
+        //m_events.ScheduleEvent(EVENT_HAMMER_OF_JUSTICE, Seconds(urand(20, 45)));
     }
 
-    void UpdateAI(uint32 const uiDiff) override
+    void UpdateAI(uint32 const uiDiff)  override
     {
         if (!m_creature->SelectHostileTarget() || !m_creature->GetVictim())
             return;
@@ -245,7 +248,7 @@ struct SV_human_leaderAI : public ScriptedAI
         m_creature->GetMap()->PlayDirectSoundToMap(8174);
     }
 
-    void UpdateAI(uint32 const uiDiff) override
+    void UpdateAI(uint32 const uiDiff)  override
     {
         if (!m_creature->SelectHostileTarget() || !m_creature->GetVictim())
             return;
@@ -263,7 +266,7 @@ struct SV_human_leaderAI : public ScriptedAI
         {
             switch (l_EventId)
             {
-            case EVENT_CLEAVE:
+                case EVENT_CLEAVE:
                 {
                     if (!m_blackDragon)
                     {
@@ -275,7 +278,7 @@ struct SV_human_leaderAI : public ScriptedAI
 
                     break;
                 }
-            case EVENT_WARSTOMP:
+                case EVENT_WARSTOMP:
                 {
                     if (!m_blackDragon)
                     {
@@ -287,7 +290,7 @@ struct SV_human_leaderAI : public ScriptedAI
 
                     break;
                 }
-            case EVENT_REND:
+                case EVENT_REND:
                 {
                     if (!m_blackDragon)
                     {
@@ -299,7 +302,7 @@ struct SV_human_leaderAI : public ScriptedAI
 
                     break;
                 }
-            case EVENT_SUNDER_ARMOR:
+                case EVENT_SUNDER_ARMOR:
                 {
                     if (!m_blackDragon)
                     {
@@ -311,7 +314,7 @@ struct SV_human_leaderAI : public ScriptedAI
 
                     break;
                 }
-            case EVENT_SLOW:
+                case EVENT_SLOW:
                 {
                     if (!m_blackDragon)
                     {
@@ -323,7 +326,7 @@ struct SV_human_leaderAI : public ScriptedAI
 
                     break;
                 }
-            case EVENT_KNOCK:
+                case EVENT_KNOCK:
                 {
                     if (!m_blackDragon)
                     {
@@ -335,7 +338,7 @@ struct SV_human_leaderAI : public ScriptedAI
 
                     break;
                 }
-            case EVENT_TRANSFORM:
+                case EVENT_TRANSFORM:
                 {
                     m_creature->SetDisplayId(6374);
                     m_events.ScheduleEvent(EVENT_BLAST_WAVE, 500);
@@ -343,12 +346,12 @@ struct SV_human_leaderAI : public ScriptedAI
                         m_events.ScheduleEvent(EVENT_SHADOW_FLAME, 10000);
                     break;
                 }
-            case EVENT_BLAST_WAVE:
+                case EVENT_BLAST_WAVE:
                 {
                     DoCast(m_creature, SPELL_BLAST_WAVE);
                     break;
                 }
-            case EVENT_SHADOW_FLAME:
+                case EVENT_SHADOW_FLAME:
                 {
                     if (DoCastSpellIfCan(m_creature->GetVictim(), SPELL_DRAGON_BREATH) == CAST_OK)
                         m_events.Repeat(Seconds(20));
@@ -428,7 +431,7 @@ struct SV_orc_leaderAI : public ScriptedAI
         m_creature->GetMap()->PlayDirectSoundToMap(8212);
     }
 
-    void UpdateAI(uint32 const uiDiff) override
+    void UpdateAI(uint32 const uiDiff)  override
     {
         if (!m_creature->SelectHostileTarget() || !m_creature->GetVictim())
             return;
@@ -446,7 +449,7 @@ struct SV_orc_leaderAI : public ScriptedAI
         {
             switch (l_EventId)
             {
-            case EVENT_CLEAVE:
+                case EVENT_CLEAVE:
                 {
                     if (!m_blackDragon)
                     {
@@ -458,7 +461,7 @@ struct SV_orc_leaderAI : public ScriptedAI
 
                     break;
                 }
-            case EVENT_WARSTOMP:
+                case EVENT_WARSTOMP:
                 {
                     if (!m_blackDragon)
                     {
@@ -470,7 +473,7 @@ struct SV_orc_leaderAI : public ScriptedAI
 
                     break;
                 }
-            case EVENT_REND:
+                case EVENT_REND:
                 {
                     if (!m_blackDragon)
                     {
@@ -482,7 +485,7 @@ struct SV_orc_leaderAI : public ScriptedAI
 
                     break;
                 }
-            case EVENT_SUNDER_ARMOR:
+                case EVENT_SUNDER_ARMOR:
                 {
                     if (!m_blackDragon)
                     {
@@ -494,7 +497,7 @@ struct SV_orc_leaderAI : public ScriptedAI
 
                     break;
                 }
-            case EVENT_SLOW:
+                case EVENT_SLOW:
                 {
                     if (!m_blackDragon)
                     {
@@ -506,7 +509,7 @@ struct SV_orc_leaderAI : public ScriptedAI
 
                     break;
                 }
-            case EVENT_KNOCK:
+                case EVENT_KNOCK:
                 {
                     if (!m_blackDragon)
                     {
@@ -518,7 +521,7 @@ struct SV_orc_leaderAI : public ScriptedAI
 
                     break;
                 }
-            case EVENT_TRANSFORM:
+                case EVENT_TRANSFORM:
                 {
                     m_creature->SetDisplayId(6374);
                     m_events.ScheduleEvent(EVENT_BLAST_WAVE, 500);
@@ -526,12 +529,12 @@ struct SV_orc_leaderAI : public ScriptedAI
                         m_events.ScheduleEvent(EVENT_SHADOW_FLAME, 10000);
                     break;
                 }
-            case EVENT_BLAST_WAVE:
+                case EVENT_BLAST_WAVE:
                 {
                     DoCast(m_creature, SPELL_BLAST_WAVE);
                     break;
                 }
-            case EVENT_SHADOW_FLAME:
+                case EVENT_SHADOW_FLAME:
                 {
                     if (DoCastSpellIfCan(m_creature->GetVictim(), SPELL_DRAGON_BREATH) == CAST_OK)
                         m_events.Repeat(Seconds(20));
@@ -554,7 +557,10 @@ enum
 
 struct SV_trash_mobsAI : public ScriptedAI
 {
-    SV_trash_mobsAI(Creature* pCreature) : ScriptedAI(pCreature) { Reset(); }
+    SV_trash_mobsAI(Creature* pCreature) : ScriptedAI(pCreature)
+    {
+        Reset();
+    }
 
     bool m_isBlackDrakonoid;
     bool m_isTransformed;
@@ -562,7 +568,7 @@ struct SV_trash_mobsAI : public ScriptedAI
     void Reset() override
     {
         m_isTransformed = false;
-        m_isBlackDrakonoid = urand(0, 1);
+        m_isBlackDrakonoid = urand(0,1);
         m_creature->DeMorph();
         m_creature->LoadEquipment(m_creature->GetCreatureInfo()->equipment_id, true);
     }
@@ -574,7 +580,8 @@ struct SV_trash_mobsAI : public ScriptedAI
             if (pAttacker->IsCreature() && pAttacker->GetLevel() <= m_creature->GetLevel())
                 uiDamage = 0;
 
-            if (pAttacker->IsPlayer() && m_isBlackDrakonoid && !m_isTransformed && m_creature->GetHealth() > uiDamage)
+            if (pAttacker->IsPlayer() && m_isBlackDrakonoid && !m_isTransformed &&
+                m_creature->GetHealth() > uiDamage)
             {
                 m_creature->SetDisplayId(DISPLAY_ID_BLACK_DRAKONOID);
                 m_creature->SetVirtualItem(VIRTUAL_ITEM_SLOT_0, 3432);
@@ -606,13 +613,25 @@ struct SV_trash_mobsAI : public ScriptedAI
     }
 };
 
-CreatureAI* GetAI_SV_herald(Creature* pCreature) { return new SV_heraldAI(pCreature); }
+CreatureAI* GetAI_SV_herald(Creature* pCreature)
+{
+    return new SV_heraldAI(pCreature);
+}
 
-CreatureAI* GetAI_SV_human_leader(Creature* pCreature) { return new SV_human_leaderAI(pCreature); }
+CreatureAI* GetAI_SV_human_leader(Creature* pCreature)
+{
+    return new SV_human_leaderAI(pCreature);
+}
 
-CreatureAI* GetAI_SV_orc_leader(Creature* pCreature) { return new SV_orc_leaderAI(pCreature); }
+CreatureAI* GetAI_SV_orc_leader(Creature* pCreature)
+{
+    return new SV_orc_leaderAI(pCreature);
+}
 
-CreatureAI* GetAI_SV_trash_mobs(Creature* pCreature) { return new SV_trash_mobsAI(pCreature); }
+CreatureAI* GetAI_SV_trash_mobs(Creature* pCreature)
+{
+    return new SV_trash_mobsAI(pCreature);
+}
 
 void AddSC_bg_sunnyglade()
 {

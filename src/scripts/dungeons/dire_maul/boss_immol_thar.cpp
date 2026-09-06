@@ -2,8 +2,8 @@
  * Auteur        : Daemon
  * All rights reserved */
 
-#include "dire_maul.h"
 #include "scriptPCH.h"
+#include "dire_maul.h"
 
 enum
 {
@@ -19,7 +19,7 @@ struct boss_immol_tharAI : public ScriptedAI
 {
     boss_immol_tharAI(Creature* pCreature) : ScriptedAI(pCreature)
     {
-        m_pInstance = (instance_dire_maul*)pCreature->GetInstanceData();
+        m_pInstance = (instance_dire_maul*) pCreature->GetInstanceData();
         Reset();
     }
 
@@ -30,7 +30,7 @@ struct boss_immol_tharAI : public ScriptedAI
     uint32 m_uiPortalOfImmolTharTimer;
     uint32 m_uiEnrageTimer;
     uint32 CheckBug_Timer;
-    bool m_bEngage;
+    bool   m_bEngage;
 
     bool ManageTimer(uint32 const diff, uint32* timer, uint32 cooldown)
     {
@@ -63,13 +63,13 @@ struct boss_immol_tharAI : public ScriptedAI
     void EnterEvadeMode() override
     {
         m_creature->RemoveGuardians();
-
+        
         ScriptedAI::EnterEvadeMode();
     }
 
     void Aggro(Unit* pWho) override
     {
-        if (!m_bEngage)
+        if(!m_bEngage)
             m_bEngage = true;
     }
 
@@ -93,22 +93,27 @@ struct boss_immol_tharAI : public ScriptedAI
         if (m_creature->IsNonMeleeSpellCasted(false))
             return;
 
-        if (ManageTimer(uiDiff, &m_uiTrampleTimer, urand(9000, 14000)))
+        if (ManageTimer(uiDiff, &m_uiTrampleTimer,              urand(9000, 14000)))
             DoCastSpellIfCan(m_creature, SPELL_TRAMPLE);
 
-        if (ManageTimer(uiDiff, &m_uiInfectedBiteTimer, urand(8000, 12000)))
+        if (ManageTimer(uiDiff, &m_uiInfectedBiteTimer,         urand(8000, 12000)))
             DoCastSpellIfCan(m_creature->GetVictim(), SPELL_INFECTED_BITE);
 
-        if (ManageTimer(uiDiff, &m_uiEyeOfImmolTharTimer, urand(15000, 22000)))
+        if (ManageTimer(uiDiff, &m_uiEyeOfImmolTharTimer,       urand(15000, 22000)))
         {
-            if (Creature* tmp = m_creature->SummonCreature(14396, m_creature->GetPositionX(), m_creature->GetPositionY(), m_creature->GetPositionZ(), m_creature->GetOrientation(), TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5000))
+            if (Creature* tmp = m_creature->SummonCreature(14396,
+                m_creature->GetPositionX(),
+                m_creature->GetPositionY(),
+                m_creature->GetPositionZ(),
+                m_creature->GetOrientation(),
+                TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5000))
             {
                 m_creature->SendSpellGo(tmp, 25681);
                 tmp->Attack(m_creature->GetVictim(), true);
             }
         }
 
-        if (ManageTimer(uiDiff, &m_uiPortalOfImmolTharTimer, urand(17000, 24000)))
+        if (ManageTimer(uiDiff, &m_uiPortalOfImmolTharTimer,    urand(17000, 24000)))
         {
             if (Unit* pTarget = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 0))
             {
@@ -134,7 +139,10 @@ struct boss_immol_tharAI : public ScriptedAI
     }
 };
 
-CreatureAI* GetAI_boss_immol_thar(Creature* pCreature) { return new boss_immol_tharAI(pCreature); }
+CreatureAI* GetAI_boss_immol_thar(Creature* pCreature)
+{
+    return new boss_immol_tharAI(pCreature);
+}
 
 void AddSC_boss_immol_thar()
 {

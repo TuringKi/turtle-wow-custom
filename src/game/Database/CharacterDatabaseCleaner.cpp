@@ -19,15 +19,16 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#include "CharacterDatabaseCleaner.h"
 #include "Common.h"
-#include "DBCStores.h"
+#include "CharacterDatabaseCleaner.h"
+#include "World.h"
 #include "Database/DatabaseEnv.h"
-#include "Guild.h"
-#include "Player.h"
+#include "DBCStores.h"
 #include "SpellMgr.h"
 #include "Util.h"
-#include "World.h"
+#include "Player.h"
+#include "Util.h"
+#include "Guild.h"
 
 
 void CharacterDatabaseCleaner::CleanDatabase()
@@ -69,7 +70,7 @@ void CharacterDatabaseCleaner::CheckUnique(const char* column, const char* table
     std::ostringstream ss;
     do
     {
-        Field* fields = result->Fetch();
+        Field *fields = result->Fetch();
 
         uint32 id = fields[0].GetUInt32();
 
@@ -95,13 +96,25 @@ void CharacterDatabaseCleaner::CheckUnique(const char* column, const char* table
     }
 }
 
-bool CharacterDatabaseCleaner::SkillCheck(uint32 skill) { return sSkillLineStore.LookupEntry(skill); }
+bool CharacterDatabaseCleaner::SkillCheck(uint32 skill)
+{
+    return sSkillLineStore.LookupEntry(skill);
+}
 
-void CharacterDatabaseCleaner::CleanCharacterSkills() { CheckUnique("skill", "character_skills", &SkillCheck); }
+void CharacterDatabaseCleaner::CleanCharacterSkills()
+{
+    CheckUnique("skill", "character_skills", &SkillCheck);
+}
 
-bool CharacterDatabaseCleaner::SpellCheck(uint32 spell_id) { return sSpellMgr.GetSpellEntry(spell_id); }
+bool CharacterDatabaseCleaner::SpellCheck(uint32 spell_id)
+{
+    return sSpellMgr.GetSpellEntry(spell_id);
+}
 
-void CharacterDatabaseCleaner::CleanCharacterSpell() { CheckUnique("spell", "character_spell", &SpellCheck); }
+void CharacterDatabaseCleaner::CleanCharacterSpell()
+{
+    CheckUnique("spell", "character_spell", &SpellCheck);
+}
 
 void CharacterDatabaseCleaner::FreeInactiveCharacterNames()
 {
@@ -117,8 +130,7 @@ void CharacterDatabaseCleaner::FreeInactiveCharacterNames()
             Field* fields = pQuery->Fetch();
             uint32 accountId = fields[0].GetUInt32();
             bannedAccounts.insert(accountId);
-        }
-        while (pQuery->NextRow());
+        } while (pQuery->NextRow());
     }
     else
         sLog.outInfo("No banned accounts found.");
@@ -135,8 +147,7 @@ void CharacterDatabaseCleaner::FreeInactiveCharacterNames()
             Field* fields = pQuery->Fetch();
             uint32 accountId = fields[0].GetUInt32();
             notPlayedHyjalAccounts.insert(accountId);
-        }
-        while (pQuery->NextRow());
+        } while (pQuery->NextRow());
     }
     else
         sLog.outInfo("No Hyjal or Gurubashi accounts found.");
@@ -173,13 +184,16 @@ void CharacterDatabaseCleaner::FreeInactiveCharacterNames()
         if (bannedAccounts.find(accountId) != bannedAccounts.end())
             continue;
 
-        if ((notPlayedHyjalAccounts.find(accountId) != notPlayedHyjalAccounts.end()) || (logoutTime < sixMonthsAgo && level < 10) || (logoutTime < oneYearAgo && level < 20) || (logoutTime < twoYearsAgo && level < 40))
+        if ((notPlayedHyjalAccounts.find(accountId) != notPlayedHyjalAccounts.end()) ||
+            (logoutTime < sixMonthsAgo && level < 10) ||
+            (logoutTime < oneYearAgo && level < 20) ||
+            (logoutTime < twoYearsAgo && level < 40))
         {
             sLog.outInfo("Character %s (guid %u) will be renamed.", name.c_str(), guid);
             charsToRename.insert(guid);
         }
-    }
-    while (pQuery->NextRow());
+
+    } while (pQuery->NextRow());
 
     if (charsToRename.empty())
     {
@@ -221,8 +235,7 @@ void CharacterDatabaseCleaner::DeleteInactiveCharacters()
             Field* fields = pQuery->Fetch();
             uint32 accountId = fields[0].GetUInt32();
             bannedAccounts.insert(accountId);
-        }
-        while (pQuery->NextRow());
+        } while (pQuery->NextRow());
     }
     else
         sLog.outInfo("No banned accounts found.");
@@ -242,8 +255,7 @@ void CharacterDatabaseCleaner::DeleteInactiveCharacters()
         Field* fields = pQuery->Fetch();
         uint32 accountId = fields[0].GetUInt32();
         inactiveAccounts.insert(accountId);
-    }
-    while (pQuery->NextRow());
+    } while (pQuery->NextRow());
 
     sLog.outInfo("CharCleanup #3: Loading item count per character...");
     pQuery.reset(CharacterDatabase.Query("SELECT `guid`, COUNT(`item`) FROM `character_inventory` GROUP BY `guid`"));
@@ -257,8 +269,8 @@ void CharacterDatabaseCleaner::DeleteInactiveCharacters()
             uint32 itemsCount = fields[1].GetUInt32();
             if (itemsCount < 10)
                 lessThanTenItemsChars.insert(guid);
-        }
-        while (pQuery->NextRow());
+
+        } while (pQuery->NextRow());
     }
     else
         sLog.outInfo("No items found. Database is empty.");
@@ -275,7 +287,7 @@ void CharacterDatabaseCleaner::DeleteInactiveCharacters()
     {
         sLog.outInfo("No inactive characters found.");
         return;
-    }
+    }   
 
     do
     {
@@ -299,13 +311,14 @@ void CharacterDatabaseCleaner::DeleteInactiveCharacters()
             charsToDelete.insert(guid);
             sLog.outInfo("Inactive character %s (guid %u) will be deleted because its banned.", name.c_str(), guid);
         }
-        else if (money < 5 * GOLD && level < 10 && lessThanTenItemsChars.find(guid) != lessThanTenItemsChars.end())
+        else if (money < 5 * GOLD && level < 10 &&
+                 lessThanTenItemsChars.find(guid) != lessThanTenItemsChars.end())
         {
             charsToDelete.insert(guid);
             sLog.outInfo("Inactive character %s (guid %u) will be deleted because its low level.", name.c_str(), guid);
         }
-    }
-    while (pQuery->NextRow());
+
+    } while (pQuery->NextRow());
 
     if (charsToDelete.empty())
     {

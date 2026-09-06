@@ -5,9 +5,9 @@
  * absent permission of Nolin.
  */
 
-#include "boss_chronormu.hpp"
-#include "black_morass.h"
 #include "scriptPCH.h"
+#include "black_morass.h"
+#include "boss_chronormu.hpp"
 
 
 class boss_chronormuAI : public ScriptedAI
@@ -20,6 +20,7 @@ public:
     }
 
 private:
+
     uint32 m_uiCleave_Timer{};
     uint32 m_uiSandBreath_Timer{};
     uint32 m_uiTimeStop_Timer{};
@@ -125,12 +126,15 @@ public:
     }
 };
 
-CreatureAI* GetAI_boss_chronormu(Creature* pCreature) { return new boss_chronormuAI(pCreature); }
+CreatureAI* GetAI_boss_chronormu(Creature* pCreature)
+{
+    return new boss_chronormuAI(pCreature);
+}
 
 
 void AddSC_boss_chronormu()
 {
-    Script* pNewscript{new Script};
+    Script* pNewscript{ new Script };
     pNewscript->Name = "boss_chronormu";
     pNewscript->GetAI = &GetAI_boss_chronormu;
     pNewscript->RegisterSelf();

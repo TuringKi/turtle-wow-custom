@@ -23,7 +23,7 @@
 #include "Player.h"
 #include "World.h"
 
-Quest::Quest(Field* questRecord)
+Quest::Quest(Field * questRecord)
 {
     QuestId = questRecord[0].GetUInt32();
     QuestMethod = questRecord[1].GetUInt32();
@@ -171,7 +171,7 @@ Quest::Quest(Field* questRecord)
     }
 }
 
-uint32 Quest::XPValue(Player* pPlayer) const
+uint32 Quest::XPValue(Player *pPlayer) const
 {
     if (pPlayer)
     {
@@ -181,7 +181,7 @@ uint32 Quest::XPValue(Player* pPlayer) const
             uint32 qLevel = QuestLevel;
             float fullxp = RewXP;
 
-            ///- Turtle WoW custom settings:
+            ///- Turtle WoW custom settings: 
             if (pLevel <= qLevel + 25)
                 return uint32(ceilf(fullxp));
             else if (pLevel == qLevel + 26)
@@ -201,7 +201,7 @@ uint32 Quest::XPValue(Player* pPlayer) const
     return 0;
 }
 
-int32 Quest::GetRewOrReqMoney() const
+int32  Quest::GetRewOrReqMoney() const
 {
     if (RewOrReqMoney <= 0)
         return RewOrReqMoney;

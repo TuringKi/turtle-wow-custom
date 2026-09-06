@@ -25,51 +25,51 @@
 #ifndef MANGOS_H_AUTHCRYPT
 #define MANGOS_H_AUTHCRYPT
 
-#include <vector>
 #include "Common.h"
+#include <vector>
 
 class BigNumber;
 
 class AuthCrypt
 {
-public:
-    AuthCrypt();
-    ~AuthCrypt();
+    public:
+        AuthCrypt();
+        ~AuthCrypt();
 
-    const static size_t CRYPTED_SEND_LEN = 4;
-    const static size_t CRYPTED_RECV_LEN = 6;
+        const static size_t CRYPTED_SEND_LEN = 4;
+        const static size_t CRYPTED_RECV_LEN = 6;
 
-    void Init();
+        void Init();
 
-    void SetKey(const std::vector<uint8>& key);
-    void SetKey(uint8* key, size_t len);
+        void SetKey(const std::vector<uint8>& key);
+        void SetKey(uint8* key, size_t len);
 
-    void DecryptRecv(uint8*, size_t);
-    void EncryptSend(uint8*, size_t);
+        void DecryptRecv(uint8*, size_t);
+        void EncryptSend(uint8*, size_t);
 
-    bool IsInitialized() { return _initialized; }
+        bool IsInitialized() { return _initialized; }
 
-    static void GenerateKey(uint8*, BigNumber*);
+        static void GenerateKey(uint8*, BigNumber*);
 
-private:
-    std::vector<uint8> _key;
-    uint8 _send_i, _send_j, _recv_i, _recv_j;
-    bool _initialized;
+    private:
+        std::vector<uint8> _key;
+        uint8 _send_i, _send_j, _recv_i, _recv_j;
+        bool _initialized;
 };
 
 
 class NoCrypt
 {
-public:
-    NoCrypt() {}
+    public:
+        NoCrypt() {}
 
-    void Init() {}
+        void Init() {}
 
-    void SetKey(const std::vector<uint8>& key) {}
-    void SetKey(uint8* key, size_t len) {}
+        void SetKey(const std::vector<uint8>& key) {}
+        void SetKey(uint8* key, size_t len) {}
 
-    void DecryptRecv(uint8*, size_t) {}
-    void EncryptSend(uint8*, size_t) {}
+        void DecryptRecv(uint8*, size_t) {}
+        void EncryptSend(uint8*, size_t) {}
 };
 
 #endif

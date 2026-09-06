@@ -5,9 +5,9 @@
  * absent permission of Nolin.
  */
 
-#include "boss_abbendis.hpp"
-#include "scarlet_citadel.h"
 #include "scriptPCH.h"
+#include "scarlet_citadel.h"
+#include "boss_abbendis.hpp"
 
 
 class boss_abbendisAI : public ScriptedAI
@@ -20,10 +20,14 @@ public:
     }
 
 private:
+
     instance_scarlet_citadel* m_pInstance{};
 
 public:
-    void Reset() override {}
+    void Reset() override
+    {
+
+    }
 
     void Aggro(Unit* /*pWho*/) override
     {
@@ -38,7 +42,7 @@ public:
     {
         if (!m_pInstance)
             return;
-
+        
         m_pInstance->SetData(ScarletCitadelEncounter::TYPE_ABBENDIS, FAIL);
     }
 
@@ -46,7 +50,7 @@ public:
     {
         if (!m_pInstance)
             return;
-
+    
         m_creature->SetRespawnDelay(604800);
 
         m_pInstance->SetData(ScarletCitadelEncounter::TYPE_ABBENDIS, DONE);
@@ -61,7 +65,10 @@ public:
     }
 };
 
-CreatureAI* GetAI_boss_abbendis(Creature* pCreature) { return new boss_abbendisAI(pCreature); }
+CreatureAI* GetAI_boss_abbendis(Creature* pCreature)
+{
+    return new boss_abbendisAI(pCreature);
+}
 
 void AddSC_boss_abbendis()
 {

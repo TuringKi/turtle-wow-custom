@@ -2,27 +2,30 @@
 #include "scriptPCH.h"
 
 
-static constexpr int32 VOICE_SCRIPT_OOC_0{-1999950};
-static constexpr int32 VOICE_SCRIPT_OOC_1{-1999951};
-static constexpr int32 VOICE_SCRIPT_OOC_2{-1999952};
-static constexpr int32 VOICE_SCRIPT_AGGRO{-1999953};
-static constexpr int32 VOICE_SCRIPT_DEAD{-1999954};
+static constexpr int32 VOICE_SCRIPT_OOC_0{ -1999950 };
+static constexpr int32 VOICE_SCRIPT_OOC_1{ -1999951 };
+static constexpr int32 VOICE_SCRIPT_OOC_2{ -1999952 };
+static constexpr int32 VOICE_SCRIPT_AGGRO{ -1999953 };
+static constexpr int32 VOICE_SCRIPT_DEAD{ -1999954 };
 
-static constexpr uint32 SPELL_STUNNING_STRIKE{5703};
-static constexpr uint32 SPELL_MORTAL_STRIKE{27580};
-static constexpr uint32 SPELL_DEMORALIZING_SHOUT{27579};
+static constexpr uint32 SPELL_STUNNING_STRIKE{ 5703 };
+static constexpr uint32 SPELL_MORTAL_STRIKE{ 27580 };
+static constexpr uint32 SPELL_DEMORALIZING_SHOUT{ 27579 };
 
 class boss_bargul_blackhammerAI : public ScriptedAI
 {
 public:
-    explicit boss_bargul_blackhammerAI(Creature* pCreature) : ScriptedAI(pCreature) { boss_bargul_blackhammerAI::Reset(); }
+    explicit boss_bargul_blackhammerAI(Creature* pCreature) : ScriptedAI(pCreature)
+    {
+        boss_bargul_blackhammerAI::Reset();
+    }
 
     uint32 m_uiStunningStrike_Timer{};
     uint32 m_uiMortalStrike_Timer{};
     uint32 m_uiDemoralizingShout_Timer{};
     uint32 m_uiVoiceScriptOOC_Timer{};
 
-    const std::vector<int32> m_vVoiceScriptsOOC{VOICE_SCRIPT_OOC_0, VOICE_SCRIPT_OOC_1, VOICE_SCRIPT_OOC_2};
+    const std::vector<int32> m_vVoiceScriptsOOC{ VOICE_SCRIPT_OOC_0, VOICE_SCRIPT_OOC_1, VOICE_SCRIPT_OOC_2 };
 
     void Reset() override
     {
@@ -33,9 +36,15 @@ public:
         m_uiVoiceScriptOOC_Timer = 60000;
     }
 
-    void Aggro(Unit* /*pWho*/) override { DoScriptText(VOICE_SCRIPT_AGGRO, m_creature); }
+    void Aggro(Unit* /*pWho*/) override
+    {
+        DoScriptText(VOICE_SCRIPT_AGGRO, m_creature);
+    }
 
-    void JustDied(Unit* /*pKiller*/) override { DoScriptText(VOICE_SCRIPT_DEAD, m_creature); }
+    void JustDied(Unit* /*pKiller*/) override
+    {
+        DoScriptText(VOICE_SCRIPT_DEAD, m_creature);
+    }
 
     void CastStunningStrike(const uint32& uiDiff)
     {
@@ -114,7 +123,10 @@ public:
     }
 };
 
-CreatureAI* GetAI_boss_bargul_blackhammerAI(Creature* pCreature) { return new boss_bargul_blackhammerAI(pCreature); }
+CreatureAI* GetAI_boss_bargul_blackhammerAI(Creature* pCreature)
+{
+    return new boss_bargul_blackhammerAI(pCreature);
+}
 
 
 void AddSC_boss_bargul_blackhammer()

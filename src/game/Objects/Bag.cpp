@@ -20,12 +20,12 @@
  */
 
 #include "Bag.h"
+#include "ObjectMgr.h"
 #include "Database/DatabaseEnv.h"
 #include "Log.h"
-#include "ObjectMgr.h"
 #include "UpdateData.h"
 
-Bag::Bag() : Item()
+Bag::Bag(): Item()
 {
     m_objectType |= (TYPEMASK_ITEM | TYPEMASK_CONTAINER);
     m_objectTypeId = TYPEID_CONTAINER;
@@ -45,7 +45,7 @@ void Bag::AddToWorld()
 {
     Item::AddToWorld();
 
-    for (uint32 i = 0; i < GetBagSize(); ++i)
+    for (uint32 i = 0;  i < GetBagSize(); ++i)
         if (m_bagslot[i])
             m_bagslot[i]->AddToWorld();
 }
@@ -91,7 +91,10 @@ bool Bag::Create(uint32 guidlow, uint32 itemid, ObjectGuid ownerGuid)
     return true;
 }
 
-void Bag::SaveToDB(bool direct) { Item::SaveToDB(direct); }
+void Bag::SaveToDB(bool direct)
+{
+    Item::SaveToDB(direct);
+}
 
 bool Bag::LoadFromDB(uint32 guidLow, ObjectGuid ownerGuid, Field* fields, uint32 entry)
 {
@@ -262,3 +265,4 @@ uint32 Bag::RemoveItems(uint32 itemId, uint32 ReqCount)
 
     return ReqCount - LastCount;
 }
+

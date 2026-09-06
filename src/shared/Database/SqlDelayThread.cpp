@@ -23,27 +23,40 @@
 #include "Database/SqlOperations.h"
 #include "DatabaseEnv.h"
 
-SqlDelayThread::SqlDelayThread(const char* InName, Database* db, SqlConnection* conn) : m_dbEngine(db), m_dbConnection(conn), m_running(true), Name(InName) {}
+SqlDelayThread::SqlDelayThread(const char* InName, Database* db, SqlConnection* conn)
+    : m_dbEngine(db), m_dbConnection(conn), m_running(true), Name(InName ? InName : "")
+{
+}
 
 SqlDelayThread::~SqlDelayThread()
 {
-    // process all requests which might have been queued while thread was stopping
+    //process all requests which might have been queued while thread was stopping
     ProcessRequests();
     delete m_dbConnection;
 }
 
-void SqlDelayThread::addSerialOperation(SqlOperation* op) { m_serialDelayQueue.add(op); }
+void SqlDelayThread::addSerialOperation(SqlOperation *op)
+{
+    m_serialDelayQueue.add(op);
+}
 
-bool SqlDelayThread::HasAsyncQuery() { return !m_serialDelayQueue.empty_unsafe(); }
+bool SqlDelayThread::HasAsyncQuery()
+{
+    return !m_serialDelayQueue.empty_unsafe();
+}
 
 void SqlDelayThread::run()
 {
-#ifndef DO_POSTGRESQL
+    #ifndef DO_POSTGRESQL
     mysql_thread_init();
-#endif
+    #endif
 
     char ThreadName[128];
-    sprintf(ThreadName, "SqlDelay %s", Name);
+    // snprintf, not sprintf: the source used to be a dangling pointer, so
+    // whether this overflowed came down to where the next zero byte happened
+    // to sit in a reused stack frame. The name is owned now, but a bounded
+    // write costs nothing and closes the door.
+    snprintf(ThreadName, sizeof(ThreadName), "SqlDelay %s", Name.c_str());
 
     thread_name(ThreadName);
     const uint32 loopSleepms = 10;
@@ -59,7 +72,7 @@ void SqlDelayThread::run()
 
         ProcessRequests();
 
-        if ((loopCounter++) >= pingEveryLoop)
+        if((loopCounter++) >= pingEveryLoop)
         {
             loopCounter = 0;
             m_dbEngine->Ping();
@@ -68,12 +81,15 @@ void SqlDelayThread::run()
         }
     }
 
-#ifndef DO_POSTGRESQL
+    #ifndef DO_POSTGRESQL
     mysql_thread_end();
-#endif
+    #endif
 }
 
-void SqlDelayThread::Stop() { m_running = false; }
+void SqlDelayThread::Stop()
+{
+    m_running = false;
+}
 
 void SqlDelayThread::ProcessRequests()
 {

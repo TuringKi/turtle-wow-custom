@@ -20,16 +20,17 @@
  */
 
 #include "TotemAI.h"
+#include "Totem.h"
 #include "Creature.h"
 #include "DBCStores.h"
+#include "Player.h"
 #include "SpellMgr.h"
-#include "Totem.h"
 
-#include "CellImpl.h"
 #include "GridNotifiers.h"
 #include "GridNotifiersImpl.h"
+#include "CellImpl.h"
 
-int TotemAI::Permissible(const Creature* creature)
+int TotemAI::Permissible(const Creature *creature)
 {
     if (creature->IsTotem())
         return PERMIT_BASE_PROACTIVE;
@@ -37,7 +38,7 @@ int TotemAI::Permissible(const Creature* creature)
     return PERMIT_BASE_NO;
 }
 
-TotemAI::TotemAI(Creature* pCreature) : CreatureAI(pCreature)
+TotemAI::TotemAI(Creature *pCreature) : CreatureAI(pCreature)
 {
     pCreature->AddUnitState(UNIT_STAT_NO_SEARCH_FOR_OTHERS);
 
@@ -45,7 +46,7 @@ TotemAI::TotemAI(Creature* pCreature) : CreatureAI(pCreature)
     {
         m_spellId = pTotem->GetSpell();
         m_totemType = pTotem->GetTotemType();
-    }
+    }  
     else
     {
         m_spellId = m_creature->GetCreatureInfo()->spells[0];
@@ -62,6 +63,14 @@ TotemAI::TotemAI(Creature* pCreature) : CreatureAI(pCreature)
     }
 }
 
+void TotemAI::AttackStart(Unit* target)
+{
+    if (m_totemType != TOTEM_ACTIVE || !target || !target->IsAlive() || !m_creature->IsValidAttackTarget(target))
+        return;
+
+    m_victimGuid = target->GetObjectGuid();
+}
+
 void TotemAI::UpdateAI(const uint32 /*diff*/)
 {
     if (m_totemType != TOTEM_ACTIVE)
@@ -70,7 +79,7 @@ void TotemAI::UpdateAI(const uint32 /*diff*/)
     if (!m_creature->IsAlive() || m_creature->IsNonMeleeSpellCasted(false))
         return;
 
-    SpellEntry const* spellInfo = sSpellMgr.GetSpellEntry(m_spellId);
+    SpellEntry const *spellInfo = sSpellMgr.GetSpellEntry(m_spellId);
     if (!spellInfo)
         return;
 
@@ -79,13 +88,16 @@ void TotemAI::UpdateAI(const uint32 /*diff*/)
 
     Unit* victim = m_creature->GetMap()->GetUnit(m_victimGuid);
     Unit* owner = m_creature->GetCharmerOrOwner();
+    if (Player* modOwner = m_creature->GetSpellModOwner())
+        modOwner->ApplySpellMod(spellInfo->Id, SPELLMOD_RANGE, max_range, nullptr);
 
     // Check owner's attackers for targets.
     if (!victim && owner)
         victim = owner->GetAttackerForHelper();
 
     // Search for another target if current is invalid.
-    if (!victim || !m_creature->IsWithinDistInMap(victim, max_range) || !m_creature->IsValidAttackTarget(victim) || !victim->IsVisibleForOrDetect(m_creature, m_creature, false))
+    if (!victim || !m_creature->IsWithinDistInMap(victim, max_range) ||
+            !m_creature->IsValidAttackTarget(victim) || !victim->IsVisibleForOrDetect(m_creature, m_creature, false))
     {
         victim = nullptr;
 
@@ -98,7 +110,7 @@ void TotemAI::UpdateAI(const uint32 /*diff*/)
     {
         m_victimGuid = victim->GetObjectGuid();
 
-        m_creature->SetInFront(victim); // client change orientation by self
+        m_creature->SetInFront(victim);                      // client change orientation by self
         m_creature->CastSpell(victim, m_spellId, false);
     }
     else

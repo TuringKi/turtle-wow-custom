@@ -9,8 +9,7 @@ namespace checkegglogs
         static void Main(string[] args)
         {
             MySqlConnectionStringBuilder connectionStringBuilder = new MySqlConnectionStringBuilder();
-            //MySqlConnection conn = new MySqlConnection("server=127.0.0.1;uid=root;pwd=ikm123;Database=turtle_char;Port=3306");
-            MySqlConnection conn = new MySqlConnection("server=127.0.0.1;uid=ff;pwd=df;Database=char;Port=3307");
+            MySqlConnection conn = new MySqlConnection("server=127.0.0.1;uid=mangos;pwd=mangos;Database=char;Port=3307");
             conn.Open();
 
             var comme = new MySqlCommand("SELECT guid FROM characters", conn);

@@ -53,11 +53,20 @@ enum
     NPC_RAGING_AGAMAR = 4514
 };
 
-static const float aBoarSpawn[4][3] = {{2151.420f, 1733.18f, 52.10f}, {2144.463f, 1726.89f, 51.93f}, {1956.433f, 1597.97f, 81.75f}, {1958.971f, 1599.01f, 81.44f}};
+static const float aBoarSpawn[4][3] =
+{
+    {2151.420f, 1733.18f, 52.10f},
+    {2144.463f, 1726.89f, 51.93f},
+    {1956.433f, 1597.97f, 81.75f},
+    {1958.971f, 1599.01f, 81.44f}
+};
 
 struct npc_willix_the_importerAI : public npc_escortAI
 {
-    npc_willix_the_importerAI(Creature* m_creature) : npc_escortAI(m_creature) { Reset(); }
+    npc_willix_the_importerAI(Creature* m_creature) : npc_escortAI(m_creature)
+    {
+        Reset();
+    }
 
     void Reset() override {}
 
@@ -70,69 +79,75 @@ struct npc_willix_the_importerAI : public npc_escortAI
     // Exact use of these texts remains unknown, it seems that he should only talk when he initiates the attack or he is the first who is attacked by a npc
     void Aggro(Unit* pWho) override
     {
-        switch (urand(0, 6)) // Not always said
+        switch (urand(0, 6))                                // Not always said
         {
-        case 0:
-            DoScriptText(SAY_WILLIX_AGGRO_1, m_creature, pWho);
-            break;
-        case 1:
-            DoScriptText(SAY_WILLIX_AGGRO_2, m_creature, pWho);
-            break;
-        case 2:
-            DoScriptText(SAY_WILLIX_AGGRO_3, m_creature, pWho);
-            break;
-        case 3:
-            DoScriptText(SAY_WILLIX_AGGRO_4, m_creature, pWho);
-            break;
+            case 0:
+                DoScriptText(SAY_WILLIX_AGGRO_1, m_creature, pWho);
+                break;
+            case 1:
+                DoScriptText(SAY_WILLIX_AGGRO_2, m_creature, pWho);
+                break;
+            case 2:
+                DoScriptText(SAY_WILLIX_AGGRO_3, m_creature, pWho);
+                break;
+            case 3:
+                DoScriptText(SAY_WILLIX_AGGRO_4, m_creature, pWho);
+                break;
         }
     }
 
-    void JustSummoned(Creature* pSummoned) override { pSummoned->AI()->AttackStart(m_creature); }
+    void JustSummoned(Creature* pSummoned) override
+    {
+        pSummoned->AI()->AttackStart(m_creature);
+    }
 
     void WaypointReached(uint32 uiPointId) override
     {
         switch (uiPointId)
         {
-        case 2:
-            DoScriptText(SAY_WILLIX_1, m_creature);
-            break;
-        case 6:
-            DoScriptText(SAY_WILLIX_2, m_creature);
-            break;
-        case 9:
-            DoScriptText(SAY_WILLIX_3, m_creature);
-            break;
-        case 14:
-            DoScriptText(SAY_WILLIX_4, m_creature);
-            // Summon 2 boars on the pathway
-            m_creature->SummonCreature(NPC_RAGING_AGAMAR, aBoarSpawn[0][0], aBoarSpawn[0][1], aBoarSpawn[0][2], 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
-            m_creature->SummonCreature(NPC_RAGING_AGAMAR, aBoarSpawn[1][0], aBoarSpawn[1][1], aBoarSpawn[1][2], 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
-            break;
-        case 25:
-            DoScriptText(SAY_WILLIX_5, m_creature);
-            break;
-        case 33:
-            DoScriptText(SAY_WILLIX_6, m_creature);
-            break;
-        case 44:
-            DoScriptText(SAY_WILLIX_7, m_creature);
-            // Summon 2 boars at the end
-            m_creature->SummonCreature(NPC_RAGING_AGAMAR, aBoarSpawn[2][0], aBoarSpawn[2][1], aBoarSpawn[2][2], 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
-            m_creature->SummonCreature(NPC_RAGING_AGAMAR, aBoarSpawn[3][0], aBoarSpawn[3][1], aBoarSpawn[3][2], 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
-            break;
-        case 45:
-            DoScriptText(SAY_WILLIX_END, m_creature);
-            m_creature->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
-            // Complete event
-            if (Player* pPlayer = GetPlayerForEscort())
-                pPlayer->GroupEventHappens(QUEST_WILLIX_THE_IMPORTER, m_creature);
-            SetEscortPaused(true);
-            break;
+            case 2:
+                DoScriptText(SAY_WILLIX_1, m_creature);
+                break;
+            case 6:
+                DoScriptText(SAY_WILLIX_2, m_creature);
+                break;
+            case 9:
+                DoScriptText(SAY_WILLIX_3, m_creature);
+                break;
+            case 14:
+                DoScriptText(SAY_WILLIX_4, m_creature);
+                // Summon 2 boars on the pathway
+                m_creature->SummonCreature(NPC_RAGING_AGAMAR, aBoarSpawn[0][0], aBoarSpawn[0][1], aBoarSpawn[0][2], 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
+                m_creature->SummonCreature(NPC_RAGING_AGAMAR, aBoarSpawn[1][0], aBoarSpawn[1][1], aBoarSpawn[1][2], 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
+                break;
+            case 25:
+                DoScriptText(SAY_WILLIX_5, m_creature);
+                break;
+            case 33:
+                DoScriptText(SAY_WILLIX_6, m_creature);
+                break;
+            case 44:
+                DoScriptText(SAY_WILLIX_7, m_creature);
+                // Summon 2 boars at the end
+                m_creature->SummonCreature(NPC_RAGING_AGAMAR, aBoarSpawn[2][0], aBoarSpawn[2][1], aBoarSpawn[2][2], 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
+                m_creature->SummonCreature(NPC_RAGING_AGAMAR, aBoarSpawn[3][0], aBoarSpawn[3][1], aBoarSpawn[3][2], 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
+                break;
+            case 45:
+                DoScriptText(SAY_WILLIX_END, m_creature);
+                m_creature->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
+                // Complete event
+                if (Player* pPlayer = GetPlayerForEscort())
+                    pPlayer->GroupEventHappens(QUEST_WILLIX_THE_IMPORTER, m_creature);
+                SetEscortPaused(true);
+                break;
         }
     }
 };
 
-CreatureAI* GetAI_npc_willix_the_importer(Creature* pCreature) { return new npc_willix_the_importerAI(pCreature); }
+CreatureAI* GetAI_npc_willix_the_importer(Creature* pCreature)
+{
+    return new npc_willix_the_importerAI(pCreature);
+}
 
 bool QuestAccept_npc_willix_the_importer(Player* pPlayer, Creature* pCreature, const Quest* pQuest)
 {
@@ -157,18 +172,18 @@ bool QuestAccept_npc_willix_the_importer(Player* pPlayer, Creature* pCreature, c
 
 enum
 {
-    SPELL_SNUFFLENOSE_COMMAND = 8283,
-    NPC_SNUFFLENOSE_GOPHER = 4781,
-    GO_BLUELEAF_TUBER = 20920,
+    SPELL_SNUFFLENOSE_COMMAND   = 8283,
+    NPC_SNUFFLENOSE_GOPHER      = 4781,
+    GO_BLUELEAF_TUBER           = 20920,
 
-    SAY_GOPHER_SPAWN = -1780223,
-    SAY_GOPHER_COMMAND = -1780224,
-    SAY_GOPHER_FOUND = -1780225
+    SAY_GOPHER_SPAWN            = -1780223,
+    SAY_GOPHER_COMMAND          = -1780224,
+    SAY_GOPHER_FOUND            = -1780225
 };
 
 struct npc_snufflenose_gopherAI : public FollowerAI
 {
-    npc_snufflenose_gopherAI(Creature* pCreature) : FollowerAI(pCreature)
+    npc_snufflenose_gopherAI(Creature* pCreature) :  FollowerAI(pCreature)
     {
         Reset();
         DoScriptText(SAY_GOPHER_SPAWN, m_creature);
@@ -212,13 +227,13 @@ struct npc_snufflenose_gopherAI : public FollowerAI
         }
 
         // Wait for 5 seconds after uncovering tuber before following again
-        m_followPausedTimer = 5000;
+        m_followPausedTimer = 5000; 
         m_bIsMovementActive = false;
     }
 
     // Function to search for new tuber in range
     void DoFindNewTuber()
-    {
+    {   
         std::list<GameObject*> lTubersInRange;
         GetGameObjectListWithEntryInGrid(lTubersInRange, m_creature, GO_BLUELEAF_TUBER, 60.0f);
 
@@ -284,9 +299,13 @@ struct npc_snufflenose_gopherAI : public FollowerAI
 
         FollowerAI::UpdateAI(uiDiff);
     }
+
 };
 
-CreatureAI* GetAI_npc_snufflenose_gopher(Creature* pCreature) { return new npc_snufflenose_gopherAI(pCreature); }
+CreatureAI* GetAI_npc_snufflenose_gopher(Creature* pCreature)
+{
+    return new npc_snufflenose_gopherAI(pCreature);
+}
 
 bool EffectDummyCreature_npc_snufflenose_gopher(WorldObject* pCaster, uint32 uiSpellId, SpellEffectIndex uiEffIndex, Creature* pCreatureTarget)
 {
@@ -338,7 +357,10 @@ enum
 
 struct RazorfenDefenderAI : public ScriptedAI
 {
-    RazorfenDefenderAI(Creature* pCreature) : ScriptedAI(pCreature) { Reset(); }
+    RazorfenDefenderAI(Creature* pCreature) : ScriptedAI(pCreature)
+    {
+        Reset();
+    }
 
     uint32 m_uiImprovedBlocking_Timer;
     uint32 m_uiShieldBash_Timer;
@@ -350,7 +372,10 @@ struct RazorfenDefenderAI : public ScriptedAI
         DoCastSpellIfCan(m_creature, SPELL_DEFENSIVE_STANCE, true);
     }
 
-    void Aggro(Unit* pWho) override { m_creature->SetInCombatWithZone(); }
+    void Aggro(Unit* pWho) override
+    {
+        m_creature->SetInCombatWithZone();
+    }
 
     void UpdateAI(const uint32 uiDiff) override
     {
@@ -377,7 +402,10 @@ struct RazorfenDefenderAI : public ScriptedAI
     }
 };
 
-CreatureAI* GetAI_RazorfenDefenderAI(Creature* pCreature) { return new RazorfenDefenderAI(pCreature); }
+CreatureAI* GetAI_RazorfenDefenderAI(Creature* pCreature)
+{
+    return new RazorfenDefenderAI(pCreature);
+}
 
 void AddSC_razorfen_kraul()
 {

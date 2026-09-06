@@ -35,14 +35,26 @@ EndContentData */
 
 struct npc_astor_hadrenAI : public ScriptedAI
 {
-    npc_astor_hadrenAI(Creature* pCreature) : ScriptedAI(pCreature) { Reset(); }
+    npc_astor_hadrenAI(Creature* pCreature) : ScriptedAI(pCreature)
+    {
+        Reset();
+    }
 
-    void Reset() override { m_creature->SetFactionTemplateId(68); }
+    void Reset() override
+    {
+        m_creature->SetFactionTemplateId(68);
+    }
 
-    void JustDied(Unit* who) override { m_creature->SetFactionTemplateId(68); }
+    void JustDied(Unit *who) override
+    {
+        m_creature->SetFactionTemplateId(68);
+    }
 };
 
-CreatureAI* GetAI_npc_astor_hadren(Creature* _creature) { return new npc_astor_hadrenAI(_creature); }
+CreatureAI* GetAI_npc_astor_hadren(Creature *_creature)
+{
+    return new npc_astor_hadrenAI(_creature);
+}
 
 bool GossipHello_npc_astor_hadren(Player* pPlayer, Creature* pCreature)
 {
@@ -58,15 +70,15 @@ bool GossipSelect_npc_astor_hadren(Player* pPlayer, Creature* pCreature, uint32 
 {
     switch (uiAction)
     {
-    case GOSSIP_ACTION_INFO_DEF + 1:
-        pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "You've got something I need, Astor. And I'll be taking it now.", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
-        pPlayer->SEND_GOSSIP_MENU(624, pCreature->GetGUID());
-        break;
-    case GOSSIP_ACTION_INFO_DEF + 2:
-        pPlayer->CLOSE_GOSSIP_MENU();
-        pCreature->SetFactionTemplateId(21);
-        ((npc_astor_hadrenAI*)pCreature->AI())->AttackStart(pPlayer);
-        break;
+        case GOSSIP_ACTION_INFO_DEF + 1:
+            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "You've got something I need, Astor. And I'll be taking it now.", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
+            pPlayer->SEND_GOSSIP_MENU(624, pCreature->GetGUID());
+            break;
+        case GOSSIP_ACTION_INFO_DEF + 2:
+            pPlayer->CLOSE_GOSSIP_MENU();
+            pCreature->SetFactionTemplateId(21);
+            ((npc_astor_hadrenAI*)pCreature->AI())->AttackStart(pPlayer);
+            break;
     }
     return true;
 }
@@ -77,24 +89,24 @@ bool GossipSelect_npc_astor_hadren(Player* pPlayer, Creature* pCreature, uint32 
 
 enum DeathstalkerErlandData
 {
-    SAY_START_1 = 481,
-    SAY_START_2 = 482,
-    SAY_AGGRO_1 = 543,
-    SAY_AGGRO_2 = 544,
-    SAY_AGGRO_3 = 541,
-    SAY_PROGRESS = 483,
-    SAY_END = 484,
-    SAY_RANE = 534,
-    SAY_RANE_REPLY = 535,
-    SAY_CHECK_NEXT = 536,
-    SAY_QUINN = 537,
-    SAY_QUINN_REPLY = 539,
-    SAY_BYE = 538,
+    SAY_START_1         = 481,
+    SAY_START_2         = 482,
+    SAY_AGGRO_1         = 543,
+    SAY_AGGRO_2         = 544,
+    SAY_AGGRO_3         = 541,
+    SAY_PROGRESS        = 483,
+    SAY_END             = 484,
+    SAY_RANE            = 534,
+    SAY_RANE_REPLY      = 535,
+    SAY_CHECK_NEXT      = 536,
+    SAY_QUINN           = 537,
+    SAY_QUINN_REPLY     = 539,
+    SAY_BYE             = 538,
 
-    QUEST_ERLAND = 435,
-    NPC_RANE = 1950,
-    NPC_QUINN = 1951,
-    FACTION_ESCORTEE = 232
+    QUEST_ERLAND        = 435,
+    NPC_RANE            = 1950,
+    NPC_QUINN           = 1951,
+    FACTION_ESCORTEE    = 232
 };
 
 struct npc_deathstalker_erlandAI : public npc_escortAI
@@ -137,33 +149,33 @@ struct npc_deathstalker_erlandAI : public npc_escortAI
 
         switch (i)
         {
-        case 0:
-            DoScriptText(SAY_START_2, m_creature, pPlayer);
-            break;
-        case 13:
-            DoScriptText(SAY_END, m_creature, pPlayer);
-            pPlayer->GroupEventHappens(QUEST_ERLAND, m_creature);
-            break;
-        case 14:
-            if (Unit* pRane = m_creature->GetMap()->GetUnit(uiRaneGUID))
-                DoScriptText(SAY_RANE, pRane, m_creature);
-            break;
-        case 15:
-            DoScriptText(SAY_RANE_REPLY, m_creature);
-            break;
-        case 16:
-            DoScriptText(SAY_CHECK_NEXT, m_creature);
-            break;
-        case 24:
-            DoScriptText(SAY_QUINN, m_creature);
-            break;
-        case 25:
-            if (Unit* pQuinn = m_creature->GetMap()->GetUnit(uiQuinnGUID))
-                DoScriptText(SAY_QUINN_REPLY, pQuinn, m_creature);
-            break;
-        case 26:
-            DoScriptText(SAY_BYE, m_creature);
-            break;
+            case 0:
+                DoScriptText(SAY_START_2, m_creature, pPlayer);
+                break;
+            case 13:
+                DoScriptText(SAY_END, m_creature, pPlayer);
+                pPlayer->GroupEventHappens(QUEST_ERLAND, m_creature);
+                break;
+            case 14:
+                if (Unit* pRane = m_creature->GetMap()->GetUnit(uiRaneGUID))
+                    DoScriptText(SAY_RANE, pRane, m_creature);
+                break;
+            case 15:
+                DoScriptText(SAY_RANE_REPLY, m_creature);
+                break;
+            case 16:
+                DoScriptText(SAY_CHECK_NEXT, m_creature);
+                break;
+            case 24:
+                DoScriptText(SAY_QUINN, m_creature);
+                break;
+            case 25:
+                if (Unit* pQuinn = m_creature->GetMap()->GetUnit(uiQuinnGUID))
+                    DoScriptText(SAY_QUINN_REPLY, pQuinn, m_creature);
+                break;
+            case 26:
+                DoScriptText(SAY_BYE, m_creature);
+                break;
         }
     }
 
@@ -180,15 +192,15 @@ struct npc_deathstalker_erlandAI : public npc_escortAI
     {
         switch (urand(0, 2))
         {
-        case 0:
-            DoScriptText(SAY_AGGRO_1, m_creature, who);
-            break;
-        case 1:
-            DoScriptText(SAY_AGGRO_2, m_creature, who);
-            break;
-        case 2:
-            DoScriptText(SAY_AGGRO_3, m_creature, who);
-            break;
+            case 0:
+                DoScriptText(SAY_AGGRO_1, m_creature, who);
+                break;
+            case 1:
+                DoScriptText(SAY_AGGRO_2, m_creature, who);
+                break;
+            case 2:
+                DoScriptText(SAY_AGGRO_3, m_creature, who);
+                break;
         }
     }
 };
@@ -206,7 +218,10 @@ bool QuestAccept_npc_deathstalker_erland(Player* pPlayer, Creature* pCreature, c
     return true;
 }
 
-CreatureAI* GetAI_npc_deathstalker_erland(Creature* pCreature) { return new npc_deathstalker_erlandAI(pCreature); }
+CreatureAI* GetAI_npc_deathstalker_erland(Creature* pCreature)
+{
+    return new npc_deathstalker_erlandAI(pCreature);
+}
 
 void AddSC_silverpine_forest()
 {
@@ -214,7 +229,7 @@ void AddSC_silverpine_forest()
 
     newscript = new Script;
     newscript->Name = "npc_astor_hadren";
-    newscript->pGossipHello = &GossipHello_npc_astor_hadren;
+    newscript->pGossipHello =  &GossipHello_npc_astor_hadren;
     newscript->pGossipSelect = &GossipSelect_npc_astor_hadren;
     newscript->GetAI = &GetAI_npc_astor_hadren;
     newscript->RegisterSelf();

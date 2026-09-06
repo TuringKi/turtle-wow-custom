@@ -20,7 +20,18 @@
 
 // -----------------------------------  SQLStorageBase  ---------------------------------------- //
 
-SQLStorageBase::SQLStorageBase() : m_tableName(nullptr), m_entry_field(nullptr), m_src_format(nullptr), m_dst_format(nullptr), m_dstFieldCount(0), m_srcFieldCount(0), m_recordCount(0), m_maxEntry(0), m_recordSize(0), m_data(nullptr) {}
+SQLStorageBase::SQLStorageBase() :
+    m_tableName(nullptr),
+    m_entry_field(nullptr),
+    m_src_format(nullptr),
+    m_dst_format(nullptr),
+    m_dstFieldCount(0),
+    m_srcFieldCount(0),
+    m_recordCount(0),
+    m_maxEntry(0),
+    m_recordSize(0),
+    m_data(nullptr)
+{}
 
 void SQLStorageBase::Initialize(const char* tableName, const char* entry_field, const char* src_format, const char* dst_format)
 {
@@ -65,43 +76,43 @@ void SQLStorageBase::Free()
     {
         switch (m_dst_format[x])
         {
-        case FT_LOGIC:
-            offset += sizeof(bool);
-            break;
-        case FT_STRING:
+            case FT_LOGIC:
+                offset += sizeof(bool);
+                break;
+            case FT_STRING:
             {
                 for (uint32 recordItr = 0; recordItr < m_recordCount; ++recordItr)
-                    delete[] * (char**)((char*)(m_data + (recordItr * m_recordSize)) + offset);
+                    delete[] *(char**)((char*)(m_data + (recordItr * m_recordSize)) + offset);
 
                 offset += sizeof(char*);
                 break;
             }
-        case FT_NA:
-        case FT_INT:
-            offset += sizeof(uint32);
-            break;
-        case FT_BYTE:
-        case FT_NA_BYTE:
-            offset += sizeof(char);
-            break;
-        case FT_FLOAT:
-        case FT_NA_FLOAT:
-            offset += sizeof(float);
-            break;
-        case FT_NA_POINTER:
-            // TODO- possible (and small) memleak here possible
-            offset += sizeof(char*);
-            break;
-        case FT_64BITINT:
-            offset += sizeof(uint64);
-            break;
-        case FT_IND:
-        case FT_SORT:
-            assert(false && "SQL storage not have sort field types");
-            break;
-        default:
-            assert(false && "unknown format character");
-            break;
+            case FT_NA:
+            case FT_INT:
+                offset += sizeof(uint32);
+                break;
+            case FT_BYTE:
+            case FT_NA_BYTE:
+                offset += sizeof(char);
+                break;
+            case FT_FLOAT:
+            case FT_NA_FLOAT:
+                offset += sizeof(float);
+                break;
+            case FT_NA_POINTER:
+                // TODO- possible (and small) memleak here possible
+                offset += sizeof(char*);
+                break;
+            case FT_64BITINT:
+                offset += sizeof(uint64);
+                break;
+            case FT_IND:
+            case FT_SORT:
+                assert(false && "SQL storage not have sort field types");
+                break;
+            default:
+                assert(false && "unknown format character");
+                break;
         }
     }
     delete[] m_data;
@@ -111,7 +122,10 @@ void SQLStorageBase::Free()
 
 // -----------------------------------  SQLStorage  -------------------------------------------- //
 
-void SQLStorage::EraseEntry(uint32 id) { m_Index[id] = nullptr; }
+void SQLStorage::EraseEntry(uint32 id)
+{
+    m_Index[id] = nullptr;
+}
 
 void SQLStorage::Free()
 {
@@ -144,7 +158,7 @@ void SQLStorage::prepareToLoad(uint32 maxRecordId, uint32 recordCount, uint32 re
     Free();
 
     // Set index array
-    m_Index = new char*[maxRecordId];
+    m_Index = new char* [maxRecordId];
     memset(m_Index, 0, maxRecordId * sizeof(char*));
 
     SQLStorageBase::prepareToLoad(maxRecordId, recordCount, recordSize);
@@ -179,9 +193,15 @@ void SQLHashStorage::EraseEntry(uint32 id)
         find->second = nullptr;
 }
 
-SQLHashStorage::SQLHashStorage(const char* fmt, const char* _entry_field, const char* sqlname) { Initialize(sqlname, _entry_field, fmt, fmt); }
+SQLHashStorage::SQLHashStorage(const char* fmt, const char* _entry_field, const char* sqlname)
+{
+    Initialize(sqlname, _entry_field, fmt, fmt);
+}
 
-SQLHashStorage::SQLHashStorage(const char* src_fmt, const char* dst_fmt, const char* _entry_field, const char* sqlname) { Initialize(sqlname, _entry_field, src_fmt, dst_fmt); }
+SQLHashStorage::SQLHashStorage(const char* src_fmt, const char* dst_fmt, const char* _entry_field, const char* sqlname)
+{
+    Initialize(sqlname, _entry_field, src_fmt, dst_fmt);
+}
 
 // -----------------------------------  SQLMultiStorage  --------------------------------------- //
 void SQLMultiStorage::Load()
@@ -204,8 +224,17 @@ void SQLMultiStorage::prepareToLoad(uint32 maxRecordId, uint32 recordCount, uint
     SQLStorageBase::prepareToLoad(maxRecordId, recordCount, recordSize);
 }
 
-void SQLMultiStorage::EraseEntry(uint32 id) { m_indexMultiMap.erase(id); }
+void SQLMultiStorage::EraseEntry(uint32 id)
+{
+    m_indexMultiMap.erase(id);
+}
 
-SQLMultiStorage::SQLMultiStorage(const char* fmt, const char* _entry_field, const char* sqlname) { Initialize(sqlname, _entry_field, fmt, fmt); }
+SQLMultiStorage::SQLMultiStorage(const char* fmt, const char* _entry_field, const char* sqlname)
+{
+    Initialize(sqlname, _entry_field, fmt, fmt);
+}
 
-SQLMultiStorage::SQLMultiStorage(const char* src_fmt, const char* dst_fmt, const char* _entry_field, const char* sqlname) { Initialize(sqlname, _entry_field, src_fmt, dst_fmt); }
+SQLMultiStorage::SQLMultiStorage(const char* src_fmt, const char* dst_fmt, const char* _entry_field, const char* sqlname)
+{
+    Initialize(sqlname, _entry_field, src_fmt, dst_fmt);
+}

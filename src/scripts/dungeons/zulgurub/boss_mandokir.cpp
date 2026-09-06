@@ -2,43 +2,64 @@
 #include "zulgurub.h"
 
 
-static constexpr uint32 NPC_OHGAN{14988};
-static constexpr uint32 NPC_CHAINED_SPIRIT{15117};
-static constexpr uint32 NPC_MANDOKIR{11382};
+static constexpr uint32 NPC_OHGAN{ 14988 };
+static constexpr uint32 NPC_CHAINED_SPIRIT{ 15117 };
+static constexpr uint32 NPC_MANDOKIR{ 11382 };
 
-static constexpr int32 SAY_AGGRO{-1309015};
-static constexpr int32 SAY_DING_KILL{-1309016};
-static constexpr int32 SAY_GRATS_JINDO{-1309017};
-static constexpr int32 SAY_WATCH{-1309018};
-static constexpr int32 SAY_WATCH_WHISPER{-1309019};
-static constexpr int32 EMOTE_RAGE{-1309024};
+static constexpr int32 SAY_AGGRO{ -1309015 };
+static constexpr int32 SAY_DING_KILL{ -1309016 };
+static constexpr int32 SAY_GRATS_JINDO{ -1309017 };
+static constexpr int32 SAY_WATCH{ -1309018 };
+static constexpr int32 SAY_WATCH_WHISPER{ -1309019 };
+static constexpr int32 EMOTE_RAGE{ -1309024 };
 // Mandokir's spells
-static constexpr uint32 SPELL_CHARGE{24408};
-static constexpr uint32 SPELL_FEAR{19134};
-static constexpr uint32 SPELL_WHIRLWIND{13736};
-static constexpr uint32 SPELL_MORTAL_STRIKE{16856};
-static constexpr uint32 SPELL_ENRAGE{24318};
-static constexpr uint32 SPELL_WATCH{24314};
-static constexpr uint32 SPELL_DECAPITATE{24315};
-static constexpr uint32 SPELL_LEVEL_UP{24312};
-static constexpr uint32 SPELL_MOUNT{23243};
+static constexpr uint32 SPELL_CHARGE{ 24408 };
+static constexpr uint32 SPELL_FEAR{ 19134 };
+static constexpr uint32 SPELL_WHIRLWIND{ 13736 };
+static constexpr uint32 SPELL_MORTAL_STRIKE{ 16856 };
+static constexpr uint32 SPELL_ENRAGE{ 24318 };
+static constexpr uint32 SPELL_WATCH{ 24314 };
+static constexpr uint32 SPELL_DECAPITATE{ 24315 };
+static constexpr uint32 SPELL_LEVEL_UP{ 24312 };
+static constexpr uint32 SPELL_MOUNT{ 23243 };
 // Ohgans's spells
-static constexpr uint32 SPELL_SUNDERARMOR{24317};
-static constexpr uint32 SPELL_THRASH{3391};
-static constexpr uint32 SPELL_EXECUTE{7160};
+static constexpr uint32 SPELL_SUNDERARMOR{ 24317 };
+static constexpr uint32 SPELL_THRASH{ 3391 };
+static constexpr uint32 SPELL_EXECUTE{ 7160 };
 // Chained Spirit's spells
-static constexpr uint32 SPELL_REVIVE{24341};
+static constexpr uint32 SPELL_REVIVE{ 24341 };
 
 struct SpawnLocations
 {
     float fX{}, fY{}, fZ{}, fAng{};
 };
 
-static SpawnLocations aSpirits[] = {{-12150.9f, -1956.24f, 133.407f, 2.57835f}, {-12157.1f, -1972.78f, 133.947f, 2.64903f}, {-12172.3f, -1982.63f, 134.061f, 1.48664f}, {-12194.0f, -1979.54f, 132.194f, 1.45916f}, {-12211.3f, -1978.49f, 133.580f, 1.35705f}, {-12228.4f, -1977.10f, 132.728f, 1.25495f}, {-12250.0f, -1964.78f, 135.066f, 0.92901f}, {-12264.0f, -1953.08f, 134.072f, 0.62663f}, {-12289.0f, -1924.00f, 132.620f, 5.37829f}, {-12267.3f, -1902.26f, 131.328f, 5.32724f}, {-12255.3f, -1893.53f, 134.026f, 5.06413f}, {-12229.9f, -1891.39f, 134.704f, 4.40047f}, {-12215.9f, -1889.09f, 137.273f, 4.70285f}, {-12200.5f, -1890.69f, 135.777f, 4.84422f}, {-12186.0f, -1890.12f, 134.261f, 4.36513f}, {-12246.3f, -1890.09f, 135.475f, 4.73427f}, {-12170.7f, -1894.85f, 133.852f, 3.51690f}, {-12279.0f, -1931.92f, 136.130f, 0.04151f}, {-12266.1f, -1940.72f, 132.606f, 0.70910f}};
+static SpawnLocations aSpirits[] =
+{
+    { -12150.9f, -1956.24f, 133.407f, 2.57835f},
+    { -12157.1f, -1972.78f, 133.947f, 2.64903f},
+    { -12172.3f, -1982.63f, 134.061f, 1.48664f},
+    { -12194.0f, -1979.54f, 132.194f, 1.45916f},
+    { -12211.3f, -1978.49f, 133.580f, 1.35705f},
+    { -12228.4f, -1977.10f, 132.728f, 1.25495f},
+    { -12250.0f, -1964.78f, 135.066f, 0.92901f},
+    { -12264.0f, -1953.08f, 134.072f, 0.62663f},
+    { -12289.0f, -1924.00f, 132.620f, 5.37829f},
+    { -12267.3f, -1902.26f, 131.328f, 5.32724f},
+    { -12255.3f, -1893.53f, 134.026f, 5.06413f},
+    { -12229.9f, -1891.39f, 134.704f, 4.40047f},
+    { -12215.9f, -1889.09f, 137.273f, 4.70285f},
+    { -12200.5f, -1890.69f, 135.777f, 4.84422f},
+    { -12186.0f, -1890.12f, 134.261f, 4.36513f},
+    { -12246.3f, -1890.09f, 135.475f, 4.73427f},
+    { -12170.7f, -1894.85f, 133.852f, 3.51690f},
+    { -12279.0f, -1931.92f, 136.130f, 0.04151f},
+    { -12266.1f, -1940.72f, 132.606f, 0.70910f}
+};
 
 struct boss_mandokirAI : public ScriptedAI
 {
-    const static uint32 START_FLAGS{UNIT_FLAG_PACIFIED | UNIT_FLAG_SPAWNING | UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_IMMUNE_TO_PLAYER};
+    const static uint32 START_FLAGS{ UNIT_FLAG_PACIFIED | UNIT_FLAG_SPAWNING | UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_IMMUNE_TO_PLAYER };
 
     explicit boss_mandokirAI(Creature* pCreature) : ScriptedAI(pCreature)
     {
@@ -95,7 +116,7 @@ struct boss_mandokirAI : public ScriptedAI
         m_uiFear_Timer = 1000;
         m_uiMortalStrike_Timer = 1000;
         m_uiChargeCasted_Timer = 0;
-
+        
         m_uiChargedPlayerGUID = 0;
         m_uiWatchTarget = 0;
         m_uiTargetToKill = 0;
@@ -130,9 +151,9 @@ struct boss_mandokirAI : public ScriptedAI
             if (!m_pInstance)
                 return;
 
-            if (!urand(0, 2))
+            if (!urand(0,2))
             {
-                if (Creature * jTemp{m_creature->GetMap()->GetCreature(m_pInstance->GetData64(DATA_JINDO))})
+                if (Creature* jTemp{ m_creature->GetMap()->GetCreature(m_pInstance->GetData64(DATA_JINDO)) })
                 {
                     if (jTemp->IsAlive())
                     {
@@ -204,7 +225,7 @@ struct boss_mandokirAI : public ScriptedAI
     {
         if (m_uiWatchTarget)
         {
-            if (Unit * pWatchTarget{m_creature->GetMap()->GetUnit(m_uiWatchTarget)})
+            if (Unit* pWatchTarget{ m_creature->GetMap()->GetUnit(m_uiWatchTarget) })
             {
                 if (pWatchTarget->IsAlive())
                 {
@@ -259,7 +280,7 @@ struct boss_mandokirAI : public ScriptedAI
         {
             for (const auto& guid : m_lSpirits)
             {
-                if (Creature * pSpirit{m_creature->GetMap()->GetCreature(guid)})
+                if (Creature* pSpirit{ m_creature->GetMap()->GetCreature(guid) })
                 {
                     if (pSpirit->IsAlive())
                     {
@@ -274,13 +295,13 @@ struct boss_mandokirAI : public ScriptedAI
 
     void SpawnSpirits()
     {
-        const uint32 uiCount{sizeof(aSpirits) / sizeof(SpawnLocations)};
+        const uint32 uiCount{ sizeof(aSpirits) / sizeof(SpawnLocations) };
 
         if (m_lSpirits.empty())
         {
             for (uint8 i{}; i < uiCount; ++i)
             {
-                if (Creature * pSpirit{m_creature->SummonCreature(NPC_CHAINED_SPIRIT, aSpirits[i].fX, aSpirits[i].fY, aSpirits[i].fZ, aSpirits[i].fAng, TEMPSUMMON_CORPSE_DESPAWN, 0)})
+                if (Creature* pSpirit{ m_creature->SummonCreature(NPC_CHAINED_SPIRIT, aSpirits[i].fX, aSpirits[i].fY, aSpirits[i].fZ, aSpirits[i].fAng, TEMPSUMMON_CORPSE_DESPAWN, 0) })
                 {
                     m_lSpirits.push_back(pSpirit->GetGUID());
                 }
@@ -327,12 +348,12 @@ struct boss_mandokirAI : public ScriptedAI
         }
     }
 
-    void MoveInLineOfSight(Unit* pWho) override
+    void MoveInLineOfSight(Unit *pWho) override
     {
         if (m_creature->GetVictim())
             return;
 
-        if (Player * pPlayer{pWho->ToPlayer()})
+        if (Player* pPlayer{ pWho->ToPlayer() })
         {
             if (!pPlayer->IsGameMaster())
             {
@@ -378,22 +399,22 @@ struct boss_mandokirAI : public ScriptedAI
 
         if (m_uiPlayerToRez)
         {
-            if (Player * killedPlayer{m_creature->GetMap()->GetPlayer(m_uiPlayerToRez)})
+            if (Player* killedPlayer{ m_creature->GetMap()->GetPlayer(m_uiPlayerToRez) })
             {
                 if (killedPlayer->GetDeathState() == CORPSE && !killedPlayer->IsRessurectRequested())
                 {
                     // Find nearest spirit ready to resurrect
-                    Creature* spirit{nullptr};
+                    Creature* spirit{ nullptr };
                     float spiritDist = 0.f;
 
                     for (const auto& guid : m_lSpirits)
                     {
-                        if (Creature * current{m_creature->GetMap()->GetCreature(guid)})
+                        if (Creature* current{ m_creature->GetMap()->GetCreature(guid) })
                         {
                             // Ready to resurrect?
                             if (current->AI() && current->AI()->GetData(0))
                             {
-                                const float currentDist{current->GetDistance(killedPlayer)};
+                                const float currentDist{ current->GetDistance(killedPlayer) };
                                 if (!spirit || currentDist < spiritDist)
                                 {
                                     spirit = current;
@@ -434,9 +455,9 @@ struct boss_mandokirAI : public ScriptedAI
         {
             if ((m_uiGlobalCooldown == 0) && (!m_uiWatchTarget))
             {
-                if (Unit * pTarget{m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 1, nullptr, SELECT_FLAG_PLAYER)})
+                if (Unit* pTarget{ m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 1, nullptr, SELECT_FLAG_PLAYER) })
                 {
-                    if (Player * pPlayer{pTarget->GetCharmerOrOwnerPlayerOrPlayerItself()})
+                    if (Player* pPlayer{ pTarget->GetCharmerOrOwnerPlayerOrPlayerItself() })
                     {
                         if (DoCastSpellIfCan(pPlayer, SPELL_WATCH) == CAST_OK)
                         {
@@ -464,14 +485,14 @@ struct boss_mandokirAI : public ScriptedAI
         {
             if (m_uiGlobalCooldown == 0)
             {
-                if (Unit * pTargetToKill{m_creature->GetMap()->GetUnit(m_uiTargetToKill)})
+                if (Unit* pTargetToKill{ m_creature->GetMap()->GetUnit(m_uiTargetToKill) })
                 {
                     if (pTargetToKill->IsAlive())
                     {
                         bool bTargetKilled = false;
                         float addAggro = 0.f;
 
-                        if (const float bAggro{m_creature->GetThreatManager().getThreat(m_creature->GetVictim())})
+                        if (const float bAggro{ m_creature->GetThreatManager().getThreat(m_creature->GetVictim()) })
                         {
                             m_creature->GetThreatManager().modifyThreatPercent(pTargetToKill, -100);
                             addAggro = bAggro;
@@ -509,9 +530,9 @@ struct boss_mandokirAI : public ScriptedAI
         {
             if ((m_uiGlobalCooldown == 0) && (!m_uiTargetToKill) && (!m_uiWatchTarget))
             {
-                if (Unit * pTarget{m_creature->GetFarthestVictimInRange(8.f, 40.f)})
+                if (Unit* pTarget{ m_creature->GetFarthestVictimInRange(8.f, 40.f) })
                 {
-                    if (Player * pPlayer{pTarget->GetCharmerOrOwnerPlayerOrPlayerItself()})
+                    if (Player* pPlayer{ pTarget->GetCharmerOrOwnerPlayerOrPlayerItself() })
                     {
                         if (DoCastSpellIfCan(pPlayer, SPELL_CHARGE) == CAST_OK)
                         {
@@ -556,7 +577,7 @@ struct boss_mandokirAI : public ScriptedAI
             {
                 if (m_uiChargedPlayerGUID)
                 {
-                    if (Player * player{m_creature->GetMap()->GetPlayer(m_uiChargedPlayerGUID)})
+                    if (Player* player{ m_creature->GetMap()->GetPlayer(m_uiChargedPlayerGUID) })
                     {
                         if (player->IsAlive())
                         {
@@ -577,6 +598,7 @@ struct boss_mandokirAI : public ScriptedAI
                             m_uiGlobalCooldown = 500;
                             m_bFearAfterCharge = false;
                             m_uiChargedPlayerGUID.Clear();
+
                         }
                     }
                 }
@@ -623,7 +645,10 @@ struct boss_mandokirAI : public ScriptedAI
     }
 };
 
-CreatureAI* GetAI_boss_mandokir(Creature* pCreature) { return new boss_mandokirAI(pCreature); }
+CreatureAI* GetAI_boss_mandokir(Creature* pCreature)
+{
+    return new boss_mandokirAI(pCreature);
+}
 
 
 struct mob_ohganAI : public ScriptedAI
@@ -659,7 +684,7 @@ struct mob_ohganAI : public ScriptedAI
         {
             if (m_creature->IsInCombat())
             {
-                if (Creature * pMandokir{pVictim->FindNearestCreature(NPC_MANDOKIR, 100.f)})
+                if (Creature* pMandokir{ pVictim->FindNearestCreature(NPC_MANDOKIR, 100.f) })
                 {
                     pMandokir->AI()->KilledUnit(pVictim);
                 }
@@ -674,7 +699,7 @@ struct mob_ohganAI : public ScriptedAI
             if (!m_creature->IsAlive()) // Is this necessary?
                 return;
 
-            if (Creature * pMandokir{m_creature->FindNearestCreature(NPC_MANDOKIR, 100.f)})
+            if (Creature* pMandokir{ m_creature->FindNearestCreature(NPC_MANDOKIR, 100.f) })
             {
                 if (pMandokir->IsAlive() && pMandokir->GetVictim())
                 {
@@ -738,12 +763,18 @@ struct mob_ohganAI : public ScriptedAI
     }
 };
 
-CreatureAI* GetAI_mob_ohgan(Creature* pCreature) { return new mob_ohganAI(pCreature); }
+CreatureAI* GetAI_mob_ohgan(Creature* pCreature)
+{
+    return new mob_ohganAI(pCreature);
+}
 
 
 struct mob_chainedSpiritsAI : public ScriptedAI
 {
-    explicit mob_chainedSpiritsAI(Creature* pCreature) : ScriptedAI(pCreature) { mob_chainedSpiritsAI::Reset(); }
+    explicit mob_chainedSpiritsAI(Creature* pCreature) : ScriptedAI(pCreature)
+    {
+        mob_chainedSpiritsAI::Reset();
+    }
 
     uint32 m_uiRezTimer{};
 
@@ -766,7 +797,7 @@ struct mob_chainedSpiritsAI : public ScriptedAI
     {
         if (m_uiTargetRezGUID)
             return 0;
-
+    
         return 1;
     }
 
@@ -805,7 +836,7 @@ struct mob_chainedSpiritsAI : public ScriptedAI
             if (m_uiRezTimer < uiDiff)
             {
                 // Attempt to rez player
-                if (Player * target{m_creature->GetMap()->GetPlayer(m_uiTargetRezGUID)})
+                if (Player* target{ m_creature->GetMap()->GetPlayer(m_uiTargetRezGUID) })
                 {
                     if (target->GetDeathState() == CORPSE && !target->IsRessurectRequested())
                     {
@@ -825,7 +856,10 @@ struct mob_chainedSpiritsAI : public ScriptedAI
     }
 };
 
-CreatureAI* GetAI_mob_chained_spirit(Creature* pCreature) { return new mob_chainedSpiritsAI(pCreature); }
+CreatureAI* GetAI_mob_chained_spirit(Creature* pCreature)
+{
+    return new mob_chainedSpiritsAI(pCreature);
+}
 
 void AddSC_boss_mandokir()
 {

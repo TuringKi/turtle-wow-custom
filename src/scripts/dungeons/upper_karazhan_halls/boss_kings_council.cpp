@@ -1,12 +1,78 @@
 #include "scriptPCH.h"
 
+namespace
+{
+template <class T>
+SpellScript* GetSpellScript(SpellEntry const*)
+{
+    return new T();
+}
+
+template <class T>
+AuraScript* GetAuraScript(SpellEntry const*)
+{
+    return new T();
+}
+
+void RegisterSpellScript(char const* name, SpellScript* (*getter)(SpellEntry const*))
+{
+    Script* script = new Script;
+    script->Name = name;
+    script->GetSpellScript = getter;
+    script->RegisterSelf();
+}
+
+void RegisterAuraScript(char const* name, AuraScript* (*getter)(SpellEntry const*))
+{
+    Script* script = new Script;
+    script->Name = name;
+    script->GetAuraScript = getter;
+    script->RegisterSelf();
+}
+
+struct spell_restore_creature_to_life : public SpellScript
+{
+    bool OnEffectExecute(Spell* spell, SpellEffectIndex /*effIdx*/) const override
+    {
+        if (Creature* target = ToCreature(spell->GetUnitTarget()))
+            target->SetDeathState(JUST_ALIVED);
+
+        return false;
+    }
+};
+
+struct spell_pawns_advance : public AuraScript
+{
+    void OnAuraInit(Aura* aura) override
+    {
+        aura->SetPeriodicTimer(1000);
+    }
+
+    void OnPeriodicDummy(Aura* aura) override
+    {
+        Creature* creature = aura->GetTarget()->ToCreature();
+        if (!creature)
+            return;
+
+        std::list<Creature*> list;
+        creature->GetCreatureListWithEntryInGrid(list, creature->GetEntry(), 100.0f);
+
+        float multiplier = list.size() < 2 ? 1.0f : (list.size() - 1) * 1.3f;
+        CreatureInfo const* creatureInfo = creature->GetCreatureInfo();
+        creature->SetBaseWeaponDamage(BASE_ATTACK, MINDAMAGE, creatureInfo->dmg_min * multiplier);
+        creature->SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, creatureInfo->dmg_max * multiplier);
+        creature->UpdateDamagePhysical(BASE_ATTACK);
+    }
+};
+}
+
 enum
 {
     SPELL_SHADOWBOLT_1 = 51212,
     SPELL_SHADOWBOLT_2 = 51213,
-    SPELL_HEAL = 51214,
+    SPELL_HEAL         = 51214,
     SPELL_SHADOWBOLT_VOLLEY = 51215,
-    SPELL_REDEMPTION = 51216,
+    SPELL_REDEMPTION   = 51216,
     SPELL_SILENCE = 51217,
     SPELL_EPISCOPACY = 51218,
     SPELL_KINGS_FURY = 51229,
@@ -21,7 +87,10 @@ enum
 
 struct npc_kara_bishopAI : public ScriptedAI
 {
-    npc_kara_bishopAI(Creature* pCreature) : ScriptedAI(pCreature) { Reset(); }
+    npc_kara_bishopAI(Creature* pCreature) : ScriptedAI(pCreature)
+    {
+        Reset();
+    }
 
     uint32 m_healTimer;
     uint32 m_shadowboltVolleyTimer;
@@ -42,7 +111,12 @@ struct npc_kara_bishopAI : public ScriptedAI
             pKing->CastSpell(pKing, SPELL_KINGS_FURY, false);
     }
 
-    bool IsOnlyPiece() const { return !m_creature->FindNearestCreature(NPC_BISHOP, 100.0f, true, m_creature) && !m_creature->FindNearestCreature(NPC_KNIGHT, 100.0f, true, m_creature) && !m_creature->FindNearestCreature(NPC_ROOK, 100.0f, true, m_creature); }
+    bool IsOnlyPiece() const
+    {
+        return !m_creature->FindNearestCreature(NPC_BISHOP, 100.0f, true, m_creature) &&
+               !m_creature->FindNearestCreature(NPC_KNIGHT, 100.0f, true, m_creature) &&
+               !m_creature->FindNearestCreature(NPC_ROOK, 100.0f, true, m_creature);
+    }
 
     void UpdateAI(const uint32 uiDiff) override
     {
@@ -131,7 +205,10 @@ struct npc_kara_bishopAI : public ScriptedAI
     }
 };
 
-CreatureAI* GetAI_npc_kara_bishop(Creature* pCreature) { return new npc_kara_bishopAI(pCreature); }
+CreatureAI* GetAI_npc_kara_bishop(Creature* pCreature)
+{
+    return new npc_kara_bishopAI(pCreature);
+}
 
 enum
 {
@@ -143,7 +220,10 @@ enum
 
 struct npc_kara_rookAI : public ScriptedAI
 {
-    npc_kara_rookAI(Creature* pCreature) : ScriptedAI(pCreature) { Reset(); }
+    npc_kara_rookAI(Creature* pCreature) : ScriptedAI(pCreature)
+    {
+        Reset();
+    }
 
     uint32 m_shieldBashTimer;
     uint32 m_advanceTimer;
@@ -164,7 +244,12 @@ struct npc_kara_rookAI : public ScriptedAI
             pKing->CastSpell(pKing, SPELL_KINGS_FURY, false);
     }
 
-    bool IsOnlyPiece() const { return !m_creature->FindNearestCreature(NPC_BISHOP, 100.0f, true, m_creature) && !m_creature->FindNearestCreature(NPC_KNIGHT, 100.0f, true, m_creature) && !m_creature->FindNearestCreature(NPC_ROOK, 100.0f, true, m_creature); }
+    bool IsOnlyPiece() const
+    {
+        return !m_creature->FindNearestCreature(NPC_BISHOP, 100.0f, true, m_creature) &&
+               !m_creature->FindNearestCreature(NPC_KNIGHT, 100.0f, true, m_creature) &&
+               !m_creature->FindNearestCreature(NPC_ROOK, 100.0f, true, m_creature);
+    }
 
     void UpdateAI(const uint32 uiDiff) override
     {
@@ -234,7 +319,10 @@ struct npc_kara_rookAI : public ScriptedAI
     }
 };
 
-CreatureAI* GetAI_npc_kara_rook(Creature* pCreature) { return new npc_kara_rookAI(pCreature); }
+CreatureAI* GetAI_npc_kara_rook(Creature* pCreature)
+{
+    return new npc_kara_rookAI(pCreature);
+}
 
 enum
 {
@@ -246,7 +334,10 @@ enum
 
 struct npc_kara_knightAI : public ScriptedAI
 {
-    npc_kara_knightAI(Creature* pCreature) : ScriptedAI(pCreature) { Reset(); }
+    npc_kara_knightAI(Creature* pCreature) : ScriptedAI(pCreature)
+    {
+        Reset();
+    }
 
     uint32 m_cleaveTimer;
     uint32 m_trampleTimer;
@@ -266,7 +357,12 @@ struct npc_kara_knightAI : public ScriptedAI
             pKing->CastSpell(pKing, SPELL_KINGS_FURY, false);
     }
 
-    bool IsOnlyPiece() const { return !m_creature->FindNearestCreature(NPC_BISHOP, 100.0f, true, m_creature) && !m_creature->FindNearestCreature(NPC_KNIGHT, 100.0f, true, m_creature) && !m_creature->FindNearestCreature(NPC_ROOK, 100.0f, true, m_creature); }
+    bool IsOnlyPiece() const
+    {
+        return !m_creature->FindNearestCreature(NPC_BISHOP, 100.0f, true, m_creature) &&
+               !m_creature->FindNearestCreature(NPC_KNIGHT, 100.0f, true, m_creature) &&
+               !m_creature->FindNearestCreature(NPC_ROOK, 100.0f, true, m_creature);
+    }
 
     void UpdateAI(const uint32 uiDiff) override
     {
@@ -296,7 +392,7 @@ struct npc_kara_knightAI : public ScriptedAI
                 if (DoCastSpellIfCan(m_creature, SPELL_SUMMON_GHASTLY_HORSEMEN) == CAST_OK)
                 {
                     bool alone = IsOnlyPiece();
-                    m_ghastlyHorsemenTimer = alone ? urand(10000, 15000) : urand(20000, 30000);
+                    m_ghastlyHorsemenTimer = alone ? urand (10000, 15000) : urand(20000, 30000);
 
                     uint32 count = alone ? 3 : 1;
                     for (uint32 i = 0; i < count; ++i)
@@ -326,7 +422,10 @@ struct npc_kara_knightAI : public ScriptedAI
     }
 };
 
-CreatureAI* GetAI_npc_kara_knight(Creature* pCreature) { return new npc_kara_knightAI(pCreature); }
+CreatureAI* GetAI_npc_kara_knight(Creature* pCreature)
+{
+    return new npc_kara_knightAI(pCreature);
+}
 
 enum
 {
@@ -338,7 +437,10 @@ enum
 
 struct npc_kara_kingAI : public ScriptedAI
 {
-    npc_kara_kingAI(Creature* pCreature) : ScriptedAI(pCreature) { Reset(); }
+    npc_kara_kingAI(Creature* pCreature) : ScriptedAI(pCreature)
+    {
+        Reset();
+    }
 
     uint32 m_voidZoneTimer;
     uint32 m_summonPawnTimer;
@@ -351,7 +453,12 @@ struct npc_kara_kingAI : public ScriptedAI
         m_kingsCurseTimer = urand(40000, 50000);
     }
 
-    bool IsOnlyPiece() const { return !m_creature->FindNearestCreature(NPC_BISHOP, 100.0f, true, m_creature) && !m_creature->FindNearestCreature(NPC_KNIGHT, 100.0f, true, m_creature) && !m_creature->FindNearestCreature(NPC_ROOK, 100.0f, true, m_creature); }
+    bool IsOnlyPiece() const
+    {
+        return !m_creature->FindNearestCreature(NPC_BISHOP, 100.0f, true, m_creature) &&
+               !m_creature->FindNearestCreature(NPC_KNIGHT, 100.0f, true, m_creature) &&
+               !m_creature->FindNearestCreature(NPC_ROOK, 100.0f, true, m_creature);
+    }
 
     void UpdateAI(const uint32 uiDiff) override
     {
@@ -402,7 +509,10 @@ struct npc_kara_kingAI : public ScriptedAI
     }
 };
 
-CreatureAI* GetAI_npc_kara_king(Creature* pCreature) { return new npc_kara_kingAI(pCreature); }
+CreatureAI* GetAI_npc_kara_king(Creature* pCreature)
+{
+    return new npc_kara_kingAI(pCreature);
+}
 
 void AddSC_boss_kings_council()
 {
@@ -427,4 +537,7 @@ void AddSC_boss_kings_council()
     newscript->Name = "npc_kara_king";
     newscript->GetAI = &GetAI_npc_kara_king;
     newscript->RegisterSelf();
+
+    RegisterSpellScript("spell_restore_creature_to_life", &GetSpellScript<spell_restore_creature_to_life>);
+    RegisterAuraScript("spell_pawns_advance", &GetAuraScript<spell_pawns_advance>);
 }

@@ -1,11 +1,14 @@
-#include <sstream>
 #include "scriptPCH.h"
+#include <sstream>
 
 using namespace std;
 
 struct boss_aszosh_grimbladeAI final : ScriptedAI
 {
-    explicit boss_aszosh_grimbladeAI(Creature* creature) : ScriptedAI(creature) { boss_aszosh_grimbladeAI::Reset(); }
+    explicit boss_aszosh_grimbladeAI(Creature *creature) : ScriptedAI(creature)
+    {
+        boss_aszosh_grimbladeAI::Reset();
+    }
 
     void Reset() override
     {
@@ -13,7 +16,7 @@ struct boss_aszosh_grimbladeAI final : ScriptedAI
         me->SetMaxPower(POWER_MANA, 50000);
         me->SetPower(POWER_MANA, 50000);
 
-        list<Creature*> risenLackeys;
+        list<Creature *> risenLackeys;
         me->GetCreatureListWithEntryInGrid(risenLackeys, 10482, 500.f);
         for (auto lackey : risenLackeys)
         {
@@ -38,7 +41,10 @@ struct boss_aszosh_grimbladeAI final : ScriptedAI
         me->MonsterSendTextToZone("I was amongst the first, and I will claim vengeance for Gul'dan!", CHAT_MSG_MONSTER_YELL);
     }
 
-    void JustDied(Unit* killer) override { me->MonsterSendTextToZone("Your will is not your... *cough* ...own...", CHAT_MSG_MONSTER_SAY); }
+    void JustDied(Unit* killer) override
+    {
+        me->MonsterSendTextToZone("Your will is not your... *cough* ...own...", CHAT_MSG_MONSTER_SAY);
+    }
 
     void UpdateAI(const uint32_t diff) override
     {
@@ -53,7 +59,7 @@ struct boss_aszosh_grimbladeAI final : ScriptedAI
 
         switch (const auto nextEvent = PopEvent(); nextEvent)
         {
-        case eSpellCastEvents::EventCastCorruption:
+            case eSpellCastEvents::EventCastCorruption:
             {
                 if (!EventCastCorruptionPredicate())
                 {
@@ -64,7 +70,7 @@ struct boss_aszosh_grimbladeAI final : ScriptedAI
                 EventCastCorruptionHandler();
                 break;
             }
-        case eSpellCastEvents::EventCastDrainLife:
+            case eSpellCastEvents::EventCastDrainLife:
             {
                 if (!EventCastDrainLifePredicate())
                 {
@@ -75,7 +81,7 @@ struct boss_aszosh_grimbladeAI final : ScriptedAI
                 EventCastDrainLifeHandler();
                 break;
             }
-        case eSpellCastEvents::EventCastMindBlast:
+            case eSpellCastEvents::EventCastMindBlast:
             {
                 if (!EventCastMindBlastPredicate())
                 {
@@ -86,7 +92,7 @@ struct boss_aszosh_grimbladeAI final : ScriptedAI
                 EventCastMindBlastHandler();
                 break;
             }
-        case eSpellCastEvents::EventCastRisenLackey:
+            case eSpellCastEvents::EventCastRisenLackey:
             {
                 if (!EventCastRisenLackeyPredicate())
                 {
@@ -97,7 +103,7 @@ struct boss_aszosh_grimbladeAI final : ScriptedAI
                 EventCastRisenLackeyHandler();
                 break;
             }
-        case eSpellCastEvents::EventNone:
+            case eSpellCastEvents::EventNone:
             {
                 DoMeleeAttackIfReady();
                 break;
@@ -156,7 +162,8 @@ private:
      * \brief Attempts to pop an event from the event queue.
      * \return The event to execute, or EventNone if no action should be taken.
      */
-    [[nodiscard]] eSpellCastEvents PopEvent()
+    [[nodiscard]]
+    eSpellCastEvents PopEvent()
     {
         // If we're popping events too quickly, return EventNone.
         if (_lastUpdateTick - _lastEventProcessedAt < _minimumTicksBetweenEvents)
@@ -182,20 +189,20 @@ private:
         DoCast(me->GetVictim(), SpellDrainLife);
         switch (_drainLifePhase)
         {
-        case eDrainLifePhases::PhaseOne:
-            _drainLifePhase = eDrainLifePhases::PhaseTwo;
-            me->MonsterSendTextToZone("Your strength becomes my own!", CHAT_MSG_MONSTER_YELL);
-            break;
-        case eDrainLifePhases::PhaseTwo:
-            _drainLifePhase = eDrainLifePhases::PhaseThree;
-            me->MonsterSendTextToZone("I will take everything you have!", CHAT_MSG_MONSTER_YELL);
-            break;
-        case eDrainLifePhases::PhaseThree:
-            _drainLifePhase = eDrainLifePhases::Finished;
-            me->MonsterSendTextToZone("You will serve me soon!", CHAT_MSG_MONSTER_YELL);
-            break;
-        case eDrainLifePhases::Finished:
-            break;
+            case eDrainLifePhases::PhaseOne:
+                _drainLifePhase = eDrainLifePhases::PhaseTwo;
+                me->MonsterSendTextToZone("Your strength becomes my own!", CHAT_MSG_MONSTER_YELL);
+                break;
+            case eDrainLifePhases::PhaseTwo:
+                _drainLifePhase = eDrainLifePhases::PhaseThree;
+                me->MonsterSendTextToZone("I will take everything you have!", CHAT_MSG_MONSTER_YELL);
+                break;
+            case eDrainLifePhases::PhaseThree:
+                _drainLifePhase = eDrainLifePhases::Finished;
+                me->MonsterSendTextToZone("You will serve me soon!", CHAT_MSG_MONSTER_YELL);
+                break;
+            case eDrainLifePhases::Finished:
+                break;
         }
 
         if (_drainLifePhase != eDrainLifePhases::Finished)
@@ -208,7 +215,8 @@ private:
      * \brief Predicate for the EventCastDrainLife event.
      * \return True if the event handler should fire, false if we should requeue the event.
      */
-    [[nodiscard]] bool EventCastDrainLifePredicate() const
+    [[nodiscard]]
+    bool EventCastDrainLifePredicate() const
     {
         if (me->IsNonMeleeSpellCasted())
         {
@@ -217,14 +225,14 @@ private:
 
         switch (_drainLifePhase)
         {
-        case eDrainLifePhases::PhaseOne:
-            return me->GetHealthPercent() <= 80;
-        case eDrainLifePhases::PhaseTwo:
-            return me->GetHealthPercent() <= 40;
-        case eDrainLifePhases::PhaseThree:
-            return me->GetHealthPercent() <= 20;
-        case eDrainLifePhases::Finished:
-            break;
+            case eDrainLifePhases::PhaseOne:
+                return me->GetHealthPercent() <= 80;
+            case eDrainLifePhases::PhaseTwo:
+                return me->GetHealthPercent() <= 40;
+            case eDrainLifePhases::PhaseThree:
+                return me->GetHealthPercent() <= 20;
+            case eDrainLifePhases::Finished:
+                break;
         }
 
         return false;
@@ -250,7 +258,8 @@ private:
      * @brief Predicate for the EventCastMindBlast event.
      * @return True if the event handler should fire, false if we should requeue the event.
      */
-    [[nodiscard]] bool EventCastMindBlastPredicate() const
+    [[nodiscard]]
+    bool EventCastMindBlastPredicate() const
     {
         if (me->IsNonMeleeSpellCasted())
         {
@@ -274,7 +283,7 @@ private:
         }
 
         DoCast(victim, SpellCorruption);
-
+        
         if (urand(0, 1))
         {
             me->MonsterSendTextToZone("Feel your blood boil.", CHAT_MSG_MONSTER_YELL);
@@ -287,7 +296,11 @@ private:
      * @brief Predicate for the EventCastCorruption event.
      * @return True if the event handler should fire, false if we should requeue the event.
      */
-    [[nodiscard]] bool EventCastCorruptionPredicate() const { return !me->IsNonMeleeSpellCasted(); }
+    [[nodiscard]]
+    bool EventCastCorruptionPredicate() const
+    {
+        return !me->IsNonMeleeSpellCasted();
+    }
 
     /**
      * @brief Event handler for the EventCastRisenLackey event.
@@ -308,16 +321,17 @@ private:
      * @brief Predicate for the EventCastRisenLackey event.
      * @return True if the event handler should fire, false if we should requeue the event.
      */
-    [[nodiscard]] bool EventCastRisenLackeyPredicate() const
+    [[nodiscard]]
+    bool EventCastRisenLackeyPredicate() const
     {
         if (me->IsNonMeleeSpellCasted())
         {
             return false;
         }
 
-        list<Creature*> risenLackeys;
+        list<Creature *> risenLackeys;
         me->GetCreatureListWithEntryInGrid(risenLackeys, 10482, 500.f);
-        for (auto lackey : risenLackeys)
+        for (auto lackey: risenLackeys)
         {
             if (lackey->IsAlive())
             {
@@ -329,7 +343,10 @@ private:
     }
 };
 
-CreatureAI* GetAI_boss_aszosh_grimblade(Creature* creature) { return new boss_aszosh_grimbladeAI(creature); }
+CreatureAI *GetAI_boss_aszosh_grimblade(Creature* creature)
+{
+    return new boss_aszosh_grimbladeAI(creature);
+}
 
 void AddSC_boss_aszosh_grimflame()
 {

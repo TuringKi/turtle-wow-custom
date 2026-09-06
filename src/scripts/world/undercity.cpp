@@ -33,11 +33,11 @@ EndContentData */
 enum eSpells
 {
     // Sylvanas
-    SPELL_SUMMON_SKEL = 20464,
-    SPELL_FADE = 20672,
-    SPELL_BLACK_ARROW = 20733,
-    SPELL_MULTI_SHOT = 20735,
-    SPELL_SHOOT = 20463,
+    SPELL_SUMMON_SKEL   = 20464,
+    SPELL_FADE          = 20672,
+    SPELL_BLACK_ARROW   = 20733,
+    SPELL_MULTI_SHOT    = 20735,
+    SPELL_SHOOT         = 20463,
 };
 
 /*
@@ -47,7 +47,10 @@ TODO : TIMERS TO CHECK
 struct boss_sylvanasAI : public ScriptedAI
 {
 public:
-    boss_sylvanasAI(Creature* pCreature) : ScriptedAI(pCreature) { Reset(); }
+    boss_sylvanasAI(Creature* pCreature) : ScriptedAI(pCreature)
+    {
+        Reset();
+    }
 
     void Reset() override
     {
@@ -141,7 +144,10 @@ private:
     uint32 m_uiShootTimer;
 };
 
-CreatureAI* GetAI_boss_sylvanas(Creature* pCreature) { return new boss_sylvanasAI(pCreature); }
+CreatureAI* GetAI_boss_sylvanas(Creature* pCreature)
+{
+    return new boss_sylvanasAI(pCreature);
+}
 
 template <typename Functor>
 void DoAfterTime(Player* player, uint32 p_time, Functor&& function)
@@ -172,33 +178,25 @@ bool GossipSelect_npc_lady_sylvanas_windrunner(Player* pPlayer, Creature* pCreat
             pPlayer->DestroyItemCount(83020, 1, true);
             pPlayer->SaveInventoryAndGoldToDB();
         }
-        DoAfterTime(pPlayer, 3 * IN_MILLISECONDS,
-                    [player = pPlayer, c = pCreature]()
-                    {
-                        c->MonsterSayToPlayer("The Forest Trolls were my greatest enemy in life and although I�ve long left that life behind I am still bitter.", player);
-                        c->HandleEmote(EMOTE_ONESHOT_TALK);
-                    });
-        DoAfterTime(pPlayer, 7 * IN_MILLISECONDS,
-                    [player = pPlayer, c = pCreature]()
-                    {
-                        c->MonsterSayToPlayer("You do not understand how brutish, savage and stupid these mongrels are.", player);
-                        c->HandleEmote(EMOTE_ONESHOT_NO);
-                    });
-        DoAfterTime(pPlayer, 11 * IN_MILLISECONDS,
-                    [player = pPlayer, c = pCreature]()
-                    {
-                        c->MonsterSayToPlayer("I will not stand for this, no Forest Troll filth shall step in my home.", player);
-                        c->HandleEmote(EMOTE_ONESHOT_NO);
-                    });
-        DoAfterTime(pPlayer, 14 * IN_MILLISECONDS,
-                    [player = pPlayer, c = pCreature]()
-                    {
-                        c->MonsterSayToPlayer("Now leave.", player);
-                        c->HandleEmote(EMOTE_ONESHOT_TALK);
-                        player->AddItem(83024, 1);
-                        c->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                        c->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_SPAWNING);
-                    });
+        DoAfterTime(pPlayer, 3 * IN_MILLISECONDS, [player = pPlayer, c = pCreature]() {
+            c->MonsterSayToPlayer("The Forest Trolls were my greatest enemy in life and although I�ve long left that life behind I am still bitter.", player);
+            c->HandleEmote(EMOTE_ONESHOT_TALK);
+            });
+        DoAfterTime(pPlayer, 7 * IN_MILLISECONDS, [player = pPlayer, c = pCreature]() {
+            c->MonsterSayToPlayer("You do not understand how brutish, savage and stupid these mongrels are.", player);
+            c->HandleEmote(EMOTE_ONESHOT_NO);
+            });
+        DoAfterTime(pPlayer, 11 * IN_MILLISECONDS, [player = pPlayer, c = pCreature]() {
+            c->MonsterSayToPlayer("I will not stand for this, no Forest Troll filth shall step in my home.", player);
+            c->HandleEmote(EMOTE_ONESHOT_NO);
+            });
+        DoAfterTime(pPlayer, 14 * IN_MILLISECONDS, [player = pPlayer, c = pCreature]() {
+            c->MonsterSayToPlayer("Now leave.", player);
+            c->HandleEmote(EMOTE_ONESHOT_TALK);
+            player->AddItem(83024, 1);
+            c->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+            c->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_SPAWNING);
+            });
     }
     pPlayer->CLOSE_GOSSIP_MENU();
     return true;
@@ -206,7 +204,7 @@ bool GossipSelect_npc_lady_sylvanas_windrunner(Player* pPlayer, Creature* pCreat
 
 void AddSC_undercity()
 {
-    Script* newscript;
+    Script *newscript;
 
     newscript = new Script;
     newscript->Name = "npc_lady_sylvanas_windrunner";

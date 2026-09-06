@@ -5,9 +5,9 @@
  * absent permission of Nolin.
  */
 
+#include "scriptPCH.h"
 #include "boss_daelus.hpp"
 #include "scarlet_citadel.h"
-#include "scriptPCH.h"
 
 
 class boss_daelusAI : public ScriptedAI
@@ -133,9 +133,13 @@ public:
 
     void SummonAdds()
     {
-        for (uint8 i{0}; i < nsDaelus::NUMBER_OF_ADDS; ++i)
+        for (uint8 i{ 0 }; i < nsDaelus::NUMBER_OF_ADDS; ++i)
         {
-            if (Creature * pMonk{m_creature->SummonCreature(nsDaelus::NPC_FALLEN_SPIRIT, nsDaelus::vfSpawnPoints[i].m_fX, nsDaelus::vfSpawnPoints[i].m_fY, nsDaelus::vfSpawnPoints[i].m_fZ, nsDaelus::vfSpawnPoints[i].m_fO, TEMPSUMMON_MANUAL_DESPAWN)})
+            if (Creature* pMonk{ m_creature->SummonCreature(nsDaelus::NPC_FALLEN_SPIRIT,
+                nsDaelus::vfSpawnPoints[i].m_fX,
+                nsDaelus::vfSpawnPoints[i].m_fY,
+                nsDaelus::vfSpawnPoints[i].m_fZ,
+                nsDaelus::vfSpawnPoints[i].m_fO,TEMPSUMMON_MANUAL_DESPAWN) })
             {
                 if (i == m_uiChosenOne)
                 {
@@ -153,13 +157,13 @@ public:
     {
         if (!m_vSpawnedAdds.empty())
         {
-            if (const auto map{m_creature->GetMap()})
+            if (const auto map{ m_creature->GetMap() })
             {
                 for (const auto& guid : m_vSpawnedAdds)
                 {
-                    if (Creature * pCreature{map->GetCreature(guid)})
+                    if (Creature* pCreature{ map->GetCreature(guid) })
                     {
-                        if (TemporarySummon * tmpSumm{static_cast<TemporarySummon*>(pCreature)})
+                        if (TemporarySummon* tmpSumm{ static_cast<TemporarySummon*>(pCreature) })
                         {
                             tmpSumm->UnSummon();
                         }
@@ -201,9 +205,9 @@ public:
         {
             for (const auto& monk : m_vSpawnedAdds)
             {
-                if (const auto map{m_creature->GetMap()})
+                if (const auto map{ m_creature->GetMap() })
                 {
-                    if (Creature * pMonk{map->GetCreature(monk)})
+                    if (Creature* pMonk{ map->GetCreature(monk) })
                     {
                         if (pMonk->GetDistance2d(m_creature) < 1.f)
                         {
@@ -275,7 +279,7 @@ public:
         {
             if (m_creature->GetDistance2d(m_creature->GetVictim()) > 3.f) // If Daelus' current target isn't close to him
             {
-                Map::PlayerList const& PlayerList{m_creature->GetMap()->GetPlayers()}; // Get all players in dungeon
+                Map::PlayerList const& PlayerList{ m_creature->GetMap()->GetPlayers() }; // Get all players in dungeon
                 if (PlayerList.isEmpty())
                     return;
 
@@ -285,11 +289,11 @@ public:
 
                 for (const auto& itr : PlayerList) // Now check every player
                 {
-                    if (Player * pPlayer{itr.getSource()})
+                    if (Player* pPlayer{ itr.getSource() })
                     {
                         if (pPlayer->IsAlive() && !pPlayer->IsGameMaster()) // Skip dead players and GMs
                         {
-                            const float uiTenPercentLife{(pPlayer->GetMaxHealth() * 0.1f)}; // Get int value of 10% HP of player's maxlife
+                            const float uiTenPercentLife{ (pPlayer->GetMaxHealth() * 0.1f) }; // Get int value of 10% HP of player's maxlife
 
                             m_creature->DealDamage(pPlayer, uint32(uiTenPercentLife), nullptr, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NONE, nullptr, true);
 
@@ -331,21 +335,21 @@ public:
 
     Player* SelectRandomPlayerExceptTank()
     {
-        ThreatList const& tList{m_creature->GetThreatManager().getThreatList()};
+        ThreatList const& tList{ m_creature->GetThreatManager().getThreatList() };
         if (tList.empty())
             return nullptr;
 
         std::list<Player*> candidates;
-        ThreatList::const_iterator itr{tList.begin()};
+        ThreatList::const_iterator itr{ tList.begin() };
 
         if (tList.size() > 1)
         {
             ++itr; // Skipping top-aggro if there is more then 1 player in list
         }
 
-        for (; itr != tList.end(); ++itr)
+        for ( ; itr != tList.end() ; ++itr)
         {
-            if (Player * pPlayer{m_creature->GetMap()->GetPlayer((*itr)->getUnitGuid())})
+            if (Player* pPlayer{ m_creature->GetMap()->GetPlayer((*itr)->getUnitGuid()) })
             {
                 if (m_creature->IsInRange(pPlayer, 0.f, 40.f)) // Last value of parameter to prevent player standing on the edge of the room to avoid too much dmg to raid
                 {
@@ -364,7 +368,7 @@ public:
         }
         else
         {
-            auto candIt{candidates.begin()};
+            auto candIt{ candidates.begin() };
             std::advance(candIt, urand(0, (candidates.size() - 1)));
             return *candIt;
         }
@@ -374,7 +378,7 @@ public:
     {
         if (m_uiPoisonCloud_Timer < uiDiff)
         {
-            if (Player * pPlayer{SelectRandomPlayerExceptTank()})
+            if (Player* pPlayer{ SelectRandomPlayerExceptTank() })
             {
                 m_creature->MonsterSay(nsDaelus::CombatNotification(nsDaelus::CombatNotifications::POISONCLOUD), LANG_UNIVERSAL);
 
@@ -382,15 +386,14 @@ public:
 
                 try
                 {
-                    DoAfterTime(pPlayer, (6 * IN_MILLISECONDS),
-                                [player = pPlayer]()
-                                {
-                                    if (player && player->HasAura(nsDaelus::SPELL_GREEN_GLOW_VISUAL))
-                                    {
-                                        player->RemoveAurasDueToSpell(nsDaelus::SPELL_GREEN_GLOW_VISUAL);
-                                        player->CastSpell(player, nsDaelus::SPELL_POISON_CLOUD, true);
-                                    }
-                                });
+                    DoAfterTime(pPlayer, (6 * IN_MILLISECONDS), [player = pPlayer]()
+                    {
+                        if (player && player->HasAura(nsDaelus::SPELL_GREEN_GLOW_VISUAL))
+                        {
+                            player->RemoveAurasDueToSpell(nsDaelus::SPELL_GREEN_GLOW_VISUAL);
+                            player->CastSpell(player, nsDaelus::SPELL_POISON_CLOUD, true);
+                        }
+                    });
                 }
                 catch (const std::runtime_error& e)
                 {
@@ -427,7 +430,16 @@ public:
     {
         if (pKiller)
         {
-            pKiller->SummonGameObject(nsDaelus::GO_ACHIEVEMENT_CHEST, nsDaelus::vfAchievementChestSpawnPoint[0].m_fX, nsDaelus::vfAchievementChestSpawnPoint[0].m_fY, nsDaelus::vfAchievementChestSpawnPoint[0].m_fZ, nsDaelus::vfAchievementChestSpawnPoint[0].m_fO, nsDaelus::vfAchievementChestSpawnPoint[0].m_fR0, nsDaelus::vfAchievementChestSpawnPoint[0].m_fR1, nsDaelus::vfAchievementChestSpawnPoint[0].m_fR2, nsDaelus::vfAchievementChestSpawnPoint[0].m_fR3, nsDaelus::GO_ACHIEVEMENT_CHEST_DESPAWN_TIMER);
+            pKiller->SummonGameObject(nsDaelus::GO_ACHIEVEMENT_CHEST,
+                nsDaelus::vfAchievementChestSpawnPoint[0].m_fX,
+                nsDaelus::vfAchievementChestSpawnPoint[0].m_fY,
+                nsDaelus::vfAchievementChestSpawnPoint[0].m_fZ,
+                nsDaelus::vfAchievementChestSpawnPoint[0].m_fO,
+                nsDaelus::vfAchievementChestSpawnPoint[0].m_fR0,
+                nsDaelus::vfAchievementChestSpawnPoint[0].m_fR1,
+                nsDaelus::vfAchievementChestSpawnPoint[0].m_fR2,
+                nsDaelus::vfAchievementChestSpawnPoint[0].m_fR3,
+                nsDaelus::GO_ACHIEVEMENT_CHEST_DESPAWN_TIMER);
         }
         else
         {
@@ -443,7 +455,10 @@ public:
         m_bAchievementKillFailed = true;
     }
 
-    bool IsAchievementKillFailed() { return m_bAchievementKillFailed; }
+    bool IsAchievementKillFailed()
+    {
+        return m_bAchievementKillFailed;
+    }
 
     void UpdateAI(const uint32 uiDiff) override
     {
@@ -473,7 +488,7 @@ public:
 
 bool GossipHello_boss_daelus(Player* pPlayer, Creature* pCreature)
 {
-    instance_scarlet_citadel const* m_pInstance{static_cast<instance_scarlet_citadel*>(pCreature->GetInstanceData())};
+    instance_scarlet_citadel const* m_pInstance{ static_cast<instance_scarlet_citadel*>(pCreature->GetInstanceData()) };
 
     if (m_pInstance)
     {
@@ -496,30 +511,31 @@ bool GossipSelect_boss_daelus(Player* pPlayer, Creature* pCreature, uint32 /*uiS
 
     switch (uiAction)
     {
-    case (GOSSIP_ACTION_INFO_DEF + 1):
+        case (GOSSIP_ACTION_INFO_DEF + 1):
         {
             pPlayer->CLOSE_GOSSIP_MENU();
             pCreature->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
 
             try
             {
-                DoAfterTime(pCreature, (2 * IN_MILLISECONDS), [creature = pCreature]() { creature->MonsterSay(nsDaelus::CombatNotification(nsDaelus::CombatNotifications::ABOUT_TO_START), LANG_UNIVERSAL); });
+                DoAfterTime(pCreature, (2 * IN_MILLISECONDS), [creature = pCreature]()
+                {
+                    creature->MonsterSay(nsDaelus::CombatNotification(nsDaelus::CombatNotifications::ABOUT_TO_START), LANG_UNIVERSAL);
+                });
 
-                DoAfterTime(pCreature, (7 * IN_MILLISECONDS),
-                            [creature = pCreature]()
-                            {
-                                creature->SetStandState(UNIT_STAND_STATE_STAND);
-                                creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_STUNNED);
-                                creature->MonsterYell(nsDaelus::CombatNotification(nsDaelus::CombatNotifications::START), LANG_UNIVERSAL);
-                            });
+                DoAfterTime(pCreature, (7 * IN_MILLISECONDS), [creature = pCreature]()
+                {
+                    creature->SetStandState(UNIT_STAND_STATE_STAND);
+                    creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_STUNNED);
+                    creature->MonsterYell(nsDaelus::CombatNotification(nsDaelus::CombatNotifications::START), LANG_UNIVERSAL);
+                });
 
-                DoAfterTime(pCreature, (9 * IN_MILLISECONDS),
-                            [creature = pCreature]()
-                            {
-                                creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_SPAWNING);
-                                creature->SetFactionTemplateId(nsDaelus::FACTION_SCARLET);
-                                creature->SetInCombatWithZone();
-                            });
+                DoAfterTime(pCreature, (9 * IN_MILLISECONDS), [creature = pCreature]()
+                {
+                    creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_SPAWNING);
+                    creature->SetFactionTemplateId(nsDaelus::FACTION_SCARLET);
+                    creature->SetInCombatWithZone();
+                });
             }
             catch (const std::runtime_error& e)
             {
@@ -533,7 +549,10 @@ bool GossipSelect_boss_daelus(Player* pPlayer, Creature* pCreature, uint32 /*uiS
     return true;
 }
 
-CreatureAI* GetAI_boss_daelus(Creature* pCreature) { return new boss_daelusAI(pCreature); }
+CreatureAI* GetAI_boss_daelus(Creature* pCreature)
+{
+    return new boss_daelusAI(pCreature);
+}
 
 
 class npc_fallen_spiritAI : public ScriptedAI
@@ -546,6 +565,7 @@ public:
     }
 
 private:
+
     bool m_bSetHealthOnce{};
 
     instance_scarlet_citadel* m_pInstance{};
@@ -568,7 +588,10 @@ public:
         m_bSetHealthOnce = false;
     }
 
-    bool IsChosenOne() { return m_creature->HasAura(nsDaelus::SPELL_RED_COLOR); }
+    bool IsChosenOne()
+    {
+        return m_creature->HasAura(nsDaelus::SPELL_RED_COLOR);
+    }
 
     void JustDied(Unit* /*pKiller*/) override
     {
@@ -579,7 +602,7 @@ public:
 
     void UpdateAI(const uint32 uiDiff) override
     {
-        if (Creature * pDaelus{m_pInstance->GetSingleCreatureFromStorage(NPC_DAELUS)})
+        if (Creature* pDaelus{ m_pInstance->GetSingleCreatureFromStorage(NPC_DAELUS) })
         {
             m_creature->MonsterMoveWithSpeed(pDaelus->GetPositionX(), pDaelus->GetPositionY(), pDaelus->GetPositionZ(), pDaelus->GetOrientation(), 1.2f, MOVE_PATHFINDING);
         }
@@ -591,7 +614,10 @@ public:
     }
 };
 
-CreatureAI* GetAI_npc_fallen_spirit(Creature* pCreature) { return new npc_fallen_spiritAI(pCreature); }
+CreatureAI* GetAI_npc_fallen_spirit(Creature* pCreature)
+{
+    return new npc_fallen_spiritAI(pCreature);
+}
 
 
 void AddSC_boss_daelus()

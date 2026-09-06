@@ -2,29 +2,28 @@
 
 #include "Database/DatabaseEnv.h"
 
-#include <memory>
+#include <unordered_map>
 #include <string>
 #include <type_traits>
-#include <unordered_map>
+#include <memory>
 
 class GuidObjectScaling
 {
 public:
+
     void LoadFromDB()
     {
-        auto ptr = std::unique_ptr<QueryResult>{WorldDatabase.Query("SELECT `fullGuid`, `scale` FROM `object_scaling`")};
+        auto ptr = std::unique_ptr<QueryResult>{ WorldDatabase.Query("SELECT `fullGuid`, `scale` FROM `object_scaling`") };
 
         if (!ptr)
             return;
 
-        do
-        {
+        do {
             auto fields = ptr->Fetch();
             m_guidScales[fields[0].GetUInt64()] = fields[1].GetFloat();
-        }
-        while (ptr->NextRow());
+        } while (ptr->NextRow());
     }
-
+    
     template <typename T>
     typename std::enable_if<std::is_same<T, float>::value, T>::type GetScale(uint64 fullGuid, T scale = DEFAULT_OBJECT_SCALE)
     {
@@ -50,8 +49,8 @@ public:
 
 
     GuidObjectScaling() = default;
-
 private:
+
     std::unordered_map<uint64, float> m_guidScales;
 };
 

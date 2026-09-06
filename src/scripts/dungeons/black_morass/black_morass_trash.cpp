@@ -5,17 +5,21 @@
  * absent permission of Nolin.
  */
 
-#include "black_morass_trash.hpp"
-#include "black_morass.h"
 #include "scriptPCH.h"
+#include "black_morass.h"
+#include "black_morass_trash.hpp"
 
 
 class npc_frostbitten_bronze_soldierAI : public ScriptedAI
 {
 public:
-    explicit npc_frostbitten_bronze_soldierAI(Creature* pCreature) : ScriptedAI(pCreature) { npc_frostbitten_bronze_soldierAI::Reset(); }
+    explicit npc_frostbitten_bronze_soldierAI(Creature* pCreature) : ScriptedAI(pCreature)
+    {
+        npc_frostbitten_bronze_soldierAI::Reset();
+    }
 
 private:
+
     bool m_bHasBegged{};
 
 public:
@@ -46,34 +50,34 @@ public:
                 switch (urand(0, 4))
                 {
                 case 0:
-                    {
-                        m_creature->MonsterSay("Please, I can't handle this, end with my life...");
-                        break;
-                    }
+                {
+                    m_creature->MonsterSay("Please, I can't handle this, end with my life...");
+                    break;
+                }
                 case 1:
-                    {
-                        m_creature->MonsterSay("AT LAST! Finally I can rest.");
-                        break;
-                    }
+                {
+                    m_creature->MonsterSay("AT LAST! Finally I can rest.");
+                    break;
+                }
                 case 2:
-                    {
-                        m_creature->MonsterSay("Careful... Careful with the drake. I just want to... sleep.");
-                        break;
-                    }
+                {
+                    m_creature->MonsterSay("Careful... Careful with the drake. I just want to... sleep.");
+                    break;
+                }
                 case 3:
-                    {
-                        m_creature->MonsterSay("This is suicide! End with my suffering, please, strangers...");
-                        break;
-                    }
+                {
+                    m_creature->MonsterSay("This is suicide! End with my suffering, please, strangers...");
+                    break;
+                }
                 case 4:
-                    {
-                        m_creature->MonsterSay("I can't handle this suffering anymore...");
-                        break;
-                    }
+                {
+                    m_creature->MonsterSay("I can't handle this suffering anymore...");
+                    break;
+                }
                 default:
-                    {
-                        break;
-                    }
+                {
+                    break;
+                }
                 }
 
                 DoPlaySoundToSet(m_creature, 6931); // TODO: Replace with DoScriptText()
@@ -91,38 +95,48 @@ public:
     }
 };
 
-CreatureAI* GetAI_npc_frostbitten_bronze_soldier(Creature* pCreature) { return new npc_frostbitten_bronze_soldierAI(pCreature); }
+CreatureAI* GetAI_npc_frostbitten_bronze_soldier(Creature* pCreature)
+{
+    return new npc_frostbitten_bronze_soldierAI(pCreature);
+}
 
 
 class npc_infinite_dragonspawnAI : public ScriptedAI
 {
 public:
-    explicit npc_infinite_dragonspawnAI(Creature* pCreature) : ScriptedAI(pCreature) { npc_infinite_dragonspawnAI::Reset(); }
+    explicit npc_infinite_dragonspawnAI(Creature* pCreature) : ScriptedAI(pCreature)
+    {
+        npc_infinite_dragonspawnAI::Reset();
+    }
 
 private:
+
     uint32 m_uiAbility_Timer{};
 
 public:
-    void Reset() override { m_uiAbility_Timer = 1000; }
+    void Reset() override
+    {
+        m_uiAbility_Timer = 1000;
+    }
 
     void EnterCombat(Unit*) override
     {
         switch (urand(0, 2))
         {
         case 1:
-            {
-                m_creature->MonsterSay("Our numbers are endless!");
-                break;
-            }
+        {
+            m_creature->MonsterSay("Our numbers are endless!");
+            break;
+        }
         case 2:
-            {
-                m_creature->MonsterSay("Our mission cannot be compromised!");
-                break;
-            }
+        {
+            m_creature->MonsterSay("Our mission cannot be compromised!");
+            break;
+        }
         default:
-            {
-                break;
-            }
+        {
+            break;
+        }
         }
     }
 
@@ -141,7 +155,7 @@ public:
 
         if (m_uiAbility_Timer < uiDiff)
         {
-            if (Unit * pCurrentTarget{m_creature->GetVictim()})
+            if (Unit * pCurrentTarget{ m_creature->GetVictim() })
             {
                 if (m_creature->CanReachWithMeleeAutoAttack(pCurrentTarget))
                 {
@@ -167,15 +181,22 @@ public:
     }
 };
 
-CreatureAI* GetAI_npc_infinite_dragonspawn(Creature* pCreature) { return new npc_infinite_dragonspawnAI(pCreature); }
+CreatureAI* GetAI_npc_infinite_dragonspawn(Creature* pCreature)
+{
+    return new npc_infinite_dragonspawnAI(pCreature);
+}
 
 
 class npc_infinite_riftguardAI : public ScriptedAI
 {
 public:
-    explicit npc_infinite_riftguardAI(Creature* pCreature) : ScriptedAI(pCreature) { npc_infinite_riftguardAI::Reset(); }
+    explicit npc_infinite_riftguardAI(Creature* pCreature) : ScriptedAI(pCreature)
+    {
+        npc_infinite_riftguardAI::Reset();
+    }
 
 private:
+
     uint32 m_uiRoar_Timer{};
     uint32 m_uiCheckForCaster_Timer{};
 
@@ -191,19 +212,19 @@ public:
         switch (urand(0, 2))
         {
         case 1:
-            {
-                m_creature->MonsterSay("The sands flow in our favor, we cannot be stopped!");
-                break;
-            }
+        {
+            m_creature->MonsterSay("The sands flow in our favor, we cannot be stopped!");
+            break;
+        }
         case 2:
-            {
-                m_creature->MonsterSay("Our mission cannot be compromised! Stop them!");
-                break;
-            }
+        {
+            m_creature->MonsterSay("Our mission cannot be compromised! Stop them!");
+            break;
+        }
         default:
-            {
-                break;
-            }
+        {
+            break;
+        }
         }
     }
 
@@ -222,7 +243,7 @@ public:
 
         if (m_uiCheckForCaster_Timer < uiDiff)
         {
-            if (Unit * pChargeTarget{m_creature->GetHostileCasterInRange(0, 50.f)})
+            if (Unit * pChargeTarget{ m_creature->GetHostileCasterInRange(0, 50.f) })
             {
                 if (pChargeTarget->IsNonMeleeSpellCasted(false, false, true))
                 {
@@ -256,15 +277,22 @@ public:
     }
 };
 
-CreatureAI* GetAI_npc_infinite_riftguard(Creature* pCreature) { return new npc_infinite_riftguardAI(pCreature); }
+CreatureAI* GetAI_npc_infinite_riftguard(Creature* pCreature)
+{
+    return new npc_infinite_riftguardAI(pCreature);
+}
 
 
 class npc_infinite_riftweaverAI : public ScriptedAI
 {
 public:
-    explicit npc_infinite_riftweaverAI(Creature* pCreature) : ScriptedAI(pCreature) { npc_infinite_riftweaverAI::Reset(); }
+    explicit npc_infinite_riftweaverAI(Creature* pCreature) : ScriptedAI(pCreature)
+    {
+        npc_infinite_riftweaverAI::Reset();
+    }
 
 private:
+
     uint32 m_timeStopTimer;
     uint32 m_shadowShockTimer;
     uint32 m_darkenVisionTimer;
@@ -284,19 +312,19 @@ public:
         switch (urand(0, 2))
         {
         case 1:
-            {
-                m_creature->MonsterSay("Our rifts must be preserved!");
-                break;
-            }
+        {
+            m_creature->MonsterSay("Our rifts must be preserved!");
+            break;
+        }
         case 2:
-            {
-                m_creature->MonsterSay("Our time has come!");
-                break;
-            }
+        {
+            m_creature->MonsterSay("Our time has come!");
+            break;
+        }
         default:
-            {
-                break;
-            }
+        {
+            break;
+        }
         }
     }
 
@@ -365,15 +393,22 @@ public:
     }
 };
 
-CreatureAI* GetAI_npc_infinite_riftweaver(Creature* pCreature) { return new npc_infinite_riftweaverAI(pCreature); }
+CreatureAI* GetAI_npc_infinite_riftweaver(Creature* pCreature)
+{
+    return new npc_infinite_riftweaverAI(pCreature);
+}
 
 
 class npc_infinite_whelpAI : public ScriptedAI
 {
 public:
-    explicit npc_infinite_whelpAI(Creature* pCreature) : ScriptedAI(pCreature) { npc_infinite_whelpAI::Reset(); }
+    explicit npc_infinite_whelpAI(Creature* pCreature) : ScriptedAI(pCreature)
+    {
+        npc_infinite_whelpAI::Reset();
+    }
 
 private:
+
     uint32 m_uiManaBurn_Timer{};
 
     nsInfiniteWhelp::Phase phase{};
@@ -415,12 +450,12 @@ public:
         {
             m_creature->ModifyPower(POWER_MANA, 150);
 
-            Map::PlayerList const& PlayerList{m_creature->GetMap()->GetPlayers()};
+            Map::PlayerList const& PlayerList{ m_creature->GetMap()->GetPlayers() };
             if (!PlayerList.isEmpty())
             {
                 for (const auto& itr : PlayerList)
                 {
-                    if (Player * pPlayer{itr.getSource()})
+                    if (Player * pPlayer{ itr.getSource() })
                     {
                         if (pPlayer->GetDistance3dToCenter(m_creature) < 20.f)
                         {
@@ -441,22 +476,29 @@ public:
     }
 };
 
-CreatureAI* GetAI_npc_infinite_whelp(Creature* pCreature) { return new npc_infinite_whelpAI(pCreature); }
+CreatureAI* GetAI_npc_infinite_whelp(Creature* pCreature)
+{
+    return new npc_infinite_whelpAI(pCreature);
+}
 
 
 class npc_infinite_timeripperAI : public ScriptedAI
 {
 public:
-    explicit npc_infinite_timeripperAI(Creature* pCreature) : ScriptedAI(pCreature) { npc_infinite_timeripperAI::Reset(); }
+    explicit npc_infinite_timeripperAI(Creature* pCreature) : ScriptedAI(pCreature)
+    {
+        npc_infinite_timeripperAI::Reset();
+    }
 
 private:
+
     bool m_bDoOnce{};
 
     uint32 m_uiPhase_Timer{};
 
     nsInfiniteTimeripper::Phase phase{};
 
-    std::list<ObjectGuid> m_lDragonSpawns;
+    std::list <ObjectGuid> m_lDragonSpawns;
 
 public:
     void Reset() override
@@ -474,13 +516,13 @@ public:
     {
         if (!m_lDragonSpawns.empty())
         {
-            if (const auto map{m_creature->GetMap()})
+            if (const auto map{ m_creature->GetMap() })
             {
                 for (const auto& guid : m_lDragonSpawns)
                 {
-                    if (Creature * pCreature{map->GetCreature(guid)})
+                    if (Creature * pCreature{ map->GetCreature(guid) })
                     {
-                        if (TemporarySummon * tmpSumm{static_cast<TemporarySummon*>(pCreature)})
+                        if (TemporarySummon * tmpSumm{ static_cast<TemporarySummon*>(pCreature) })
                         {
                             tmpSumm->UnSummon();
                         }
@@ -503,14 +545,14 @@ public:
         {
             m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_NPC);
 
-            if (Creature * pDragonSpawn1{m_creature->SummonCreature(nsInfiniteTimeripper::NPC_DRAGONSPAWN, -1422.32f, 6910.95f, -138.01f, 0.41f, TEMPSUMMON_MANUAL_DESPAWN)})
+            if (Creature * pDragonSpawn1{ m_creature->SummonCreature(nsInfiniteTimeripper::NPC_DRAGONSPAWN, -1422.32f, 6910.95f, -138.01f, 0.41f, TEMPSUMMON_MANUAL_DESPAWN) })
             {
                 pDragonSpawn1->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_NPC);
 
                 m_lDragonSpawns.push_back(pDragonSpawn1->GetGUIDLow());
             }
 
-            if (Creature * pDragonSpawn2{m_creature->SummonCreature(nsInfiniteTimeripper::NPC_DRAGONSPAWN, -1414.38f, 6896.57f, -138.07f, 0.46f, TEMPSUMMON_MANUAL_DESPAWN)})
+            if (Creature * pDragonSpawn2{ m_creature->SummonCreature(nsInfiniteTimeripper::NPC_DRAGONSPAWN, -1414.38f, 6896.57f, -138.07f, 0.46f, TEMPSUMMON_MANUAL_DESPAWN) })
             {
                 pDragonSpawn2->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_NPC);
 
@@ -527,15 +569,22 @@ public:
     }
 };
 
-CreatureAI* GetAI_npc_infinite_timeripper(Creature* pCreature) { return new npc_infinite_timeripperAI(pCreature); }
+CreatureAI* GetAI_npc_infinite_timeripper(Creature* pCreature)
+{
+    return new npc_infinite_timeripperAI(pCreature);
+}
 
 
 class npc_infinite_riftlordAI : public ScriptedAI
 {
 public:
-    explicit npc_infinite_riftlordAI(Creature* pCreature) : ScriptedAI(pCreature) { npc_infinite_riftlordAI::Reset(); }
+    explicit npc_infinite_riftlordAI(Creature* pCreature) : ScriptedAI(pCreature)
+    {
+        npc_infinite_riftlordAI::Reset();
+    }
 
 private:
+
     uint32 m_uiWhirlwindTimer{};
     uint32 m_uiDemoShoutTimer{};
     uint32 m_uiThunderTimer{};
@@ -613,15 +662,22 @@ public:
     }
 };
 
-CreatureAI* GetAI_npc_infinite_riftlord(Creature* pCreature) { return new npc_infinite_riftlordAI(pCreature); }
+CreatureAI* GetAI_npc_infinite_riftlord(Creature* pCreature)
+{
+    return new npc_infinite_riftlordAI(pCreature);
+}
 
 
 class npc_aqir_addAI : public ScriptedAI
 {
 public:
-    explicit npc_aqir_addAI(Creature* pCreature) : ScriptedAI(pCreature) { npc_aqir_addAI::Reset(); }
+    explicit npc_aqir_addAI(Creature* pCreature) : ScriptedAI(pCreature)
+    {
+        npc_aqir_addAI::Reset();
+    }
 
 private:
+
     uint32 m_uiMindBlast_Timer{};
     uint32 m_uiShield_Timer{};
     uint32 m_uiHeal_Timer{};
@@ -650,146 +706,156 @@ public:
         switch (m_creature->GetEntry())
         {
         case nsAqirAdd::NPC_CLERIC:
+        {
+            if (!m_creature->HasAura(nsAqirAdd::AURA_SHADOWFORM))
             {
-                if (!m_creature->HasAura(nsAqirAdd::AURA_SHADOWFORM))
-                {
-                    m_creature->AddAura(nsAqirAdd::AURA_SHADOWFORM);
-                }
-
-                if (m_uiMindBlast_Timer < uiDiff)
-                {
-                    if (DoCastSpellIfCan(m_creature->GetVictim(), nsAqirAdd::SPELL_MIND_BLAST) == CAST_OK)
-                    {
-                        m_uiMindBlast_Timer = 8000;
-                    }
-                }
-                else
-                {
-                    m_uiMindBlast_Timer -= uiDiff;
-                }
-
-                if (m_uiHeal_Timer < uiDiff)
-                {
-                    if (Unit * pFriendlyTarget{m_creature->SelectRandomFriendlyTarget(nullptr, 15.0f)})
-                    {
-                        if (pFriendlyTarget->GetHealthPercent() < 75.f)
-                        {
-                            if (DoCastSpellIfCan(pFriendlyTarget, nsAqirAdd::SPELL_HEAL) == CAST_OK)
-                            {
-                                m_uiHeal_Timer = 15000;
-                            }
-                        }
-                    }
-                }
-                else
-                {
-                    m_uiHeal_Timer -= uiDiff;
-                }
-
-                if (m_uiShield_Timer < uiDiff)
-                {
-                    if (Unit * pShieldTarget{m_creature->FindLowestHpFriendlyUnit(15.f)})
-                    {
-                        if (DoCastSpellIfCan(pShieldTarget, nsAqirAdd::SPELL_SHIELD) == CAST_OK)
-                        {
-                            m_uiShield_Timer = 7500;
-                        }
-                    }
-                }
-                else
-                {
-                    m_uiShield_Timer -= uiDiff;
-                }
-
-                break;
+                m_creature->AddAura(nsAqirAdd::AURA_SHADOWFORM);
             }
+
+            if (m_uiMindBlast_Timer < uiDiff)
+            {
+                if (DoCastSpellIfCan(m_creature->GetVictim(), nsAqirAdd::SPELL_MIND_BLAST) == CAST_OK)
+                {
+                    m_uiMindBlast_Timer = 8000;
+                }
+            }
+            else
+            {
+                m_uiMindBlast_Timer -= uiDiff;
+            }
+
+            if (m_uiHeal_Timer < uiDiff)
+            {
+                if (Unit * pFriendlyTarget{ m_creature->SelectRandomFriendlyTarget(nullptr, 15.0f) })
+                {
+                    if (pFriendlyTarget->GetHealthPercent() < 75.f)
+                    {
+                        if (DoCastSpellIfCan(pFriendlyTarget, nsAqirAdd::SPELL_HEAL) == CAST_OK)
+                        {
+                            m_uiHeal_Timer = 15000;
+                        }
+                    }
+                }
+            }
+            else
+            {
+                m_uiHeal_Timer -= uiDiff;
+            }
+
+            if (m_uiShield_Timer < uiDiff)
+            {
+                if (Unit * pShieldTarget{ m_creature->FindLowestHpFriendlyUnit(15.f) })
+                {
+                    if (DoCastSpellIfCan(pShieldTarget, nsAqirAdd::SPELL_SHIELD) == CAST_OK)
+                    {
+                        m_uiShield_Timer = 7500;
+                    }
+                }
+            }
+            else
+            {
+                m_uiShield_Timer -= uiDiff;
+            }
+
+            break;
+        }
         case nsAqirAdd::NPC_WARRIOR:
+        {
+            if (m_uiShadowStrike_Timer < uiDiff)
             {
-                if (m_uiShadowStrike_Timer < uiDiff)
+                if (DoCastSpellIfCan(m_creature->GetVictim(), nsAqirAdd::SPELL_SHADOW_STRIKE) == CAST_OK)
                 {
-                    if (DoCastSpellIfCan(m_creature->GetVictim(), nsAqirAdd::SPELL_SHADOW_STRIKE) == CAST_OK)
-                    {
-                        m_uiShadowStrike_Timer = 10000;
-                    }
+                    m_uiShadowStrike_Timer = 10000;
                 }
-                else
-                {
-                    m_uiShadowStrike_Timer -= uiDiff;
-                }
+            }
+            else
+            {
+                m_uiShadowStrike_Timer -= uiDiff;
+            }
 
-                if (m_uiPiercingShadow_Timer < uiDiff)
+            if (m_uiPiercingShadow_Timer < uiDiff)
+            {
+                Map::PlayerList const& PlayerList{ m_creature->GetMap()->GetPlayers() };
+                if (!PlayerList.isEmpty())
                 {
-                    Map::PlayerList const& PlayerList{m_creature->GetMap()->GetPlayers()};
-                    if (!PlayerList.isEmpty())
+                    for (const auto& itr : PlayerList)
                     {
-                        for (const auto& itr : PlayerList)
+                        if (Player * pPlayer{ itr.getSource() })
                         {
-                            if (Player * pPlayer{itr.getSource()})
+                            if (pPlayer->GetDistance3dToCenter(m_creature) < 35.f)
                             {
-                                if (pPlayer->GetDistance3dToCenter(m_creature) < 35.f)
-                                {
-                                    DoCastSpellIfCan(pPlayer, nsAqirAdd::SPELL_PIERCING_SHADOW);
-                                }
+                                DoCastSpellIfCan(pPlayer, nsAqirAdd::SPELL_PIERCING_SHADOW);
                             }
                         }
-
-                        m_uiPiercingShadow_Timer = 15000;
                     }
-                }
-                else
-                {
-                    m_uiPiercingShadow_Timer -= uiDiff;
-                }
 
-                DoMeleeAttackIfReady();
-
-                break;
+                    m_uiPiercingShadow_Timer = 15000;
+                }
             }
-        case nsAqirAdd::NPC_DRONE:
+            else
             {
-                if (m_uiPoisonVolley_Timer < uiDiff)
-                {
-                    if (DoCastSpellIfCan(m_creature->GetVictim(), nsAqirAdd::SPELL_POISON_BOLT_VOLLEY) == CAST_OK)
-                    {
-                        m_uiPoisonVolley_Timer = 12000;
-                    }
-                }
-                else
-                {
-                    m_uiPoisonVolley_Timer -= uiDiff;
-                }
-
-                if (m_uiPlagueCloud_Timer < uiDiff)
-                {
-                    if (Creature * pCloudTarget{m_creature->SummonCreature(nsAqirAdd::NPC_POISONCLOUD, m_creature->GetVictim()->GetPositionX(), m_creature->GetVictim()->GetPositionY(), m_creature->GetVictim()->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN, 5000)})
-                    {
-                        pCloudTarget->CastSpell(pCloudTarget, nsAqirAdd::SPELL_PLAGUE_CLOUD, false);
-
-                        m_uiPlagueCloud_Timer = 10000;
-                    }
-                }
-                else
-                {
-                    m_uiPlagueCloud_Timer -= uiDiff;
-                }
-
-                DoMeleeAttackIfReady();
-
-                break;
+                m_uiPiercingShadow_Timer -= uiDiff;
             }
+
+            DoMeleeAttackIfReady();
+
+            break;
+        }
+        case nsAqirAdd::NPC_DRONE:
+        {
+            if (m_uiPoisonVolley_Timer < uiDiff)
+            {
+                if (DoCastSpellIfCan(m_creature->GetVictim(), nsAqirAdd::SPELL_POISON_BOLT_VOLLEY) == CAST_OK)
+                {
+                    m_uiPoisonVolley_Timer = 12000;
+                }
+            }
+            else
+            {
+                m_uiPoisonVolley_Timer -= uiDiff;
+            }
+
+            if (m_uiPlagueCloud_Timer < uiDiff)
+            {
+                if (Creature * pCloudTarget{ m_creature->SummonCreature(nsAqirAdd::NPC_POISONCLOUD,
+                    m_creature->GetVictim()->GetPositionX(),
+                    m_creature->GetVictim()->GetPositionY(),
+                    m_creature->GetVictim()->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN, 5000) })
+                {
+                    pCloudTarget->CastSpell(pCloudTarget, nsAqirAdd::SPELL_PLAGUE_CLOUD, false);
+
+                    m_uiPlagueCloud_Timer = 10000;
+                }
+            }
+            else
+            {
+                m_uiPlagueCloud_Timer -= uiDiff;
+            }
+
+            DoMeleeAttackIfReady();
+
+            break;
+        }
         }
     }
 };
 
-CreatureAI* GetAI_npc_aqir_add(Creature* pCreature) { return new npc_aqir_addAI(pCreature); }
+CreatureAI* GetAI_npc_aqir_add(Creature* pCreature)
+{
+    return new npc_aqir_addAI(pCreature);
+}
 
 
 class npc_swamp_mobAI : public ScriptedAI
 {
 public:
-    explicit npc_swamp_mobAI(Creature* pCreature) : ScriptedAI(pCreature) { npc_swamp_mobAI::Reset(); }
+    explicit npc_swamp_mobAI(Creature* pCreature) : ScriptedAI(pCreature)
+    {
+        npc_swamp_mobAI::Reset();
+    }
 
 private:
+
     uint32 m_uiPoison_Timer{};
     uint32 m_uiWound_Timer{};
     uint32 m_uiParalyze_Timer{};
@@ -810,72 +876,79 @@ public:
         switch (m_creature->GetEntry())
         {
         case nsSwampMob::NPC_PYTHON:
+        {
+            if (m_uiPoison_Timer < uiDiff)
             {
-                if (m_uiPoison_Timer < uiDiff)
+                if (DoCastSpellIfCan(m_creature->GetVictim(), nsSwampMob::SPELL_POISON) == CAST_OK)
                 {
-                    if (DoCastSpellIfCan(m_creature->GetVictim(), nsSwampMob::SPELL_POISON) == CAST_OK)
-                    {
-                        m_uiPoison_Timer = 21000;
-                    }
+                    m_uiPoison_Timer = 21000;
                 }
-                else
-                {
-                    m_uiPoison_Timer -= uiDiff;
-                }
-
-                break;
             }
+            else
+            {
+                m_uiPoison_Timer -= uiDiff;
+            }
+
+            break;
+        }
         case nsSwampMob::NPC_CROC:
+        {
+            if (m_uiWound_Timer < uiDiff)
             {
-                if (m_uiWound_Timer < uiDiff)
+                if (DoCastSpellIfCan(m_creature->GetVictim(), nsSwampMob::SPELL_WOUND) == CAST_OK)
                 {
-                    if (DoCastSpellIfCan(m_creature->GetVictim(), nsSwampMob::SPELL_WOUND) == CAST_OK)
-                    {
-                        m_uiWound_Timer = 10000;
-                    }
+                    m_uiWound_Timer = 10000;
                 }
-                else
-                {
-                    m_uiWound_Timer -= uiDiff;
-                }
-
-                break;
             }
+            else
+            {
+                m_uiWound_Timer -= uiDiff;
+            }
+
+            break;
+        }
         case nsSwampMob::NPC_TARANTULA:
+        {
+            if (m_uiParalyze_Timer < uiDiff)
             {
-                if (m_uiParalyze_Timer < uiDiff)
+                if (DoCastSpellIfCan(m_creature->GetVictim(), nsSwampMob::SPELL_PARALYZING_POISON) == CAST_OK)
                 {
-                    if (DoCastSpellIfCan(m_creature->GetVictim(), nsSwampMob::SPELL_PARALYZING_POISON) == CAST_OK)
-                    {
-                        m_uiParalyze_Timer = 35000;
-                    }
+                    m_uiParalyze_Timer = 35000;
                 }
-                else
-                {
-                    m_uiParalyze_Timer -= uiDiff;
-                }
+            }
+            else
+            {
+                m_uiParalyze_Timer -= uiDiff;
+            }
 
-                break;
-            }
+            break;
+        }
         default:
-            {
-                break;
-            }
+        {
+            break;
+        }
         }
 
         DoMeleeAttackIfReady();
     }
 };
 
-CreatureAI* GetAI_npc_swamp_mob(Creature* pCreature) { return new npc_swamp_mobAI(pCreature); }
+CreatureAI* GetAI_npc_swamp_mob(Creature* pCreature)
+{
+    return new npc_swamp_mobAI(pCreature);
+}
 
 
 class boss_chronarAI : public ScriptedAI
 {
 public:
-    explicit boss_chronarAI(Creature* pCreature) : ScriptedAI(pCreature) { boss_chronarAI::Reset(); }
+    explicit boss_chronarAI(Creature* pCreature) : ScriptedAI(pCreature)
+    {
+        boss_chronarAI::Reset();
+    }
 
 private:
+
     bool m_bEnrageActive{};
 
     uint32 m_uiShout_Timer{};
@@ -884,6 +957,7 @@ private:
     uint32 m_uiSpellReflectionTimer;
 
 public:
+
     void Reset() override
     {
         m_bEnrageActive = false;
@@ -894,9 +968,15 @@ public:
         m_uiSpellReflectionTimer = 17000;
     }
 
-    void EnterCombat(Unit*) override { m_creature->MonsterYell("It seems we have visitors. You should not have come here mortals, now I will ensure that you will not leave."); }
+    void EnterCombat(Unit*) override
+    {
+        m_creature->MonsterYell("It seems we have visitors. You should not have come here mortals, now I will ensure that you will not leave.");
+    }
 
-    void JustDied(Unit*) override { m_creature->MonsterSay("Too soon..."); }
+    void JustDied(Unit*) override
+    {
+        m_creature->MonsterSay("Too soon...");
+    }
 
     void UpdateAI(const uint32 uiDiff) override
     {
@@ -935,6 +1015,7 @@ public:
 
                 m_uiSweepingSlam_Timer = 25000;
             }
+
         }
         else
         {
@@ -964,15 +1045,22 @@ public:
     }
 };
 
-CreatureAI* GetAI_boss_chronar(Creature* pCreature) { return new boss_chronarAI(pCreature); }
+CreatureAI* GetAI_boss_chronar(Creature* pCreature)
+{
+    return new boss_chronarAI(pCreature);
+}
 
 
 class boss_harbingerAI : public ScriptedAI
 {
 public:
-    explicit boss_harbingerAI(Creature* pCreature) : ScriptedAI(pCreature) { boss_harbingerAI::Reset(); }
+    explicit boss_harbingerAI(Creature* pCreature) : ScriptedAI(pCreature)
+    {
+        boss_harbingerAI::Reset();
+    }
 
 private:
+
     bool m_bAddsSpawned{};
     bool m_bBurstDone{};
     bool m_bInsanityDone{};
@@ -999,10 +1087,10 @@ public:
     {
         m_creature->MonsterYell("Shuul og i agthu yrr sk'uuyat uulwi ma oou sshoq'met ez nuq far'al I zz nuq al'tha Ssaggh ni za an'zig yrr puul ywaq gul'kafh");
 
-        Map::PlayerList const& playerList{m_creature->GetMap()->GetPlayers()};
+        Map::PlayerList const& playerList{ m_creature->GetMap()->GetPlayers() };
         for (const auto& itr : playerList)
         {
-            if (Player * pPlayer{itr.getSource()})
+            if (Player * pPlayer{ itr.getSource() })
             {
                 m_creature->MonsterWhisper("There is a great and terrible truth at the beginning of all things. I am its herald. Listen to my sermon, and know your infinite inconsequence.", pPlayer, true);
             }
@@ -1013,10 +1101,10 @@ public:
     {
         m_creature->MonsterSay("Hul bala miz rilakich...");
 
-        Map::PlayerList const& playerList{m_creature->GetMap()->GetPlayers()};
+        Map::PlayerList const& playerList{ m_creature->GetMap()->GetPlayers() };
         for (const auto& itr : playerList)
         {
-            if (Player * pPlayer{itr.getSource()})
+            if (Player * pPlayer{ itr.getSource() })
             {
                 m_creature->MonsterWhisper("How is this possible...", pPlayer, true);
             }
@@ -1025,7 +1113,7 @@ public:
 
     void UpdateAI(const uint32 uiDiff) override
     {
-        if (GameObject * pForceField{m_creature->FindNearestGameObject(3000513, 100.f)}) // TODO: Stop spam
+        if (GameObject * pForceField{ m_creature->FindNearestGameObject(3000513, 100.f) }) // TODO: Stop spam
         {
             pForceField->AddObjectToRemoveList();
         }
@@ -1045,7 +1133,7 @@ public:
             m_uiVeil_Timer -= uiDiff;
         }
 
-        const float fCurrentHP{m_creature->GetHealthPercent()};
+        const float fCurrentHP{ m_creature->GetHealthPercent() };
 
         if (fCurrentHP < (m_fOldHP - 20.f)) // Shadowbolt volley every 20% hp loss
         {
@@ -1059,7 +1147,12 @@ public:
         {
             for (uint8 i{}; i < 5; ++i)
             {
-                if (Creature * pLarvae{m_creature->SummonCreature(nsBossHarbringer::NPC_LARVAE, m_creature->GetVictim()->GetPositionX() + frand(-8.f, 8.f), m_creature->GetVictim()->GetPositionY() + frand(-8.f, 8.f), m_creature->GetMap()->GetHeight(m_creature->GetPositionX(), m_creature->GetPositionY(), m_creature->GetPositionZ()), 0, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 1000)})
+                if (Creature * pLarvae{ m_creature->SummonCreature(nsBossHarbringer::NPC_LARVAE,
+                    m_creature->GetVictim()->GetPositionX() + frand(-8.f, 8.f),
+                    m_creature->GetVictim()->GetPositionY() + frand(-8.f, 8.f),
+                    m_creature->GetMap()->GetHeight(m_creature->GetPositionX(),
+                    m_creature->GetPositionY(), m_creature->GetPositionZ()),
+                    0, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 1000) })
                 {
                     pLarvae->AI()->AttackStart(m_creature->GetVictim());
                     pLarvae->AddThreat(m_creature->GetVictim(), 100.f);
@@ -1068,10 +1161,10 @@ public:
 
             m_creature->MonsterYell("W'oq uhn'agth ez qam Sk'arr!");
 
-            Map::PlayerList const& playerList{m_creature->GetMap()->GetPlayers()};
+            Map::PlayerList const& playerList{ m_creature->GetMap()->GetPlayers() };
             for (const auto& itr : playerList)
             {
-                if (Player * pPlayer{itr.getSource()})
+                if (Player * pPlayer{ itr.getSource() })
                 {
                     m_creature->MonsterWhisper("Come, servants of rot.Consume!", pPlayer, true);
                 }
@@ -1089,10 +1182,10 @@ public:
                 m_creature->MonsterYell("Ak'agthshi ma uhnish, ak'uq shg'cul vwahuhn! H'iwn iggksh Phquathi gag OOU KAAXTH SHUUL!");
             }
 
-            Map::PlayerList const& playerList{m_creature->GetMap()->GetPlayers()};
+            Map::PlayerList const& playerList{ m_creature->GetMap()->GetPlayers() };
             for (const auto& itr : playerList)
             {
-                if (Player * pPlayer{itr.getSource()})
+                if (Player * pPlayer{ itr.getSource() })
                 {
                     m_creature->MonsterWhisper("Our numbers are endless, our power beyond reckoning! All who oppose the Destroyer will DIE A THOUSAND DEATHS!", pPlayer, true);
                 }
@@ -1113,15 +1206,22 @@ public:
     }
 };
 
-CreatureAI* GetAI_boss_harbinger(Creature* pCreature) { return new boss_harbingerAI(pCreature); }
+CreatureAI* GetAI_boss_harbinger(Creature* pCreature)
+{
+    return new boss_harbingerAI(pCreature);
+}
 
 
 class boss_epochronosAI : public ScriptedAI
 {
 public:
-    explicit boss_epochronosAI(Creature* pCreature) : ScriptedAI(pCreature) { boss_epochronosAI::Reset(); }
+    explicit boss_epochronosAI(Creature* pCreature) : ScriptedAI(pCreature)
+    {
+        boss_epochronosAI::Reset();
+    }
 
 private:
+
     bool m_bShadeSummoned{};
     bool m_bEnrageActive{};
 
@@ -1146,18 +1246,21 @@ public:
         m_uiSummonEntry = 0;
     }
 
-    void EnterCombat(Unit*) override { m_creature->MonsterYell("Time moves in our favor, your intrusion ends here!"); }
+    void EnterCombat(Unit*) override
+    {
+        m_creature->MonsterYell("Time moves in our favor, your intrusion ends here!");
+    }
 
     void JustDied(Unit*) override
     {
         m_creature->MonsterYell("We are infinite...");
 
-        if (GameObject * pSandWall{m_creature->FindNearestGameObject(2010865, 75.f)})
+        if (GameObject * pSandWall{ m_creature->FindNearestGameObject(2010865, 75.f) })
         {
             pSandWall->AddObjectToRemoveList();
         }
 
-        if (GameObject * pBarrier{m_creature->FindNearestGameObject(180322, 75.f)})
+        if (GameObject * pBarrier{ m_creature->FindNearestGameObject(180322, 75.f) })
         {
             pBarrier->AddObjectToRemoveList();
         }
@@ -1194,7 +1297,7 @@ public:
 
         if (m_uiArcaneBlast_Timer < uiDiff)
         {
-            if (Unit * pCurrentTarget{m_creature->SelectRandomUnfriendlyTarget(nullptr, 25.f)})
+            if (Unit * pCurrentTarget{ m_creature->SelectRandomUnfriendlyTarget(nullptr, 25.f) })
             {
                 if (DoCastSpellIfCan(pCurrentTarget, nsBossEpochronos::SPELL_ARCANE_BLAST) == CAST_OK)
                 {
@@ -1216,27 +1319,30 @@ public:
             switch (urand(1, 3))
             {
             case 1:
-                {
-                    m_uiSummonEntry = nsBossEpochronos::NPC_LICH_KING;
-                    break;
-                }
+            {
+                m_uiSummonEntry = nsBossEpochronos::NPC_LICH_KING;
+                break;
+            }
             case 2:
-                {
-                    m_uiSummonEntry = nsBossEpochronos::NPC_KAELTHAS;
-                    break;
-                }
+            {
+                m_uiSummonEntry = nsBossEpochronos::NPC_KAELTHAS;
+                break;
+            }
             case 3:
-                {
-                    m_uiSummonEntry = nsBossEpochronos::NPC_VASHJ;
-                    break;
-                }
+            {
+                m_uiSummonEntry = nsBossEpochronos::NPC_VASHJ;
+                break;
+            }
             default:
-                {
-                    break;
-                }
+            {
+                break;
+            }
             }
 
-            m_creature->SummonCreature(m_uiSummonEntry, m_creature->GetPositionX(), m_creature->GetPositionY(), m_creature->GetPositionZ(), 0);
+            m_creature->SummonCreature(m_uiSummonEntry,
+                m_creature->GetPositionX(),
+                m_creature->GetPositionY(),
+                m_creature->GetPositionZ(), 0);
 
             m_bShadeSummoned = true;
         }
@@ -1268,15 +1374,22 @@ public:
     }
 };
 
-CreatureAI* GetAI_boss_epochronos(Creature* pCreature) { return new boss_epochronosAI(pCreature); }
+CreatureAI* GetAI_boss_epochronos(Creature* pCreature)
+{
+    return new boss_epochronosAI(pCreature);
+}
 
 
 class npc_shadeAI : public ScriptedAI
 {
 public:
-    explicit npc_shadeAI(Creature* pCreature) : ScriptedAI(pCreature) { npc_shadeAI::Reset(); }
+    explicit npc_shadeAI(Creature* pCreature) : ScriptedAI(pCreature)
+    {
+        npc_shadeAI::Reset();
+    }
 
 private:
+
     uint32 m_uiScream_Timer{};
     uint32 m_uiPlague_Timer{};
     uint32 m_uiDeathDecay_Timer{};
@@ -1312,10 +1425,10 @@ public:
 
         if (m_uiScream_Timer < uiDiff)
         {
-            Map::PlayerList const& playerList{m_creature->GetMap()->GetPlayers()};
+            Map::PlayerList const& playerList{ m_creature->GetMap()->GetPlayers() };
             for (const auto& itr : playerList)
             {
-                if (Player * pPlayer{itr.getSource()})
+                if (Player * pPlayer{ itr.getSource() })
                 {
                     pPlayer->AddAura(nsShade::SPELL_SCREAMS);
                 }
@@ -1331,191 +1444,198 @@ public:
         switch (m_creature->GetEntry())
         {
         case nsShade::NPC_LICH_KING:
+        {
+            if (m_uiPlague_Timer < uiDiff)
             {
-                if (m_uiPlague_Timer < uiDiff)
-                {
-                    uint8 uiPlagueCount{};
+                uint8 uiPlagueCount{};
 
-                    Map::PlayerList const& playerList{m_creature->GetMap()->GetPlayers()};
+                Map::PlayerList const& playerList{ m_creature->GetMap()->GetPlayers() };
+                for (const auto& itr : playerList)
+                {
+                    if (uiPlagueCount >= 2)
+                        break;
+
+                    if (Player * pPlayer{ itr.getSource() })
+                    {
+                        if (!pPlayer->HasAura(nsShade::SPELL_PLAGUE))
+                        {
+                            if (DoCastSpellIfCan(pPlayer, nsShade::SPELL_PLAGUE) == CAST_OK)
+                            {
+                                ++uiPlagueCount;
+                            }
+                        }
+                    }
+                }
+
+                m_uiPlague_Timer = 15000;
+            }
+            else
+            {
+                m_uiPlague_Timer -= uiDiff;
+            }
+
+            if (m_uiDeathDecay_Timer < uiDiff)
+            {
+                if (DoCastSpellIfCan(m_creature->GetVictim(), nsShade::SPELL_DEATHNDECAY) == CAST_OK)
+                {
+                    m_uiDeathDecay_Timer = 25000;
+                }
+            }
+            else
+            {
+                m_uiDeathDecay_Timer -= uiDiff;
+            }
+
+            if (m_uiDeathCoil_Timer < uiDiff)
+            {
+                if (DoCastSpellIfCan(m_creature->GetVictim(), nsShade::SPELL_DEATHCOIL) == CAST_OK)
+                {
+                    m_uiDeathCoil_Timer = 10000;
+                }
+            }
+            else
+            {
+                m_uiDeathCoil_Timer -= uiDiff;
+            }
+
+            if (m_uiDarkStrike_Timer < uiDiff)
+            {
+                if (DoCastSpellIfCan(m_creature->GetVictim(), nsShade::SPELL_DARKSTRIKE) == CAST_OK)
+                {
+                    m_uiDarkStrike_Timer = 6000;
+                }
+            }
+            else
+            {
+                m_uiDarkStrike_Timer -= uiDiff;
+            }
+
+            DoMeleeAttackIfReady();
+
+            break;
+        }
+        case nsShade::NPC_KAELTHAS:
+        {
+            if (m_uiConeOfFire_Timer < uiDiff)
+            {
+                if (DoCastSpellIfCan(m_creature->GetVictim(), nsShade::SPELL_CONE_OF_FIRE) == CAST_OK)
+                {
+                    m_uiConeOfFire_Timer = 8000;
+                }
+            }
+            else
+            {
+                m_uiConeOfFire_Timer -= uiDiff;
+            }
+
+            if (m_uiAmplifyFire_Timer < uiDiff)
+            {
+                if (DoCastSpellIfCan(m_creature->GetVictim(), nsShade::SPELL_AMPLIFY_FLAMES) == CAST_OK)
+                {
+                    m_uiAmplifyFire_Timer = 30000;
+
+                    Map::PlayerList const& playerList{ m_creature->GetMap()->GetPlayers() };
                     for (const auto& itr : playerList)
                     {
-                        if (uiPlagueCount >= 2)
-                            break;
-
-                        if (Player * pPlayer{itr.getSource()})
+                        if (Player * pPlayer{ itr.getSource() })
                         {
-                            if (!pPlayer->HasAura(nsShade::SPELL_PLAGUE))
+                            if (pPlayer->GetDistance3dToCenter(m_creature) < 10.f)
                             {
-                                if (DoCastSpellIfCan(pPlayer, nsShade::SPELL_PLAGUE) == CAST_OK)
-                                {
-                                    ++uiPlagueCount;
-                                }
+                                pPlayer->AddAura(nsShade::SPELL_AMPLIFY_FLAMES);
                             }
                         }
                     }
-
-                    m_uiPlague_Timer = 15000;
                 }
-                else
-                {
-                    m_uiPlague_Timer -= uiDiff;
-                }
-
-                if (m_uiDeathDecay_Timer < uiDiff)
-                {
-                    if (DoCastSpellIfCan(m_creature->GetVictim(), nsShade::SPELL_DEATHNDECAY) == CAST_OK)
-                    {
-                        m_uiDeathDecay_Timer = 25000;
-                    }
-                }
-                else
-                {
-                    m_uiDeathDecay_Timer -= uiDiff;
-                }
-
-                if (m_uiDeathCoil_Timer < uiDiff)
-                {
-                    if (DoCastSpellIfCan(m_creature->GetVictim(), nsShade::SPELL_DEATHCOIL) == CAST_OK)
-                    {
-                        m_uiDeathCoil_Timer = 10000;
-                    }
-                }
-                else
-                {
-                    m_uiDeathCoil_Timer -= uiDiff;
-                }
-
-                if (m_uiDarkStrike_Timer < uiDiff)
-                {
-                    if (DoCastSpellIfCan(m_creature->GetVictim(), nsShade::SPELL_DARKSTRIKE) == CAST_OK)
-                    {
-                        m_uiDarkStrike_Timer = 6000;
-                    }
-                }
-                else
-                {
-                    m_uiDarkStrike_Timer -= uiDiff;
-                }
-
-                DoMeleeAttackIfReady();
-
-                break;
             }
-        case nsShade::NPC_KAELTHAS:
+            else
             {
-                if (m_uiConeOfFire_Timer < uiDiff)
-                {
-                    if (DoCastSpellIfCan(m_creature->GetVictim(), nsShade::SPELL_CONE_OF_FIRE) == CAST_OK)
-                    {
-                        m_uiConeOfFire_Timer = 8000;
-                    }
-                }
-                else
-                {
-                    m_uiConeOfFire_Timer -= uiDiff;
-                }
-
-                if (m_uiAmplifyFire_Timer < uiDiff)
-                {
-                    if (DoCastSpellIfCan(m_creature->GetVictim(), nsShade::SPELL_AMPLIFY_FLAMES) == CAST_OK)
-                    {
-                        m_uiAmplifyFire_Timer = 30000;
-
-                        Map::PlayerList const& playerList{m_creature->GetMap()->GetPlayers()};
-                        for (const auto& itr : playerList)
-                        {
-                            if (Player * pPlayer{itr.getSource()})
-                            {
-                                if (pPlayer->GetDistance3dToCenter(m_creature) < 10.f)
-                                {
-                                    pPlayer->AddAura(nsShade::SPELL_AMPLIFY_FLAMES);
-                                }
-                            }
-                        }
-                    }
-                }
-                else
-                {
-                    m_uiAmplifyFire_Timer -= uiDiff;
-                }
-
-                if (m_uiPyro_Timer < uiDiff)
-                {
-                    if (DoCastSpellIfCan(m_creature->GetVictim(), nsShade::SPELL_PYROBLAST) == CAST_OK)
-                    {
-                        m_uiPyro_Timer = 10000;
-                    }
-                }
-                else
-                {
-                    m_uiPyro_Timer -= uiDiff;
-                }
-
-                DoMeleeAttackIfReady();
-
-                break;
+                m_uiAmplifyFire_Timer -= uiDiff;
             }
+
+            if (m_uiPyro_Timer < uiDiff)
+            {
+                if (DoCastSpellIfCan(m_creature->GetVictim(), nsShade::SPELL_PYROBLAST) == CAST_OK)
+                {
+                    m_uiPyro_Timer = 10000;
+                }
+            }
+            else
+            {
+                m_uiPyro_Timer -= uiDiff;
+            }
+
+            DoMeleeAttackIfReady();
+
+            break;
+        }
         case nsShade::NPC_VASHJ:
+        {
+            if (!m_creature->HasAura(nsShade::AURA_LIGHTNING_SHIELD))
             {
-                if (!m_creature->HasAura(nsShade::AURA_LIGHTNING_SHIELD))
-                {
-                    m_creature->AddAura(nsShade::AURA_LIGHTNING_SHIELD);
-                }
-
-                if (m_uiChainLightning_Timer < uiDiff)
-                {
-                    if (DoCastSpellIfCan(m_creature->GetVictim(), nsShade::SPELL_CHAIN_LIGHTNING) == CAST_OK)
-                    {
-                        m_uiChainLightning_Timer = 8000;
-                    }
-                }
-                else
-                {
-                    m_uiChainLightning_Timer -= uiDiff;
-                }
-
-                if (m_uiLightningCloud_Timer < uiDiff)
-                {
-                    if (DoCastSpellIfCan(m_creature->SelectRandomUnfriendlyTarget(), nsShade::SPELL_LIGHTNING_CLOUD) == CAST_OK)
-                    {
-                        m_uiLightningCloud_Timer = 18000;
-                    }
-                }
-                else
-                {
-                    m_uiLightningCloud_Timer -= uiDiff;
-                }
-
-                if (m_uiLightningBolt_Timer < uiDiff)
-                {
-                    if (DoCastSpellIfCan(m_creature->GetVictim(), nsShade::SPELL_LIGHTNING_BOLT) == CAST_OK)
-                    {
-                        m_uiLightningBolt_Timer = 1000;
-                    }
-                }
-                else
-                {
-                    m_uiLightningBolt_Timer -= uiDiff;
-                }
-
-                break;
+                m_creature->AddAura(nsShade::AURA_LIGHTNING_SHIELD);
             }
+
+            if (m_uiChainLightning_Timer < uiDiff)
+            {
+                if (DoCastSpellIfCan(m_creature->GetVictim(), nsShade::SPELL_CHAIN_LIGHTNING) == CAST_OK)
+                {
+                    m_uiChainLightning_Timer = 8000;
+                }
+            }
+            else
+            {
+                m_uiChainLightning_Timer -= uiDiff;
+            }
+
+            if (m_uiLightningCloud_Timer < uiDiff)
+            {
+                if (DoCastSpellIfCan(m_creature->SelectRandomUnfriendlyTarget(), nsShade::SPELL_LIGHTNING_CLOUD) == CAST_OK)
+                {
+                    m_uiLightningCloud_Timer = 18000;
+                }
+            }
+            else
+            {
+                m_uiLightningCloud_Timer -= uiDiff;
+            }
+
+            if (m_uiLightningBolt_Timer < uiDiff)
+            {
+                if (DoCastSpellIfCan(m_creature->GetVictim(), nsShade::SPELL_LIGHTNING_BOLT) == CAST_OK)
+                {
+                    m_uiLightningBolt_Timer = 1000;
+                }
+            }
+            else
+            {
+                m_uiLightningBolt_Timer -= uiDiff;
+            }
+
+            break;
+        }
         default:
-            {
-                break;
-            }
+        {
+            break;
+        }
         }
     }
 };
 
-CreatureAI* GetAI_npc_shade(Creature* pCreature) { return new npc_shadeAI(pCreature); }
+CreatureAI* GetAI_npc_shade(Creature* pCreature)
+{
+    return new npc_shadeAI(pCreature);
+}
 
 class npc_rotmawAI : public ScriptedAI
 {
 public:
-    explicit npc_rotmawAI(Creature* pCreature) : ScriptedAI(pCreature) { npc_rotmawAI::Reset(); }
+    explicit npc_rotmawAI(Creature* pCreature) : ScriptedAI(pCreature)
+    {
+        npc_rotmawAI::Reset();
+    }
 
 private:
+
     bool m_bIsConsuming{};
 
     uint32 m_uiRot_Timer{};
@@ -1567,30 +1687,29 @@ private:
                 m_creature->SetRooted(true);
                 m_creature->SetReactState(REACT_PASSIVE);
 
-                if (Unit * pTarget{m_creature->GetVictim()})
+                if (Unit * pTarget{ m_creature->GetVictim() })
                 {
                     pTarget->TeleportPositionRelocation(m_creature->GetPosition());
 
-                    const float fOriginalscale{pTarget->GetNativeScale()};
+                    const float fOriginalscale{ pTarget->GetNativeScale() };
                     pTarget->SetTransformScale(0.00001f);
 
                     pTarget->GetThreatManager().modifyThreatPercent(pTarget, -100);
 
-                    if (Player * pPlayer{pTarget->GetCharmerOrOwnerPlayerOrPlayerItself()})
+                    if (Player * pPlayer{ pTarget->GetCharmerOrOwnerPlayerOrPlayerItself() })
                     {
-                        DoAfterTime(m_creature, 15.5 * IN_MILLISECONDS,
-                                    [creature = m_creature, player = pPlayer, originalscale = fOriginalscale, this]()
-                                    {
-                                        DoCastSpellIfCan(player, nsRotmaw::SPELL_KNOCKBACK);
+                        DoAfterTime(m_creature, 15.5 * IN_MILLISECONDS, [creature = m_creature, player = pPlayer, originalscale = fOriginalscale, this]()
+                            {
+                                DoCastSpellIfCan(player, nsRotmaw::SPELL_KNOCKBACK);
 
-                                        player->SetTransformScale(originalscale);
+                                player->SetTransformScale(originalscale);
 
-                                        m_creature->SetRooted(false);
-                                        m_creature->ClearUnitState(UNIT_STAT_ROOT);
-                                        m_creature->SetReactState(REACT_AGGRESSIVE);
+                                m_creature->SetRooted(false);
+                                m_creature->ClearUnitState(UNIT_STAT_ROOT);
+                                m_creature->SetReactState(REACT_AGGRESSIVE);
 
-                                        m_bIsConsuming = false;
-                                    });
+                                m_bIsConsuming = false;
+                            });
                     }
 
                     m_creature->PMonsterEmote("|cffff8040Rotmaw is consuming %s and cannot move!|r", nullptr, true, pTarget->GetName());
@@ -1634,15 +1753,22 @@ private:
     }
 };
 
-CreatureAI* GetAI_npc_rotmaw(Creature* pCreature) { return new npc_rotmawAI(pCreature); }
+CreatureAI* GetAI_npc_rotmaw(Creature* pCreature)
+{
+    return new npc_rotmawAI(pCreature);
+}
 
 
 class npc_mossheartAI : public ScriptedAI
 {
 public:
-    explicit npc_mossheartAI(Creature* pCreature) : ScriptedAI(pCreature) { npc_mossheartAI::Reset(); }
+    explicit npc_mossheartAI(Creature* pCreature) : ScriptedAI(pCreature)
+    {
+        npc_mossheartAI::Reset();
+    }
 
 private:
+
     bool m_bEngaged{};
 
     uint32 m_uiRejuv_Timer{};
@@ -1670,18 +1796,24 @@ public:
         m_bEngaged = true;
     }
 
-    void KilledUnit(Unit*) override { m_creature->MonsterSay("You belong to the bog now..."); }
+    void KilledUnit(Unit*) override
+    {
+        m_creature->MonsterSay("You belong to the bog now...");
+    }
 
-    void JustDied(Unit*) override { m_creature->MonsterSay("I failed..."); }
+    void JustDied(Unit*) override
+    {
+        m_creature->MonsterSay("I failed...");
+    }
 
     void ApplyDredge()
     {
-        Map::PlayerList const& PlayerList{m_creature->GetMap()->GetPlayers()};
+        Map::PlayerList const& PlayerList{ m_creature->GetMap()->GetPlayers() };
         if (!PlayerList.isEmpty())
         {
             for (const auto& itr : PlayerList)
             {
-                if (Player * pPlayer{itr.getSource()})
+                if (Player * pPlayer{ itr.getSource() })
                 {
                     if (pPlayer->GetDistance3dToCenter(m_creature) < 10.f)
                     {
@@ -1780,15 +1912,22 @@ public:
     }
 };
 
-CreatureAI* GetAI_npc_mossheart(Creature* pCreature) { return new npc_mossheartAI(pCreature); }
+CreatureAI* GetAI_npc_mossheart(Creature* pCreature)
+{
+    return new npc_mossheartAI(pCreature);
+}
 
 
 class npc_antnormiAI : public ScriptedAI
 {
 public:
-    explicit npc_antnormiAI(Creature* pCreature) : ScriptedAI(pCreature) { npc_antnormiAI::Reset(); }
+    explicit npc_antnormiAI(Creature* pCreature) : ScriptedAI(pCreature)
+    {
+        npc_antnormiAI::Reset();
+    }
 
 private:
+
     bool m_bEnraged{};
 
     uint32 m_uiThrash_Timer{};
@@ -1844,7 +1983,10 @@ public:
             m_creature->PMonsterEmote("|cffff8040Antnormi is preparing for a bellowing roar!|r", nullptr, true);
             m_uiCoweringRoar_Timer = 25000;
 
-            DoAfterTime(m_creature, 5 * IN_MILLISECONDS, [creature = m_creature, this]() { DoCastSpellIfCan(creature->GetVictim(), nsAntnormi::SPELL_COWERING_ROAR); });
+            DoAfterTime(m_creature, 5 * IN_MILLISECONDS, [creature = m_creature, this]()
+                {
+                    DoCastSpellIfCan(creature->GetVictim(), nsAntnormi::SPELL_COWERING_ROAR);
+                });
         }
         else
         {
@@ -1892,14 +2034,21 @@ public:
     }
 };
 
-CreatureAI* GetAI_npc_antnormi(Creature* pCreature) { return new npc_antnormiAI(pCreature); }
+CreatureAI* GetAI_npc_antnormi(Creature* pCreature)
+{
+    return new npc_antnormiAI(pCreature);
+}
 
 class npc_logistical_officerAI : public ScriptedAI
 {
 public:
-    explicit npc_logistical_officerAI(Creature* c) : ScriptedAI(c) { npc_logistical_officerAI::Reset(); }
+    explicit npc_logistical_officerAI(Creature* c) : ScriptedAI(c)
+    {
+        npc_logistical_officerAI::Reset();
+    }
 
 private:
+
     bool m_bDoOnce{};
 
     int movementPhase{};
@@ -1964,359 +2113,358 @@ public:
                 switch (phase)
                 {
                 case nsLogisticalOfficer::Phase::ONE:
+                {
+                    m_bDoOnce = false;
+
+                    m_creature->CastSpell(m_creature, nsLogisticalOfficer::SPELL_ARCANE_CHANNEL, true);
+                    m_creature->MonsterSay("Next up ... ");
+
+                    if (GameObject * pSummonPortal{ m_creature->FindNearestGameObject(nsLogisticalOfficer::GOB_PORTAL_SUMMON, 10.f) })
                     {
-                        m_bDoOnce = false;
+                        m_creature->SetFacingToObject(pSummonPortal);
+                    }
 
-                        m_creature->CastSpell(m_creature, nsLogisticalOfficer::SPELL_ARCANE_CHANNEL, true);
-                        m_creature->MonsterSay("Next up ... ");
+                    phase = nsLogisticalOfficer::Phase::TWO;
 
-                        if (GameObject * pSummonPortal{m_creature->FindNearestGameObject(nsLogisticalOfficer::GOB_PORTAL_SUMMON, 10.f)})
-                        {
-                            m_creature->SetFacingToObject(pSummonPortal);
-                        }
+                    m_uiUpdate_Timer = 5000;
 
-                        phase = nsLogisticalOfficer::Phase::TWO;
+                    break;
+                }
+                case nsLogisticalOfficer::Phase::TWO:
+                {
+                    m_creature->CastSpell(m_creature, nsLogisticalOfficer::SPELL_SUBTLETY, true);
 
-                        m_uiUpdate_Timer = 5000;
+                    do
+                    {
+                        summonChoice = urand(1, 6);
+                    } while (summonChoice == currentSummonChoice);
 
+                    switch (summonChoice)
+                    {
+                    case 1:
+                    {
+                        m_uiSummonCreatureEntry = 65132; // Timbermaw
                         break;
                     }
-                case nsLogisticalOfficer::Phase::TWO:
+
+                    case 2:
                     {
-                        m_creature->CastSpell(m_creature, nsLogisticalOfficer::SPELL_SUBTLETY, true);
+                        m_uiSummonCreatureEntry = 65133; // Varian
+                        break;
+                    }
 
-                        do
-                        {
-                            summonChoice = urand(1, 6);
-                        }
-                        while (summonChoice == currentSummonChoice);
+                    case 3:
+                    {
+                        m_uiSummonCreatureEntry = 65134; // Baker
+                        break;
+                    }
 
+                    case 4:
+                    {
+                        m_uiSummonCreatureEntry = 65135; // Kobold
+                        break;
+                    }
+
+                    case 5:
+                    {
+                        m_uiSummonCreatureEntry = 65131; // Baby Thrall
+                        break;
+                    }
+
+                    case 6:
+                    {
+                        m_uiSummonCreatureEntry = 65137; // Tauren Primalist
+                        break;
+                    }
+                    default:
+                    {
+                        break;
+                    }
+                    }
+
+                    currentSummonChoice = summonChoice;
+
+                    if (Creature * pSummon{ m_creature->SummonCreature(m_uiSummonCreatureEntry, -8473.43f, -4226.01f, -214.74f, 0) })
+                    {
+                        pSummon->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_SPAWNING);
+                        pSummon->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_CONFUSED);
+
+                        pSummon->SetFacingToObject(m_creature);
+
+                        pSummon->CastSpell(pSummon, nsLogisticalOfficer::SPELL_TELEPORT, true);
+                    }
+
+                    phase = nsLogisticalOfficer::Phase::THREE;
+
+                    m_uiUpdate_Timer = 2000;
+
+                    break;
+                }
+                case nsLogisticalOfficer::Phase::THREE:
+                {
+                    if (Creature * pSummon{ m_creature->FindNearestCreature(m_uiSummonCreatureEntry, 25.f, true) })
+                    {
                         switch (summonChoice)
                         {
                         case 1:
-                            {
-                                m_uiSummonCreatureEntry = 65132; // Timbermaw
-                                break;
-                            }
-
-                        case 2:
-                            {
-                                m_uiSummonCreatureEntry = 65133; // Varian
-                                break;
-                            }
-
-                        case 3:
-                            {
-                                m_uiSummonCreatureEntry = 65134; // Baker
-                                break;
-                            }
-
-                        case 4:
-                            {
-                                m_uiSummonCreatureEntry = 65135; // Kobold
-                                break;
-                            }
-
-                        case 5:
-                            {
-                                m_uiSummonCreatureEntry = 65131; // Baby Thrall
-                                break;
-                            }
-
-                        case 6:
-                            {
-                                m_uiSummonCreatureEntry = 65137; // Tauren Primalist
-                                break;
-                            }
-                        default:
-                            {
-                                break;
-                            }
-                        }
-
-                        currentSummonChoice = summonChoice;
-
-                        if (Creature * pSummon{m_creature->SummonCreature(m_uiSummonCreatureEntry, -8473.43f, -4226.01f, -214.74f, 0)})
                         {
-                            pSummon->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_SPAWNING);
-                            pSummon->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_CONFUSED);
+                            pSummon->MonsterTextEmote("The Timbermaw sniffs the air.");
+                            pSummon->MonsterSay("Where is this...?");
+                            break;
+                        }
+                        case 2:
+                        {
+                            pSummon->MonsterSay("What is this? I demand to know who you are!");
+                            break;
+                        }
+                        case 3:
+                        {
+                            pSummon->MonsterSay("..freshly baked... What? What just happened?");
+                            break;
+                        }
+                        case 4:
+                        {
+                            pSummon->MonsterTextEmote("The Kobold stares at George.");
+                            pSummon->MonsterSay("You has candle?");
+
+                            pSummon->UpdateSpeed(MOVE_RUN, true, 1.f);
+
+                            pSummon->GetMotionMaster()->MovePoint(0, -8472.93f, -4221.71f, -214.39f);
 
                             pSummon->SetFacingToObject(m_creature);
-
-                            pSummon->CastSpell(pSummon, nsLogisticalOfficer::SPELL_TELEPORT, true);
+                            break;
                         }
-
-                        phase = nsLogisticalOfficer::Phase::THREE;
-
-                        m_uiUpdate_Timer = 2000;
-
-                        break;
-                    }
-                case nsLogisticalOfficer::Phase::THREE:
-                    {
-                        if (Creature * pSummon{m_creature->FindNearestCreature(m_uiSummonCreatureEntry, 25.f, true)})
+                        case 5:
                         {
-                            switch (summonChoice)
-                            {
-                            case 1:
-                                {
-                                    pSummon->MonsterTextEmote("The Timbermaw sniffs the air.");
-                                    pSummon->MonsterSay("Where is this...?");
-                                    break;
-                                }
-                            case 2:
-                                {
-                                    pSummon->MonsterSay("What is this? I demand to know who you are!");
-                                    break;
-                                }
-                            case 3:
-                                {
-                                    pSummon->MonsterSay("..freshly baked... What? What just happened?");
-                                    break;
-                                }
-                            case 4:
-                                {
-                                    pSummon->MonsterTextEmote("The Kobold stares at George.");
-                                    pSummon->MonsterSay("You has candle?");
-
-                                    pSummon->UpdateSpeed(MOVE_RUN, true, 1.f);
-
-                                    pSummon->GetMotionMaster()->MovePoint(0, -8472.93f, -4221.71f, -214.39f);
-
-                                    pSummon->SetFacingToObject(m_creature);
-                                    break;
-                                }
-                            case 5:
-                                {
-                                    pSummon->MonsterSay("Aedelas? Where are you? What is this place?");
-                                    break;
-                                }
-                            case 6:
-                                {
-                                    pSummon->MonsterSay("Ancestors watch over me... where am I?");
-                                    break;
-                                }
-                            default:
-                                {
-                                    break;
-                                }
-                            }
+                            pSummon->MonsterSay("Aedelas? Where are you? What is this place?");
+                            break;
                         }
-
-                        phase = nsLogisticalOfficer::Phase::FOUR;
-
-                        m_uiUpdate_Timer = 5000;
-
-                        break;
+                        case 6:
+                        {
+                            pSummon->MonsterSay("Ancestors watch over me... where am I?");
+                            break;
+                        }
+                        default:
+                        {
+                            break;
+                        }
+                        }
                     }
+
+                    phase = nsLogisticalOfficer::Phase::FOUR;
+
+                    m_uiUpdate_Timer = 5000;
+
+                    break;
+                }
                 case nsLogisticalOfficer::Phase::FOUR:
+                {
+                    if (Creature * pSummon{ m_creature->FindNearestCreature(m_uiSummonCreatureEntry, 25.f, true) })
                     {
-                        if (Creature * pSummon{m_creature->FindNearestCreature(m_uiSummonCreatureEntry, 25.f, true)})
+                        switch (summonChoice)
                         {
-                            switch (summonChoice)
-                            {
-                            case 1:
-                                {
-                                    m_creature->MonsterSay("Ah yes. One of those Timbermaw creatures. This one is meant to be the first to resist demonic corruption and lead its tribe to freedom.");
-                                    break;
-                                }
-                            case 2:
-                                {
-                                    m_creature->MonsterSay("My apologies, King Varian. We are protectors of the sacred timelines and are conducting a minor correction in yours. Please step into this portal.");
-                                    break;
-                                }
-                            case 3:
-                                {
-                                    m_creature->MonsterSay("Hmmm... I don't recognize this one. Assistant, I think we summoned the wrong human male.");
-                                    break;
-                                }
-                            case 4:
-                                {
-                                    m_creature->MonsterSay("A simple Kobold. Funny, this particular Kobold is responsible for stealing a powerful lantern from Lady Sylvanas. The theft of this lantern led to many deaths and branched timelines.");
-                                    break;
-                                }
-                            case 5:
-                                {
-                                    m_creature->MonsterSay("Welcome young one. This young orc will grow to be the mighty Warchief of the Horde!");
-                                    break;
-                                }
-                            case 6:
-                                {
-                                    m_creature->MonsterSay("Greetings honored Tamaala, lifemate of Chieftain Cairne Bloodhoof. We are the the protectors of the sacred timelines. Please, let us guide you home to your ancestral spirits.");
-                                    break;
-                                }
-                            default:
-                                {
-                                    break;
-                                }
-                            }
+                        case 1:
+                        {
+                            m_creature->MonsterSay("Ah yes. One of those Timbermaw creatures. This one is meant to be the first to resist demonic corruption and lead its tribe to freedom.");
+                            break;
                         }
-
-                        phase = nsLogisticalOfficer::Phase::FIVE;
-
-                        m_uiUpdate_Timer = 6000;
-
-                        break;
+                        case 2:
+                        {
+                            m_creature->MonsterSay("My apologies, King Varian. We are protectors of the sacred timelines and are conducting a minor correction in yours. Please step into this portal.");
+                            break;
+                        }
+                        case 3:
+                        {
+                            m_creature->MonsterSay("Hmmm... I don't recognize this one. Assistant, I think we summoned the wrong human male.");
+                            break;
+                        }
+                        case 4:
+                        {
+                            m_creature->MonsterSay("A simple Kobold. Funny, this particular Kobold is responsible for stealing a powerful lantern from Lady Sylvanas. The theft of this lantern led to many deaths and branched timelines.");
+                            break;
+                        }
+                        case 5:
+                        {
+                            m_creature->MonsterSay("Welcome young one. This young orc will grow to be the mighty Warchief of the Horde!");
+                            break;
+                        }
+                        case 6:
+                        {
+                            m_creature->MonsterSay("Greetings honored Tamaala, lifemate of Chieftain Cairne Bloodhoof. We are the the protectors of the sacred timelines. Please, let us guide you home to your ancestral spirits.");
+                            break;
+                        }
+                        default:
+                        {
+                            break;
+                        }
+                        }
                     }
+
+                    phase = nsLogisticalOfficer::Phase::FIVE;
+
+                    m_uiUpdate_Timer = 6000;
+
+                    break;
+                }
 
                 case nsLogisticalOfficer::Phase::FIVE:
+                {
+                    if (Creature * pSummon{ m_creature->FindNearestCreature(m_uiSummonCreatureEntry, 25.f, true) })
                     {
-                        if (Creature * pSummon{m_creature->FindNearestCreature(m_uiSummonCreatureEntry, 25.f, true)})
+                        switch (summonChoice)
                         {
-                            switch (summonChoice)
-                            {
-                            case 1:
-                                {
-                                    m_creature->MonsterSay("Let's get you to your assigned timeline.");
-                                    pPortal = m_creature->SummonGameObject(nsLogisticalOfficer::GOB_PORTAL_WATERFALL, -8480.77f, -4221.29f, -215.03f, 0, 0, 0, 0, 0, 10000);
-                                    break;
-                                }
-                            case 2:
-                                {
-                                    pSummon->MonsterSay("Although I do not understand, I feel compelled to follow your instructions. Do not let this happen again.");
-                                    pSummon->HandleEmote(EMOTE_ONESHOT_TALK);
-                                    pPortal = m_creature->SummonGameObject(nsLogisticalOfficer::GOB_PORTAL_STORMWIND, -8464.56f, -4222.97f, -214.35f, 0, 0, 0, 0, 0, 10000);
-                                    break;
-                                }
-                            case 3:
-                                {
-                                    pSummon->MonsterYell("OH MY GOD � IS THAT A DRAGON?? CALL THE GUARDS! HELP!!");
-                                    pSummon->HandleEmote(EMOTE_ONESHOT_EXCLAMATION);
-                                    pSummon->GetMotionMaster()->MoveConfused();
-                                    pPortal = m_creature->SummonGameObject(nsLogisticalOfficer::GOB_PORTAL_STORMWIND, -8464.56f, -4222.97f, -214.35f, 0, 0, 0, 0, 0, 10000);
-                                    break;
-                                }
-                            case 4:
-                                {
-                                    m_creature->MonsterSay("Come now little Kobold. Your candle is in this portal here.");
-                                    pSummon->MonsterYell("CANDLE!!!");
-                                    pSummon->HandleEmote(EMOTE_ONESHOT_APPLAUD);
-                                    pPortal = m_creature->SummonGameObject(nsLogisticalOfficer::GOB_PORTAL_UC, -8480.77f, -4221.29f, -215.03f, 0, 0, 0, 0, 0, 10000);
-                                    break;
-                                }
-                            case 5:
-                                {
-                                    pSummon->MonsterTextEmote("Go'el laughs to himself.");
-                                    pSummon->HandleEmote(EMOTE_ONESHOT_LAUGH);
-                                    pSummon->MonsterSay("You've got a funny energy about you, elf.");
-                                    pPortal = m_creature->SummonGameObject(nsLogisticalOfficer::GOB_PORTAL_ORG, -8480.77f, -4221.29f, -215.03f, 0, 0, 0, 0, 0, 10000);
-                                    break;
-                                }
-                            case 6:
-                                {
-                                    pSummon->MonsterSay("I shall go where my ancestors command, but beware elf. I sense an evil lurking in this place.");
-                                    pPortal = m_creature->SummonGameObject(nsLogisticalOfficer::GOB_PORTAL_THUNDERBLUFF, -8464.56f, -4222.97f, -214.35f, 0, 0, 0, 0, 0, 10000);
-                                    break;
-                                }
-                            default:
-                                {
-                                    break;
-                                }
-                            }
-
-                            if (pPortal)
-                            {
-                                m_creature->SetFacingToObject(pPortal);
-                            }
+                        case 1:
+                        {
+                            m_creature->MonsterSay("Let's get you to your assigned timeline.");
+                            pPortal = m_creature->SummonGameObject(nsLogisticalOfficer::GOB_PORTAL_WATERFALL, -8480.77f, -4221.29f, -215.03f, 0, 0, 0, 0, 0, 10000);
+                            break;
+                        }
+                        case 2:
+                        {
+                            pSummon->MonsterSay("Although I do not understand, I feel compelled to follow your instructions. Do not let this happen again.");
+                            pSummon->HandleEmote(EMOTE_ONESHOT_TALK);
+                            pPortal = m_creature->SummonGameObject(nsLogisticalOfficer::GOB_PORTAL_STORMWIND, -8464.56f, -4222.97f, -214.35f, 0, 0, 0, 0, 0, 10000);
+                            break;
+                        }
+                        case 3:
+                        {
+                            pSummon->MonsterYell("OH MY GOD � IS THAT A DRAGON?? CALL THE GUARDS! HELP!!");
+                            pSummon->HandleEmote(EMOTE_ONESHOT_EXCLAMATION);
+                            pSummon->GetMotionMaster()->MoveConfused();
+                            pPortal = m_creature->SummonGameObject(nsLogisticalOfficer::GOB_PORTAL_STORMWIND, -8464.56f, -4222.97f, -214.35f, 0, 0, 0, 0, 0, 10000);
+                            break;
+                        }
+                        case 4:
+                        {
+                            m_creature->MonsterSay("Come now little Kobold. Your candle is in this portal here.");
+                            pSummon->MonsterYell("CANDLE!!!");
+                            pSummon->HandleEmote(EMOTE_ONESHOT_APPLAUD);
+                            pPortal = m_creature->SummonGameObject(nsLogisticalOfficer::GOB_PORTAL_UC, -8480.77f, -4221.29f, -215.03f, 0, 0, 0, 0, 0, 10000);
+                            break;
+                        }
+                        case 5:
+                        {
+                            pSummon->MonsterTextEmote("Go'el laughs to himself.");
+                            pSummon->HandleEmote(EMOTE_ONESHOT_LAUGH);
+                            pSummon->MonsterSay("You've got a funny energy about you, elf.");
+                            pPortal = m_creature->SummonGameObject(nsLogisticalOfficer::GOB_PORTAL_ORG, -8480.77f, -4221.29f, -215.03f, 0, 0, 0, 0, 0, 10000);
+                            break;
+                        }
+                        case 6:
+                        {
+                            pSummon->MonsterSay("I shall go where my ancestors command, but beware elf. I sense an evil lurking in this place.");
+                            pPortal = m_creature->SummonGameObject(nsLogisticalOfficer::GOB_PORTAL_THUNDERBLUFF, -8464.56f, -4222.97f, -214.35f, 0, 0, 0, 0, 0, 10000);
+                            break;
+                        }
+                        default:
+                        {
+                            break;
+                        }
                         }
 
-                        phase = nsLogisticalOfficer::Phase::SIX;
-
-                        m_uiUpdate_Timer = 2500;
-
-                        break;
-                    }
-                case nsLogisticalOfficer::Phase::SIX:
-                    {
-                        if (Creature * pSummon{m_creature->FindNearestCreature(m_uiSummonCreatureEntry, 25.f, true)})
+                        if (pPortal)
                         {
-                            switch (summonChoice)
-                            {
-                            case 3:
-                                {
-                                    m_creature->MonsterSay("Quickly little human! Run into the portal before the terrifying beast gets you!!");
-                                    m_creature->MonsterTextEmote("George chuckles.");
-
-                                    pSummon->UpdateSpeed(MOVE_RUN, true, 1.f);
-                                    pSummon->GetMotionMaster()->MovementExpired(true);
-
-                                    break;
-                                }
-
-                            case 5:
-                                {
-                                    m_creature->MonsterSay("Your shamanistic powers are strong even now. Now into the portal, young warchief.");
-                                    break;
-                                }
-                            default:
-                                {
-                                    break;
-                                }
-                            }
-
                             m_creature->SetFacingToObject(pPortal);
                         }
-
-                        phase = nsLogisticalOfficer::Phase::SEVEN;
-
-                        m_uiUpdate_Timer = 1000;
-
-                        break;
                     }
+
+                    phase = nsLogisticalOfficer::Phase::SIX;
+
+                    m_uiUpdate_Timer = 2500;
+
+                    break;
+                }
+                case nsLogisticalOfficer::Phase::SIX:
+                {
+                    if (Creature * pSummon{ m_creature->FindNearestCreature(m_uiSummonCreatureEntry, 25.f, true) })
+                    {
+                        switch (summonChoice)
+                        {
+                        case 3:
+                        {
+                            m_creature->MonsterSay("Quickly little human! Run into the portal before the terrifying beast gets you!!");
+                            m_creature->MonsterTextEmote("George chuckles.");
+
+                            pSummon->UpdateSpeed(MOVE_RUN, true, 1.f);
+                            pSummon->GetMotionMaster()->MovementExpired(true);
+
+                            break;
+                        }
+
+                        case 5:
+                        {
+                            m_creature->MonsterSay("Your shamanistic powers are strong even now. Now into the portal, young warchief.");
+                            break;
+                        }
+                        default:
+                        {
+                            break;
+                        }
+                        }
+
+                        m_creature->SetFacingToObject(pPortal);
+                    }
+
+                    phase = nsLogisticalOfficer::Phase::SEVEN;
+
+                    m_uiUpdate_Timer = 1000;
+
+                    break;
+                }
                 case nsLogisticalOfficer::Phase::SEVEN:
+                {
+                    if (Creature * pSummon{ m_creature->FindNearestCreature(m_uiSummonCreatureEntry, 30.f, true) })
                     {
-                        if (Creature * pSummon{m_creature->FindNearestCreature(m_uiSummonCreatureEntry, 30.f, true)})
+                        if (pPortal)
                         {
-                            if (pPortal)
+                            if (summonChoice == 3 || summonChoice == 4)
                             {
-                                if (summonChoice == 3 || summonChoice == 4)
-                                {
-                                    pSummon->MonsterMove(pPortal->GetPositionX(), pPortal->GetPositionY(), pPortal->GetPositionZ());
-                                }
-                                else
-                                {
-                                    pSummon->MonsterMoveWithSpeed(pPortal->GetPositionX(), pPortal->GetPositionY(), pPortal->GetPositionZ(), 0.f, 1.5f, MOVE_WALK);
-                                }
+                                pSummon->MonsterMove(pPortal->GetPositionX(), pPortal->GetPositionY(), pPortal->GetPositionZ());
                             }
-
-                            if (pSummon->FindNearestGameObject(3000205, 1))
+                            else
                             {
-                                pSummon->CastSpell(pSummon, nsLogisticalOfficer::SPELL_TELEPORT, true);
-                                pSummon->ForcedDespawn(500);
-
-                                switch (summonChoice)
-                                {
-                                case 2:
-                                    {
-                                        if (!m_bDoOnce)
-                                        {
-                                            m_creature->MonsterSay("Kings can be... difficult.");
-
-                                            m_bDoOnce = true;
-                                        }
-
-                                        break;
-                                    }
-                                default:
-                                    {
-                                        break;
-                                    }
-                                }
+                                pSummon->MonsterMoveWithSpeed(pPortal->GetPositionX(), pPortal->GetPositionY(), pPortal->GetPositionZ(), 0.f, 1.5f, MOVE_WALK);
                             }
                         }
-                        else
-                        {
-                            pPortal->AddObjectToRemoveList();
-                            phase = nsLogisticalOfficer::Phase::ONE;
-                        }
 
-                        m_uiUpdate_Timer = 1000;
-                        break;
+                        if (pSummon->FindNearestGameObject(3000205, 1))
+                        {
+                            pSummon->CastSpell(pSummon, nsLogisticalOfficer::SPELL_TELEPORT, true);
+                            pSummon->ForcedDespawn(500);
+
+                            switch (summonChoice)
+                            {
+                            case 2:
+                            {
+                                if (!m_bDoOnce)
+                                {
+                                    m_creature->MonsterSay("Kings can be... difficult.");
+
+                                    m_bDoOnce = true;
+                                }
+
+                                break;
+                            }
+                            default:
+                            {
+                                break;
+                            }
+                            }
+                        }
                     }
+                    else
+                    {
+                        pPortal->AddObjectToRemoveList();
+                        phase = nsLogisticalOfficer::Phase::ONE;
+                    }
+
+                    m_uiUpdate_Timer = 1000;
+                    break;
+                }
                 default:
-                    {
-                        break;
-                    }
+                {
+                    break;
+                }
                 }
             }
             else
@@ -2349,21 +2497,24 @@ bool GossipSelect_npc_logistics_dialogue(Player* pPlayer, Creature* pCreature, u
     switch (uiAction)
     {
     case 1:
-        {
-            pCreature->MonsterWhisper("Good luck with the challenges ahead.", pPlayer, false);
-            pPlayer->TeleportTo(269, -1557.80f, 7102.30f, 23.86f, 3.17f);
-            break;
-        }
+    {
+        pCreature->MonsterWhisper("Good luck with the challenges ahead.", pPlayer, false);
+        pPlayer->TeleportTo(269, -1557.80f, 7102.30f, 23.86f, 3.17f);
+        break;
+    }
     default:
-        {
-            break;
-        }
+    {
+        break;
+    }
     }
 
     return true;
 }
 
-CreatureAI* GetAI_npc_logistical_officer(Creature* pCreature) { return new npc_logistical_officerAI(pCreature); }
+CreatureAI* GetAI_npc_logistical_officer(Creature* pCreature)
+{
+    return new npc_logistical_officerAI(pCreature);
+}
 
 void AddSC_black_morass_trash()
 {

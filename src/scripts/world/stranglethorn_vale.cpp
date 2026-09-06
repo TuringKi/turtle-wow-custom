@@ -33,7 +33,7 @@ EndContentData */
 
 struct mob_yennikuAI : public ScriptedAI
 {
-    mob_yennikuAI(Creature* c) : ScriptedAI(c)
+    mob_yennikuAI(Creature *c) : ScriptedAI(c)
     {
         bReset = false;
         Reset();
@@ -48,17 +48,17 @@ struct mob_yennikuAI : public ScriptedAI
         m_creature->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_NONE);
     }
 
-    void SpellHit(WorldObject* caster, const SpellEntry* spell) override
+    void SpellHit(WorldObject* caster, const SpellEntry *spell) override
     {
         if (caster->GetTypeId() == TYPEID_PLAYER)
         {
-            // Yenniku's Release
+            //Yenniku's Release
             if (!bReset && ((Player*)caster)->GetQuestStatus(592) == QUEST_STATUS_INCOMPLETE && spell->Id == 3607)
             {
                 m_creature->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_STUN);
-                m_creature->CombatStop(); // stop combat
-                m_creature->DeleteThreatList(); // unsure of this
-                m_creature->SetFactionTemplateId(83); // horde generic
+                m_creature->CombatStop();                   //stop combat
+                m_creature->DeleteThreatList();             //unsure of this
+                m_creature->SetFactionTemplateId(83);                 //horde generic
 
                 bReset = true;
                 Reset_Timer = 60000;
@@ -66,7 +66,7 @@ struct mob_yennikuAI : public ScriptedAI
         }
     }
 
-    void Aggro(Unit* who) override {}
+    void Aggro(Unit* who) override { }
 
     void UpdateAI(const uint32 diff) override
     {
@@ -76,13 +76,13 @@ struct mob_yennikuAI : public ScriptedAI
             {
                 EnterEvadeMode();
                 bReset = false;
-                m_creature->SetFactionTemplateId(28); // troll, bloodscalp
+                m_creature->SetFactionTemplateId(28);                     //troll, bloodscalp
             }
             else
                 Reset_Timer -= diff;
         }
 
-        // Return since we have no target
+        //Return since we have no target
         if (!m_creature->SelectHostileTarget() || !m_creature->GetVictim())
             return;
 
@@ -90,15 +90,24 @@ struct mob_yennikuAI : public ScriptedAI
     }
 };
 
-CreatureAI* GetAI_mob_yenniku(Creature* _Creature) { return new mob_yennikuAI(_Creature); }
+CreatureAI* GetAI_mob_yenniku(Creature *_Creature)
+{
+    return new mob_yennikuAI(_Creature);
+}
 
 struct mob_assistant_kryll : public ScriptedAI
 {
-    mob_assistant_kryll(Creature* c) : ScriptedAI(c) { Reset(); }
+    mob_assistant_kryll(Creature *c) : ScriptedAI(c)
+    {
+        Reset();
+    }
 
-    uint32 Speach_Timer;
+    uint32 Speach_Timer;    
 
-    void Reset() override { Speach_Timer = 360000; }
+    void Reset() override
+    {
+        Speach_Timer = 360000;
+    }
 
     void UpdateAI(const uint32 diff) override
     {
@@ -106,41 +115,47 @@ struct mob_assistant_kryll : public ScriptedAI
         {
             switch (urand(0, 2))
             {
-            case 0:
-                m_creature->MonsterSay(66152);
-                break;
-            case 1:
-                m_creature->MonsterSay(66153);
-                break;
-            case 2:
-                m_creature->MonsterSay(66154);
-                break;
+                case 0:
+                    m_creature->MonsterSay(66152);
+                    break;
+                case 1:
+                    m_creature->MonsterSay(66153);
+                    break;
+                case 2:
+                    m_creature->MonsterSay(66154);
+                    break;
             }
-            Speach_Timer = urand(15, 40) * 60 * 1000;
+            Speach_Timer = urand(15, 40)*60*1000;
         }
         else
             Speach_Timer -= diff;
     }
 };
 
-CreatureAI* GetAI_mob_assistant_kryll(Creature* _Creature) { return new mob_assistant_kryll(_Creature); }
-
-struct go_transpolyporterAI : public GameObjectAI
+CreatureAI* GetAI_mob_assistant_kryll(Creature *_Creature)
 {
-    go_transpolyporterAI(GameObject* pGo) : GameObjectAI(pGo) {}
+    return new mob_assistant_kryll(_Creature);
+}
+
+struct go_transpolyporterAI: public GameObjectAI
+{
+    go_transpolyporterAI(GameObject* pGo) : GameObjectAI(pGo) { }
 
     bool OnUse(Unit* user) override
     {
         if (user && user->IsPlayer())
         {
-            if (((Player*)user)->HasItemCount(9173, 1, false))
+            if (((Player*) user)->HasItemCount(9173, 1, false))
                 return false;
         }
         return true;
     }
 };
 
-GameObjectAI* GetAIgo_transpolyporter(GameObject* pGo) { return new go_transpolyporterAI(pGo); }
+GameObjectAI* GetAIgo_transpolyporter(GameObject *pGo)
+{
+    return new go_transpolyporterAI(pGo);
+}
 
 /*######
 ## npc_molthor
@@ -148,28 +163,33 @@ GameObjectAI* GetAIgo_transpolyporter(GameObject* pGo) { return new go_transpoly
 
 enum MolthorData
 {
-    NPC_HEART_OF_HAKKAR = 15069,
+    NPC_HEART_OF_HAKKAR                 = 15069,
 
-    GO_HEART_OF_HAKKAR_SPELL_EMITTER = 180391,
+    GO_HEART_OF_HAKKAR_SPELL_EMITTER    = 180391,
 
-    QUEST_THE_HEART_OF_HAKKAR = 8183,
+    QUEST_THE_HEART_OF_HAKKAR           = 8183,
 
-    SAY_MOLTHOR_1 = 10473,
-    SAY_MOLTHOR_2 = 10474,
-    SAY_MOLTHOR_3 = 10537
+    SAY_MOLTHOR_1                       = 10473,
+    SAY_MOLTHOR_2                       = 10474,
+    SAY_MOLTHOR_3                       = 10537
 };
 
-static const float heartPosition[4] = {-11818.55f, 1344.4f, 7.93f, 0.0f};
+static const float heartPosition[4] = { -11818.55f, 1344.4f, 7.93f, 0.0f };
 static const int emitterCount = 5;
-static const float emitterPositions[emitterCount][4] = {{-11818.55f, 1344.40f, 7.93f, 0.0f}, // Zandalar Isle
-                                                        {-11771.92f, 1273.80f, 3.96f, 0.0f},
-                                                        {-11881.53f, 1250.42f, 6.72f, 0.0f},
-                                                        {-14335.85f, 513.95f, 8.86f, 0.0f}, // Booty Bay
-                                                        {-14421.20f, 475.50f, 11.54f, 0.0f}};
+static const float emitterPositions[emitterCount][4] = {
+    { -11818.55f, 1344.40f,  7.93f, 0.0f }, // Zandalar Isle
+    { -11771.92f, 1273.80f,  3.96f, 0.0f },
+    { -11881.53f, 1250.42f,  6.72f, 0.0f },
+    { -14335.85f,  513.95f,  8.86f, 0.0f }, // Booty Bay
+    { -14421.20f,  475.50f, 11.54f, 0.0f }
+};
 
 struct npc_molthorAI : public npc_escortAI
 {
-    npc_molthorAI(Creature* pCreature) : npc_escortAI(pCreature) { Reset(); }
+    npc_molthorAI(Creature *pCreature) : npc_escortAI(pCreature)
+    {
+        Reset();
+    } 
 
     uint32 m_uiTimer;
     uint32 m_uiPhase;
@@ -201,7 +221,7 @@ struct npc_molthorAI : public npc_escortAI
 
     void SummonSpellEmitters()
     {
-        Player* player = GetPlayerForEscort();
+        Player *player = GetPlayerForEscort();
         if (!player)
             return;
 
@@ -212,9 +232,8 @@ struct npc_molthorAI : public npc_escortAI
             float z = emitterPosition[2];
             float o = emitterPosition[3];
 
-            GameObject* emitter = m_creature->SummonGameObject(GO_HEART_OF_HAKKAR_SPELL_EMITTER, x, y, z, o, 0.0f, 0.0f, 0.0f, 0.0f, 5000);
-            if (emitter)
-            {
+            GameObject *emitter = m_creature->SummonGameObject(GO_HEART_OF_HAKKAR_SPELL_EMITTER, x, y, z, o, 0.0f, 0.0f, 0.0f, 0.0f, 5000);
+            if (emitter) {
                 emitter->SetOwnerGuid(ObjectGuid()); // FIXME
                 emitter->Use(player);
                 emitter->SetOwnerGuid(m_creature->GetObjectGuid());
@@ -230,22 +249,22 @@ struct npc_molthorAI : public npc_escortAI
             {
                 switch (m_uiPhase)
                 {
-                case 1:
-                    m_creature->HandleEmote(EMOTE_ONESHOT_SHOUT);
-                    m_creature->MonsterYellToZone(SAY_MOLTHOR_3, 0, GetPlayerForEscort());
-                    SummonSpellEmitters();
+                    case 1:
+                        m_creature->HandleEmote(EMOTE_ONESHOT_SHOUT);
+                        m_creature->MonsterYellToZone(SAY_MOLTHOR_3, 0, GetPlayerForEscort());
+                        SummonSpellEmitters();
 
-                    m_uiTimer = 5000;
-                    m_uiPhase = 2;
-                    break;
-                case 2:
-                    m_creature->SetStandState(UNIT_STAND_STATE_STAND);
-                    m_creature->SetWalk(false);
-                    SetEscortPaused(false);
+                        m_uiTimer = 5000;
+                        m_uiPhase = 2;
+                        break;
+                    case 2:
+                        m_creature->SetStandState(UNIT_STAND_STATE_STAND);
+                        m_creature->SetWalk(false);
+                        SetEscortPaused(false);
 
-                    m_uiTimer = 0;
-                    m_uiPhase = 0;
-                    break;
+                        m_uiTimer = 0;
+                        m_uiPhase = 0;
+                        break;
                 }
             }
             else
@@ -259,11 +278,14 @@ struct npc_molthorAI : public npc_escortAI
     }
 };
 
-CreatureAI* GetAI_npc_molthor(Creature* pCreature) { return new npc_molthorAI(pCreature); }
-
-bool QuestComplete_npc_molthor(Player* pPlayer, Creature* pCreature, const Quest* pQuest)
+CreatureAI* GetAI_npc_molthor(Creature *pCreature)
 {
-    npc_molthorAI* molthorAI = dynamic_cast<npc_molthorAI*>(pCreature->AI());
+    return new npc_molthorAI(pCreature);
+}
+
+bool QuestComplete_npc_molthor(Player *pPlayer, Creature *pCreature, const Quest *pQuest)
+{
+    npc_molthorAI *molthorAI = dynamic_cast<npc_molthorAI*>(pCreature->AI());
 
     if (pQuest->GetQuestId() == QUEST_THE_HEART_OF_HAKKAR && molthorAI)
     {
@@ -280,24 +302,32 @@ bool QuestComplete_npc_molthor(Player* pPlayer, Creature* pCreature, const Quest
 
 enum HeartOfHakkarData
 {
-    SPELL_CREATE_HEART_OF_HAKKAR_RIFT = 24202,
-    SPELL_HEART_OF_HAKKAR_BANNING = 24203,
-    SPELL_HEART_OF_HAKKAR_IMPLODE = 24204,
-    SPELL_CREATE_HEART_OF_HAKKAR_EXPLOSION = 24215,
-    SPELL_RITUAL_CAST_VISUAL = 24217,
-    SPELL_CREATE_HEART_OF_HAKKAR_SUMMON_CIRCLE = 24602,
+    SPELL_CREATE_HEART_OF_HAKKAR_RIFT           = 24202,
+    SPELL_HEART_OF_HAKKAR_BANNING               = 24203,
+    SPELL_HEART_OF_HAKKAR_IMPLODE               = 24204,
+    SPELL_CREATE_HEART_OF_HAKKAR_EXPLOSION      = 24215,
+    SPELL_RITUAL_CAST_VISUAL                    = 24217,
+    SPELL_CREATE_HEART_OF_HAKKAR_SUMMON_CIRCLE  = 24602,
 
-    NPC_SERVANT_OF_THE_HAND = 15080,
+    NPC_SERVANT_OF_THE_HAND                     = 15080,
 
-    GO_HEART_OF_HAKKAR_OBJECT = 180402
+    GO_HEART_OF_HAKKAR_OBJECT                   = 180402
 };
 
 static const int servantCount = 4;
-static const float servantPositions[servantCount][4] = {{-11817.5f, 1325.0f, 1.46f, 1.58f}, {-11831.3f, 1331.3f, 1.84f, 0.75f}, {-11834.8f, 1349.4f, 2.01f, 6.00f}, {-11800.9f, 1335.2f, 1.26f, 2.65f}};
+static const float servantPositions[servantCount][4] = {
+    {-11817.5f, 1325.0f, 1.46f, 1.58f},
+    {-11831.3f, 1331.3f, 1.84f, 0.75f},
+    {-11834.8f, 1349.4f, 2.01f, 6.00f},
+    {-11800.9f, 1335.2f, 1.26f, 2.65f}
+};
 
 struct npc_heart_of_hakkarAI : public ScriptedAI
 {
-    npc_heart_of_hakkarAI(Creature* pCreature) : ScriptedAI(pCreature) { Reset(); }
+    npc_heart_of_hakkarAI(Creature *pCreature) : ScriptedAI(pCreature)
+    {
+        Reset();
+    }
 
     bool m_bInitialized;
     uint32 m_uiTimer;
@@ -317,7 +347,7 @@ struct npc_heart_of_hakkarAI : public ScriptedAI
             float z = servantPosition[2];
             float o = servantPosition[3];
 
-            Creature* servant = m_creature->SummonCreature(NPC_SERVANT_OF_THE_HAND, x, y, z, o, TEMPSUMMON_TIMED_DESPAWN, 30000);
+            Creature *servant = m_creature->SummonCreature(NPC_SERVANT_OF_THE_HAND, x, y, z, o, TEMPSUMMON_TIMED_DESPAWN, 30000);
 
             if (servant)
             {
@@ -360,7 +390,10 @@ struct npc_heart_of_hakkarAI : public ScriptedAI
     }
 };
 
-CreatureAI* GetAI_npc_heart_of_hakkar(Creature* pCreature) { return new npc_heart_of_hakkarAI(pCreature); }
+CreatureAI* GetAI_npc_heart_of_hakkar(Creature *pCreature)
+{
+    return new npc_heart_of_hakkarAI(pCreature);
+}
 
 /*######
 ## npc_servant_of_the_hand
@@ -373,7 +406,10 @@ enum ServantOfTheHandData
 
 struct npc_servant_of_the_handAI : public ScriptedAI
 {
-    npc_servant_of_the_handAI(Creature* pCreature) : ScriptedAI(pCreature) { Reset(); }
+    npc_servant_of_the_handAI(Creature *pCreature) : ScriptedAI(pCreature)
+    {
+        Reset();
+    }
 
     uint32 m_uiSpawnOutTimer;
 
@@ -406,9 +442,12 @@ struct npc_servant_of_the_handAI : public ScriptedAI
 
         DoMeleeAttackIfReady();
     }
-};
+}; 
 
-CreatureAI* GetAI_npc_servant_of_the_hand(Creature* pCreature) { return new npc_servant_of_the_handAI(pCreature); }
+CreatureAI* GetAI_npc_servant_of_the_hand(Creature *pCreature)
+{
+    return new npc_servant_of_the_handAI(pCreature);
+}
 
 /*######
 ## npc_pats_hellfire_guy
@@ -421,11 +460,17 @@ enum PatsHellfireGuyData
 
 struct npc_pats_hellfire_guyAI : public ScriptedAI
 {
-    npc_pats_hellfire_guyAI(Creature* pCreature) : ScriptedAI(pCreature) { Reset(); }
+    npc_pats_hellfire_guyAI(Creature *pCreature) : ScriptedAI(pCreature)
+    {
+        Reset();
+    }
 
     uint32 m_uiCastDelay;
 
-    void Reset() override { m_uiCastDelay = 2000; }
+    void Reset() override
+    {
+        m_uiCastDelay = 2000;
+    }
 
     void UpdateAI(const uint32 uiDiff) override
     {
@@ -442,7 +487,10 @@ struct npc_pats_hellfire_guyAI : public ScriptedAI
     }
 };
 
-CreatureAI* GetAI_npc_pats_hellfire_guy(Creature* pCreature) { return new npc_pats_hellfire_guyAI(pCreature); }
+CreatureAI* GetAI_npc_pats_hellfire_guy(Creature *pCreature)
+{
+    return new npc_pats_hellfire_guyAI(pCreature);
+}
 
 /*
  * Witch Doctor Unbagwa
@@ -450,16 +498,19 @@ CreatureAI* GetAI_npc_pats_hellfire_guy(Creature* pCreature) { return new npc_pa
 
 enum WitchDoctorUnbagwaData
 {
-    NPC_ENRAGED_SILVERBACK_GORILLA = 1511,
-    NPC_KONDA = 1516,
-    NPC_MOKK_THE_SAVAGE = 1514,
+    NPC_ENRAGED_SILVERBACK_GORILLA  = 1511,
+    NPC_KONDA                       = 1516,
+    NPC_MOKK_THE_SAVAGE             = 1514,
 
-    QUEST_STRANHLETHORN_FEVER = 349,
+    QUEST_STRANHLETHORN_FEVER       = 349,
 
-    MAX_WAVE_COUNT = 3
+    MAX_WAVE_COUNT                  = 3
 };
 
-const float ApesSummon[4] = {-13773.6231f, -3.8856f, 41.5641f, 5.7f};
+const float ApesSummon[4] =
+{
+    -13773.6231f, -3.8856f, 41.5641f, 5.7f
+};
 
 #define UNBAGWA_EVENT_START "Get ready everyone! Here come de apes!"
 
@@ -477,7 +528,7 @@ struct npc_witch_doctor_unbagwaAI : ScriptedAI
     bool m_bStartEvent;
     bool m_bResetEvent;
 
-    void Reset() override {}
+    void Reset() override { }
 
     void ResetCreature() override
     {
@@ -499,7 +550,7 @@ struct npc_witch_doctor_unbagwaAI : ScriptedAI
 
         if (m_uiAttackersCount > 0)
             --m_uiAttackersCount;
-
+        
         if (!m_uiAttackersCount)
             ResetCreature();
     }
@@ -512,7 +563,7 @@ struct npc_witch_doctor_unbagwaAI : ScriptedAI
         if (m_uiAttackersCount > 0)
             --m_uiAttackersCount;
 
-        if (!m_uiAttackersCount && (m_bResetEvent || m_uiWaveCount > MAX_WAVE_COUNT))
+        if (!m_uiAttackersCount && (m_bResetEvent || m_uiWaveCount > MAX_WAVE_COUNT))         
             ResetCreature();
     }
 
@@ -544,15 +595,9 @@ struct npc_witch_doctor_unbagwaAI : ScriptedAI
                 {
                     switch (m_uiWaveCount)
                     {
-                    case 1:
-                        m_uiAttackersCount = 3;
-                        break;
-                    case 2:
-                        m_uiAttackersCount = 5;
-                        break;
-                    case 3:
-                        m_uiAttackersCount = 6;
-                        break;
+                        case 1: m_uiAttackersCount = 3; break;
+                        case 2: m_uiAttackersCount = 5; break;
+                        case 3: m_uiAttackersCount = 6; break;
                     }
 
                     uint32 uiAttackersEntry = NPC_ENRAGED_SILVERBACK_GORILLA;
@@ -562,15 +607,16 @@ struct npc_witch_doctor_unbagwaAI : ScriptedAI
                         {
                             switch (m_uiWaveCount)
                             {
-                            case 2:
-                                uiAttackersEntry = NPC_KONDA;
-                                break;
-                            case 3:
-                                uiAttackersEntry = NPC_MOKK_THE_SAVAGE;
-                                break;
+                            case 2: uiAttackersEntry = NPC_KONDA; break;
+                            case 3: uiAttackersEntry = NPC_MOKK_THE_SAVAGE; break;
                             }
                         }
-                        m_creature->SummonCreature(uiAttackersEntry, ApesSummon[0] + frand(-3, 3), ApesSummon[1] + frand(-3, 3), ApesSummon[2], ApesSummon[3], TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 3 * MINUTE * IN_MILLISECONDS);
+                        m_creature->SummonCreature(uiAttackersEntry,
+                            ApesSummon[0] + frand(-3, 3),
+                            ApesSummon[1] + frand(-3, 3),
+                            ApesSummon[2],
+                            ApesSummon[3],
+                            TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 3 * MINUTE * IN_MILLISECONDS);
                     }
 
                     m_uiMobWaveTimer = 10000;
@@ -599,11 +645,14 @@ bool QuestRewarded_npc_witch_doctor_unbagwa(Player* /*pPlayer*/, Creature* pCrea
     return true;
 }
 
-CreatureAI* GetAI_npc_witch_doctor_unbagwa(Creature* pCreature) { return new npc_witch_doctor_unbagwaAI(pCreature); }
+CreatureAI* GetAI_npc_witch_doctor_unbagwa(Creature* pCreature)
+{
+    return new npc_witch_doctor_unbagwaAI(pCreature);
+}
 
 void AddSC_stranglethorn_vale()
 {
-    Script* newscript;
+    Script *newscript;
 
     newscript = new Script;
     newscript->Name = "mob_yenniku";
@@ -618,7 +667,7 @@ void AddSC_stranglethorn_vale()
     newscript = new Script;
     newscript->Name = "go_transpolyporter";
     newscript->GOGetAI = &GetAIgo_transpolyporter;
-    // newscript->pGOHello = &GOHello_go_transpolyporter;
+    //newscript->pGOHello = &GOHello_go_transpolyporter;
     newscript->RegisterSelf();
 
     newscript = new Script;

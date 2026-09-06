@@ -11,4 +11,4 @@ namespace HttpApi
         if (!_authorizer)
             _authorizer = std::make_unique<BaseAuthorizer>();
     }
-} // namespace HttpApi
+}

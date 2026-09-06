@@ -21,11 +21,11 @@
 #define MANGOS_PLAYERAI_H
 
 #include "Common.h"
-#include "CreatureAI.h" // Pour 'enum CanCastResult'
-#include "Dynamic/FactoryHolder.h"
-#include "Dynamic/ObjectRegistry.h"
 #include "Platform/Define.h"
 #include "Policies/Singleton.h"
+#include "Dynamic/ObjectRegistry.h"
+#include "Dynamic/FactoryHolder.h"
+#include "CreatureAI.h" // Pour 'enum CanCastResult'
 
 class WorldObject;
 class Unit;
@@ -35,44 +35,45 @@ class SpellEntry;
 
 class PlayerAI
 {
-public:
-    explicit PlayerAI(Player* pPlayer) : me(pPlayer), enablePositiveSpells(false) {}
-    virtual ~PlayerAI();
-    void SetPlayer(Player* player) { me = player; }
-    virtual void Remove();
+    public:
+        explicit PlayerAI(Player* pPlayer) : me(pPlayer), enablePositiveSpells(false) {}
+        virtual ~PlayerAI();
+        void SetPlayer(Player* player) { me = player; }
+        virtual void Remove();
 
-    // Called at World update tick
-    virtual void UpdateAI(const uint32 /*diff*/);
-    virtual void MovementInform(uint32 MovementType, uint32 Data = 0) {}
+        // Called at World update tick
+        virtual void UpdateAI(const uint32 /*diff*/);
+        virtual void MovementInform(uint32 MovementType, uint32 Data = 0) {}
 
-    ///== Helpeurs =====================================
-    CanCastResult CanCastSpell(Unit* pTarget, const SpellEntry* pSpell, bool isTriggered, bool checkControlled = true);
+        ///== Helpeurs =====================================
+        CanCastResult CanCastSpell(Unit* pTarget, const SpellEntry *pSpell, bool isTriggered, bool checkControlled = true);
 
-    ///== Fields =======================================
+        ///== Fields =======================================
 
-    // Pointer to controlled by AI player
-    Player* me;
-    bool enablePositiveSpells;
+        // Pointer to controlled by AI player
+        Player* me;
+        bool enablePositiveSpells;
 };
 
-class PlayerControlledAI : public PlayerAI
+class PlayerControlledAI: public PlayerAI
 {
-public:
-    explicit PlayerControlledAI(Player* pPlayer, Unit* caster = nullptr);
+    public:
+        explicit PlayerControlledAI(Player* pPlayer, Unit* caster = nullptr);
 
-    virtual ~PlayerControlledAI();
+        virtual ~PlayerControlledAI();
 
-    // Called at World update tick
-    void UpdateAI(const uint32 /*diff*/) override;
-    Unit* FindController();
-    void UpdateTarget(Unit* victim);
+        // Called at World update tick
+        void UpdateAI(const uint32 /*diff*/) override;
+        Unit* FindController();
+        void UpdateTarget(Unit* victim);
 
-    ///== Fields =======================================
-    ObjectGuid controllerGuid;
-    uint32 uiGlobalCD;
-    turtle_vector<uint32, Category_AI> usableSpells;
-    bool bIsMelee;
-    bool isHealer;
+        ///== Fields =======================================
+        ObjectGuid controllerGuid;
+        uint32 uiGlobalCD;
+        turtle_vector<uint32, Category_AI> usableSpells;
+        bool bIsMelee;
+        bool isHealer;
+        
 };
 
 #endif

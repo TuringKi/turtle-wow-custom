@@ -2,25 +2,25 @@
  *
  */
 
-#include "molten_core.h"
 #include "scriptPCH.h"
+#include "molten_core.h"
 
 enum
 {
     // Garr spells
-    SPELL_ANTIMAGICPULSE = 19492,
-    SPELL_MAGMASHACKLES = 19496,
-    SPELL_ENRAGE = 19516, // Stacking enrage (stacks to 10 times)
+    SPELL_ANTIMAGICPULSE        = 19492,
+    SPELL_MAGMASHACKLES         = 19496,
+    SPELL_ENRAGE                = 19516,                   //Stacking enrage (stacks to 10 times)
 
     // Add spells
-    SPELL_IMMOLATE = 15733,
-    SPELL_THRASH = 8876,
-    SPELL_SEPARATION_ANXIETY = 23492,
-    SPELL_ADD_ERUPTION = 19497,
-    SPELL_MASSIVE_ERUPTION = 20483,
-    SPELL_ERUPTION_TRIGGER = 20482,
+    SPELL_IMMOLATE              = 15733,
+    SPELL_THRASH                = 8876,
+    SPELL_SEPARATION_ANXIETY    = 23492,
+    SPELL_ADD_ERUPTION          = 19497,
+    SPELL_MASSIVE_ERUPTION      = 20483,
+    SPELL_ERUPTION_TRIGGER      = 20482,
 
-    EMOTE_MASSIVE_ERUPTION = -1409001
+    EMOTE_MASSIVE_ERUPTION      = -1409001
 };
 
 /*
@@ -46,7 +46,7 @@ struct boss_garrAI : ScriptedAI
     void Reset() override
     {
         m_uiAntiMagicPulseTimer = 15000;
-        m_uiMagmaShacklesTimer = 10000;
+        m_uiMagmaShacklesTimer  = 10000;
 
         m_uiExplodeTimer = 360000; // 6 Minutes
 
@@ -118,8 +118,7 @@ struct boss_garrAI : ScriptedAI
 
         if (auto pFiresworn = m_creature->GetMap()->GetCreature(*itr))
         {
-            if (!pFiresworn->HasAuraType(SPELL_AURA_MOD_STUN))
-            { // If the add is not banished, explode it
+            if (!pFiresworn->HasAuraType(SPELL_AURA_MOD_STUN)) { // If the add is not banished, explode it
                 m_creature->CastSpell(pFiresworn, SPELL_ERUPTION_TRIGGER, true);
                 return true;
             }
@@ -163,8 +162,8 @@ struct boss_garrAI : ScriptedAI
 };
 
 /*
- * Firesworn
- */
+* Firesworn
+*/
 
 struct mob_fireswornAI : ScriptedAI
 {
@@ -256,13 +255,19 @@ struct mob_fireswornAI : ScriptedAI
     }
 };
 
-CreatureAI* GetAI_boss_garr(Creature* pCreature) { return new boss_garrAI(pCreature); }
+CreatureAI* GetAI_boss_garr(Creature* pCreature)
+{
+    return new boss_garrAI(pCreature);
+}
 
-CreatureAI* GetAI_mob_firesworn(Creature* pCreature) { return new mob_fireswornAI(pCreature); }
+CreatureAI* GetAI_mob_firesworn(Creature* pCreature)
+{
+    return new mob_fireswornAI(pCreature);
+}
 
 void AddSC_boss_garr()
 {
-    Script* newscript;
+    Script *newscript;
 
     newscript = new Script;
     newscript->Name = "boss_garr";

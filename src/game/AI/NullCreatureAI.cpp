@@ -22,7 +22,9 @@
 #include "NullCreatureAI.h"
 #include "Creature.h"
 
-NullCreatureAI::~NullCreatureAI() {}
+NullCreatureAI::~NullCreatureAI()
+{
+}
 
 void NullCreatureAI::UpdateAI(uint32 const)
 {

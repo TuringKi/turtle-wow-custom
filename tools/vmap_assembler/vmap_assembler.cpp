@@ -16,8 +16,8 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#include <iostream>
 #include <string>
+#include <iostream>
 #ifdef WIN32
 #include "direct.h"
 #else
@@ -33,17 +33,17 @@ int main(int argc, char* argv[])
     std::string dest;
     if (argc != 3)
     {
-        // std::cout << "usage: " << argv[0] << " <raw data dir> <vmap dest dir>" << std::endl;
-        // return 1;
+        //std::cout << "usage: " << argv[0] << " <raw data dir> <vmap dest dir>" << std::endl;
+        //return 1;
 
-        // Giperion Elysium: Consider we running in WoW directory. Just pick default folders
+        //Giperion Elysium: Consider we running in WoW directory. Just pick default folders
         src = "Buildings";
         dest = "vmaps";
-#ifdef WIN32
-        /*int RetCode =*/mkdir(dest.c_str());
-#else
-        /*int RetCode =*/mkdir(dest.c_str(), 0777);
-#endif
+        #ifdef WIN32
+        /*int RetCode =*/ mkdir (dest.c_str());
+        #else
+        /*int RetCode =*/ mkdir (dest.c_str(), 0777);
+        #endif
     }
     else
     {

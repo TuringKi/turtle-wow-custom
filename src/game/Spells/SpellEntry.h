@@ -25,13 +25,14 @@
 #include <array>
 #include "DBCStructure.h"
 #include "SharedDefines.h"
-#include "SpellAuraDefines.h"
 #include "SpellDefines.h"
+#include "SpellAuraDefines.h"
 
 class Spell;
 class Unit;
 class WorldObject;
 class SpellEntry;
+struct AuraScript;
 
 namespace Spells
 {
@@ -96,9 +97,9 @@ namespace Spells
     }
 
     // Different spell properties
-    inline float GetSpellRadius(SpellRadiusEntry const* radius) { return (radius ? radius->Radius : 0); }
-    inline float GetSpellMinRange(SpellRangeEntry const* range) { return (range ? range->minRange : 0); }
-    inline float GetSpellMaxRange(SpellRangeEntry const* range) { return (range ? range->maxRange : 0); }
+    inline float GetSpellRadius(SpellRadiusEntry const *radius) { return (radius ? radius->Radius : 0); }
+    inline float GetSpellMinRange(SpellRangeEntry const *range) { return (range ? range->minRange : 0); }
+    inline float GetSpellMaxRange(SpellRangeEntry const *range) { return (range ? range->maxRange : 0); }
     int32 CompareAuraRanks(uint32 spellId_1, uint32 spellId_2);
     bool CompareSpellSpecificAuras(SpellEntry const* spellInfo_1, SpellEntry const* spellInfo_2);
 
@@ -153,17 +154,25 @@ namespace Spells
         case SPELL_SNARE:
             return spellSpec1 == spellSpec2;
         case SPELL_BATTLE_ELIXIR:
-            return spellSpec2 == SPELL_BATTLE_ELIXIR || spellSpec2 == SPELL_FLASK_ELIXIR;
+                return spellSpec2 == SPELL_BATTLE_ELIXIR
+                    || spellSpec2 == SPELL_FLASK_ELIXIR;
         case SPELL_GUARDIAN_ELIXIR:
-            return spellSpec2 == SPELL_GUARDIAN_ELIXIR || spellSpec2 == SPELL_FLASK_ELIXIR;
+                return spellSpec2 == SPELL_GUARDIAN_ELIXIR
+                    || spellSpec2 == SPELL_FLASK_ELIXIR;
         case SPELL_FLASK_ELIXIR:
-            return spellSpec2 == SPELL_BATTLE_ELIXIR || spellSpec2 == SPELL_GUARDIAN_ELIXIR || spellSpec2 == SPELL_FLASK_ELIXIR;
+                return spellSpec2 == SPELL_BATTLE_ELIXIR
+                    || spellSpec2 == SPELL_GUARDIAN_ELIXIR
+                    || spellSpec2 == SPELL_FLASK_ELIXIR;
         case SPELL_FOOD:
-            return spellSpec2 == SPELL_FOOD || spellSpec2 == SPELL_FOOD_AND_DRINK;
+                return spellSpec2 == SPELL_FOOD
+                    || spellSpec2 == SPELL_FOOD_AND_DRINK;
         case SPELL_DRINK:
-            return spellSpec2 == SPELL_DRINK || spellSpec2 == SPELL_FOOD_AND_DRINK;
+                return spellSpec2 == SPELL_DRINK
+                    || spellSpec2 == SPELL_FOOD_AND_DRINK;
         case SPELL_FOOD_AND_DRINK:
-            return spellSpec2 == SPELL_FOOD || spellSpec2 == SPELL_DRINK || spellSpec2 == SPELL_FOOD_AND_DRINK;
+                return spellSpec2 == SPELL_FOOD
+                    || spellSpec2 == SPELL_DRINK
+                    || spellSpec2 == SPELL_FOOD_AND_DRINK;
         default:
             return false;
         }
@@ -268,7 +277,7 @@ namespace Spells
         case TARGET_UNIT:
         case TARGET_UNIT_PARTY:
         case TARGET_UNIT_FRIEND_CHAIN_HEAL:
-        case TARGET_LOCATION_CASTER_TARGET_POSITION:
+            case TARGET_LOCATION_CASTER_TARGET_POSITION :
         case TARGET_UNIT_RAID:
         case TARGET_UNIT_RAID_AND_CLASS:
             return true;
@@ -287,11 +296,11 @@ namespace Spells
         return false;
     }
 
-    bool IsSingleTargetSpells(SpellEntry const* spellInfo1, SpellEntry const* spellInfo2);
+    bool IsSingleTargetSpells(SpellEntry const *spellInfo1, SpellEntry const *spellInfo2);
 
     inline bool IsCasterSourceTarget(uint32 target)
     {
-        switch (target)
+        switch (target )
         {
         case TARGET_UNIT_CASTER:
         case TARGET_UNIT_CASTER_PET:
@@ -316,7 +325,7 @@ namespace Spells
 
     inline bool IsPointEffectTarget(SpellTarget target)
     {
-        switch (target)
+        switch (target )
         {
         case TARGET_LOCATION_CASTER_HOME_BIND:
         case TARGET_LOCATION_DATABASE:
@@ -369,7 +378,7 @@ namespace Spells
 
     inline bool IsAreaEffectTarget(SpellTarget target)
     {
-        switch (target)
+        switch (target )
         {
         case TARGET_ENUM_UNITS_SCRIPT_AOE_AT_SRC_LOC:
         case TARGET_ENUM_UNITS_SCRIPT_AOE_AT_DEST_LOC:
@@ -395,9 +404,14 @@ namespace Spells
 
     inline bool IsAreaAuraEffect(uint32 effect)
     {
-        return effect == SPELL_EFFECT_APPLY_AREA_AURA_PARTY || effect == SPELL_EFFECT_APPLY_AREA_AURA_PET ||
+        return
+                effect == SPELL_EFFECT_APPLY_AREA_AURA_PARTY  ||
+                effect == SPELL_EFFECT_APPLY_AREA_AURA_PET    ||
             // Post-vanilla but very useful sometimes.
-            effect == SPELL_EFFECT_APPLY_AREA_AURA_RAID || effect == SPELL_EFFECT_APPLY_AREA_AURA_ENEMY || effect == SPELL_EFFECT_APPLY_AREA_AURA_FRIEND;
+                effect == SPELL_EFFECT_APPLY_AREA_AURA_RAID   ||
+                effect == SPELL_EFFECT_APPLY_AREA_AURA_ENEMY  ||
+                effect == SPELL_EFFECT_APPLY_AREA_AURA_FRIEND ||
+                effect == SPELL_EFFECT_APPLY_AREA_AURA_OWNER;
     }
 
     inline uint32 GetDispellMask(DispelType dispel)
@@ -419,6 +433,8 @@ namespace Spells
         case SPELL_EFFECT_APPLY_AREA_AURA_RAID:
         case SPELL_EFFECT_APPLY_AREA_AURA_FRIEND:
         case SPELL_EFFECT_APPLY_AREA_AURA_ENEMY:
+            case SPELL_EFFECT_APPLY_AREA_AURA_OWNER:
+            case SPELL_EFFECT_APPLY_AURA_PET:
             return true;
         }
 
@@ -511,7 +527,7 @@ namespace Spells
 
         return false;
     }
-} // namespace Spells
+}
 
 class SpellEntry
 {
@@ -525,7 +541,7 @@ public:
     uint32 Id = 0; // 0
     uint32 School = 0; // 1
     uint32 Category = 0; // 2
-    // uint32    castUI;                                          // 3 not used
+    //uint32    castUI;                                          // 3 not used
     uint32 Dispel = 0; // 4
     uint32 Mechanic = 0; // 5
     uint32 Attributes = 0; // 6
@@ -559,8 +575,14 @@ public:
     uint32 manaPerSecond = 0; // 34
     uint32 manaPerSecondPerLevel = 0; // 35
     uint32 rangeIndex = 1; // 36
+    // AzerothCore keeps the distances on the spell itself. Here they live in
+    // SpellRange.dbc behind rangeIndex, so these look them up. The positive
+    // flag selects the friendly range on that core; this DBC carries one pair
+    // for both, so the argument is accepted and ignored.
+    float GetMaxRange(bool /*positive*/ = false) const;
+    float GetMinRange(bool /*positive*/ = false) const;
     float speed = 0.f; // 37
-    // uint32    modalNextSpell;                                  // 38 not used
+    //uint32    modalNextSpell;                                  // 38 not used
     uint32 StackAmount = 0; // 39
     uint32 Totem[MAX_SPELL_TOTEMS] = {}; // 40-41
     int32 Reagent[MAX_SPELL_REAGENTS] = {}; // 42-49
@@ -586,20 +608,20 @@ public:
     uint32 EffectItemType[MAX_EFFECT_INDEX] = {}; // 106-108
     int32 EffectMiscValue[MAX_EFFECT_INDEX] = {}; // 109-111
     uint32 EffectTriggerSpell[MAX_EFFECT_INDEX] = {}; // 112-114
-    float EffectPointsPerComboPoint[MAX_EFFECT_INDEX] = {}; // 115-117
+    float     EffectPointsPerComboPoint[MAX_EFFECT_INDEX] = {};// 115-117
     uint32 SpellVisual = 0; // 118
-    // uint32    SpellVisual2;                                    // 119 not used
+  //uint32    SpellVisual2;                                    // 119 not used
     uint32 SpellIconID = 0; // 120
     uint32 activeIconID = 0; // 121
     uint32 spellPriority = 0; // 122
     std::array<std::string, MAX_DBC_LOCALE> SpellName{}; // 123-130
-    // uint32    SpellNameFlag;                                   // 131     not used
+  //uint32    SpellNameFlag;                                   // 131     not used
     std::array<std::string, MAX_DBC_LOCALE> Rank{}; // 132-139
-    // uint32    RankFlags;                                       // 140     not used
-    // char*     Description[8];                                  // 141-148 not used
-    // uint32    DescriptionFlags;                                // 149     not used
+  //uint32    RankFlags;                                       // 140     not used
+  //char*     Description[8];                                  // 141-148 not used
+  //uint32    DescriptionFlags;                                // 149     not used
     std::array<std::string, MAX_DBC_LOCALE> ToolTip{}; // 150-157 not used
-    // uint32    ToolTipFlags;                                    // 158     not used
+  //uint32    ToolTipFlags;                                    // 158     not used
     uint32 ManaCostPercentage = 0; // 159
     uint32 StartRecoveryCategory = 0; // 160
     uint32 StartRecoveryTime = 0; // 161
@@ -609,18 +631,18 @@ public:
     uint32 MaxAffectedTargets = 0; // 166
     uint32 DmgClass = 0; // 167
     uint32 PreventionType = 0; // 168
-    // int32     StanceBarOrder;                                  // 169 not used
+  //int32     StanceBarOrder;                                  // 169 not used
     float DmgMultiplier[MAX_EFFECT_INDEX] = {}; // 170-172
-    // uint32    MinFactionId;                                    // 173 not used
-    // uint32    MinReputation;                                   // 174 not used
-    // uint32    RequiredAuraVision;                              // 175 not used
+  //uint32    MinFactionId;                                    // 173 not used
+  //uint32    MinReputation;                                   // 174 not used
+  //uint32    RequiredAuraVision;                              // 175 not used
 
     /// CUSTOM FIELDS:
     uint32 MinTargetLevel = 0; // 162
     uint32 Custom = 0; // 176
     uint32 Internal = 0; // Assigned by the core.
+    uint32 ScriptId = 0;
     std::string ParsedTooltip;
-
 protected:
     bool _isBinary = false;
     bool _isDispel = false;
@@ -628,7 +650,6 @@ protected:
     void ComputeBinary();
     void ComputeNonPeriodicDispel();
     void ComputeDispel();
-
 public:
     bool IsBinary() const { return _isBinary; }
     bool IsDispel() const { return _isDispel; }
@@ -640,9 +661,15 @@ public:
     // helpers
     int32 CalculateSimpleValue(SpellEffectIndex eff) const { return EffectBasePoints[eff] + int32(EffectBaseDice[eff]); }
 
-    bool IsFitToFamilyMask(uint64 familyFlags) const { return !!(SpellFamilyFlags & familyFlags); }
+    bool IsFitToFamilyMask(uint64 familyFlags) const
+    {
+        return !!(SpellFamilyFlags & familyFlags);
+    }
 
-    bool IsFitToFamily(SpellFamily family, uint64 familyFlags) const { return SpellFamily(SpellFamilyName) == family && IsFitToFamilyMask(familyFlags); }
+    bool IsFitToFamily(SpellFamily family, uint64 familyFlags) const
+    {
+        return SpellFamily(SpellFamilyName) == family && IsFitToFamilyMask(familyFlags);
+    }
 
     template <SpellFamily family, ClassFlag... Args>
     bool IsFitToFamily() const
@@ -671,7 +698,7 @@ public:
             mask |= 1 << (Mechanic - 1);
         for (uint32 i : EffectMechanic)
             if (i)
-                mask |= 1 << (i - 1);
+                    mask |= 1 << (i-1);
         return mask;
     }
 
@@ -680,6 +707,10 @@ public:
     bool HasAttribute(SpellAttributesEx2 attribute) const { return AttributesEx2 & attribute; }
     bool HasAttribute(SpellAttributesEx3 attribute) const { return AttributesEx3 & attribute; }
     bool HasAttribute(SpellAttributesEx4 attribute) const { return AttributesEx4 & attribute; }
+    // bot passes raw int (cmangos has a unified enum;
+    // Penqle splits per word). Stub returns false for unknown ints (bot only uses these for
+    // attributes Penqle may not even have; behavior matches "no extended attribute set").
+    bool HasAttribute(int /*attribute*/) const { return false; }
 
     bool HasSpellInterruptFlag(SpellInterruptFlags flag) const { return InterruptFlags & flag; }
     bool HasAuraInterruptFlag(SpellAuraInterruptFlags flag) const { return AuraInterruptFlags & flag; }
@@ -694,7 +725,10 @@ public:
         return false;
     }
 
-    inline bool IsSpellAppliesAura() const { return Internal & SPELL_INTERNAL_APPLIES_AURA; }
+    inline bool IsSpellAppliesAura() const
+    {
+        return Internal & SPELL_INTERNAL_APPLIES_AURA;
+    }
 
     inline bool IsSpellAppliesAura(uint32 effectMask) const
     {
@@ -711,7 +745,10 @@ public:
 
     // Spells that apply damage or heal over time
     // Returns false for periodic and direct mixed spells (immolate, etc)
-    inline bool IsSpellAppliesPeriodicAura() const { return Internal & SPELL_INTERNAL_APPLIES_PERIODIC_AURA; }
+    inline bool IsSpellAppliesPeriodicAura() const
+    {
+        return Internal & SPELL_INTERNAL_APPLIES_PERIODIC_AURA;
+    }
 
     inline bool IsEffectHandledOnDelayedSpellLaunch(SpellEffectIndex effecIdx) const
     {
@@ -773,12 +810,24 @@ public:
 
     bool HasAuraOrTriggersAnotherSpellWithAura(AuraType aura) const;
 
-    bool IsCustomSpell() const { return Internal & SPELL_INTERNAL_CUSTOM; }
+    bool IsCustomSpell() const
+    {
+        return Internal & SPELL_INTERNAL_CUSTOM;
+    }
 
     inline bool IsSealSpell() const
     {
-        // Collection of all the seal family flags. No other paladin spell has any of those.
+        //Collection of all the seal family flags. No other paladin spell has any of those.
         return IsFitToFamily<SPELLFAMILY_PALADIN, CF_PALADIN_SEAL_OF_THE_CRUSADER, CF_PALADIN_SEAL_OF_COMMAND, CF_PALADIN_SEALS>();
+    }
+
+    inline bool IsJudgementSpell() const
+    {
+        return IsFitToFamily<SPELLFAMILY_PALADIN,
+            CF_PALADIN_JUDGEMENT_OF_RIGHTEOUSNESS,
+            CF_PALADIN_JUDGEMENT_OF_WISDOM_LIGHT,
+            CF_PALADIN_JUDGEMENT_OF_JUSTICE,
+            CF_PALADIN_JUDGEMENT_OF_THE_CRUSADER>();
     }
 
     inline bool IsElementalShield() const
@@ -787,9 +836,15 @@ public:
         return IsFitToFamilyMask<CF_SHAMAN_LIGHTNING_SHIELD>() || Id == 23552;
     }
 
-    inline bool IsFromBehindOnlySpell() const { return ((AttributesEx2 == 0x100000 && (AttributesEx & 0x200) == 0x200) || (Custom & SPELL_CUSTOM_BEHIND_TARGET)); }
+    inline bool IsFromBehindOnlySpell() const
+    {
+        return ((AttributesEx2 == 0x100000 && (AttributesEx & 0x200) == 0x200) || (Custom & SPELL_CUSTOM_BEHIND_TARGET));
+    }
 
-    inline bool IsDeathPersistentDungeonSpell() const { return Custom & SPELL_CUSTOM_DEATH_DUNGEON_PERSISTENT; }
+    inline bool IsDeathPersistentDungeonSpell() const
+    {
+        return Custom & SPELL_CUSTOM_DEATH_DUNGEON_PERSISTENT;
+    }
 
     inline bool IsPassiveSpell() const
     {
@@ -797,11 +852,23 @@ public:
         return (Attributes & (SPELL_ATTR_PASSIVE)) != 0;
     }
 
-    inline bool IsPassiveSpellStackableWithRanks() const { return Internal & SPELL_INTERNAL_PASSIVE_STACK_WITH_RANKS; }
+    inline bool IsPassiveSpellStackableWithRanks() const
+    {
+        return Internal & SPELL_INTERNAL_PASSIVE_STACK_WITH_RANKS;
+    }
 
-    inline bool IsDeathOnlySpell() const { return HasAttribute(SPELL_ATTR_EX3_ONLY_ON_GHOSTS) || (Targets & (TARGET_FLAG_PVP_CORPSE | TARGET_FLAG_UNIT_CORPSE | TARGET_FLAG_CORPSE)) || (Id == 2584); }
+    inline bool IsDeathOnlySpell() const
+    {
+        return HasAttribute(SPELL_ATTR_EX3_ONLY_ON_GHOSTS) ||
+               (Targets & (TARGET_FLAG_PVP_CORPSE | TARGET_FLAG_UNIT_CORPSE | TARGET_FLAG_CORPSE)) ||
+               (Id == 2584);
+    }
 
-    inline bool CanTargetDeadTarget() const { return HasAttribute(SPELL_ATTR_EX2_CAN_TARGET_DEAD) || IsDeathOnlySpell(); }
+    inline bool CanTargetDeadTarget() const
+    {
+        return HasAttribute(SPELL_ATTR_EX2_CAN_TARGET_DEAD) ||
+               IsDeathOnlySpell();
+    }
 
     inline bool CanTargetAliveState(bool alive) const
     {
@@ -811,11 +878,20 @@ public:
         return alive || HasAttribute(SPELL_ATTR_EX2_CAN_TARGET_DEAD);
     }
 
-    inline bool IsDeathPersistentSpell() const { return HasAttribute(SPELL_ATTR_EX3_ALLOW_AURA_WHILE_DEAD); }
+    inline bool IsDeathPersistentSpell() const
+    {
+        return HasAttribute(SPELL_ATTR_EX3_ALLOW_AURA_WHILE_DEAD);
+    }
 
-    inline bool IsNonCombatSpell() const { return (Attributes & SPELL_ATTR_CANT_USED_IN_COMBAT) != 0; }
+    inline bool IsNonCombatSpell() const
+    {
+        return (Attributes & SPELL_ATTR_CANT_USED_IN_COMBAT) != 0;
+    }
 
-    inline bool IsPositiveSpell() const { return Internal & SPELL_INTERNAL_POSITIVE; }
+    inline bool IsPositiveSpell() const
+    {
+        return Internal & SPELL_INTERNAL_POSITIVE;
+    }
 
     bool IsPositiveSpell(WorldObject const* caster, WorldObject const* victim) const;
     bool IsPositiveEffect(SpellEffectIndex effIndex, WorldObject const* caster = nullptr, WorldObject const* victim = nullptr) const;
@@ -832,39 +908,87 @@ public:
         return true;
     }
 
-    inline bool IsHealSpell() const { return Internal & SPELL_INTERNAL_HEAL; }
+    inline bool IsHealSpell() const
+    {
+        return Internal & SPELL_INTERNAL_HEAL;
+    }
 
-    inline bool IsDirectDamageSpell() const { return Internal & SPELL_INTERNAL_DIRECT_DAMAGE; }
+    inline bool IsDirectDamageSpell() const
+    {
+        return Internal & SPELL_INTERNAL_DIRECT_DAMAGE;
+    }
 
-    inline bool HasSingleTargetAura() const { return Custom & SPELL_CUSTOM_SINGLE_TARGET_AURA; }
+    inline bool HasSingleTargetAura() const
+    {
+        return Custom & SPELL_CUSTOM_SINGLE_TARGET_AURA;
+    }
 
-    inline bool IsAuraRemovedOnEvade() const { return !(Custom & SPELL_CUSTOM_NOT_REMOVED_ON_EVADE); }
+    inline bool IsAuraRemovedOnEvade() const
+    {
+        return !(Custom & SPELL_CUSTOM_NOT_REMOVED_ON_EVADE);
+    }
 
-    inline bool IsSpellWithCasterSourceTargetsOnly() const { return Internal & SPELL_INTERNAL_CASTER_SOURCE_TARGETS; }
+    inline bool IsSpellWithCasterSourceTargetsOnly() const
+    {
+        return Internal & SPELL_INTERNAL_CASTER_SOURCE_TARGETS;
+    }
 
-    inline bool IsAreaOfEffectSpell() const { return Internal & SPELL_INTERNAL_AOE; }
+    inline bool IsAreaOfEffectSpell() const
+    {
+        return Internal & SPELL_INTERNAL_AOE;
+    }
 
-    inline bool HasAreaAuraEffect() const { return Internal & SPELL_INTERNAL_AOE_AURA; }
+    inline bool HasAreaAuraEffect() const
+    {
+        return Internal & SPELL_INTERNAL_AOE_AURA;
+    }
 
-    inline bool IsDismountSpell() const { return Internal & SPELL_INTERNAL_DISMOUNT; }
+    inline bool IsDismountSpell() const
+    {
+        return Internal & SPELL_INTERNAL_DISMOUNT;
+    }
 
-    inline bool IsCharmSpell() const { return Internal & SPELL_INTERNAL_CHARM; }
+    inline bool IsCharmSpell() const
+    {
+        return Internal & SPELL_INTERNAL_CHARM;
+    }
 
-    inline bool IsReflectableSpell() const { return Internal & SPELL_INTERNAL_REFLECTABLE; }
+    inline bool IsReflectableSpell() const
+    {
+        return Internal & SPELL_INTERNAL_REFLECTABLE;
+    }
 
     bool IsReflectableSpell(WorldObject const* caster, WorldObject const* victim) const;
 
-    inline bool IsAutoRepeatRangedSpell() const { return (Attributes & SPELL_ATTR_RANGED) && (AttributesEx2 & SPELL_ATTR_EX2_AUTOREPEAT_FLAG); }
+    inline bool IsAutoRepeatRangedSpell() const
+    {
+        return (Attributes & SPELL_ATTR_RANGED) && (AttributesEx2 & SPELL_ATTR_EX2_AUTOREPEAT_FLAG);
+    }
 
-    inline bool IsSpellRequiresRangedAP() const { return (SpellFamilyName == SPELLFAMILY_HUNTER && DmgClass != SPELL_DAMAGE_CLASS_MELEE); }
+    inline bool IsSpellRequiresRangedAP() const
+    {
+        return (SpellFamilyName == SPELLFAMILY_HUNTER && DmgClass != SPELL_DAMAGE_CLASS_MELEE);
+    }
 
-    inline bool IsChanneledSpell() const { return (AttributesEx & (SPELL_ATTR_EX_CHANNELED_1 | SPELL_ATTR_EX_CHANNELED_2)); }
+    inline bool IsChanneledSpell() const
+    {
+        return (AttributesEx & (SPELL_ATTR_EX_CHANNELED_1 | SPELL_ATTR_EX_CHANNELED_2));
+    }
 
-    inline bool NeedsComboPoints() const { return (AttributesEx & (SPELL_ATTR_EX_REQ_TARGET_COMBO_POINTS | SPELL_ATTR_EX_REQ_COMBO_POINTS)); }
+    inline bool NeedsComboPoints() const
+    {
+        return (AttributesEx & (SPELL_ATTR_EX_REQ_TARGET_COMBO_POINTS | SPELL_ATTR_EX_REQ_COMBO_POINTS));
+    }
 
-    inline bool IsTotemSummonSpell() const { return Effect[0] >= SPELL_EFFECT_SUMMON_TOTEM_SLOT1 && Effect[0] <= SPELL_EFFECT_SUMMON_TOTEM_SLOT4; }
+    inline bool IsTotemSummonSpell() const
+    {
+        return Effect[0] >= SPELL_EFFECT_SUMMON_TOTEM_SLOT1 && Effect[0] <= SPELL_EFFECT_SUMMON_TOTEM_SLOT4;
+    }
 
-    inline bool HasRealTimeDuration() const { return HasAttribute(SPELL_ATTR_EX4_AURA_EXPIRES_OFFLINE); }
+    inline bool HasRealTimeDuration() const
+    {
+        return HasAttribute(SPELL_ATTR_EX4_AURA_EXPIRES_OFFLINE);
+    }
 
     inline bool HasAuraWithSpellTriggerEffect() const
     {
@@ -935,7 +1059,11 @@ public:
             if (Effect[i] == SPELL_EFFECT_NONE)
                 continue;
 
-            if ((Effect[i] == SPELL_EFFECT_POWER_BURN || Effect[i] == SPELL_EFFECT_POWER_DRAIN || EffectApplyAuraName[i] == SPELL_AURA_PERIODIC_MANA_LEECH || EffectApplyAuraName[i] == SPELL_AURA_POWER_BURN_MANA) && int32(powerType) != EffectMiscValue[i])
+            if ((Effect[i] == SPELL_EFFECT_POWER_BURN ||
+                Effect[i] == SPELL_EFFECT_POWER_DRAIN ||
+                EffectApplyAuraName[i] == SPELL_AURA_PERIODIC_MANA_LEECH ||
+                EffectApplyAuraName[i] == SPELL_AURA_POWER_BURN_MANA) &&
+                int32(powerType) != EffectMiscValue[i])
             {
                 continue;
             }
@@ -946,9 +1074,15 @@ public:
         return false;
     }
 
-    inline bool IsRemovedOnShapeLostSpell() const { return (Stances || Id == 24864) && !(AttributesEx2 & SPELL_ATTR_EX2_NOT_NEED_SHAPESHIFT) && !(Attributes & SPELL_ATTR_NOT_SHAPESHIFT); }
+    inline bool IsRemovedOnShapeLostSpell() const
+    {
+        return (Stances || Id == 24864) && !(AttributesEx2 & SPELL_ATTR_EX2_NOT_NEED_SHAPESHIFT) && !(Attributes & SPELL_ATTR_NOT_SHAPESHIFT);
+    }
 
-    inline SpellSchoolMask GetSpellSchoolMask() const { return GetSchoolMask(School); }
+    inline SpellSchoolMask GetSpellSchoolMask() const
+    {
+        return GetSchoolMask(School);
+    }
 
     inline uint32 GetSpellMechanicMask(uint32 effectMask) const
     {
@@ -979,11 +1113,14 @@ public:
         return MECHANIC_NONE;
     }
 
-    inline uint32 GetRecoveryTime() const { return RecoveryTime > CategoryRecoveryTime ? RecoveryTime : CategoryRecoveryTime; }
+    inline uint32 GetRecoveryTime() const
+    {
+        return RecoveryTime > CategoryRecoveryTime ? RecoveryTime : CategoryRecoveryTime;
+    }
 
     int32 GetDuration() const;
     int32 GetMaxDuration() const;
-    int32 CalculateDuration(WorldObject const* caster = nullptr) const;
+    int32 CalculateDuration(WorldObject const* caster = nullptr, Unit const* target = nullptr, AuraScript* auraScript = nullptr) const;
     uint32 GetCastTime(WorldObject* caster, Spell* spell = nullptr) const;
     char* GetIcon(uint32 ID) const;
     uint32 GetCastTimeForBonus(DamageEffectType damagetype) const;
@@ -991,17 +1128,20 @@ public:
     WeaponAttackType GetWeaponAttackType() const;
     float CalculateDefaultCoefficient(DamageEffectType const damagetype) const;
     float CalculateCustomCoefficient(WorldObject const* caster, DamageEffectType const damageType, float coeff, Spell* spell, bool donePart) const;
+    bool CanTriggerWeaponProcs() const;
     SpellCastResult GetErrorAtShapeshiftedCast(uint32 form) const;
+    // AzerothCore spelling of the same question.
+    SpellCastResult CheckShapeshift(uint32 form) const { return GetErrorAtShapeshiftedCast(form); }
     bool IsTargetInRange(WorldObject const* pCaster, WorldObject const* pTarget) const; // to be used in scripts for simple pre-cast range checks
     uint32 GetMechanic() const { return Mechanic; }
     uint32 GetManaCost() const { return manaCost; }
     uint32 GetSpellFamilyName() const { return SpellFamilyName; }
     uint32 GetAuraInterruptFlags() const { return AuraInterruptFlags; }
     uint32 GetStackAmount() const { return StackAmount; }
-    uint32 GetEffectImplicitTargetAByIndex(SpellEffectIndex j) const { return EffectImplicitTargetA[j]; }
-    uint32 GetEffectImplicitTargetBByIndex(SpellEffectIndex j) const { return EffectImplicitTargetB[j]; }
-    uint32 GetEffectApplyAuraNameByIndex(SpellEffectIndex j) const { return EffectApplyAuraName[j]; }
-    uint32 GetEffectMiscValue(SpellEffectIndex j) const { return EffectMiscValue[j]; }
+    uint32 GetEffectImplicitTargetAByIndex(SpellEffectIndex j) const { return EffectImplicitTargetA[j];}
+    uint32 GetEffectImplicitTargetBByIndex(SpellEffectIndex j) const { return EffectImplicitTargetB[j];}
+    uint32 GetEffectApplyAuraNameByIndex(SpellEffectIndex j) const { return EffectApplyAuraName[j];}
+    uint32 GetEffectMiscValue(SpellEffectIndex j) const { return EffectMiscValue[j];}
     uint64 GetSpellFamilyFlags() const { return SpellFamilyFlags; }
     template <typename T, int Val>
     struct Shift

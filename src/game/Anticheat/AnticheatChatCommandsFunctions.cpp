@@ -1,25 +1,25 @@
-#include "AccountMgr.h"
-#include "Antispam/Antispam.h"
 #include "Chat.h"
-#include "CommandStream.h"
-#include "Config.hpp"
-#include "ObjectMgr.h"
-#include "Player.h"
 #include "World.h"
 #include "libanticheat.hpp"
+#include "Config.hpp"
+#include "Player.h"
+#include "ObjectMgr.h"
+#include "AccountMgr.h"
+#include "Antispam/Antispam.h"
+#include "CommandStream.h"
 
 #include <istream>
 
 bool ChatHandler::HandleAnticheatInfoCommand(char* args)
 {
-    Player* target = nullptr;
+    Player *target = nullptr;
 
     if (!ExtractPlayerTarget(&args, &target))
     {
         return false;
     }
 
-    if (auto const anticheat = dynamic_cast<const Anticheat::SessionAnticheat*>(target->GetSession()->GetAntiCheat()))
+    if (auto const anticheat = dynamic_cast<const Anticheat::SessionAnticheat *>(target->GetSession()->GetAntiCheat()))
     {
         PSendSysMessage("Anticheat info for %s", target->GetGuidStr().c_str());
         anticheat->SendCheatInfo(this);
@@ -60,7 +60,7 @@ bool ChatHandler::HandleAnticheatSilenceCommand(char* args)
 
 bool ChatHandler::HandleAnticheatSpaminfoCommand(char* args)
 {
-    Player* target = nullptr;
+    Player *target = nullptr;
     ObjectGuid playerGuid;
 
     if (!ExtractPlayerTarget(&args, &target, &playerGuid))
@@ -112,12 +112,12 @@ bool ChatHandler::HandleAnticheatFingerprintListCommand(char* args)
 
     int count = 0;
 
-    // search all session with specified fingerprint
-    const World::SessionMap& sessions = sWorld.GetAllSessions();
-    for (auto const& sessionPair : sessions)
+    //search all session with specified fingerprint
+    const World::SessionMap &sessions = sWorld.GetAllSessions();
+    for (auto const &sessionPair : sessions)
     {
         const WorldSession* sess = sessionPair.second;
-        const Anticheat::SessionAnticheat* anticheat = dynamic_cast<const Anticheat::SessionAnticheat*>(sess->GetAntiCheat());
+        const Anticheat::SessionAnticheat* anticheat = dynamic_cast<const Anticheat::SessionAnticheat *>(sess->GetAntiCheat());
 
         if (!anticheat)
             continue;
@@ -143,7 +143,7 @@ bool ChatHandler::HandleAnticheatFingerprintListCommand(char* args)
 
 bool ChatHandler::HandleAnticheatHwPrintMarkCommand(char* args)
 {
-    CommandStream commandStream{args};
+    CommandStream commandStream{ args };
     uint64 extendedPrint;
 
     if (!(commandStream >> extendedPrint))
@@ -162,7 +162,7 @@ bool ChatHandler::HandleAnticheatHwPrintMarkCommand(char* args)
 
 bool ChatHandler::HandleAnticheatHwPrintAutobanCommand(char* args)
 {
-    CommandStream commandStream{args};
+    CommandStream commandStream{ args };
     uint64 extendedPrint;
 
     if (!(commandStream >> extendedPrint))
@@ -181,7 +181,7 @@ bool ChatHandler::HandleAnticheatHwPrintAutobanCommand(char* args)
 
 bool ChatHandler::HandleAnticheatHwPrintListCommand(char* args)
 {
-    CommandStream commandStream{args};
+    CommandStream commandStream { args };
     uint64 extendedPrint;
 
     if (!(commandStream >> extendedPrint))
@@ -201,7 +201,8 @@ bool ChatHandler::HandleAnticheatHwPrintListCommand(char* args)
         if (sample.GetHash() == extendedPrint && sample.GetHash() != 0)
         {
             auto player = session->GetPlayer();
-            PSendSysMessage("Found Match for Account ID %u, player %s (GUID %u). IP: %s", session->GetAccountId(), player ? player->GetName() : "<None> (Not logged in)", player ? player->GetGUIDLow() : 0, session->GetRemoteAddress().c_str());
+            PSendSysMessage("Found Match for Account ID %u, player %s (GUID %u). IP: %s", session->GetAccountId(), player ? player->GetName() : "<None> (Not logged in)", player ? player->GetGUIDLow() : 0
+                , session->GetRemoteAddress().c_str());
         }
     }
 
@@ -236,8 +237,7 @@ bool ChatHandler::HandleAnticheatFingerprintHistoryCommand(char* args)
             PSendSysMessage("Account ID: %u IP: %s Realm: %u Time: %s", accountId, ip.c_str(), realm, time.c_str());
 
             ++count;
-        }
-        while (result->NextRow());
+        } while (result->NextRow());
     }
 
     PSendSysMessage("End of history for fingerprint %u.  Found %d matches", fingerprintNum, count);
@@ -254,7 +254,9 @@ bool ChatHandler::HandleAnticheatFingerprintAHistoryCommand(char* args)
 
     PSendSysMessage("Listing history for account %u.  Maximum length: %u", AccountId, sAnticheatConfig.GetFingerprintHistory());
 
-    std::unique_ptr<QueryResult> result(LoginDatabase.PQuery("SELECT fingerprint, ip, realm, time FROM system_fingerprint_usage WHERE account = %u ORDER BY `time` DESC LIMIT %u", AccountId, sAnticheatConfig.GetFingerprintHistory()));
+    std::unique_ptr<QueryResult> result(LoginDatabase.PQuery(
+        "SELECT fingerprint, ip, realm, time FROM system_fingerprint_usage WHERE account = %u ORDER BY `time` DESC LIMIT %u",
+        AccountId, sAnticheatConfig.GetFingerprintHistory()));
 
     int count = 0;
     if (result)
@@ -271,8 +273,7 @@ bool ChatHandler::HandleAnticheatFingerprintAHistoryCommand(char* args)
             PSendSysMessage("Fingerprint: %u%s IP: %s Realm: %u Time: %s", fingerprint, sAccountMgr.IsFingerprintBanned(fingerprint) ? " (BANNED)" : "", ip.c_str(), realm, time.c_str());
 
             ++count;
-        }
-        while (result->NextRow());
+        } while (result->NextRow());
     }
 
     PSendSysMessage("End of history for account %u.  Found %d matches", AccountId, count);
@@ -334,13 +335,15 @@ bool ChatHandler::HandleAnticheatCheatinformCommand(char* args)
     if (!(flags & ACCOUNT_FLAG_SHOW_ANTICHEAT))
     {
         session->SetAccountFlags(flags | ACCOUNT_FLAG_SHOW_ANTICHEAT);
-        LoginDatabase.PExecute("UPDATE account SET flags = flags | 0x%x WHERE id = %u", session->GetAccountId(), ACCOUNT_FLAG_SHOW_ANTICHEAT);
+        LoginDatabase.PExecute("UPDATE account SET flags = flags | 0x%x WHERE id = %u",
+            session->GetAccountId(), ACCOUNT_FLAG_SHOW_ANTICHEAT);
         SendSysMessage("Anticheat messages will be shown");
     }
     else
     {
         session->SetAccountFlags(flags & ~ACCOUNT_FLAG_SHOW_ANTICHEAT);
-        LoginDatabase.PExecute("UPDATE account SET flags = flags & ~0x%x WHERE id = %u", session->GetAccountId(), ACCOUNT_FLAG_SHOW_ANTICHEAT);
+        LoginDatabase.PExecute("UPDATE account SET flags = flags & ~0x%x WHERE id = %u",
+            session->GetAccountId(), ACCOUNT_FLAG_SHOW_ANTICHEAT);
         SendSysMessage("Anticheat messages will be hidden");
     }
     return true;
@@ -355,13 +358,15 @@ bool ChatHandler::HandleAnticheatSpaminformCommand(char* args)
     if (!(flags & ACCOUNT_FLAG_SHOW_ANTISPAM))
     {
         session->SetAccountFlags(flags | ACCOUNT_FLAG_SHOW_ANTISPAM);
-        LoginDatabase.PExecute("UPDATE account SET flags = flags | 0x%x WHERE id = %u", session->GetAccountId(), ACCOUNT_FLAG_SHOW_ANTISPAM);
+        LoginDatabase.PExecute("UPDATE account SET flags = flags | 0x%x WHERE id = %u",
+            session->GetAccountId(), ACCOUNT_FLAG_SHOW_ANTISPAM);
         SendSysMessage("Antispam messages will be shown");
     }
     else
     {
         session->SetAccountFlags(flags & ~ACCOUNT_FLAG_SHOW_ANTISPAM);
-        LoginDatabase.PExecute("UPDATE account SET flags = flags & ~0x%x WHERE id = %u", session->GetAccountId(), ACCOUNT_FLAG_SHOW_ANTISPAM);
+        LoginDatabase.PExecute("UPDATE account SET flags = flags & ~0x%x WHERE id = %u",
+            session->GetAccountId(), ACCOUNT_FLAG_SHOW_ANTISPAM);
         SendSysMessage("Antispam messages will be hidden");
     }
     return true;
@@ -435,7 +440,7 @@ bool ChatHandler::HandleAnticheatUnsilenceCommand(char* args)
 
 bool ChatHandler::HandleAnticheatDebugExtrapCommand(char* args)
 {
-    uint32 seconds;
+    uint32 seconds;    
     if (!ExtractUInt32Base(&args, seconds, 10))
         seconds = 30;
 
@@ -445,7 +450,7 @@ bool ChatHandler::HandleAnticheatDebugExtrapCommand(char* args)
         return false;
     }
 
-    auto const anticheat = dynamic_cast<Anticheat::AnticheatLib*>(GetAnticheatLib());
+    auto const anticheat = dynamic_cast<Anticheat::AnticheatLib *>(GetAnticheatLib());
     if (!anticheat)
     {
         SendSysMessage("No anticheat lib present");

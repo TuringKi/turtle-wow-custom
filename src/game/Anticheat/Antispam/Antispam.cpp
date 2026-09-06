@@ -1,22 +1,22 @@
-#include <algorithm>
 #include <regex>
 #include <string>
+#include <algorithm>
 
-#include "Anticheat.h"
-#include "Antispam.h"
-#include "ChannelMgr.h"
-#include "Chat.h"
 #include "Database/DatabaseEnv.h"
-#include "Guild.h"
-#include "ObjectAccessor.h"
 #include "Util.h"
 #include "World.h"
+#include "ObjectAccessor.h"
+#include "ChannelMgr.h"
+#include "Guild.h"
+#include "Chat.h"
+#include "Anticheat.h"
+#include "Antispam.h"
 
 #include <any>
 
 Antispam sAntispam;
 
-void AntispamAsyncWorker(Antispam* antispam)
+void AntispamAsyncWorker(Antispam *antispam)
 {
     using namespace std::chrono_literals;
     thread_name("AntispamAsync");
@@ -33,7 +33,14 @@ void AntispamAsyncWorker(Antispam* antispam)
     LoginDatabase.ThreadEnd();
 }
 
-Antispam::Antispam() : m_enabled(false), m_restrictionLevel(0), m_originalNormalizeMask(0), m_fullyNormalizeMask(0), m_threshold(0), m_mutetime(0), m_chatMask(0), m_worker(), m_banEnabled(false), m_detectThreshold(3), m_messageBlockSize(5), m_updateTimer(60000), m_messageRepeatCount(5), m_frequencyCount(5.0f), m_frequencyTime(6.0f), m_mergeAllWhispers(false) { m_frequencyCoeff = m_frequencyCount / m_frequencyTime; }
+Antispam::Antispam()
+    :   m_enabled(false), m_restrictionLevel(0), m_originalNormalizeMask(0), m_fullyNormalizeMask(0),
+        m_threshold(0), m_mutetime(0), m_chatMask(0), m_worker(), m_banEnabled(false), m_detectThreshold(3),
+        m_messageBlockSize(5), m_updateTimer(60000), m_messageRepeatCount(5), m_frequencyCount(5.0f), m_frequencyTime(6.0f),
+        m_mergeAllWhispers(false)
+{
+    m_frequencyCoeff = m_frequencyCount / m_frequencyTime;
+}
 
 void Antispam::LoadFromDB()
 {
@@ -99,7 +106,7 @@ void Antispam::LoadFromDB()
 
     sLog.outString(">> %u scores loaded", m_scores[MSG_TYPE_NORMALIZED].size() + m_scores[MSG_TYPE_ORIGINAL].size());
     sLog.outString();
-
+    
     sLog.outString("Loading table 'antispam_unicode'");
     m_unicode.clear();
 
@@ -160,8 +167,8 @@ bool Antispam::AddMessage(std::string const& msg, uint32 language, uint32 type, 
     MessageBlock messageBlock;
     uint8 chatType = GetConvertedChatType(type);
 
-    // Add LFT messages to the off-loading thread regardless of checks passing or failing for now.
-    // Reduces mainthread work.
+    //Add LFT messages to the off-loading thread regardless of checks passing or failing for now.
+    //Reduces mainthread work.
     if (channel && channel->GetName() == "Lft")
     {
         messageBlock.skipChecking = true;
@@ -169,12 +176,12 @@ bool Antispam::AddMessage(std::string const& msg, uint32 language, uint32 type, 
     else
     {
         if (from->GetLevel() > m_restrictionLevel)
-            return true;
+            return true;       
 
         if (chatType == A_CHAT_TYPE_MAX)
             return true;
 
-        // dont process self-whispers. Often used by RMT.
+        //dont process self-whispers. Often used by RMT.
         if (chatType == A_CHAT_TYPE_WHISPER && from && to && from->GetObjectGuid().GetCounter() == to->GetObjectGuid().GetCounter())
             return true;
 
@@ -204,8 +211,8 @@ struct FindMsg
     FindMsg(const std::string& m) : msg(m) {}
     bool operator()(const std::string& s) { return s == msg; }
 
-private:
-    const std::string& msg;
+    private:
+        const std::string& msg;
 };
 
 void Antispam::ProcessMessages(uint32 diff)
@@ -232,6 +239,7 @@ void Antispam::ProcessMessages(uint32 diff)
     }
 
 
+
     const auto SendShadowPacket = [](ObjectGuid fromGuid, const std::string& message, uint8 spamType)
     {
         MasterPlayer* sender = ObjectAccessor::FindMasterPlayer(fromGuid);
@@ -240,22 +248,22 @@ void Antispam::ProcessMessages(uint32 diff)
 
         switch (spamType)
         {
-        case AntispamChatTypes::A_CHAT_TYPE_CHANNEL:
+            case AntispamChatTypes::A_CHAT_TYPE_CHANNEL:
             {
                 WorldPacket data;
-                ChatHandler::BuildChatPacket(data, CHAT_MSG_CHANNEL, message, LANG_UNIVERSAL, sender->GetChatTag(), fromGuid, nullptr, ObjectGuid(), "", sender->GetName(), 0);
+                ChatHandler::BuildChatPacket(data, CHAT_MSG_CHANNEL, message, LANG_UNIVERSAL, sender->GetChatTag(), fromGuid, nullptr, ObjectGuid(), "", 
+                    sender->GetName(), 0);
                 sender->GetSession()->SendPacket(&data);
-            }
-            break;
+            }break;
 
-        case AntispamChatTypes::A_CHAT_TYPE_GUILD:
+            case AntispamChatTypes::A_CHAT_TYPE_GUILD:
             {
                 WorldPacket data;
                 ChatHandler::BuildChatPacket(data, CHAT_MSG_GUILD, message, LANG_UNIVERSAL, sender->GetChatTag(), sender->GetObjectGuid(), sender->GetName());
                 sender->GetSession()->SendPacket(&data);
-            }
-            break;
+            }break;
         }
+
     };
 
     for (auto const& messageBlock : tempMessageQueue)
@@ -301,7 +309,8 @@ void Antispam::ProcessMessages(uint32 diff)
                     continue;
                 }
 
-                if (counter->second.detectMarker || !m_frequencyCount || ((counter->second.count >= m_frequencyCount) && ((counter->second.count / m_frequencyCoeff) > counter->second.timeDiff)))
+                if (counter->second.detectMarker || !m_frequencyCount ||
+                    ((counter->second.count >= m_frequencyCount) && ((counter->second.count / m_frequencyCoeff) > counter->second.timeDiff)))
                 {
                     counter->second.detectMarker = true;
 
@@ -321,6 +330,7 @@ void Antispam::ProcessMessages(uint32 diff)
 
                         if (itr->second.count == m_messageBlockSize)
                             m_messageBlocks[type].erase(itr);
+
                     }
                     else if (FilterMessage(messageBlock))
                     {
@@ -350,7 +360,7 @@ void Antispam::ProcessMessages(uint32 diff)
 
         switch (messageBlock.type)
         {
-        case A_CHAT_TYPE_WHISPER:
+            case A_CHAT_TYPE_WHISPER:
             {
                 if (MasterPlayer* pSender = ObjectAccessor::FindMasterPlayer(messageBlock.fromGuid))
                 {
@@ -361,24 +371,25 @@ void Antispam::ProcessMessages(uint32 diff)
                 }
                 break;
             }
-        case A_CHAT_TYPE_CHANNEL:
+            case A_CHAT_TYPE_CHANNEL:
             {
                 if (!messageBlock.channelName.empty())
                 {
-                    // Review if realm tyoe speficic!
-                    // if (Channel* channel = channelMgr(ALLIANCE)->GetChannel(messageBlock.channelName, nullptr, false))
+					// Review if realm tyoe speficic!
+					// if (Channel* channel = channelMgr(ALLIANCE)->GetChannel(messageBlock.channelName, nullptr, false))
                     auto fromPlayer = ObjectAccessor::FindMasterPlayer(messageBlock.fromGuid);
                     if (!fromPlayer)
-                        return;
+                         return;
                     if (Channel* channel = channelMgr(sWorld.IsPvPRealm() ? fromPlayer->m_team : ALLIANCE)->GetChannel(messageBlock.channelName, nullptr, false))
                     {
                         if (channel->GetName() == u8"World")
                         {
-                            ChannelMgr::AnnounceBothFactionsChannel("Global", messageBlock.fromGuid, string_format("|cff{}{}|r", fromPlayer->GetTeam() == HORDE ? "ff0000" : "2773ff", messageBlock.msg.c_str()).c_str());
+                            ChannelMgr::AnnounceBothFactionsChannel("Global", messageBlock.fromGuid, string_format("|cff{}{}|r", fromPlayer->GetTeam() == HORDE ? "ff0000" : "2773ff"
+                            , messageBlock.msg.c_str()).c_str());
                             if (MasterPlayer* pSender = ObjectAccessor::FindMasterPlayer(messageBlock.fromGuid))
                             {
-                                // std::string logChat = sWorld.FormatLoggedChat(pSender->GetSession(), "Chan", messageBlock.msg, nullptr, 0, channel->GetName().c_str());
-                                // sWorld.SendDiscordMessage(1075224002013962250, logChat);
+                               // std::string logChat = sWorld.FormatLoggedChat(pSender->GetSession(), "Chan", messageBlock.msg, nullptr, 0, channel->GetName().c_str());
+                               // sWorld.SendDiscordMessage(1075224002013962250, logChat);
                             }
                         }
 
@@ -388,7 +399,7 @@ void Antispam::ProcessMessages(uint32 diff)
                 }
                 break;
             }
-        case A_CHAT_TYPE_GUILD:
+            case A_CHAT_TYPE_GUILD:
             {
                 if (MasterPlayer* pSender = ObjectAccessor::FindMasterPlayer(messageBlock.fromGuid))
                 {
@@ -423,7 +434,7 @@ std::string Antispam::NormalizeMessage(const std::string& msg, uint32 mask)
     if (mask & NF_REPLACE_WORDS)
         for (auto& e : m_replacement)
             ReplaceAll(newMsg, e.first, e.second);
-
+    
     if (mask & NF_CUT_CTRL)
     {
         static std::regex regex4("([[:cntrl:]]+)");
@@ -492,7 +503,8 @@ bool Antispam::FilterMessage(MessageBlock const& msgBlock)
 
     for (auto& word : m_blackList)
     {
-        if (origMsg.find(word) != std::string::npos || normMsg.find(word) != std::string::npos)
+        if (origMsg.find(word) != std::string::npos ||
+            normMsg.find(word) != std::string::npos)
         {
             block = true;
             sLog.outSpam("[Acc %u][Char %u] Blocked because of blacklisted word \'%s\'.", msgBlock.fromAccount, msgBlock.fromGuid.GetCounter(), word.c_str());
@@ -527,7 +539,10 @@ bool Antispam::FilterMessage(MessageBlock const& msgBlock)
     return block;
 }
 
-void Antispam::LogSpam(MessageBlock const& messageBlock, std::string const& reason) { sLog.outSpam("[Acc %u][Char %u][Reason %s] %s", messageBlock.fromAccount, messageBlock.fromGuid.GetCounter(), reason.c_str(), messageBlock.msg.c_str()); }
+void Antispam::LogSpam(MessageBlock const& messageBlock, std::string const& reason)
+{
+    sLog.outSpam("[Acc %u][Char %u][Reason %s] %s", messageBlock.fromAccount, messageBlock.fromGuid.GetCounter(), reason.c_str(), messageBlock.msg.c_str());
+}
 
 void Antispam::ApplySanction(MessageBlock const& messageBlock, uint32 detectType, uint32 repeats)
 {
@@ -535,16 +550,16 @@ void Antispam::ApplySanction(MessageBlock const& messageBlock, uint32 detectType
 
     switch (detectType)
     {
-    case DETECT_STANDARD:
-        LogSpam(messageBlock, "DETECT_STANDARD, chatType " + chatType);
-        break;
-    case DETECT_SEPARATED:
-        LogSpam(messageBlock, "DETECT_SEPARATED, chatType " + chatType);
-        break;
-    case DETECT_FLOOD:
-        std::string reason = "DETECT_FLOOD, " + std::to_string(repeats) + " repeats, chatType " + chatType;
-        LogSpam(messageBlock, reason);
-        break;
+        case DETECT_STANDARD:
+            LogSpam(messageBlock, "DETECT_STANDARD, chatType " + chatType);
+            break;
+        case DETECT_SEPARATED:
+            LogSpam(messageBlock, "DETECT_SEPARATED, chatType " + chatType);
+            break;
+        case DETECT_FLOOD:
+            std::string reason = "DETECT_FLOOD, " + std::to_string(repeats) + " repeats, chatType " + chatType;
+            LogSpam(messageBlock, reason);
+            break;
     }
 
     Mute(messageBlock.fromAccount);
@@ -552,7 +567,7 @@ void Antispam::ApplySanction(MessageBlock const& messageBlock, uint32 detectType
 
     auto itr = m_detectScores.find(messageBlock.fromAccount);
     if (itr == m_detectScores.end())
-        itr = m_detectScores.insert({messageBlock.fromAccount, 1}).first;
+        itr = m_detectScores.insert({ messageBlock.fromAccount, 1 }).first;
     else
         itr->second++;
 
@@ -584,7 +599,10 @@ bool Antispam::IsMuted(uint32 accountId, bool checkChatType, uint32 chatType) co
     return false;
 }
 
-void Antispam::Mute(uint32 accountId) { m_mutedAccounts.insert(accountId); }
+void Antispam::Mute(uint32 accountId)
+{
+    m_mutedAccounts.insert(accountId);
+}
 
 void Antispam::Unmute(uint32 accountId)
 {

@@ -1,52 +1,52 @@
 #include "Timer.h"
 
 #if PLATFORM == PLATFORM_UNIX // Torvalds platform
-#include <time.h>
+	#include <time.h>
 #endif
 
 bool g_bEnableStatGather = true;
 
 namespace CPU
 {
-    uint64 qpc_freq = 0;
-    uint32 qpc_counter = 0;
+	uint64 qpc_freq = 0;
+	uint32 qpc_counter = 0;
 
-    void Init()
-    {
+	void Init()
+	{
 #if PLATFORM == PLATFORM_WINDOWS
-        LARGE_INTEGER Freq;
-        QueryPerformanceFrequency(&Freq);
-        qpc_freq = Freq.QuadPart;
+		LARGE_INTEGER Freq;
+		QueryPerformanceFrequency(&Freq);
+		qpc_freq = Freq.QuadPart;
 #elif PLATFORM == PLATFORM_UNIX
-        qpc_freq = 1000000000;
+		qpc_freq = 1000000000;
 #endif
-    }
+	}
 
 
-    uint64 QPC()
-    {
-        qpc_counter++;
+	uint64 QPC()
+	{
+		qpc_counter++;
 
 #if PLATFORM == PLATFORM_WINDOWS
-        uint64 Dest;
-        QueryPerformanceCounter(reinterpret_cast<PLARGE_INTEGER>(&Dest));
-        return Dest;
+		uint64 Dest;
+		QueryPerformanceCounter(reinterpret_cast<PLARGE_INTEGER>(&Dest));
+		return Dest;
 #elif PLATFORM == PLATFORM_UNIX // else !PLATFORM_WINDOWS
-        timespec Dest;
-        clock_gettime(CLOCK_MONOTONIC, &Dest);
+		timespec Dest;
+		clock_gettime(CLOCK_MONOTONIC, &Dest);
 
-        uint64 Nanoseconds = Dest.tv_sec * 1000000000;
-        Nanoseconds += Dest.tv_nsec;
-        return Nanoseconds;
+		uint64 Nanoseconds = Dest.tv_sec * 1000000000;
+		Nanoseconds += Dest.tv_nsec;
+		return Nanoseconds;
 #endif
-    }
+	}
 
-} // namespace CPU
+}
 
 void XStatTimer::FrameStart()
 {
-    accum = 0;
-    count = 0;
+	accum = 0;
+	count = 0;
 }
 
 void XStatTimer::FrameEnd()
@@ -56,18 +56,25 @@ void XStatTimer::FrameEnd()
 	if (Time > result) result = Time;
 	else result = 0.99 * result + 0.01 * Time;
 #else
-    result = 1000.0 * double(accum) / double(CPU::qpc_freq);
+	result = 1000.0 * double(accum) / double(CPU::qpc_freq);
 #endif
 
-    if (MinResult == 0.0)
-    {
-        MinResult = result;
-    }
+	if (MinResult == 0.0)
+	{
+		MinResult = result;
+	}
 
-    MinResult = std::min(MinResult, result);
-    MaxResult = std::max(MaxResult, result);
+	MinResult = std::min(MinResult, result);
+	MaxResult = std::max(MaxResult, result);
 }
 
-XScopeStatTimer::XScopeStatTimer(XStatTimer& destTimer) : _timer(destTimer) { _timer.Begin(); }
+XScopeStatTimer::XScopeStatTimer(XStatTimer& destTimer)
+	: _timer(destTimer)
+{
+	_timer.Begin();
+}
 
-XScopeStatTimer::~XScopeStatTimer() { _timer.End(); }
+XScopeStatTimer::~XScopeStatTimer()
+{
+	_timer.End();
+}

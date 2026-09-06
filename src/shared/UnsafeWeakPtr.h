@@ -2,61 +2,75 @@
 
 #include "Common.h"
 
-#include <cassert>
 #include <memory>
+#include <cassert>
 
-struct no_empty_ptr_tag
-{
-};
+struct no_empty_ptr_tag {};
 
 namespace Utilities
 {
-    /*Allows deref.
-    Only use when certain that pointed-to object will still be valid.
-    */
-    template <typename T>
-    class UnsafeWeakPtr : public std::weak_ptr<T>
-    {
-    public:
-        using std::weak_ptr<T>::expired;
-        using std::weak_ptr<T>::get;
+	/*Allows deref.
+	Only use when certain that pointed-to object will still be valid.
+	*/
+	template <typename T>
+	class UnsafeWeakPtr : public std::weak_ptr<T>
+	{
+	public:
 
-        UnsafeWeakPtr(std::shared_ptr<T>& ptr) : std::weak_ptr<T>(ptr), m_rawPtr(ptr.get()) {}
+		using std::weak_ptr<T>::expired;
+		using std::weak_ptr<T>::get;
 
-        UnsafeWeakPtr(std::shared_ptr<T>& ptr, no_empty_ptr_tag) : UnsafeWeakPtr(ptr) { assert(!expired()); }
+		UnsafeWeakPtr(std::shared_ptr<T>& ptr) : std::weak_ptr<T>(ptr), m_rawPtr(ptr.get()) {}
 
-        T* get() { return m_rawPtr; }
+		UnsafeWeakPtr(std::shared_ptr<T>& ptr, no_empty_ptr_tag) : UnsafeWeakPtr(ptr)
+		{
+			assert(!expired());
+		}
 
-        const T* get() const { return m_rawPtr; }
+		T* get()
+		{
+			return m_rawPtr;
+		}
 
-        T* safe_get()
-        {
-            if (expired())
-                return nullptr;
-            return get();
-        }
+		const T* get() const
+		{
+			return m_rawPtr;
+		}
 
-        T* safe_get() const
-        {
-            if (expired())
-                return nullptr;
-            return get();
-        }
+		T* safe_get()
+		{
+			if (expired())
+				return nullptr;
+			return get();
+		}
 
-        T* operator->() { return get(); }
+		T* safe_get() const
+		{
+			if (expired())
+				return nullptr;
+			return get();
+		}
 
-        T& operator*() { return *get(); }
+		T* operator->()
+		{
+			return get();
+		}
 
-        UnsafeWeakPtr(const UnsafeWeakPtr&) = default;
-        UnsafeWeakPtr(UnsafeWeakPtr&&) = default;
-        ~UnsafeWeakPtr() = default;
-        UnsafeWeakPtr& operator=(const UnsafeWeakPtr&) = default;
-        UnsafeWeakPtr& operator=(UnsafeWeakPtr&&) = default;
+		T& operator*()
+		{
+			return *get();
+		}
 
-    private:
-        T* m_rawPtr;
-    };
+		UnsafeWeakPtr(const UnsafeWeakPtr&) = default;
+		UnsafeWeakPtr(UnsafeWeakPtr&&) = default;
+		~UnsafeWeakPtr() = default;
+		UnsafeWeakPtr& operator=(const UnsafeWeakPtr&) = default;
+		UnsafeWeakPtr& operator=(UnsafeWeakPtr&&) = default;
+	private:
+		T* m_rawPtr;
+	};
 
-    template <typename T>
-    using u_weak_ptr = UnsafeWeakPtr<T>;
-} // namespace Utilities
+	template <typename T>
+	using u_weak_ptr = UnsafeWeakPtr<T>;
+}
+

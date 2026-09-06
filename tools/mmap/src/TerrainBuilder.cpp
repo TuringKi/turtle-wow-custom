@@ -16,13 +16,13 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#include "TerrainBuilder.h"
 #include <cassert>
+#include "TerrainBuilder.h"
 #include "MMapCommon.h"
 #include "MapBuilder.h"
 #include "MapTree.h"
-#include "Maps/GridMapDefines.h"
 #include "ModelInstance.h"
+#include "Maps/GridMapDefines.h"
 
 bool gDoNotFilterDeepWater = false;
 
@@ -30,39 +30,39 @@ std::string gMapSettingsFilename;
 
 namespace MMAP
 {
-    TerrainBuilder::TerrainBuilder(bool skipLiquid, bool quick) : m_skipLiquid(skipLiquid), m_V9(nullptr), m_V8(nullptr), m_quick(quick), m_mapId(0) {}
-    TerrainBuilder::~TerrainBuilder() {}
+    TerrainBuilder::TerrainBuilder(bool skipLiquid, bool quick) : m_skipLiquid(skipLiquid), m_V9(nullptr), m_V8(nullptr), m_quick(quick), m_mapId(0) { }
+    TerrainBuilder::~TerrainBuilder() { }
 
     /**************************************************************************/
     void TerrainBuilder::getLoopVars(Spot portion, int& loopStart, int& loopEnd, int& loopInc)
     {
         switch (portion)
         {
-        case ENTIRE:
-            loopStart = 0;
-            loopEnd = V8_SIZE_SQ;
-            loopInc = 1;
-            break;
-        case TOP:
-            loopStart = 0;
-            loopEnd = V8_SIZE;
-            loopInc = 1;
-            break;
-        case LEFT:
-            loopStart = 0;
-            loopEnd = V8_SIZE_SQ - V8_SIZE + 1;
-            loopInc = V8_SIZE;
-            break;
-        case RIGHT:
-            loopStart = V8_SIZE - 1;
-            loopEnd = V8_SIZE_SQ;
-            loopInc = V8_SIZE;
-            break;
-        case BOTTOM:
-            loopStart = V8_SIZE_SQ - V8_SIZE;
-            loopEnd = V8_SIZE_SQ;
-            loopInc = 1;
-            break;
+            case ENTIRE:
+                loopStart = 0;
+                loopEnd = V8_SIZE_SQ;
+                loopInc = 1;
+                break;
+            case TOP:
+                loopStart = 0;
+                loopEnd = V8_SIZE;
+                loopInc = 1;
+                break;
+            case LEFT:
+                loopStart = 0;
+                loopEnd = V8_SIZE_SQ - V8_SIZE + 1;
+                loopInc = V8_SIZE;
+                break;
+            case RIGHT:
+                loopStart = V8_SIZE - 1;
+                loopEnd = V8_SIZE_SQ;
+                loopInc = V8_SIZE;
+                break;
+            case BOTTOM:
+                loopStart = V8_SIZE_SQ - V8_SIZE;
+                loopEnd = V8_SIZE_SQ;
+                loopInc = 1;
+                break;
         }
     }
 
@@ -226,7 +226,8 @@ namespace MMAP
             {
                 if (!(lheader.flags & MAP_LIQUID_NO_TYPE))
                 {
-                    if (fread(liquid_entry, sizeof(liquid_entry), 1, mapFile) == 1 && fread(liquid_flags, sizeof(liquid_flags), 1, mapFile) == 1)
+                    if (fread(liquid_entry, sizeof(liquid_entry), 1, mapFile) == 1 &&
+                        fread(liquid_flags, sizeof(liquid_flags), 1, mapFile) == 1)
                         liquid_type_loaded = true;
                 }
                 else
@@ -264,7 +265,8 @@ namespace MMAP
                     row = i / V9_SIZE;
                     col = i % V9_SIZE;
 
-                    if (row < lheader.offsetY || row >= lheader.offsetY + lheader.height || col < lheader.offsetX || col >= lheader.offsetX + lheader.width)
+                    if (row < lheader.offsetY || row >= lheader.offsetY + lheader.height ||
+                        col < lheader.offsetX || col >= lheader.offsetX + lheader.width)
                     {
                         // dummy vert using invalid height
                         meshData.liquidVerts.append((xoffset + col * GRID_PART_SIZE) * -1, INVALID_MAP_LIQ_HEIGHT, (yoffset + row * GRID_PART_SIZE) * -1);
@@ -277,7 +279,7 @@ namespace MMAP
                     meshData.liquidVerts.append(coord[1]);
                     j++;
                 }
-                delete[] liquid_map;
+                delete [] liquid_map;
                 liquid_map = nullptr;
             }
             else
@@ -303,6 +305,7 @@ namespace MMAP
                     ltriangles.append(indices[1] + count);
                     ltriangles.append(indices[0] + count);
                 }
+
         }
 
         fclose(mapFile);
@@ -328,7 +331,7 @@ namespace MMAP
         if (meshData.liquidVerts.size())
         {
             lverts_copy = new float[meshData.liquidVerts.size()];
-            memcpy(lverts_copy, lverts, sizeof(float) * meshData.liquidVerts.size());
+            memcpy(lverts_copy, lverts, sizeof(float)*meshData.liquidVerts.size());
         }
 
         getLoopVars(portion, loopStart, loopEnd, loopInc);
@@ -440,10 +443,10 @@ namespace MMAP
 
                     // [Nostalrius] We keep terrain data to make navmesh, and we need liquid to know that the terrain under is water.
                     // terrain under the liquid?
-                    // if (minLLevel > maxTLevel)
+                    //if (minLLevel > maxTLevel)
                     //    useTerrain = false;
 
-                    // liquid under the terrain?
+                    //liquid under the terrain?
                     if (minTLevel > maxLLevel)
                         useLiquid = false;
                 }
@@ -479,66 +482,65 @@ namespace MMAP
         // coord is mirroed about the horizontal axes
         switch (grid)
         {
-        case GRID_V9:
-            coord[0] = (xOffset + index % (V9_SIZE)*GRID_PART_SIZE) * -1.f;
-            coord[1] = (yOffset + (int)(index / (V9_SIZE)) * GRID_PART_SIZE) * -1.f;
-            coord[2] = v[index];
-            break;
-        case GRID_V8:
-            coord[0] = (xOffset + index % (V8_SIZE)*GRID_PART_SIZE + GRID_PART_SIZE / 2.f) * -1.f;
-            coord[1] = (yOffset + (int)(index / (V8_SIZE)) * GRID_PART_SIZE + GRID_PART_SIZE / 2.f) * -1.f;
-            coord[2] = v[index];
-            break;
+            case GRID_V9:
+                coord[0] = (xOffset + index % (V9_SIZE) * GRID_PART_SIZE) * -1.f;
+                coord[1] = (yOffset + (int)(index / (V9_SIZE)) * GRID_PART_SIZE) * -1.f;
+                coord[2] = v[index];
+                break;
+            case GRID_V8:
+                coord[0] = (xOffset + index % (V8_SIZE) * GRID_PART_SIZE + GRID_PART_SIZE / 2.f) * -1.f;
+                coord[1] = (yOffset + (int)(index / (V8_SIZE)) * GRID_PART_SIZE + GRID_PART_SIZE / 2.f) * -1.f;
+                coord[2] = v[index];
+                break;
         }
     }
 
     /**************************************************************************/
-    void TerrainBuilder::getHeightTriangle(int square, Spot triangle, int* indices, bool liquid /* = false*/)
+    void TerrainBuilder::getHeightTriangle(int square, Spot triangle, int* indices, bool liquid/* = false*/)
     {
         int rowOffset = square / V8_SIZE;
         if (!liquid)
             switch (triangle)
             {
-            case TOP:
-                indices[0] = square + rowOffset; //           0-----1 .... 128
-                indices[1] = square + 1 + rowOffset; //           |\ T /|
-                indices[2] = (V9_SIZE_SQ) + square; //           | \ / |
-                break; //           |L 0 R| .. 127
-            case LEFT: //           | / \ |
-                indices[0] = square + rowOffset; //           |/ B \|
-                indices[1] = (V9_SIZE_SQ) + square; //          129---130 ... 386
-                indices[2] = square + V9_SIZE + rowOffset; //           |\   /|
-                break; //           | \ / |
-            case RIGHT: //           | 128 | .. 255
-                indices[0] = square + 1 + rowOffset; //           | / \ |
-                indices[1] = square + V9_SIZE + 1 + rowOffset; //           |/   \|
-                indices[2] = (V9_SIZE_SQ) + square; //          258---259 ... 515
-                break;
-            case BOTTOM:
-                indices[0] = (V9_SIZE_SQ) + square;
-                indices[1] = square + V9_SIZE + 1 + rowOffset;
-                indices[2] = square + V9_SIZE + rowOffset;
-                break;
-            default:
-                break;
+                case TOP:
+                    indices[0] = square + rowOffset;                //           0-----1 .... 128
+                    indices[1] = square + 1 + rowOffset;            //           |\ T /|
+                    indices[2] = (V9_SIZE_SQ) + square;             //           | \ / |
+                    break;                                          //           |L 0 R| .. 127
+                case LEFT:                                          //           | / \ |
+                    indices[0] = square + rowOffset;                //           |/ B \|
+                    indices[1] = (V9_SIZE_SQ) + square;             //          129---130 ... 386
+                    indices[2] = square + V9_SIZE + rowOffset;      //           |\   /|
+                    break;                                          //           | \ / |
+                case RIGHT:                                         //           | 128 | .. 255
+                    indices[0] = square + 1 + rowOffset;            //           | / \ |
+                    indices[1] = square + V9_SIZE + 1 + rowOffset;  //           |/   \|
+                    indices[2] = (V9_SIZE_SQ) + square;             //          258---259 ... 515
+                    break;
+                case BOTTOM:
+                    indices[0] = (V9_SIZE_SQ) + square;
+                    indices[1] = square + V9_SIZE + 1 + rowOffset;
+                    indices[2] = square + V9_SIZE + rowOffset;
+                    break;
+                default: break;
             }
         else
             switch (triangle)
             {
-                //           0-----1 .... 128
-            case TOP: //           |\    |
-                indices[0] = square + rowOffset; //           | \ T |
-                indices[1] = square + 1 + rowOffset; //           |  \  |
-                indices[2] = square + V9_SIZE + 1 + rowOffset; //           | B \ |
-                break; //           |    \|
-            case BOTTOM: //          129---130 ... 386
-                indices[0] = square + rowOffset; //           |\    |
-                indices[1] = square + V9_SIZE + 1 + rowOffset; //           | \   |
-                indices[2] = square + V9_SIZE + rowOffset; //           |  \  |
-                break; //           |   \ |
-            default:
-                break; //           |    \|
-            } //          258---259 ... 515
+                                                                        //           0-----1 .... 128
+                case TOP:                                               //           |\    |
+                    indices[0] = square + rowOffset;                    //           | \ T |
+                    indices[1] = square + 1 + rowOffset;                //           |  \  |
+                    indices[2] = square + V9_SIZE + 1 + rowOffset;      //           | B \ |
+                    break;                                              //           |    \|
+                case BOTTOM:                                            //          129---130 ... 386
+                    indices[0] = square + rowOffset;                    //           |\    |
+                    indices[1] = square + V9_SIZE + 1 + rowOffset;      //           | \   |
+                    indices[2] = square + V9_SIZE + rowOffset;          //           |  \  |
+                    break;                                              //           |   \ |
+                default: break;                                         //           |    \|
+            }                                                           //          258---259 ... 515
+
     }
 
     /**************************************************************************/
@@ -546,7 +548,7 @@ namespace MMAP
     {
         // wow coords: x, y, height
         // coord is mirroed about the horizontal axes
-        coord[0] = (xOffset + index % (V9_SIZE)*GRID_PART_SIZE) * -1.f;
+        coord[0] = (xOffset + index % (V9_SIZE) * GRID_PART_SIZE) * -1.f;
         coord[1] = (yOffset + (int)(index / (V9_SIZE)) * GRID_PART_SIZE) * -1.f;
         coord[2] = v[index2];
     }
@@ -559,7 +561,7 @@ namespace MMAP
     {
         int row = square / 128;
         int col = square % 128;
-        int cellRow = row / 8; // 8 squares per cell
+        int cellRow = row / 8;     // 8 squares per cell
         int cellCol = col / 8;
         int holeRow = row % 8 / 2;
         int holeCol = (square - (row * 128 + cellCol * 8)) / 2;
@@ -573,7 +575,7 @@ namespace MMAP
     {
         int row = square / 128;
         int col = square % 128;
-        int cellRow = row / 8; // 8 squares per cell
+        int cellRow = row / 8;     // 8 squares per cell
         int cellCol = col / 8;
 
         if (cellRow < 16 && cellCol < 16)
@@ -662,16 +664,16 @@ namespace MMAP
                     // convert liquid type to NavTerrain
                     switch (liquid->GetType() & 3)
                     {
-                    case 0:
-                    case 1:
-                        type = AREA_WATER;
-                        break;
-                    case 2:
-                        type = AREA_MAGMA;
-                        break;
-                    case 3:
-                        type = AREA_SLIME;
-                        break;
+                        case 0:
+                        case 1:
+                            type = AREA_WATER;
+                            break;
+                        case 2:
+                            type = AREA_MAGMA;
+                            break;
+                        case 3:
+                            type = AREA_SLIME;
+                            break;
                     }
 
                     // indexing is weird...
@@ -763,14 +765,14 @@ namespace MMAP
                 for (int t = 0; t < mapVertsCount / 3; ++t)
                 {
                     // y, z, x
-                    Vector3 v(meshData.solidVerts[3 * t + 2], meshData.solidVerts[3 * t], meshData.solidVerts[3 * t + 1] + 0.2f);
+                    Vector3 v(meshData.solidVerts[3*t+2], meshData.solidVerts[3*t], meshData.solidVerts[3*t+1] + 0.2f);
                     v.x *= -1.f;
                     v.y *= -1.f;
                     v -= position;
                     v = v * rotation.inverse() / scale;
 
                     float outDist = -1.0f;
-                    float inDist = -1.0f;
+                    float inDist  = -1.0f;
                     if (it->IsUnderObject(v, up, isM2, &outDist, &inDist)) // inDist < outDist
                     {
                         // If terrain is under wmo, mark terrain as unwalkable
@@ -787,13 +789,13 @@ namespace MMAP
         {
             Vector3 tri[3];
             uint32 vertIdx[3];
-            bool insideModel[3] = {false}; // triangle vertex inside model
+            bool    insideModel[3] = {false}; // triangle vertex inside model
             for (int j = 0; j < 3; ++j)
             {
-                vertIdx[j] = meshData.solidTris[i * 3 + j];
+                vertIdx[j]     = meshData.solidTris[i*3+j];
                 if (vertIdx[j] < static_cast<uint32>(mapVertsCount))
                     insideModel[j] = (terrainInsideModelsVerts[vertIdx[j]] >= 0.1f);
-                tri[j] = Vector3(meshData.solidVerts[3 * vertIdx[j] + 2], meshData.solidVerts[3 * vertIdx[j]], meshData.solidVerts[3 * vertIdx[j] + 1]);
+                tri[j]         = Vector3(meshData.solidVerts[3*vertIdx[j]+2], meshData.solidVerts[3*vertIdx[j]], meshData.solidVerts[3*vertIdx[j]+1]);
             }
 
             // First case: nothing to do =)
@@ -810,16 +812,20 @@ namespace MMAP
 
             // Intersection to vertexes
             // - vert 1 & 2 are inside.
-            if (insideModel[(outsideIdx + 1) % 3] && insideModel[(outsideIdx + 2) % 3])
+            if (insideModel[(outsideIdx+1)%3] && insideModel[(outsideIdx+2)%3])
             {
                 Vector3 intersectTo1;
                 Vector3 intersectTo2;
-                bool inters1 = (vmapManager.getObjectHitPos(mapID, tri[outsideIdx].x, tri[outsideIdx].y, tri[outsideIdx].z, tri[(outsideIdx + 1) % 3].x, tri[(outsideIdx + 1) % 3].y, tri[(outsideIdx + 1) % 3].z, intersectTo1.x, intersectTo1.y, intersectTo1.z, 0.0f));
-                bool inters2 = (vmapManager.getObjectHitPos(mapID, tri[outsideIdx].x, tri[outsideIdx].y, tri[outsideIdx].z, tri[(outsideIdx + 2) % 3].x, tri[(outsideIdx + 2) % 3].y, tri[(outsideIdx + 2) % 3].z, intersectTo2.x, intersectTo2.y, intersectTo2.z, 0.0f));
+                bool inters1 = (vmapManager.getObjectHitPos(mapID, tri[outsideIdx].x, tri[outsideIdx].y, tri[outsideIdx].z,
+                                                                    tri[(outsideIdx+1)%3].x, tri[(outsideIdx+1)%3].y, tri[(outsideIdx+1)%3].z,
+                                                                    intersectTo1.x, intersectTo1.y, intersectTo1.z, 0.0f));
+                bool inters2 = (vmapManager.getObjectHitPos(mapID, tri[outsideIdx].x, tri[outsideIdx].y, tri[outsideIdx].z,
+                                                                    tri[(outsideIdx+2)%3].x, tri[(outsideIdx+2)%3].y, tri[(outsideIdx+2)%3].z,
+                                                                    intersectTo2.x, intersectTo2.y, intersectTo2.z, 0.0f));
                 if (!inters1)
-                    intersectTo1 = (tri[(outsideIdx + 1) % 3] * 4 + tri[outsideIdx]) / 5;
+                    intersectTo1 = (tri[(outsideIdx+1)%3]*4 + tri[outsideIdx]) / 5;
                 if (!inters2)
-                    intersectTo2 = (tri[(outsideIdx + 2) % 3] * 4 + tri[outsideIdx]) / 5;
+                    intersectTo2 = (tri[(outsideIdx+2)%3]*4 + tri[outsideIdx]) / 5;
 
                 // Insert new vertices
                 int offset = meshData.solidVerts.size() / 3;
@@ -829,28 +835,32 @@ namespace MMAP
                 meshData.solidVerts.append(intersectTo2.y);
                 meshData.solidVerts.append(intersectTo2.z);
                 meshData.solidVerts.append(intersectTo2.x);
-                vertIdx[(outsideIdx + 1) % 3] = offset;
-                vertIdx[(outsideIdx + 2) % 3] = offset + 1;
+                vertIdx[(outsideIdx+1)%3] = offset;
+                vertIdx[(outsideIdx+2)%3] = offset+1;
             }
-            if (insideModel[(outsideIdx + 1) % 3] != insideModel[(outsideIdx + 2) % 3])
+            if (insideModel[(outsideIdx+1)%3] != insideModel[(outsideIdx+2)%3])
             {
                 // Only one vert is inside
                 for (int insideIdx = 0; insideIdx < 3; ++insideIdx)
                     if (insideIdx != outsideIdx && insideModel[insideIdx])
                     {
-                        int outsideIdx2 = (outsideIdx + 1) % 3;
+                        int outsideIdx2 = (outsideIdx+1)%3;
                         if (outsideIdx2 == insideIdx)
-                            outsideIdx2 = (outsideIdx2 + 1) % 3;
+                            outsideIdx2 = (outsideIdx2+1)%3;
 
                         // 2 vertexes outside: outsideIdx/outsideIdx2. One inside: insideIdx
                         Vector3 intersectFrom1;
                         Vector3 intersectFrom2;
-                        bool inters1 = (vmapManager.getObjectHitPos(mapID, tri[outsideIdx].x, tri[outsideIdx].y, tri[outsideIdx].z, tri[insideIdx].x, tri[insideIdx].y, tri[insideIdx].z, intersectFrom1.x, intersectFrom1.y, intersectFrom1.z, -0.01f));
-                        bool inters2 = (vmapManager.getObjectHitPos(mapID, tri[outsideIdx2].x, tri[outsideIdx2].y, tri[outsideIdx2].z, tri[insideIdx].x, tri[insideIdx].y, tri[insideIdx].z, intersectFrom2.x, intersectFrom2.y, intersectFrom2.z, -0.01f));
+                        bool inters1 = (vmapManager.getObjectHitPos(mapID, tri[outsideIdx].x, tri[outsideIdx].y, tri[outsideIdx].z,
+                                                                    tri[insideIdx].x, tri[insideIdx].y, tri[insideIdx].z,
+                                                                    intersectFrom1.x, intersectFrom1.y, intersectFrom1.z, -0.01f));
+                        bool inters2 = (vmapManager.getObjectHitPos(mapID, tri[outsideIdx2].x, tri[outsideIdx2].y, tri[outsideIdx2].z,
+                                                                    tri[insideIdx].x, tri[insideIdx].y, tri[insideIdx].z,
+                                                                    intersectFrom2.x, intersectFrom2.y, intersectFrom2.z, -0.01f));
                         if (!inters1 && !inters2)
                         {
-                            intersectFrom1 = (tri[outsideIdx] + tri[insideIdx] * 3) / 4;
-                            intersectFrom2 = (tri[outsideIdx2] + tri[insideIdx] * 3) / 4;
+                            intersectFrom1 = (tri[outsideIdx] + tri[insideIdx]*3) / 4;
+                            intersectFrom2 = (tri[outsideIdx2] + tri[insideIdx]*3) / 4;
                         }
                         int offsetVerts = meshData.solidVerts.size() / 3;
                         meshData.solidVerts.append(intersectFrom1.y);
@@ -862,8 +872,8 @@ namespace MMAP
                         // Triangles verts are oriented surfaces ("inside" / "outside")
                         meshData.solidTris.append(vertIdx[outsideIdx2]);
                         meshData.solidTris.append(offsetVerts);
-                        meshData.solidTris.append(offsetVerts + 1);
-                        meshData.solidTris.append(offsetVerts + 1);
+                        meshData.solidTris.append(offsetVerts+1);
+                        meshData.solidTris.append(offsetVerts+1);
                         meshData.solidTris.append(offsetVerts);
                         meshData.solidTris.append(vertIdx[outsideIdx2]);
                         vertIdx[insideIdx] = offsetVerts;
@@ -871,28 +881,31 @@ namespace MMAP
                     }
             }
             for (int j = 0; j < 3; ++j)
-                meshData.solidTris[i * 3 + j] = vertIdx[j];
+                meshData.solidTris[i*3+j] = vertIdx[j];
         }
-        for (int i = 0; i < mapTrisCount / 3; ++i)
+        for (int i = 0; i < mapTrisCount/3; ++i)
         {
-            bool insideModel[3] = {false}; // triangle vertex inside model
-            bool allInBorder = true;
+            bool    insideModel[3] = {false}; // triangle vertex inside model
+            bool    allInBorder = true;
             for (int j = 0; j < 3; ++j)
             {
-                if (meshData.solidTris[i * 3 + j] < mapVertsCount)
-                    insideModel[j] = (terrainInsideModelsVerts[meshData.solidTris[i * 3 + j]] >= 1.0f);
-                if (terrainInsideModelsVerts[meshData.solidTris[i * 3 + j]] >= 1.5f)
+                if (meshData.solidTris[i*3+j] < mapVertsCount)
+                    insideModel[j] = (terrainInsideModelsVerts[meshData.solidTris[i*3+j]] >= 1.0f);
+                if (terrainInsideModelsVerts[meshData.solidTris[i*3+j]] >= 1.5f)
                     allInBorder = false;
             }
 
             if (insideModel[0] && insideModel[1] && insideModel[2] && !allInBorder)
                 for (int j = 0; j < 3; ++j)
-                    meshData.solidTris[i * 3 + j] = 0;
+                    meshData.solidTris[i*3+j] = 0;
         }
-        delete[] terrainInsideModelsVerts;
+        delete [] terrainInsideModelsVerts;
         return true;
     }
-    void TerrainBuilder::unloadVMap(uint32 mapID, uint32 tileX, uint32 tileY) { vmapManager.unloadMap(mapID, tileX, tileY); }
+    void TerrainBuilder::unloadVMap(uint32 mapID, uint32 tileX, uint32 tileY)
+    {
+        vmapManager.unloadMap(mapID, tileX, tileY);
+    }
 
     /**************************************************************************/
     void TerrainBuilder::transform(vector<Vector3>& source, vector<Vector3>& transformedVertices, float scale, G3D::Matrix3& rotation, Vector3& position)
@@ -1015,7 +1028,8 @@ namespace MMAP
             float p0[3], p1[3];
             int mid, tx, ty;
             float size;
-            if (10 != sscanf(buf, "%d %d,%d (%f %f %f) (%f %f %f) %f", &mid, &tx, &ty, &p0[0], &p0[1], &p0[2], &p1[0], &p1[1], &p1[2], &size))
+            if (10 != sscanf(buf, "%d %d,%d (%f %f %f) (%f %f %f) %f", &mid, &tx, &ty,
+                             &p0[0], &p0[1], &p0[2], &p1[0], &p1[1], &p1[2], &size))
                 continue;
 
             if (mapID == mid && tileX == tx && tileY == ty)
@@ -1028,15 +1042,16 @@ namespace MMAP
                 meshData.offMeshConnections.append(p1[2]);
                 meshData.offMeshConnections.append(p1[0]);
 
-                meshData.offMeshConnectionDirs.append(1); // 1 - both direction, 0 - one sided
-                meshData.offMeshConnectionRads.append(size); // agent size equivalent
+                meshData.offMeshConnectionDirs.append(1);          // 1 - both direction, 0 - one sided
+                meshData.offMeshConnectionRads.append(size);       // agent size equivalent
                 // can be used same way as polygon flags
                 meshData.offMeshConnectionsAreas.append((unsigned char)0xFF);
-                meshData.offMeshConnectionsFlags.append((unsigned short)0xFF); // all movement masks can make this path
+                meshData.offMeshConnectionsFlags.append((unsigned short)0xFF);  // all movement masks can make this path
             }
+
         }
 
-        delete[] buf;
+        delete [] buf;
         fclose(fp);
     }
 
@@ -1077,7 +1092,7 @@ namespace MMAP
             if (x > y)
             {
                 // 1 triangle (h1, h2, h5 points)
-                float h1 = m_V9[(x_int)*129 + y_int];
+                float h1 = m_V9[(x_int) * 129 + y_int];
                 float h2 = m_V9[(x_int + 1) * 129 + y_int];
                 float h5 = 2 * m_V8[x_int * 128 + y_int];
                 a = h2 - h1;
@@ -1087,7 +1102,7 @@ namespace MMAP
             else
             {
                 // 2 triangle (h1, h3, h5 points)
-                float h1 = m_V9[x_int * 129 + y_int];
+                float h1 = m_V9[x_int * 129 + y_int  ];
                 float h3 = m_V9[x_int * 129 + y_int + 1];
                 float h5 = 2 * m_V8[x_int * 128 + y_int];
                 a = h5 - h1 - h3;
@@ -1100,7 +1115,7 @@ namespace MMAP
             if (x > y)
             {
                 // 3 triangle (h2, h4, h5 points)
-                float h2 = m_V9[(x_int + 1) * 129 + y_int];
+                float h2 = m_V9[(x_int + 1) * 129 + y_int  ];
                 float h4 = m_V9[(x_int + 1) * 129 + y_int + 1];
                 float h5 = 2 * m_V8[x_int * 128 + y_int];
                 a = h2 + h4 - h5;
@@ -1110,7 +1125,7 @@ namespace MMAP
             else
             {
                 // 4 triangle (h3, h4, h5 points)
-                float h3 = m_V9[(x_int)*129 + y_int + 1];
+                float h3 = m_V9[(x_int) * 129 + y_int + 1];
                 float h4 = m_V9[(x_int + 1) * 129 + y_int + 1];
                 float h5 = 2 * m_V8[x_int * 128 + y_int];
                 a = h4 - h3;
@@ -1132,6 +1147,6 @@ namespace MMAP
         float z = pos[1];
         if (z + 0.2f > terrainHeight) // Over terrain
             return false;
-        return vmapManager.isUnderModel(m_mapId, pos[2], pos[0], z + 0.2f);
+        return vmapManager.isUnderModel(m_mapId, pos[2], pos[0], z+0.2f);
     }
-} // namespace MMAP
+}

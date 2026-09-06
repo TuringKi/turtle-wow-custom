@@ -18,45 +18,42 @@ namespace HttpApi
         _server = std::make_unique<SSLServer>(certPath.c_str(), privateKeyPath.c_str());
 
 
-        _server->set_error_handler(
-            [](const auto& req, auto& res)
+        _server->set_error_handler([](const auto& req, auto& res) {
+            auto fmt = "<p>Error Status: <span style='color:red;'>%d</span></p>";
+            char buf[BUFSIZ];
+            snprintf(buf, sizeof(buf), fmt, res.status);
+            res.set_content(buf, "text/html");
+        });
+
+        _server->set_exception_handler([](const auto& req, auto& res, std::exception_ptr ep) {
+            auto fmt = "<h1>Error 500</h1><p>%s</p>";
+            char buf[BUFSIZ];
+            try 
             {
-                auto fmt = "<p>Error Status: <span style='color:red;'>%d</span></p>";
-                char buf[BUFSIZ];
-                snprintf(buf, sizeof(buf), fmt, res.status);
-                res.set_content(buf, "text/html");
-            });
-
-        _server->set_exception_handler(
-            [](const auto& req, auto& res, std::exception_ptr ep)
+                std::rethrow_exception(ep);
+            }
+            catch (std::exception& e) 
             {
-                auto fmt = "<h1>Error 500</h1><p>%s</p>";
-                char buf[BUFSIZ];
-                try
-                {
-                    std::rethrow_exception(ep);
-                }
-                catch (std::exception& e)
-                {
-                    snprintf(buf, sizeof(buf), fmt, e.what());
-                }
-                catch (...)
-                {
-                    snprintf(buf, sizeof(buf), fmt, "Unknown Exception");
-                }
+                snprintf(buf, sizeof(buf), fmt, e.what());
+            }
+            catch (...) 
+            { 
+                snprintf(buf, sizeof(buf), fmt, "Unknown Exception");
+            }
 
-                sLog.out(LOG_API, "API Exception: %s", buf);
-                res.set_content(buf, "text/html");
-                res.status = 500;
-            });
+            sLog.out(LOG_API, "API Exception: %s", buf);
+            res.set_content(buf, "text/html");
+            res.status = 500;
+        });
 
-        _server->set_logger([](const Request& req, const Response& res) { sLog.out(LOG_API, "Handling request from %s.\nRoute:%s\nBody:%s", req.remote_addr.c_str(), req.path.c_str(), req.body.c_str()); });
+        _server->set_logger([](const Request& req, const Response& res) {
+            sLog.out(LOG_API, "Handling request from %s.\nRoute:%s\nBody:%s", req.remote_addr.c_str(), req.path.c_str(), req.body.c_str());
+        });
 
         BaseController::RegisterAll(_server.get());
-
-        _listenThread = std::thread(
-            [this, address, port]()
-            {
+       
+        _listenThread = std::thread([this, address, port]()
+        {
                 mysql_thread_init(); // not really good but eh
                 _running = true;
                 while (_running)
@@ -65,7 +62,8 @@ namespace HttpApi
                     std::this_thread::sleep_for(std::chrono::milliseconds(33)); // 30 FPS
                 }
                 mysql_thread_end();
-            });
+        });
+        
     }
 
     void ApiServer::Stop()
@@ -76,4 +74,4 @@ namespace HttpApi
             _server->stop();
         }
     }
-} // namespace HttpApi
+}

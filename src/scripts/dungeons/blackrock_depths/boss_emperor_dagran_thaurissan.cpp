@@ -21,8 +21,8 @@ SDComment: With script for Moria
 SDCategory: Blackrock Depths
 EndScriptData */
 
-#include "blackrock_depths.h"
 #include "scriptPCH.h"
+#include "blackrock_depths.h"
 
 enum eEmperor
 {
@@ -79,7 +79,10 @@ struct boss_emperor_dagran_thaurissanAI : public ScriptedAI
         }
     }
 
-    void KilledUnit(Unit* pVictim) override { DoScriptText(SAY_SLAY, m_creature); }
+    void KilledUnit(Unit* pVictim) override
+    {
+        DoScriptText(SAY_SLAY, m_creature);
+    }
 
     void UpdateAI(const uint32 uiDiff) override
     {
@@ -117,7 +120,10 @@ struct boss_emperor_dagran_thaurissanAI : public ScriptedAI
     }
 };
 
-CreatureAI* GetAI_boss_emperor_dagran_thaurissan(Creature* pCreature) { return new boss_emperor_dagran_thaurissanAI(pCreature); }
+CreatureAI* GetAI_boss_emperor_dagran_thaurissan(Creature* pCreature)
+{
+    return new boss_emperor_dagran_thaurissanAI(pCreature);
+}
 
 /*######
 ## boss_moira_bronzebeard
@@ -125,14 +131,14 @@ CreatureAI* GetAI_boss_emperor_dagran_thaurissan(Creature* pCreature) { return n
 
 enum ePrincess
 {
-    SPELL_HEAL = 15586,
-    SPELL_RENEW = 10929,
-    SPELL_SHIELD = 10901,
-    SPELL_MINDBLAST = 15587,
-    SPELL_SHADOWWORDPAIN = 15654,
-    SPELL_SMITE = 10934,
-    SPELL_SHADOW_BOLT = 15537,
-    SPELL_OPEN_PORTAL = 13912
+    SPELL_HEAL                  = 15586,
+    SPELL_RENEW                 = 10929,
+    SPELL_SHIELD                = 10901,
+    SPELL_MINDBLAST             = 15587,
+    SPELL_SHADOWWORDPAIN        = 15654,
+    SPELL_SMITE                 = 10934,
+    SPELL_SHADOW_BOLT           = 15537,
+    SPELL_OPEN_PORTAL           = 13912
 };
 
 struct boss_moira_bronzebeardAI : public ScriptedAI
@@ -152,7 +158,7 @@ struct boss_moira_bronzebeardAI : public ScriptedAI
 
     void Reset() override
     {
-        m_uiHeal_Timer = 12000; // These times are probably wrong
+        m_uiHeal_Timer = 12000; //These times are probably wrong
         m_uiMindBlast_Timer = 16000;
         m_uiShadowWordPain_Timer = 2000;
         m_uiSmite_Timer = 8000;
@@ -173,11 +179,11 @@ struct boss_moira_bronzebeardAI : public ScriptedAI
 
     void UpdateAI(const uint32 uiDiff) override
     {
-        // Return since we have no target
+        //Return since we have no target
         if (!m_creature->SelectHostileTarget() || !m_creature->GetVictim())
             return;
 
-        // MindBlast_Timer
+        //MindBlast_Timer
         if (m_uiMindBlast_Timer < uiDiff)
         {
             DoCastSpellIfCan(m_creature->GetVictim(), SPELL_MINDBLAST);
@@ -186,7 +192,7 @@ struct boss_moira_bronzebeardAI : public ScriptedAI
         else
             m_uiMindBlast_Timer -= uiDiff;
 
-        // ShadowWordPain_Timer
+        //ShadowWordPain_Timer
         if (m_uiShadowWordPain_Timer < uiDiff)
         {
             DoCastSpellIfCan(m_creature->GetVictim(), SPELL_SHADOWWORDPAIN);
@@ -195,7 +201,7 @@ struct boss_moira_bronzebeardAI : public ScriptedAI
         else
             m_uiShadowWordPain_Timer -= uiDiff;
 
-        // Smite_Timer
+        //Smite_Timer
         if (m_uiSmite_Timer < uiDiff)
         {
             DoCastSpellIfCan(m_creature->GetVictim(), SPELL_SMITE);
@@ -204,7 +210,7 @@ struct boss_moira_bronzebeardAI : public ScriptedAI
         else
             m_uiSmite_Timer -= uiDiff;
 
-        // healTimer
+        //healTimer
         if (m_uiHeal_Timer < uiDiff)
         {
             if (Creature* pEmperor = m_pInstance->instance->GetCreature(m_pInstance->GetData64(DATA_EMPEROR)))
@@ -218,15 +224,18 @@ struct boss_moira_bronzebeardAI : public ScriptedAI
         else
             m_uiHeal_Timer -= uiDiff;
 
-        DoMeleeAttackIfReady(); // Sredna found proof.
+        DoMeleeAttackIfReady(); //Sredna found proof.
     }
 };
 
-CreatureAI* GetAI_boss_moira_bronzebeard(Creature* pCreature) { return new boss_moira_bronzebeardAI(pCreature); }
+CreatureAI* GetAI_boss_moira_bronzebeard(Creature* pCreature)
+{
+    return new boss_moira_bronzebeardAI(pCreature);
+}
 
 void AddSC_boss_draganthaurissan()
 {
-    Script* newscript;
+    Script *newscript;
 
     newscript = new Script;
     newscript->Name = "boss_emperor_dagran_thaurissan";

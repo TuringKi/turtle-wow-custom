@@ -30,7 +30,10 @@ enum
 
 struct boss_avatar_of_pompaAI : public ScriptedAI
 {
-    boss_avatar_of_pompaAI(Creature* c) : ScriptedAI(c) { Reset(); }
+    boss_avatar_of_pompaAI(Creature *c) : ScriptedAI(c)
+    {
+        Reset();
+    }
 
     uint32 HolyNova_Timer;
     uint32 Cleave_Timer;
@@ -47,7 +50,7 @@ struct boss_avatar_of_pompaAI : public ScriptedAI
         HolySmite_Timer = 10000;
     }
 
-    void Aggro(Unit* who) override
+    void Aggro(Unit *who) override
     {
         if (first_aggro)
         {
@@ -68,8 +71,8 @@ struct boss_avatar_of_pompaAI : public ScriptedAI
 
         switch (victim->GetTypeId())
         {
-        /** Prevent Avatar of Pompa to use his healing spell if player got a level lower than 50 */
-        case TYPEID_PLAYER:
+            /** Prevent Avatar of Pompa to use his healing spell if player got a level lower than 50 */
+            case TYPEID_PLAYER:
             {
                 affectedPlayer = victim->GetAffectingPlayer();
 
@@ -91,7 +94,7 @@ struct boss_avatar_of_pompaAI : public ScriptedAI
 
                 break;
             }
-        case TYPEID_UNIT:
+            case TYPEID_UNIT:
             {
                 /** Avatar of Pompa can use his healing ability on Totem and Pets */
                 creature = victim->ToCreature();
@@ -110,8 +113,8 @@ struct boss_avatar_of_pompaAI : public ScriptedAI
 
                 break;
             }
-        default:
-            return;
+            default:
+                return;
         }
 
         DoCastSpellIfCan(m_creature, SPELL_CAPTURESOUL);
@@ -121,12 +124,13 @@ struct boss_avatar_of_pompaAI : public ScriptedAI
 
     void JustDied(Unit* /*pKiller*/) override
     {
-        uint32 m_respawn_delay_Timer = urand(3, 6) * DAY + urand(0, 24 * HOUR);
+        uint32 m_respawn_delay_Timer = urand(3, 6)*DAY + urand(0, 24*HOUR);
 
         /** DRRS */
-        if (m_creature->GetSpawnFlags() & SPAWN_FLAG_DYNAMIC_RESPAWN_TIME && sWorld.GetActiveSessionCount() > BLIZZLIKE_REALM_POPULATION)
+        if (m_creature->GetSpawnFlags() & SPAWN_FLAG_DYNAMIC_RESPAWN_TIME &&
+            sWorld.GetActiveSessionCount() > BLIZZLIKE_REALM_POPULATION)
 
-            m_respawn_delay_Timer *= float(BLIZZLIKE_REALM_POPULATION) / float(sWorld.GetActiveSessionCount());
+        m_respawn_delay_Timer *= float(BLIZZLIKE_REALM_POPULATION) / float(sWorld.GetActiveSessionCount());
 
         m_creature->SetRespawnDelay(m_respawn_delay_Timer);
         m_creature->SetRespawnTime(m_respawn_delay_Timer);
@@ -177,13 +181,17 @@ struct boss_avatar_of_pompaAI : public ScriptedAI
 
         DoMeleeAttackIfReady();
     }
+
 };
 
-CreatureAI* GetAI_boss_avatar_of_pompa(Creature* _Creature) { return new boss_avatar_of_pompaAI(_Creature); }
+CreatureAI* GetAI_boss_avatar_of_pompa(Creature *_Creature)
+{
+    return new boss_avatar_of_pompaAI(_Creature);
+}
 
 void AddSC_boss_avatar_of_pompa()
 {
-    Script* newscript;
+    Script *newscript;
     newscript = new Script;
     newscript->Name = "boss_avatar_of_pompa";
     newscript->GetAI = &GetAI_boss_avatar_of_pompa;

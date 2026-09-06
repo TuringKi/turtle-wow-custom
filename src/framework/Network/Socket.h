@@ -4,14 +4,14 @@
 
 #pragma once
 
-#include <asio/ip/tcp.hpp>
-#include <atomic>
-#include <functional>
-#include <memory>
-#include <queue>
-#include <type_traits>
-#include "Log.h"
 #include "Utilities/MessageBuffer.h"
+#include "Log.h"
+#include <atomic>
+#include <queue>
+#include <memory>
+#include <functional>
+#include <type_traits>
+#include <asio/ip/tcp.hpp>
 
 class WorldPacket;
 class WorldSession;
@@ -50,11 +50,15 @@ using asio::ip::tcp;
 
             tcp::socket::endpoint_type remote_endpoint() const;
 */
-template <class T, class Stream = tcp::socket>
+template<class T, class Stream = tcp::socket>
 class Socket : public std::enable_shared_from_this<T>
 {
 public:
-    explicit Socket(tcp::socket&& socket) : _socket(std::move(socket)), _remoteAddress(_socket.remote_endpoint().address()), _remotePort(_socket.remote_endpoint().port()), _readBuffer(), _closed(false), _closing(false), _isWritingAsync(false) { _readBuffer.Resize(READ_BLOCK_SIZE); }
+    explicit Socket(tcp::socket&& socket) : _socket(std::move(socket)), _remoteAddress(_socket.remote_endpoint().address()),
+        _remotePort(_socket.remote_endpoint().port()), _readBuffer(), _closed(false), _closing(false), _isWritingAsync(false)
+    {
+        _readBuffer.Resize(READ_BLOCK_SIZE);
+    }
 
     virtual ~Socket()
     {
@@ -81,9 +85,15 @@ public:
         return true;
     }
 
-    asio::ip::address GetRemoteIpAddress() const { return _remoteAddress; }
+    asio::ip::address GetRemoteIpAddress() const
+    {
+        return _remoteAddress;
+    }
 
-    uint16 GetRemotePort() const { return _remotePort; }
+    uint16 GetRemotePort() const
+    {
+        return _remotePort;
+    }
 
     void AsyncRead()
     {
@@ -92,17 +102,19 @@ public:
 
         _readBuffer.Normalize();
         _readBuffer.EnsureFreeSpace();
-        _socket.async_read_some(asio::buffer(_readBuffer.GetWritePointer(), _readBuffer.GetRemainingSpace()), std::bind(&Socket<T, Stream>::ReadHandlerInternal, this->shared_from_this(), std::placeholders::_1, std::placeholders::_2));
+        _socket.async_read_some(asio::buffer(_readBuffer.GetWritePointer(), _readBuffer.GetRemainingSpace()),
+            std::bind(&Socket<T, Stream>::ReadHandlerInternal, this->shared_from_this(), std::placeholders::_1, std::placeholders::_2));
     }
 
-    void AsyncReadWithCallback(void (T::*callback)(asio::error_code, std::size_t))
+    void AsyncReadWithCallback(void (T::* callback)(asio::error_code, std::size_t))
     {
         if (!IsOpen())
             return;
 
         _readBuffer.Normalize();
         _readBuffer.EnsureFreeSpace();
-        _socket.async_read_some(asio::buffer(_readBuffer.GetWritePointer(), _readBuffer.GetRemainingSpace()), std::bind(callback, this->shared_from_this(), std::placeholders::_1, std::placeholders::_2));
+        _socket.async_read_some(asio::buffer(_readBuffer.GetWritePointer(), _readBuffer.GetRemainingSpace()),
+            std::bind(callback, this->shared_from_this(), std::placeholders::_1, std::placeholders::_2));
     }
 
     void QueuePacket(MessageBuffer&& buffer)
@@ -124,7 +136,8 @@ public:
         asio::error_code shutdownError;
         _socket.shutdown(asio::socket_base::shutdown_send, shutdownError);
         if (shutdownError)
-            sLog.outDebug("Socket::CloseSocket: %s errored when shutting down socket: %i (%s)", GetRemoteIpAddress().to_string().c_str(), shutdownError.value(), shutdownError.message().c_str());
+            sLog.outDebug("Socket::CloseSocket: %s errored when shutting down socket: %i (%s)", GetRemoteIpAddress().to_string().c_str(),
+                shutdownError.value(), shutdownError.message().c_str());
 
         OnClose();
     }
@@ -135,7 +148,7 @@ public:
     MessageBuffer& GetReadBuffer() { return _readBuffer; }
 
 protected:
-    virtual void OnClose() {}
+    virtual void OnClose() { }
 
     virtual void ReadHandler() = 0;
 
@@ -148,9 +161,11 @@ protected:
 
 #ifdef SOCKET_USE_IOCP
         MessageBuffer& buffer = _writeQueue.front();
-        _socket.async_write_some(asio::buffer(buffer.GetReadPointer(), buffer.GetActiveSize()), std::bind(&Socket<T, Stream>::WriteHandler, this->shared_from_this(), std::placeholders::_1, std::placeholders::_2));
+        _socket.async_write_some(asio::buffer(buffer.GetReadPointer(), buffer.GetActiveSize()), std::bind(&Socket<T, Stream>::WriteHandler,
+            this->shared_from_this(), std::placeholders::_1, std::placeholders::_2));
 #else
-        _socket.async_write_some(asio::null_buffers(), std::bind(&Socket<T, Stream>::WriteHandlerWrapper, this->shared_from_this(), std::placeholders::_1, std::placeholders::_2));
+        _socket.async_write_some(asio::null_buffers(), std::bind(&Socket<T, Stream>::WriteHandlerWrapper,
+            this->shared_from_this(), std::placeholders::_1, std::placeholders::_2));
 #endif
 
         return false;
@@ -161,10 +176,14 @@ protected:
         asio::error_code err;
         _socket.set_option(tcp::no_delay(enable), err);
         if (err)
-            sLog.outDebug("Socket::SetNoDelay: failed to set_option(boost::asio::ip::tcp::no_delay) for %s - %d (%s)", GetRemoteIpAddress().to_string().c_str(), err.value(), err.message().c_str());
+            sLog.outDebug("Socket::SetNoDelay: failed to set_option(boost::asio::ip::tcp::no_delay) for %s - %d (%s)",
+                GetRemoteIpAddress().to_string().c_str(), err.value(), err.message().c_str());
     }
 
-    Stream& underlying_stream() { return _socket; }
+    Stream& underlying_stream()
+    {
+        return _socket;
+    }
 
 private:
     void ReadHandlerInternal(asio::error_code error, size_t transferredBytes)

@@ -27,8 +27,8 @@
 
 #ifndef _WORLDSOCKET_H
 #define _WORLDSOCKET_H
-#include "Auth/AuthCrypt.h"
 #include "MangosSocket.h"
+#include "Auth/AuthCrypt.h"
 
 template <typename T>
 class ReactorRunnable;
@@ -40,21 +40,21 @@ class WorldSocket : public MangosSocket<WorldSession, WorldSocket, AuthCrypt>
     friend class MangosSocket<WorldSession, WorldSocket, AuthCrypt>;
     friend class MangosSocketMgr<WorldSocket>;
     friend class WorldSocketMgr;
-    friend class ReactorRunnable<WorldSocket>;
+    friend class ReactorRunnable< WorldSocket >;
+    protected:
+        int OnSocketOpen();
+        void OnSocketClose();
+        int SendStartupPacket();
 
-protected:
-    int OnSocketOpen();
-    int SendStartupPacket();
+        int ProcessIncoming (WorldPacket* new_pct);
 
-    int ProcessIncoming(WorldPacket* new_pct);
+        /// Called by ProcessIncoming() on CMSG_AUTH_SESSION.
+        int HandleAuthSession (WorldPacket& recvPacket);
 
-    /// Called by ProcessIncoming() on CMSG_AUTH_SESSION.
-    int HandleAuthSession(WorldPacket& recvPacket);
-
-    /// Called by ProcessIncoming() on CMSG_PING.
-    int HandlePing(WorldPacket& recvPacket);
+        /// Called by ProcessIncoming() on CMSG_PING.
+        int HandlePing (WorldPacket& recvPacket);
 };
 
-#endif /* _WORLDSOCKET_H */
+#endif  /* _WORLDSOCKET_H */
 
 /// @}
