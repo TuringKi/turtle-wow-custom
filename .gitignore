@@ -44,3 +44,7 @@ compile_commands.json
 *.la
 *.a
 *.lib
+.install2
+.build_*
+.install_*
+*.tar.gz
