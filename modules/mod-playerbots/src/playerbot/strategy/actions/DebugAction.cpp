@@ -5462,7 +5462,8 @@ bool DebugAction::HandleTransanal(Event& event, Player* requester, const std::st
                 if (hitPoints.empty())
                     continue;
 
-                // remote_ip MUST be "disconnected/bot" so PlayerbotAI::IsRealPlayer() returns false.
+                // The null-socket core constructor supplies the bot-session marker;
+                // IsBotSessionAddress also accepts the historical argument below.
                 WorldSession* session = new WorldSession(0, NULL, SEC_PLAYER,
 #ifdef MANGOSBOT_TWO
                     2,

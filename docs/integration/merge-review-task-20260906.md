@@ -55,3 +55,19 @@
 - ObjectAccessor::FindPlayer 的默认 inWorld 参数沿用本地 false，与上游 true 有差异；不能为了这次召唤直接全局改默认值，需要逐调用点验证。召唤恢复路径已显式使用 unfiltered lookup。
 - 32 张世界内容表的定制差异、地图 818 等缺失完整内容，仍按原审查保留，不能把上游数据整表覆盖。
 - 检查覆盖合并清单、冲突解决和主要运行边界，不代表已经逐条实测所有导入的副本、职业、战场和历史脚本。
+
+## 补充：PBOT / BOT 全部替换核对
+
+结论：不应全局将 pbot 替换为 bot。按当前受版本控制的核心、模块及脚本检索，并只读检查未跟踪的旧模块副本：
+
+| 用途 | 位置 | 处理 |
+| --- | --- | --- |
+| 无 socket 会话的实际标记 `<PBOT>` | WorldSession.cpp:109 | 保留；统一身份判断兼容它。改字面量不能替代修复所有消费者。 |
+| 旧 ike3 登录/创建传入 `<PBOT>` | CharacterHandler.cpp 的 BUILD_LEGACY_PLAYERBOTS 分支、src/modules/Bots/playerbot/RandomPlayerbotFactory.cpp | 当前 legacy OFF，不参与此登录路径；无需改名。 |
+| native 机器人传入 `<BOT>`；现代模块各创建入口传入 `disconnected/bot` | PlayerBots/PlayerBotMgr.cpp、现代 PlayerbotMgr / RandomPlayerbotFactory / PlayerbotHelpMgr / DebugAction | 均为无 socket 构造，实际由核心写入 `<PBOT>`；统一判断已兼容三种标记。修正后两处误导性注释。 |
+| 判断三种标记的字符串比较 | src/shared/BotSession.h | 当前受版本控制的核心/模块中，直接比较这些标记的代码仅在此处；AI 两个重载及登录、移动判断均调用统一函数。 |
+| `.pbot` 命令 | Chat.cpp:1046 | 与 `.bot` 指向同一个 HandlePlayerbotCommand；保留兼容别名，替换会形成重复命令名。 |
+| `pBot`、`StopBot`、`GroupBots` 等标识符以及帮助文本的 `<bot>` | native AI、模块和命令帮助 | 变量、函数或占位符，与会话身份标记无关。 |
+| 未跟踪旧副本的 IsRealPlayer 只识别 `disconnected/bot` | src/modules/playerbots/playerbot/PlayerbotAI.h:591–592 | 当前安装构建的 Ninja 清单没有该目录；不改用户的独立副本。若未来接入，需要单独修复，单换成 `<BOT>` 仍不兼容当前核心。 |
+
+实际安装构建在 `/root/turtle-wow-merge-build`，modern ON、legacy OFF；用户当前 `.build` 是另一份旧构建缓存，不能据其目录名判断已安装版本。本次补充只改注释和审阅记录，程序行为与已验证的 `1de0ca1` 相同，无需替换数据库、账号前缀或资源。

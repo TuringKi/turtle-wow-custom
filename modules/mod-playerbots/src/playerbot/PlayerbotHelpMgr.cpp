@@ -806,7 +806,8 @@ void PlayerbotHelpMgr::GenerateHelp()
 {
     coverageMap.clear();
 
-    // remote_ip MUST be "disconnected/bot" so PlayerbotAI::IsRealPlayer() returns false.
+    // This core assigns <PBOT> for a null socket; IsBotSessionAddress also
+    // accepts the historical disconnected/bot argument below.
     WorldSession* session = new WorldSession(0, NULL, SEC_PLAYER,
 
 #ifdef MANGOSBOT_TWO
