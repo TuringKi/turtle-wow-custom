@@ -26,3 +26,21 @@ compile_commands.json
 # DiscardRoute benennt .route/.cpp in .bad um, wenn die Stuck-Leiter auf
 # einer aufgezeichneten Route auslief). Ausschuss, kein Repo-Inhalt.
 *.bad
+
+# Preserve build-output exclusions from the custom tree.
+*.d
+*.slo
+*.lo
+*.o
+*.obj
+*.gch
+*.pch
+*.so
+*.dylib
+*.dll
+*.mod
+*.smod
+*.lai
+*.la
+*.a
+*.lib
