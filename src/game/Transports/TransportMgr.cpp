@@ -331,11 +331,13 @@ void TransportMgr::GeneratePath(GameObjectInfo const* goInfo, TransportTemplate*
 
     keyFrames.back().NextArriveTime = keyFrames.back().DepartureTime;
     // the client destroys a transport by itself after a while, refresh is needed mid course
-    // Feathermoon 303 & Teldrassil 293 ferries
-    if (pathId == 303 || pathId == 293)
+    // Identify the ferries by template: TaxiPath IDs changed in the 1.18.1 DBC.
+    // Feathermoon and Teldrassil now use paths 122 and 117, respectively.
+    if ((goInfo->id == 177233 || goInfo->id == 176244) && keyFrames.size() > 12)
         keyFrames[12].Update = true;
     // hack for custom boats:
-    if ((pathId == 1500))
+    // Sparkwater/Revantusk moved from path 1500 to 296; keep its dock headings.
+    if (goInfo->id == 190550 && keyFrames.size() > 13)
     {
         keyFrames[6].InitialOrientation = 2.3F;
         keyFrames[13].InitialOrientation = 2.2F;
