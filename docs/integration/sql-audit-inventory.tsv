@@ -1,0 +1,396 @@
+file	category	execution_evidence
+modules/mod-playerbots/sql/characters/ai_playerbot_ahbot.sql	other merged SQL not executed in this session	historical/base/auth/character/other; filename alone does not prove live DB needs it
+modules/mod-playerbots/sql/characters/ai_playerbot_cache.sql	other merged SQL not executed in this session	historical/base/auth/character/other; filename alone does not prove live DB needs it
+modules/mod-playerbots/sql/characters/ai_playerbot_custom_strategy.sql	other merged SQL not executed in this session	historical/base/auth/character/other; filename alone does not prove live DB needs it
+modules/mod-playerbots/sql/characters/ai_playerbot_db_store.sql	other merged SQL not executed in this session	historical/base/auth/character/other; filename alone does not prove live DB needs it
+modules/mod-playerbots/sql/characters/ai_playerbot_names.sql	other merged SQL not executed in this session	historical/base/auth/character/other; filename alone does not prove live DB needs it
+modules/mod-playerbots/sql/characters/ai_playerbot_random_bots.sql	other merged SQL not executed in this session	historical/base/auth/character/other; filename alone does not prove live DB needs it
+modules/mod-playerbots/sql/other/database_merge_classic.sql	other merged SQL not executed in this session	historical/base/auth/character/other; filename alone does not prove live DB needs it
+modules/mod-playerbots/sql/other/database_merge_tbc.sql	other merged SQL not executed in this session	historical/base/auth/character/other; filename alone does not prove live DB needs it
+modules/mod-playerbots/sql/other/database_merge_wotlk.sql	other merged SQL not executed in this session	historical/base/auth/character/other; filename alone does not prove live DB needs it
+modules/mod-playerbots/sql/other/delete_all_randombots.sql	other merged SQL not executed in this session	historical/base/auth/character/other; filename alone does not prove live DB needs it
+modules/mod-playerbots/sql/other/delete_randombots.sql	other merged SQL not executed in this session	historical/base/auth/character/other; filename alone does not prove live DB needs it
+modules/mod-playerbots/sql/other/reset_randombots.sql	other merged SQL not executed in this session	historical/base/auth/character/other; filename alone does not prove live DB needs it
+modules/mod-playerbots/sql/world/ai_playerbot_indexes.sql	other merged SQL not executed in this session	historical/base/auth/character/other; filename alone does not prove live DB needs it
+modules/mod-playerbots/sql/world/ai_playerbot_rpg_races.sql	other merged SQL not executed in this session	historical/base/auth/character/other; filename alone does not prove live DB needs it
+modules/mod-playerbots/sql/world/ai_playerbot_texts.sql	other merged SQL not executed in this session	historical/base/auth/character/other; filename alone does not prove live DB needs it
+modules/mod-playerbots/sql/world/classic/ai_playerbot_enchants.sql	other merged SQL not executed in this session	historical/base/auth/character/other; filename alone does not prove live DB needs it
+modules/mod-playerbots/sql/world/classic/ai_playerbot_named_location.sql	other merged SQL not executed in this session	historical/base/auth/character/other; filename alone does not prove live DB needs it
+modules/mod-playerbots/sql/world/classic/ai_playerbot_travel_nodes.sql	other merged SQL not executed in this session	historical/base/auth/character/other; filename alone does not prove live DB needs it
+modules/mod-playerbots/sql/world/classic/ai_playerbot_weightscales.sql	other merged SQL not executed in this session	historical/base/auth/character/other; filename alone does not prove live DB needs it
+modules/mod-playerbots/sql/world/classic/ai_playerbot_zone_level.sql	other merged SQL not executed in this session	historical/base/auth/character/other; filename alone does not prove live DB needs it
+sql/base/tw_world_area_template.sql	other merged SQL not executed in this session	historical/base/auth/character/other; filename alone does not prove live DB needs it
+sql/base/tw_world_areatrigger_bg_entrance.sql	other merged SQL not executed in this session	historical/base/auth/character/other; filename alone does not prove live DB needs it
+sql/base/tw_world_areatrigger_involvedrelation.sql	other merged SQL not executed in this session	historical/base/auth/character/other; filename alone does not prove live DB needs it
+sql/base/tw_world_areatrigger_tavern.sql	other merged SQL not executed in this session	historical/base/auth/character/other; filename alone does not prove live DB needs it
+sql/base/tw_world_areatrigger_teleport.sql	other merged SQL not executed in this session	historical/base/auth/character/other; filename alone does not prove live DB needs it
+sql/base/tw_world_areatrigger_template.sql	other merged SQL not executed in this session	historical/base/auth/character/other; filename alone does not prove live DB needs it
+sql/base/tw_world_auctionhousebot.sql	other merged SQL not executed in this session	historical/base/auth/character/other; filename alone does not prove live DB needs it
+sql/base/tw_world_autobroadcast.sql	other merged SQL not executed in this session	historical/base/auth/character/other; filename alone does not prove live DB needs it
+sql/base/tw_world_battleground_events.sql	other merged SQL not executed in this session	historical/base/auth/character/other; filename alone does not prove live DB needs it
+sql/base/tw_world_battleground_template.sql	other merged SQL not executed in this session	historical/base/auth/character/other; filename alone does not prove live DB needs it
+sql/base/tw_world_battlemaster_entry.sql	other merged SQL not executed in this session	historical/base/auth/character/other; filename alone does not prove live DB needs it
+sql/base/tw_world_broadcast_text.sql	other merged SQL not executed in this session	historical/base/auth/character/other; filename alone does not prove live DB needs it
+sql/base/tw_world_cartographer.sql	other merged SQL not executed in this session	historical/base/auth/character/other; filename alone does not prove live DB needs it
+sql/base/tw_world_chat_channels.sql	other merged SQL not executed in this session	historical/base/auth/character/other; filename alone does not prove live DB needs it
+sql/base/tw_world_cinematic_waypoints.sql	other merged SQL not executed in this session	historical/base/auth/character/other; filename alone does not prove live DB needs it
+sql/base/tw_world_collection_mount.sql	other merged SQL not executed in this session	historical/base/auth/character/other; filename alone does not prove live DB needs it
+sql/base/tw_world_collection_pet.sql	other merged SQL not executed in this session	historical/base/auth/character/other; filename alone does not prove live DB needs it
+sql/base/tw_world_collection_toy.sql	other merged SQL not executed in this session	historical/base/auth/character/other; filename alone does not prove live DB needs it
+sql/base/tw_world_conditions.sql	other merged SQL not executed in this session	historical/base/auth/character/other; filename alone does not prove live DB needs it
+sql/base/tw_world_creature.sql	other merged SQL not executed in this session	historical/base/auth/character/other; filename alone does not prove live DB needs it
+sql/base/tw_world_creature_addon.sql	other merged SQL not executed in this session	historical/base/auth/character/other; filename alone does not prove live DB needs it
+sql/base/tw_world_creature_ai_events.sql	other merged SQL not executed in this session	historical/base/auth/character/other; filename alone does not prove live DB needs it
+sql/base/tw_world_creature_ai_scripts.sql	other merged SQL not executed in this session	historical/base/auth/character/other; filename alone does not prove live DB needs it
+sql/base/tw_world_creature_battleground.sql	other merged SQL not executed in this session	historical/base/auth/character/other; filename alone does not prove live DB needs it
+sql/base/tw_world_creature_display_info_addon.sql	other merged SQL not executed in this session	historical/base/auth/character/other; filename alone does not prove live DB needs it
+sql/base/tw_world_creature_equip_template.sql	other merged SQL not executed in this session	historical/base/auth/character/other; filename alone does not prove live DB needs it
+sql/base/tw_world_creature_groups.sql	other merged SQL not executed in this session	historical/base/auth/character/other; filename alone does not prove live DB needs it
+sql/base/tw_world_creature_involvedrelation.sql	other merged SQL not executed in this session	historical/base/auth/character/other; filename alone does not prove live DB needs it
+sql/base/tw_world_creature_linking.sql	other merged SQL not executed in this session	historical/base/auth/character/other; filename alone does not prove live DB needs it
+sql/base/tw_world_creature_linking_template.sql	other merged SQL not executed in this session	historical/base/auth/character/other; filename alone does not prove live DB needs it
+sql/base/tw_world_creature_loot_template.sql	other merged SQL not executed in this session	historical/base/auth/character/other; filename alone does not prove live DB needs it
+sql/base/tw_world_creature_movement.sql	other merged SQL not executed in this session	historical/base/auth/character/other; filename alone does not prove live DB needs it
+sql/base/tw_world_creature_movement_scripts.sql	other merged SQL not executed in this session	historical/base/auth/character/other; filename alone does not prove live DB needs it
+sql/base/tw_world_creature_movement_special.sql	other merged SQL not executed in this session	historical/base/auth/character/other; filename alone does not prove live DB needs it
+sql/base/tw_world_creature_movement_template.sql	other merged SQL not executed in this session	historical/base/auth/character/other; filename alone does not prove live DB needs it
+sql/base/tw_world_creature_onkill_reputation.sql	other merged SQL not executed in this session	historical/base/auth/character/other; filename alone does not prove live DB needs it
+sql/base/tw_world_creature_questrelation.sql	other merged SQL not executed in this session	historical/base/auth/character/other; filename alone does not prove live DB needs it
+sql/base/tw_world_creature_spells.sql	other merged SQL not executed in this session	historical/base/auth/character/other; filename alone does not prove live DB needs it
+sql/base/tw_world_creature_spells_scripts.sql	other merged SQL not executed in this session	historical/base/auth/character/other; filename alone does not prove live DB needs it
+sql/base/tw_world_creature_template.sql	other merged SQL not executed in this session	historical/base/auth/character/other; filename alone does not prove live DB needs it
+sql/base/tw_world_custom_character_skins.sql	other merged SQL not executed in this session	historical/base/auth/character/other; filename alone does not prove live DB needs it
+sql/base/tw_world_custom_graveyards.sql	other merged SQL not executed in this session	historical/base/auth/character/other; filename alone does not prove live DB needs it
+sql/base/tw_world_custom_merchant.sql	other merged SQL not executed in this session	historical/base/auth/character/other; filename alone does not prove live DB needs it
+sql/base/tw_world_daily_quest_timer.sql	other merged SQL not executed in this session	historical/base/auth/character/other; filename alone does not prove live DB needs it
+sql/base/tw_world_disenchant_loot_template.sql	other merged SQL not executed in this session	historical/base/auth/character/other; filename alone does not prove live DB needs it
+sql/base/tw_world_dynamic_visibility_template.sql	other merged SQL not executed in this session	historical/base/auth/character/other; filename alone does not prove live DB needs it
+sql/base/tw_world_event_scripts.sql	other merged SQL not executed in this session	historical/base/auth/character/other; filename alone does not prove live DB needs it
+sql/base/tw_world_exploration_basexp.sql	other merged SQL not executed in this session	historical/base/auth/character/other; filename alone does not prove live DB needs it
+sql/base/tw_world_faction.sql	other merged SQL not executed in this session	historical/base/auth/character/other; filename alone does not prove live DB needs it
+sql/base/tw_world_faction_template.sql	other merged SQL not executed in this session	historical/base/auth/character/other; filename alone does not prove live DB needs it
+sql/base/tw_world_fishing_loot_template.sql	other merged SQL not executed in this session	historical/base/auth/character/other; filename alone does not prove live DB needs it
+sql/base/tw_world_game_event.sql	other merged SQL not executed in this session	historical/base/auth/character/other; filename alone does not prove live DB needs it
+sql/base/tw_world_game_event_creature.sql	other merged SQL not executed in this session	historical/base/auth/character/other; filename alone does not prove live DB needs it
+sql/base/tw_world_game_event_creature_data.sql	other merged SQL not executed in this session	historical/base/auth/character/other; filename alone does not prove live DB needs it
+sql/base/tw_world_game_event_gameobject.sql	other merged SQL not executed in this session	historical/base/auth/character/other; filename alone does not prove live DB needs it
+sql/base/tw_world_game_event_mail.sql	other merged SQL not executed in this session	historical/base/auth/character/other; filename alone does not prove live DB needs it
+sql/base/tw_world_game_event_quest.sql	other merged SQL not executed in this session	historical/base/auth/character/other; filename alone does not prove live DB needs it
+sql/base/tw_world_game_graveyard_zone.sql	other merged SQL not executed in this session	historical/base/auth/character/other; filename alone does not prove live DB needs it
+sql/base/tw_world_game_tele.sql	other merged SQL not executed in this session	historical/base/auth/character/other; filename alone does not prove live DB needs it
+sql/base/tw_world_game_weather.sql	other merged SQL not executed in this session	historical/base/auth/character/other; filename alone does not prove live DB needs it
+sql/base/tw_world_gameobject.sql	other merged SQL not executed in this session	historical/base/auth/character/other; filename alone does not prove live DB needs it
+sql/base/tw_world_gameobject_battleground.sql	other merged SQL not executed in this session	historical/base/auth/character/other; filename alone does not prove live DB needs it
+sql/base/tw_world_gameobject_display_info_addon.sql	other merged SQL not executed in this session	historical/base/auth/character/other; filename alone does not prove live DB needs it
+sql/base/tw_world_gameobject_involvedrelation.sql	other merged SQL not executed in this session	historical/base/auth/character/other; filename alone does not prove live DB needs it
+sql/base/tw_world_gameobject_loot_template.sql	other merged SQL not executed in this session	historical/base/auth/character/other; filename alone does not prove live DB needs it
+sql/base/tw_world_gameobject_questrelation.sql	other merged SQL not executed in this session	historical/base/auth/character/other; filename alone does not prove live DB needs it
+sql/base/tw_world_gameobject_requirement.sql	other merged SQL not executed in this session	historical/base/auth/character/other; filename alone does not prove live DB needs it
+sql/base/tw_world_gameobject_scripts.sql	other merged SQL not executed in this session	historical/base/auth/character/other; filename alone does not prove live DB needs it
+sql/base/tw_world_gameobject_template.sql	other merged SQL not executed in this session	historical/base/auth/character/other; filename alone does not prove live DB needs it
+sql/base/tw_world_generic_scripts.sql	other merged SQL not executed in this session	historical/base/auth/character/other; filename alone does not prove live DB needs it
+sql/base/tw_world_gm_subsurveys.sql	other merged SQL not executed in this session	historical/base/auth/character/other; filename alone does not prove live DB needs it
+sql/base/tw_world_gm_surveys.sql	other merged SQL not executed in this session	historical/base/auth/character/other; filename alone does not prove live DB needs it
+sql/base/tw_world_gm_ticket_template.sql	other merged SQL not executed in this session	historical/base/auth/character/other; filename alone does not prove live DB needs it
+sql/base/tw_world_gm_tickets.sql	other merged SQL not executed in this session	historical/base/auth/character/other; filename alone does not prove live DB needs it
+sql/base/tw_world_gossip_menu.sql	other merged SQL not executed in this session	historical/base/auth/character/other; filename alone does not prove live DB needs it
+sql/base/tw_world_gossip_menu_option.sql	other merged SQL not executed in this session	historical/base/auth/character/other; filename alone does not prove live DB needs it
+sql/base/tw_world_gossip_scripts.sql	other merged SQL not executed in this session	historical/base/auth/character/other; filename alone does not prove live DB needs it
+sql/base/tw_world_instance_buff_removal.sql	other merged SQL not executed in this session	historical/base/auth/character/other; filename alone does not prove live DB needs it
+sql/base/tw_world_item_display_info.sql	other merged SQL not executed in this session	historical/base/auth/character/other; filename alone does not prove live DB needs it
+sql/base/tw_world_item_enchantment_template.sql	other merged SQL not executed in this session	historical/base/auth/character/other; filename alone does not prove live DB needs it
+sql/base/tw_world_item_loot_template.sql	other merged SQL not executed in this session	historical/base/auth/character/other; filename alone does not prove live DB needs it
+sql/base/tw_world_item_required_target.sql	other merged SQL not executed in this session	historical/base/auth/character/other; filename alone does not prove live DB needs it
+sql/base/tw_world_item_template.sql	other merged SQL not executed in this session	historical/base/auth/character/other; filename alone does not prove live DB needs it
+sql/base/tw_world_item_transmogrify_template.sql	other merged SQL not executed in this session	historical/base/auth/character/other; filename alone does not prove live DB needs it
+sql/base/tw_world_itemextendedcost.sql	other merged SQL not executed in this session	historical/base/auth/character/other; filename alone does not prove live DB needs it
+sql/base/tw_world_locales_area.sql	other merged SQL not executed in this session	historical/base/auth/character/other; filename alone does not prove live DB needs it
+sql/base/tw_world_locales_broadcast_text.sql	other merged SQL not executed in this session	historical/base/auth/character/other; filename alone does not prove live DB needs it
+sql/base/tw_world_locales_creature.sql	other merged SQL not executed in this session	historical/base/auth/character/other; filename alone does not prove live DB needs it
+sql/base/tw_world_locales_faction.sql	other merged SQL not executed in this session	historical/base/auth/character/other; filename alone does not prove live DB needs it
+sql/base/tw_world_locales_gameobject.sql	other merged SQL not executed in this session	historical/base/auth/character/other; filename alone does not prove live DB needs it
+sql/base/tw_world_locales_gossip_menu_option.sql	other merged SQL not executed in this session	historical/base/auth/character/other; filename alone does not prove live DB needs it
+sql/base/tw_world_locales_item.sql	other merged SQL not executed in this session	historical/base/auth/character/other; filename alone does not prove live DB needs it
+sql/base/tw_world_locales_page_text.sql	other merged SQL not executed in this session	historical/base/auth/character/other; filename alone does not prove live DB needs it
+sql/base/tw_world_locales_points_of_interest.sql	other merged SQL not executed in this session	historical/base/auth/character/other; filename alone does not prove live DB needs it
+sql/base/tw_world_locales_quest.sql	other merged SQL not executed in this session	historical/base/auth/character/other; filename alone does not prove live DB needs it
+sql/base/tw_world_locales_spell.sql	other merged SQL not executed in this session	historical/base/auth/character/other; filename alone does not prove live DB needs it
+sql/base/tw_world_locales_taxi_node.sql	other merged SQL not executed in this session	historical/base/auth/character/other; filename alone does not prove live DB needs it
+sql/base/tw_world_mail_loot_template.sql	other merged SQL not executed in this session	historical/base/auth/character/other; filename alone does not prove live DB needs it
+sql/base/tw_world_mail_text_template.sql	other merged SQL not executed in this session	historical/base/auth/character/other; filename alone does not prove live DB needs it
+sql/base/tw_world_mangos_string.sql	other merged SQL not executed in this session	historical/base/auth/character/other; filename alone does not prove live DB needs it
+sql/base/tw_world_map_loot_disabled.sql	other merged SQL not executed in this session	historical/base/auth/character/other; filename alone does not prove live DB needs it
+sql/base/tw_world_map_template.sql	other merged SQL not executed in this session	historical/base/auth/character/other; filename alone does not prove live DB needs it
+sql/base/tw_world_migrations.sql	other merged SQL not executed in this session	historical/base/auth/character/other; filename alone does not prove live DB needs it
+sql/base/tw_world_miraclerace_checkpoint.sql	other merged SQL not executed in this session	historical/base/auth/character/other; filename alone does not prove live DB needs it
+sql/base/tw_world_miraclerace_creaturespool.sql	other merged SQL not executed in this session	historical/base/auth/character/other; filename alone does not prove live DB needs it
+sql/base/tw_world_miraclerace_gameobject.sql	other merged SQL not executed in this session	historical/base/auth/character/other; filename alone does not prove live DB needs it
+sql/base/tw_world_module_string.sql	other merged SQL not executed in this session	historical/base/auth/character/other; filename alone does not prove live DB needs it
+sql/base/tw_world_module_string_locale.sql	other merged SQL not executed in this session	historical/base/auth/character/other; filename alone does not prove live DB needs it
+sql/base/tw_world_npc_gossip.sql	other merged SQL not executed in this session	historical/base/auth/character/other; filename alone does not prove live DB needs it
+sql/base/tw_world_npc_text.sql	other merged SQL not executed in this session	historical/base/auth/character/other; filename alone does not prove live DB needs it
+sql/base/tw_world_npc_trainer.sql	other merged SQL not executed in this session	historical/base/auth/character/other; filename alone does not prove live DB needs it
+sql/base/tw_world_npc_trainer_greeting.sql	other merged SQL not executed in this session	historical/base/auth/character/other; filename alone does not prove live DB needs it
+sql/base/tw_world_npc_trainer_template.sql	other merged SQL not executed in this session	historical/base/auth/character/other; filename alone does not prove live DB needs it
+sql/base/tw_world_npc_vendor.sql	other merged SQL not executed in this session	historical/base/auth/character/other; filename alone does not prove live DB needs it
+sql/base/tw_world_npc_vendor_template.sql	other merged SQL not executed in this session	historical/base/auth/character/other; filename alone does not prove live DB needs it
+sql/base/tw_world_object_scaling.sql	other merged SQL not executed in this session	historical/base/auth/character/other; filename alone does not prove live DB needs it
+sql/base/tw_world_page_text.sql	other merged SQL not executed in this session	historical/base/auth/character/other; filename alone does not prove live DB needs it
+sql/base/tw_world_pet_levelstats.sql	other merged SQL not executed in this session	historical/base/auth/character/other; filename alone does not prove live DB needs it
+sql/base/tw_world_pet_name_generation.sql	other merged SQL not executed in this session	historical/base/auth/character/other; filename alone does not prove live DB needs it
+sql/base/tw_world_pet_spell_data.sql	other merged SQL not executed in this session	historical/base/auth/character/other; filename alone does not prove live DB needs it
+sql/base/tw_world_petcreateinfo_spell.sql	other merged SQL not executed in this session	historical/base/auth/character/other; filename alone does not prove live DB needs it
+sql/base/tw_world_pickpocketing_loot_template.sql	other merged SQL not executed in this session	historical/base/auth/character/other; filename alone does not prove live DB needs it
+sql/base/tw_world_player_census.sql	other merged SQL not executed in this session	historical/base/auth/character/other; filename alone does not prove live DB needs it
+sql/base/tw_world_player_classlevelstats.sql	other merged SQL not executed in this session	historical/base/auth/character/other; filename alone does not prove live DB needs it
+sql/base/tw_world_player_factionchange_items.sql	other merged SQL not executed in this session	historical/base/auth/character/other; filename alone does not prove live DB needs it
+sql/base/tw_world_player_factionchange_mounts.sql	other merged SQL not executed in this session	historical/base/auth/character/other; filename alone does not prove live DB needs it
+sql/base/tw_world_player_factionchange_quests.sql	other merged SQL not executed in this session	historical/base/auth/character/other; filename alone does not prove live DB needs it
+sql/base/tw_world_player_factionchange_reputations.sql	other merged SQL not executed in this session	historical/base/auth/character/other; filename alone does not prove live DB needs it
+sql/base/tw_world_player_factionchange_spells.sql	other merged SQL not executed in this session	historical/base/auth/character/other; filename alone does not prove live DB needs it
+sql/base/tw_world_player_levelstats.sql	other merged SQL not executed in this session	historical/base/auth/character/other; filename alone does not prove live DB needs it
+sql/base/tw_world_player_xp_for_level.sql	other merged SQL not executed in this session	historical/base/auth/character/other; filename alone does not prove live DB needs it
+sql/base/tw_world_playerbot.sql	other merged SQL not executed in this session	historical/base/auth/character/other; filename alone does not prove live DB needs it
+sql/base/tw_world_playercreateinfo.sql	other merged SQL not executed in this session	historical/base/auth/character/other; filename alone does not prove live DB needs it
+sql/base/tw_world_playercreateinfo_action.sql	other merged SQL not executed in this session	historical/base/auth/character/other; filename alone does not prove live DB needs it
+sql/base/tw_world_playercreateinfo_item.sql	other merged SQL not executed in this session	historical/base/auth/character/other; filename alone does not prove live DB needs it
+sql/base/tw_world_playercreateinfo_spell.sql	other merged SQL not executed in this session	historical/base/auth/character/other; filename alone does not prove live DB needs it
+sql/base/tw_world_points_of_interest.sql	other merged SQL not executed in this session	historical/base/auth/character/other; filename alone does not prove live DB needs it
+sql/base/tw_world_pool_creature.sql	other merged SQL not executed in this session	historical/base/auth/character/other; filename alone does not prove live DB needs it
+sql/base/tw_world_pool_creature_template.sql	other merged SQL not executed in this session	historical/base/auth/character/other; filename alone does not prove live DB needs it
+sql/base/tw_world_pool_gameobject.sql	other merged SQL not executed in this session	historical/base/auth/character/other; filename alone does not prove live DB needs it
+sql/base/tw_world_pool_gameobject_template.sql	other merged SQL not executed in this session	historical/base/auth/character/other; filename alone does not prove live DB needs it
+sql/base/tw_world_pool_pool.sql	other merged SQL not executed in this session	historical/base/auth/character/other; filename alone does not prove live DB needs it
+sql/base/tw_world_pool_template.sql	other merged SQL not executed in this session	historical/base/auth/character/other; filename alone does not prove live DB needs it
+sql/base/tw_world_quest_cast_objective.sql	other merged SQL not executed in this session	historical/base/auth/character/other; filename alone does not prove live DB needs it
+sql/base/tw_world_quest_end_scripts.sql	other merged SQL not executed in this session	historical/base/auth/character/other; filename alone does not prove live DB needs it
+sql/base/tw_world_quest_greeting.sql	other merged SQL not executed in this session	historical/base/auth/character/other; filename alone does not prove live DB needs it
+sql/base/tw_world_quest_start_scripts.sql	other merged SQL not executed in this session	historical/base/auth/character/other; filename alone does not prove live DB needs it
+sql/base/tw_world_quest_template.sql	other merged SQL not executed in this session	historical/base/auth/character/other; filename alone does not prove live DB needs it
+sql/base/tw_world_reference_loot_template.sql	other merged SQL not executed in this session	historical/base/auth/character/other; filename alone does not prove live DB needs it
+sql/base/tw_world_reputation_reward_rate.sql	other merged SQL not executed in this session	historical/base/auth/character/other; filename alone does not prove live DB needs it
+sql/base/tw_world_reputation_spillover_template.sql	other merged SQL not executed in this session	historical/base/auth/character/other; filename alone does not prove live DB needs it
+sql/base/tw_world_reserved_name.sql	other merged SQL not executed in this session	historical/base/auth/character/other; filename alone does not prove live DB needs it
+sql/base/tw_world_script_escort_data.sql	other merged SQL not executed in this session	historical/base/auth/character/other; filename alone does not prove live DB needs it
+sql/base/tw_world_script_texts.sql	other merged SQL not executed in this session	historical/base/auth/character/other; filename alone does not prove live DB needs it
+sql/base/tw_world_script_waypoint.sql	other merged SQL not executed in this session	historical/base/auth/character/other; filename alone does not prove live DB needs it
+sql/base/tw_world_scripted_areatrigger.sql	other merged SQL not executed in this session	historical/base/auth/character/other; filename alone does not prove live DB needs it
+sql/base/tw_world_scripted_event_id.sql	other merged SQL not executed in this session	historical/base/auth/character/other; filename alone does not prove live DB needs it
+sql/base/tw_world_shop_categories.sql	other merged SQL not executed in this session	historical/base/auth/character/other; filename alone does not prove live DB needs it
+sql/base/tw_world_shop_items.sql	other merged SQL not executed in this session	historical/base/auth/character/other; filename alone does not prove live DB needs it
+sql/base/tw_world_skill_fishing_base_level.sql	other merged SQL not executed in this session	historical/base/auth/character/other; filename alone does not prove live DB needs it
+sql/base/tw_world_skill_line_ability.sql	other merged SQL not executed in this session	historical/base/auth/character/other; filename alone does not prove live DB needs it
+sql/base/tw_world_skill_race_class_info_mod.sql	other merged SQL not executed in this session	historical/base/auth/character/other; filename alone does not prove live DB needs it
+sql/base/tw_world_skinning_loot_template.sql	other merged SQL not executed in this session	historical/base/auth/character/other; filename alone does not prove live DB needs it
+sql/base/tw_world_sound_entries.sql	other merged SQL not executed in this session	historical/base/auth/character/other; filename alone does not prove live DB needs it
+sql/base/tw_world_spell_affect.sql	other merged SQL not executed in this session	historical/base/auth/character/other; filename alone does not prove live DB needs it
+sql/base/tw_world_spell_area.sql	other merged SQL not executed in this session	historical/base/auth/character/other; filename alone does not prove live DB needs it
+sql/base/tw_world_spell_chain.sql	other merged SQL not executed in this session	historical/base/auth/character/other; filename alone does not prove live DB needs it
+sql/base/tw_world_spell_check.sql	other merged SQL not executed in this session	historical/base/auth/character/other; filename alone does not prove live DB needs it
+sql/base/tw_world_spell_disabled.sql	other merged SQL not executed in this session	historical/base/auth/character/other; filename alone does not prove live DB needs it
+sql/base/tw_world_spell_effect_mod.sql	other merged SQL not executed in this session	historical/base/auth/character/other; filename alone does not prove live DB needs it
+sql/base/tw_world_spell_elixir.sql	other merged SQL not executed in this session	historical/base/auth/character/other; filename alone does not prove live DB needs it
+sql/base/tw_world_spell_enchant_charges.sql	other merged SQL not executed in this session	historical/base/auth/character/other; filename alone does not prove live DB needs it
+sql/base/tw_world_spell_group.sql	other merged SQL not executed in this session	historical/base/auth/character/other; filename alone does not prove live DB needs it
+sql/base/tw_world_spell_group_stack_rules.sql	other merged SQL not executed in this session	historical/base/auth/character/other; filename alone does not prove live DB needs it
+sql/base/tw_world_spell_learn_spell.sql	other merged SQL not executed in this session	historical/base/auth/character/other; filename alone does not prove live DB needs it
+sql/base/tw_world_spell_mod.sql	other merged SQL not executed in this session	historical/base/auth/character/other; filename alone does not prove live DB needs it
+sql/base/tw_world_spell_pet_auras.sql	other merged SQL not executed in this session	historical/base/auth/character/other; filename alone does not prove live DB needs it
+sql/base/tw_world_spell_proc_event.sql	other merged SQL not executed in this session	historical/base/auth/character/other; filename alone does not prove live DB needs it
+sql/base/tw_world_spell_proc_item_enchant.sql	other merged SQL not executed in this session	historical/base/auth/character/other; filename alone does not prove live DB needs it
+sql/base/tw_world_spell_script_target.sql	other merged SQL not executed in this session	historical/base/auth/character/other; filename alone does not prove live DB needs it
+sql/base/tw_world_spell_scripts.sql	other merged SQL not executed in this session	historical/base/auth/character/other; filename alone does not prove live DB needs it
+sql/base/tw_world_spell_target_position.sql	other merged SQL not executed in this session	historical/base/auth/character/other; filename alone does not prove live DB needs it
+sql/base/tw_world_spell_template.sql	other merged SQL not executed in this session	historical/base/auth/character/other; filename alone does not prove live DB needs it
+sql/base/tw_world_spell_threat.sql	other merged SQL not executed in this session	historical/base/auth/character/other; filename alone does not prove live DB needs it
+sql/base/tw_world_taxi_nodes.sql	other merged SQL not executed in this session	historical/base/auth/character/other; filename alone does not prove live DB needs it
+sql/base/tw_world_taxi_path_transitions.sql	other merged SQL not executed in this session	historical/base/auth/character/other; filename alone does not prove live DB needs it
+sql/base/tw_world_transports.sql	other merged SQL not executed in this session	historical/base/auth/character/other; filename alone does not prove live DB needs it
+sql/base/tw_world_variables.sql	other merged SQL not executed in this session	historical/base/auth/character/other; filename alone does not prove live DB needs it
+sql/base/tw_world_warden_checks.sql	other merged SQL not executed in this session	historical/base/auth/character/other; filename alone does not prove live DB needs it
+sql/base/tw_world_warden_scans.sql	other merged SQL not executed in this session	historical/base/auth/character/other; filename alone does not prove live DB needs it
+sql/base/tw_world_world_safe_locs_facing.sql	other merged SQL not executed in this session	historical/base/auth/character/other; filename alone does not prove live DB needs it
+sql/character_updates/20260708055500_ai_playerbot_random_bots_index.sql	other merged SQL not executed in this session	historical/base/auth/character/other; filename alone does not prove live DB needs it
+sql/character_updates/20260731160000_guild_bank_money_unsigned.sql	other merged SQL not executed in this session	historical/base/auth/character/other; filename alone does not prove live DB needs it
+sql/character_updates/20260812142512_character_inventory_copy.sql	other merged SQL not executed in this session	historical/base/auth/character/other; filename alone does not prove live DB needs it
+sql/create_databases.sql	other merged SQL not executed in this session	historical/base/auth/character/other; filename alone does not prove live DB needs it
+sql/custom_upgrade_118/00_preflight.sql	reviewed custom migration	read-only preflight
+sql/custom_upgrade_118/01_logon_additions.sql	reviewed custom migration	executed in this session
+sql/custom_upgrade_118/02_character_additions.sql	reviewed custom migration	executed in this session
+sql/custom_upgrade_118/03_character_pvp_currency.sql	reviewed custom migration	executed in this session
+sql/custom_upgrade_118/04_character_bot_additions.sql	reviewed custom migration	executed in this session
+sql/custom_upgrade_118/10_world_missing_tables.sql	reviewed custom migration	executed in this session
+sql/custom_upgrade_118/11_world_patch_tables.sql	reviewed custom migration	executed in this session
+sql/custom_upgrade_118/12_world_spell_script_name.sql	reviewed custom migration	executed in this session
+sql/custom_upgrade_118/13_world_playerbot_dependencies.sql	reviewed custom migration	executed in this session
+sql/custom_upgrade_118/14_world_transmog_dialogue.sql	reviewed custom migration	executed in this session
+sql/custom_upgrade_118/15_world_mobile_mailbox.sql	reviewed custom migration	executed in this session
+sql/database_updates/20260606120000_world.sql	world candidate not imported as original	some structure/data covered by custom 10-13; remaining content needs row comparison
+sql/database_updates/20260611110845_world.sql	world candidate not imported as original	some structure/data covered by custom 10-13; remaining content needs row comparison
+sql/database_updates/20260617120000_world.sql	world candidate not imported as original	some structure/data covered by custom 10-13; remaining content needs row comparison
+sql/database_updates/20260618120000_world.sql	world candidate not imported as original	some structure/data covered by custom 10-13; remaining content needs row comparison
+sql/database_updates/20260620120000_world.sql	world candidate not imported as original	some structure/data covered by custom 10-13; remaining content needs row comparison
+sql/database_updates/20260620130000_world.sql	world candidate not imported as original	some structure/data covered by custom 10-13; remaining content needs row comparison
+sql/database_updates/20260730120000_world.sql	world candidate not imported as original	some structure/data covered by custom 10-13; remaining content needs row comparison
+sql/database_updates/20260730120100_world.sql	world candidate not imported as original	some structure/data covered by custom 10-13; remaining content needs row comparison
+sql/database_updates/20260730120200_world.sql	world candidate not imported as original	some structure/data covered by custom 10-13; remaining content needs row comparison
+sql/database_updates/20260730120300_world.sql	world candidate not imported as original	some structure/data covered by custom 10-13; remaining content needs row comparison
+sql/database_updates/20260730200000_world.sql	world candidate not imported as original	some structure/data covered by custom 10-13; remaining content needs row comparison
+sql/database_updates/20260731120000_world.sql	world candidate not imported as original	some structure/data covered by custom 10-13; remaining content needs row comparison
+sql/database_updates/20260731170000_world.sql	world candidate not imported as original	some structure/data covered by custom 10-13; remaining content needs row comparison
+sql/database_updates/20260731180000_world.sql	world candidate not imported as original	some structure/data covered by custom 10-13; remaining content needs row comparison
+sql/database_updates/20260731190000_world.sql	world candidate not imported as original	some structure/data covered by custom 10-13; remaining content needs row comparison
+sql/database_updates/20260802150000_world.sql	world candidate not imported as original	some structure/data covered by custom 10-13; remaining content needs row comparison
+sql/database_updates/20260802160000_world.sql	world candidate not imported as original	some structure/data covered by custom 10-13; remaining content needs row comparison
+sql/database_updates/20260802170000_world.sql	world candidate not imported as original	some structure/data covered by custom 10-13; remaining content needs row comparison
+sql/database_updates/20260802180000_world.sql	world candidate not imported as original	some structure/data covered by custom 10-13; remaining content needs row comparison
+sql/database_updates/20260802190000_world.sql	world candidate not imported as original	some structure/data covered by custom 10-13; remaining content needs row comparison
+sql/database_updates/20260802200000_world.sql	world candidate not imported as original	some structure/data covered by custom 10-13; remaining content needs row comparison
+sql/database_updates/20260802210000_world.sql	world candidate not imported as original	some structure/data covered by custom 10-13; remaining content needs row comparison
+sql/database_updates/20260802220000_world.sql	world candidate not imported as original	some structure/data covered by custom 10-13; remaining content needs row comparison
+sql/database_updates/20260805120000_world.sql	world candidate not imported as original	some structure/data covered by custom 10-13; remaining content needs row comparison
+sql/database_updates/20260816080422_world.sql	world candidate not imported as original	some structure/data covered by custom 10-13; remaining content needs row comparison
+sql/database_updates/20260816081138_world.sql	world candidate not imported as original	some structure/data covered by custom 10-13; remaining content needs row comparison
+sql/database_updates/20260817211652_world.sql	world candidate not imported as original	some structure/data covered by custom 10-13; remaining content needs row comparison
+sql/database_updates/character/20260817151028_character.sql	other merged SQL not executed in this session	historical/base/auth/character/other; filename alone does not prove live DB needs it
+sql/database_updates/world/20260504194945_world.sql	world candidate not imported as original	some structure/data covered by custom 10-13; remaining content needs row comparison
+sql/database_updates/world/20260504203644_world.sql	world candidate not imported as original	some structure/data covered by custom 10-13; remaining content needs row comparison
+sql/database_updates/world/20260504214035_world.sql	world candidate not imported as original	some structure/data covered by custom 10-13; remaining content needs row comparison
+sql/database_updates/world/20260505222630_world.sql	world candidate not imported as original	some structure/data covered by custom 10-13; remaining content needs row comparison
+sql/database_updates/world/20260506204945_world.sql	world candidate not imported as original	some structure/data covered by custom 10-13; remaining content needs row comparison
+sql/database_updates/world/20260507165648_world.sql	world candidate not imported as original	some structure/data covered by custom 10-13; remaining content needs row comparison
+sql/database_updates/world/20260507184157_world.sql	world candidate not imported as original	some structure/data covered by custom 10-13; remaining content needs row comparison
+sql/database_updates/world/20260507191316_world.sql	world candidate not imported as original	some structure/data covered by custom 10-13; remaining content needs row comparison
+sql/database_updates/world/20260508064255_world.sql	world candidate not imported as original	some structure/data covered by custom 10-13; remaining content needs row comparison
+sql/database_updates/world/20260508192404_world.sql	world candidate not imported as original	some structure/data covered by custom 10-13; remaining content needs row comparison
+sql/database_updates/world/20260509055406_world.sql	world candidate not imported as original	some structure/data covered by custom 10-13; remaining content needs row comparison
+sql/database_updates/world/20260510092659_world.sql	world candidate not imported as original	some structure/data covered by custom 10-13; remaining content needs row comparison
+sql/database_updates/world/20260511053220_world.sql	world candidate not imported as original	some structure/data covered by custom 10-13; remaining content needs row comparison
+sql/database_updates/world/20260511154529_world.sql	world candidate not imported as original	some structure/data covered by custom 10-13; remaining content needs row comparison
+sql/database_updates/world/20260511164918_world.sql	world candidate not imported as original	some structure/data covered by custom 10-13; remaining content needs row comparison
+sql/database_updates/world/20260511211643_world.sql	world candidate not imported as original	some structure/data covered by custom 10-13; remaining content needs row comparison
+sql/database_updates/world/20260512033310_world.sql	world candidate not imported as original	some structure/data covered by custom 10-13; remaining content needs row comparison
+sql/database_updates/world/20260512130432_world.sql	world candidate not imported as original	some structure/data covered by custom 10-13; remaining content needs row comparison
+sql/database_updates/world/20260512224739_world.sql	world candidate not imported as original	some structure/data covered by custom 10-13; remaining content needs row comparison
+sql/database_updates/world/20260513084003_world.sql	world candidate not imported as original	some structure/data covered by custom 10-13; remaining content needs row comparison
+sql/database_updates/world/20260513094906_world.sql	world candidate not imported as original	some structure/data covered by custom 10-13; remaining content needs row comparison
+sql/database_updates/world/20260513233443_world.sql	world candidate not imported as original	some structure/data covered by custom 10-13; remaining content needs row comparison
+sql/database_updates/world/20260514011114_world.sql	world candidate not imported as original	some structure/data covered by custom 10-13; remaining content needs row comparison
+sql/database_updates/world/20260514035236_world.sql	world candidate not imported as original	some structure/data covered by custom 10-13; remaining content needs row comparison
+sql/database_updates/world/20260516050606_world.sql	world candidate not imported as original	some structure/data covered by custom 10-13; remaining content needs row comparison
+sql/database_updates/world/20260516210743_world.sql	world candidate not imported as original	some structure/data covered by custom 10-13; remaining content needs row comparison
+sql/database_updates/world/20260517045535_world.sql	world candidate not imported as original	some structure/data covered by custom 10-13; remaining content needs row comparison
+sql/database_updates/world/20260517062330_world.sql	world candidate not imported as original	some structure/data covered by custom 10-13; remaining content needs row comparison
+sql/database_updates/world/20260517101017_world.sql	world candidate not imported as original	some structure/data covered by custom 10-13; remaining content needs row comparison
+sql/database_updates/world/20260517121832_world.sql	world candidate not imported as original	some structure/data covered by custom 10-13; remaining content needs row comparison
+sql/database_updates/world/20260518050203_world.sql	world candidate not imported as original	some structure/data covered by custom 10-13; remaining content needs row comparison
+sql/database_updates/world/20260522141111_world.sql	world candidate not imported as original	some structure/data covered by custom 10-13; remaining content needs row comparison
+sql/database_updates/world/20260523041131_world.sql	world candidate not imported as original	some structure/data covered by custom 10-13; remaining content needs row comparison
+sql/database_updates/world/20260526123433_world.sql	world candidate not imported as original	some structure/data covered by custom 10-13; remaining content needs row comparison
+sql/database_updates/world/20260526134500_world.sql	world candidate not imported as original	some structure/data covered by custom 10-13; remaining content needs row comparison
+sql/database_updates/world/20260527120000_world.sql	world candidate not imported as original	some structure/data covered by custom 10-13; remaining content needs row comparison
+sql/database_updates/world/20260528150633_world.sql	world candidate not imported as original	some structure/data covered by custom 10-13; remaining content needs row comparison
+sql/database_updates/world/20260529182210_world.sql	world candidate not imported as original	some structure/data covered by custom 10-13; remaining content needs row comparison
+sql/database_updates/world/20260530203924_world.sql	world candidate not imported as original	some structure/data covered by custom 10-13; remaining content needs row comparison
+sql/database_updates/world/20260602180159_world.sql	world candidate not imported as original	some structure/data covered by custom 10-13; remaining content needs row comparison
+sql/database_updates/world/20260603094447_world.sql	world candidate not imported as original	some structure/data covered by custom 10-13; remaining content needs row comparison
+sql/database_updates/world/20260604214927_world.sql	world candidate not imported as original	some structure/data covered by custom 10-13; remaining content needs row comparison
+sql/database_updates/world/20260604222044_world.sql	world candidate not imported as original	some structure/data covered by custom 10-13; remaining content needs row comparison
+sql/database_updates/world/20260605181338_world.sql	world candidate not imported as original	some structure/data covered by custom 10-13; remaining content needs row comparison
+sql/database_updates/world/20260606142438_world.sql	world candidate not imported as original	some structure/data covered by custom 10-13; remaining content needs row comparison
+sql/database_updates/world/20260608174707_world.sql	world candidate not imported as original	some structure/data covered by custom 10-13; remaining content needs row comparison
+sql/database_updates/world/20260610134807_world.sql	world candidate not imported as original	some structure/data covered by custom 10-13; remaining content needs row comparison
+sql/database_updates/world/20260614120836_world.sql	world candidate not imported as original	some structure/data covered by custom 10-13; remaining content needs row comparison
+sql/database_updates/world/20260614124739_world.sql	world candidate not imported as original	some structure/data covered by custom 10-13; remaining content needs row comparison
+sql/database_updates/world/20260618114919_world.sql	world candidate not imported as original	some structure/data covered by custom 10-13; remaining content needs row comparison
+sql/database_updates/world/20260619123444_world.sql	world candidate not imported as original	some structure/data covered by custom 10-13; remaining content needs row comparison
+sql/database_updates/world/20260619155101_world.sql	world candidate not imported as original	some structure/data covered by custom 10-13; remaining content needs row comparison
+sql/database_updates/world/20260620003740_world.sql	world candidate not imported as original	some structure/data covered by custom 10-13; remaining content needs row comparison
+sql/database_updates/world/20260620113716_world.sql	world candidate not imported as original	some structure/data covered by custom 10-13; remaining content needs row comparison
+sql/database_updates/world/20260620152800_world.sql	world candidate not imported as original	some structure/data covered by custom 10-13; remaining content needs row comparison
+sql/database_updates/world/20260620224628_world.sql	world candidate not imported as original	some structure/data covered by custom 10-13; remaining content needs row comparison
+sql/database_updates/world/20260622203054_world.sql	world candidate not imported as original	some structure/data covered by custom 10-13; remaining content needs row comparison
+sql/database_updates/world/20260624094237_world.sql	world candidate not imported as original	some structure/data covered by custom 10-13; remaining content needs row comparison
+sql/database_updates/world/20260625083947_world.sql	world candidate not imported as original	some structure/data covered by custom 10-13; remaining content needs row comparison
+sql/database_updates/world/20260626153218_world.sql	world candidate not imported as original	some structure/data covered by custom 10-13; remaining content needs row comparison
+sql/database_updates/world/20260628192033_world.sql	world candidate not imported as original	some structure/data covered by custom 10-13; remaining content needs row comparison
+sql/database_updates/world/20260629195406_world.sql	world candidate not imported as original	some structure/data covered by custom 10-13; remaining content needs row comparison
+sql/database_updates/world/20260630194548_world.sql	world candidate not imported as original	some structure/data covered by custom 10-13; remaining content needs row comparison
+sql/database_updates/world/20260701010422_world.sql	world candidate not imported as original	some structure/data covered by custom 10-13; remaining content needs row comparison
+sql/database_updates/world/20260702115558_world.sql	world candidate not imported as original	some structure/data covered by custom 10-13; remaining content needs row comparison
+sql/database_updates/world/20260702232910_world.sql	world candidate not imported as original	some structure/data covered by custom 10-13; remaining content needs row comparison
+sql/database_updates/world/20260706100617_world.sql	world candidate not imported as original	some structure/data covered by custom 10-13; remaining content needs row comparison
+sql/database_updates/world/20260707174014_world.sql	world candidate not imported as original	some structure/data covered by custom 10-13; remaining content needs row comparison
+sql/database_updates/world/20260709071006_world.sql	world candidate not imported as original	some structure/data covered by custom 10-13; remaining content needs row comparison
+sql/database_updates/world/20260710045142_world.sql	world candidate not imported as original	some structure/data covered by custom 10-13; remaining content needs row comparison
+sql/database_updates/world/20260711131631_world.sql	world candidate not imported as original	some structure/data covered by custom 10-13; remaining content needs row comparison
+sql/database_updates/world/20260711150912_world.sql	world candidate not imported as original	some structure/data covered by custom 10-13; remaining content needs row comparison
+sql/database_updates/world/20260711170358_world.sql	verified specific result	covered by reviewed custom 14 (transmog)
+sql/database_updates/world/20260711191209_world.sql	world candidate not imported as original	some structure/data covered by custom 10-13; remaining content needs row comparison
+sql/database_updates/world/20260712222616_world.sql	world candidate not imported as original	some structure/data covered by custom 10-13; remaining content needs row comparison
+sql/database_updates/world/20260714180156_world.sql	world candidate not imported as original	some structure/data covered by custom 10-13; remaining content needs row comparison
+sql/database_updates/world/20260714235525_world.sql	world candidate not imported as original	some structure/data covered by custom 10-13; remaining content needs row comparison
+sql/database_updates/world/20260715003750_world.sql	world candidate not imported as original	some structure/data covered by custom 10-13; remaining content needs row comparison
+sql/database_updates/world/20260715124044_world.sql	world candidate not imported as original	some structure/data covered by custom 10-13; remaining content needs row comparison
+sql/database_updates/world/20260715141903_world.sql	world candidate not imported as original	some structure/data covered by custom 10-13; remaining content needs row comparison
+sql/database_updates/world/20260715153051_world.sql	world candidate not imported as original	some structure/data covered by custom 10-13; remaining content needs row comparison
+sql/database_updates/world/20260715174518_world.sql	world candidate not imported as original	some structure/data covered by custom 10-13; remaining content needs row comparison
+sql/database_updates/world/20260718120125_world.sql	world candidate not imported as original	some structure/data covered by custom 10-13; remaining content needs row comparison
+sql/database_updates/world/20260718150344_world.sql	world candidate not imported as original	some structure/data covered by custom 10-13; remaining content needs row comparison
+sql/database_updates/world/20260718184759_world.sql	world candidate not imported as original	some structure/data covered by custom 10-13; remaining content needs row comparison
+sql/database_updates/world/20260721013813_world.sql	verified specific result	partially covered by custom 12 and 15; see live binding audit
+sql/database_updates/world/20260721095654_world.sql	world candidate not imported as original	some structure/data covered by custom 10-13; remaining content needs row comparison
+sql/database_updates/world/20260721231140_world.sql	world candidate not imported as original	some structure/data covered by custom 10-13; remaining content needs row comparison
+sql/database_updates/world/20260724201050_world.sql	world candidate not imported as original	some structure/data covered by custom 10-13; remaining content needs row comparison
+sql/database_updates/world/20260726112016_world.sql	world candidate not imported as original	some structure/data covered by custom 10-13; remaining content needs row comparison
+sql/database_updates/world/20260727120119_world.sql	world candidate not imported as original	some structure/data covered by custom 10-13; remaining content needs row comparison
+sql/database_updates/world/20260730132859_world.sql	world candidate not imported as original	some structure/data covered by custom 10-13; remaining content needs row comparison
+sql/database_updates/world/20260730145429_world.sql	world candidate not imported as original	some structure/data covered by custom 10-13; remaining content needs row comparison
+sql/database_updates/world/20260730201802_world.sql	world candidate not imported as original	some structure/data covered by custom 10-13; remaining content needs row comparison
+sql/database_updates/world/20260730212326_world.sql	world candidate not imported as original	some structure/data covered by custom 10-13; remaining content needs row comparison
+sql/database_updates/world/20260731011334_world.sql	world candidate not imported as original	some structure/data covered by custom 10-13; remaining content needs row comparison
+sql/database_updates/world/20260731121709_world.sql	world candidate not imported as original	some structure/data covered by custom 10-13; remaining content needs row comparison
+sql/database_updates/world/20260731180247_world.sql	world candidate not imported as original	some structure/data covered by custom 10-13; remaining content needs row comparison
+sql/database_updates/world/20260801230645_world.sql	world candidate not imported as original	some structure/data covered by custom 10-13; remaining content needs row comparison
+sql/database_updates/world/20260802123824_world.sql	world candidate not imported as original	some structure/data covered by custom 10-13; remaining content needs row comparison
+sql/database_updates/world/20260802143402_world.sql	world candidate not imported as original	some structure/data covered by custom 10-13; remaining content needs row comparison
+sql/database_updates/world/20260802152936_world.sql	world candidate not imported as original	some structure/data covered by custom 10-13; remaining content needs row comparison
+sql/database_updates/world/20260802162032_world.sql	world candidate not imported as original	some structure/data covered by custom 10-13; remaining content needs row comparison
+sql/database_updates/world/20260802171013_world.sql	world candidate not imported as original	some structure/data covered by custom 10-13; remaining content needs row comparison
+sql/database_updates/world/20260803161618_world.sql	world candidate not imported as original	some structure/data covered by custom 10-13; remaining content needs row comparison
+sql/database_updates/world/20260804182219_world.sql	world candidate not imported as original	some structure/data covered by custom 10-13; remaining content needs row comparison
+sql/database_updates/world/20260806181419_world.sql	world candidate not imported as original	some structure/data covered by custom 10-13; remaining content needs row comparison
+sql/database_updates/world/20260809183358_world.sql	world candidate not imported as original	some structure/data covered by custom 10-13; remaining content needs row comparison
+sql/database_updates/world/20260813085825_world.sql	world candidate not imported as original	some structure/data covered by custom 10-13; remaining content needs row comparison
+sql/database_updates/world/20260813110328_world.sql	world candidate not imported as original	some structure/data covered by custom 10-13; remaining content needs row comparison
+sql/database_updates/world/20260813162900_world.sql	world candidate not imported as original	some structure/data covered by custom 10-13; remaining content needs row comparison
+sql/database_updates/world/20260813194016_world.sql	world candidate not imported as original	some structure/data covered by custom 10-13; remaining content needs row comparison
+sql/database_updates/world/20260814112455_world.sql	world candidate not imported as original	some structure/data covered by custom 10-13; remaining content needs row comparison
+sql/database_updates/world/20260815005950_world.sql	world candidate not imported as original	some structure/data covered by custom 10-13; remaining content needs row comparison
+sql/database_updates/world/20260816173710_world.sql	world candidate not imported as original	some structure/data covered by custom 10-13; remaining content needs row comparison
+sql/database_updates/world/20260817151028_world.sql	world candidate not imported as original	some structure/data covered by custom 10-13; remaining content needs row comparison
+sql/database_updates/world/20260818211313_world.sql	world candidate not imported as original	some structure/data covered by custom 10-13; remaining content needs row comparison
+sql/database_updates/world/20260820133120_world.sql	world candidate not imported as original	some structure/data covered by custom 10-13; remaining content needs row comparison
+sql/database_updates/world/20260821154713_world.sql	world candidate not imported as original	some structure/data covered by custom 10-13; remaining content needs row comparison
+sql/database_updates/world/20260821203635_world.sql	world candidate not imported as original	some structure/data covered by custom 10-13; remaining content needs row comparison
+sql/database_updates/world/20260825052735_world.sql	world candidate not imported as original	some structure/data covered by custom 10-13; remaining content needs row comparison
+sql/database_updates/world/20260826183610_world.sql	world candidate not imported as original	some structure/data covered by custom 10-13; remaining content needs row comparison
+sql/database_updates/world/20260829145107_world.sql	world candidate not imported as original	some structure/data covered by custom 10-13; remaining content needs row comparison
+sql/database_updates/world/20260829172251_world.sql	world candidate not imported as original	some structure/data covered by custom 10-13; remaining content needs row comparison
+sql/database_updates/world/20260829175114_world.sql	world candidate not imported as original	some structure/data covered by custom 10-13; remaining content needs row comparison
+sql/database_updates/world/20260830134658_world.sql	world candidate not imported as original	some structure/data covered by custom 10-13; remaining content needs row comparison
+sql/database_updates/world/20260901101113_world.sql	world candidate not imported as original	some structure/data covered by custom 10-13; remaining content needs row comparison
+sql/database_updates/world/20260901174017_world.sql	world candidate not imported as original	some structure/data covered by custom 10-13; remaining content needs row comparison
+sql/database_updates/world/20260901202213_world.sql	world candidate not imported as original	some structure/data covered by custom 10-13; remaining content needs row comparison
+sql/database_updates/world/20260902074750_world.sql	world candidate not imported as original	some structure/data covered by custom 10-13; remaining content needs row comparison
+sql/database_updates/world/20260905175321_world.sql	verified specific result	applied with orphan guards; 147 movement + 29 linking removed; valid rows preserved
+sql/logon/donation_point_progress.sql	other merged SQL not executed in this session	historical/base/auth/character/other; filename alone does not prove live DB needs it
+sql/tools/druid_forms_backfill.sql	other merged SQL not executed in this session	historical/base/auth/character/other; filename alone does not prove live DB needs it
+sql/tools/fix_dwarven_digging_loot.sql	other merged SQL not executed in this session	historical/base/auth/character/other; filename alone does not prove live DB needs it
+sql/tools/graveyards_turtle_dungeons.sql	other merged SQL not executed in this session	historical/base/auth/character/other; filename alone does not prove live DB needs it
+sql/tools/playerbot_bypass_crossroads.sql	other merged SQL not executed in this session	historical/base/auth/character/other; filename alone does not prove live DB needs it
+sql/tools/playerbot_fix_collation.sql	other merged SQL not executed in this session	historical/base/auth/character/other; filename alone does not prove live DB needs it
+sql/tools/restore_deprecated_npcs.sql	other merged SQL not executed in this session	historical/base/auth/character/other; filename alone does not prove live DB needs it
+sql/tools/tool_graveyard_query.sql	other merged SQL not executed in this session	historical/base/auth/character/other; filename alone does not prove live DB needs it
+sql/tools/tool_sea_add_char_transfer_names.sql	other merged SQL not executed in this session	historical/base/auth/character/other; filename alone does not prove live DB needs it
+sql/wip_updates/game_graveyard_zone.sql	other merged SQL not executed in this session	historical/base/auth/character/other; filename alone does not prove live DB needs it

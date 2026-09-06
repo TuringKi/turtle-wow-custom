@@ -1,0 +1,713 @@
+spell_id	name	current_binding	expected_binding	status
+17	Power Word: Shield		spell_priest_power_word_shield	missing_binding
+324	Lightning Shield		spell_shaman_lightning_shield	missing_binding
+325	Lightning Shield		spell_shaman_lightning_shield	missing_binding
+498	Divine Protection		spell_paladin_invulnerability_forbearance	missing_binding
+592	Power Word: Shield		spell_priest_power_word_shield	missing_binding
+600	Power Word: Shield		spell_priest_power_word_shield	missing_binding
+642	Divine Shield		spell_paladin_invulnerability_forbearance	missing_binding
+678	Holy Strike		spell_paladin_holy_strike	missing_binding
+679	Holy Strike		spell_paladin_holy_strike	missing_binding
+680	Holy Strike		spell_paladin_holy_strike	missing_binding
+698	Ritual of Summoning		spell_warlock_ritual_of_summoning	missing_binding
+746	First Aid		spell_item_first_aid	missing_binding
+802	Mutate Bug		spell_emperor_mutate_bug	missing_binding
+804	Explode Bug		spell_emperor_explode_bug	missing_binding
+905	Lightning Shield		spell_shaman_lightning_shield	missing_binding
+945	Lightning Shield		spell_shaman_lightning_shield	missing_binding
+1002	Eyes of the Beast		spell_hunter_eyes_of_the_beast	missing_binding
+1010	Curse of Idiocy		spell_warlock_curse_of_idiocy	missing_binding
+1020	Divine Shield		spell_paladin_invulnerability_forbearance	missing_binding
+1022	Blessing of Protection		spell_paladin_invulnerability_forbearance	missing_binding
+1082	Claw		spell_druid_open_wounds	missing_binding
+1122	Inferno		spell_warlock_inferno	missing_binding
+1159	First Aid		spell_item_first_aid	missing_binding
+1454	Life Tap		spell_warlock_life_tap	missing_binding
+1455	Life Tap		spell_warlock_life_tap	missing_binding
+1456	Life Tap		spell_warlock_life_tap	missing_binding
+1495	Mongoose Bite		spell_hunter_mongoose_bite	missing_binding
+1856	Vanish		spell_rogue_vanish	missing_binding
+1857	Vanish		spell_rogue_vanish	missing_binding
+1866	Holy Strike		spell_paladin_holy_strike	missing_binding
+2098	Eviscerate		spell_rogue_eviscerate	missing_binding
+2495	Holy Strike		spell_paladin_holy_strike	missing_binding
+2651	Elune's Grace		spell_priest_elunes_grace	missing_binding
+2687	Bloodrage		spell_warrior_bloodrage	missing_binding
+2947	Fire Shield		spell_warlock_fire_shield	missing_binding
+3029	Claw		spell_druid_open_wounds	missing_binding
+3267	First Aid		spell_item_first_aid	missing_binding
+3268	First Aid		spell_item_first_aid	missing_binding
+3747	Power Word: Shield		spell_priest_power_word_shield	missing_binding
+4060	Discombobulate		spell_discombobulate	missing_binding
+4071	Target Dummy		spell_target_dummy	missing_binding
+4072	Advanced Target Dummy		spell_target_dummy	missing_binding
+5143	Arcane Missiles		spell_mage_arcane_missiles	missing_binding
+5144	Arcane Missiles		spell_mage_arcane_missiles	missing_binding
+5145	Arcane Missiles		spell_mage_arcane_missiles	missing_binding
+5201	Claw		spell_druid_open_wounds	missing_binding
+5229	Enrage		spell_druid_enrage	missing_binding
+5246	Intimidating Shout		spell_warrior_intimidating_shout	missing_binding
+5308	Execute		spell_warrior_execute	missing_binding
+5569	Holy Strike		spell_paladin_holy_strike	missing_binding
+5573	Divine Protection		spell_paladin_invulnerability_forbearance	missing_binding
+5599	Blessing of Protection		spell_paladin_invulnerability_forbearance	missing_binding
+5699	Create Healthstone		spell_warlock_create_healthstone	missing_binding
+6065	Power Word: Shield		spell_priest_power_word_shield	missing_binding
+6066	Power Word: Shield		spell_priest_power_word_shield	missing_binding
+6201	Create Healthstone (Minor)		spell_warlock_create_healthstone	missing_binding
+6202	Create Healthstone (Lesser)		spell_warlock_create_healthstone	missing_binding
+6410	Food		spell_item_scorpid_surprise	missing_binding
+6760	Eviscerate		spell_rogue_eviscerate	missing_binding
+6761	Eviscerate		spell_rogue_eviscerate	missing_binding
+6762	Eviscerate		spell_rogue_eviscerate	missing_binding
+7926	First Aid		spell_item_first_aid	missing_binding
+7927	First Aid		spell_item_first_aid	missing_binding
+8017	Rockbiter Weapon		spell_shaman_rockbiter_weapon	missing_binding
+8018	Rockbiter Weapon		spell_shaman_rockbiter_weapon	missing_binding
+8019	Rockbiter Weapon		spell_shaman_rockbiter_weapon	missing_binding
+8026	Flametongue Weapon Proc		spell_shaman_flametongue_proc	missing_binding
+8028	Flametongue Weapon Proc		spell_shaman_flametongue_proc	missing_binding
+8029	Flametongue Weapon Proc		spell_shaman_flametongue_proc	missing_binding
+8063	Deviate Fish		spell_deviate_fish	missing_binding
+8134	Lightning Shield		spell_shaman_lightning_shield	missing_binding
+8213	Cooked Deviate Fish		spell_cooked_deviate_fish	missing_binding
+8248	Flametongue Totem Proc		spell_shaman_flametongue_proc	missing_binding
+8253	Flametongue Totem Proc		spell_shaman_flametongue_proc	missing_binding
+8316	Fire Shield		spell_warlock_fire_shield	missing_binding
+8317	Fire Shield		spell_warlock_fire_shield	missing_binding
+8342	Defibrillate		spell_goblin_jumper_cables	missing_binding
+8416	Arcane Missiles		spell_mage_arcane_missiles	missing_binding
+8417	Arcane Missiles		spell_mage_arcane_missiles	missing_binding
+8623	Eviscerate		spell_rogue_eviscerate	missing_binding
+8624	Eviscerate		spell_rogue_eviscerate	missing_binding
+9033	Shapeshift Form Effect		spell_druid_shapeshift_root_snare_removal	missing_binding
+9799	Eye for an Eye		spell_paladin_eye_for_an_eye	missing_binding
+9849	Claw		spell_druid_open_wounds	missing_binding
+9850	Claw		spell_druid_open_wounds	missing_binding
+10211	Arcane Missiles		spell_mage_arcane_missiles	missing_binding
+10212	Arcane Missiles		spell_mage_arcane_missiles	missing_binding
+10258	Awaken Vault Warder		spell_uldaman_awaken_vault_warder	missing_binding
+10278	Blessing of Protection		spell_paladin_invulnerability_forbearance	missing_binding
+10332	Holy Strike		spell_paladin_holy_strike	missing_binding
+10333	Holy Strike		spell_paladin_holy_strike	missing_binding
+10399	Rockbiter Weapon		spell_shaman_rockbiter_weapon	missing_binding
+10431	Lightning Shield		spell_shaman_lightning_shield	missing_binding
+10432	Lightning Shield		spell_shaman_lightning_shield	missing_binding
+10445	Flametongue Weapon Proc		spell_shaman_flametongue_proc	missing_binding
+10523	Flametongue Totem Proc		spell_shaman_flametongue_proc	missing_binding
+10838	First Aid		spell_item_first_aid	missing_binding
+10839	First Aid		spell_item_first_aid	missing_binding
+10898	Power Word: Shield		spell_priest_power_word_shield	missing_binding
+10899	Power Word: Shield		spell_priest_power_word_shield	missing_binding
+10900	Power Word: Shield		spell_priest_power_word_shield	missing_binding
+10901	Power Word: Shield		spell_priest_power_word_shield	missing_binding
+11119	Ignite		spell_mage_ignite	missing_binding
+11120	Ignite		spell_mage_ignite	missing_binding
+11129	Combustion		spell_mage_combustion	missing_binding
+11185	Improved Blizzard		spell_mage_improved_blizzard	missing_binding
+11299	Eviscerate		spell_rogue_eviscerate	missing_binding
+11300	Eviscerate		spell_rogue_eviscerate	missing_binding
+11687	Life Tap		spell_warlock_life_tap	missing_binding
+11688	Life Tap		spell_warlock_life_tap	missing_binding
+11689	Life Tap		spell_warlock_life_tap	missing_binding
+11729	Create Healthstone (Greater)		spell_warlock_create_healthstone	missing_binding
+11730	Create Healthstone (Major)		spell_warlock_create_healthstone	missing_binding
+11759	Basilisk Sample		spell_tanaris_field_sampling	missing_binding
+11760	Hyena Sample		spell_tanaris_field_sampling	missing_binding
+11761	Scorpid Sample		spell_tanaris_field_sampling	missing_binding
+11770	Fire Shield		spell_warlock_fire_shield	missing_binding
+11771	Fire Shield		spell_warlock_fire_shield	missing_binding
+12162	Deep Wounds		spell_warrior_deep_wounds	missing_binding
+12292	Sweeping Strikes		spell_warrior_sweeping_strikes	missing_binding
+12472	Cold Snap		spell_mage_cold_snap	missing_binding
+12487	Improved Blizzard		spell_mage_improved_blizzard	missing_binding
+12488	Improved Blizzard		spell_mage_improved_blizzard	missing_binding
+12709	Collecting Fallout		spell_item_green_glow	missing_binding
+12766	Poison Cloud		spell_chained_essence_of_eranikus	missing_binding
+12775	Goblin Radio		spell_item_self_target_learn_spell	missing_binding
+12846	Ignite		spell_mage_ignite	missing_binding
+12847	Ignite		spell_mage_ignite	missing_binding
+12848	Ignite		spell_mage_ignite	missing_binding
+12850	Deep Wounds		spell_warrior_deep_wounds	missing_binding
+12868	Deep Wounds		spell_warrior_deep_wounds	missing_binding
+12975	Last Stand		spell_warrior_last_stand	missing_binding
+13120	Net-o-Matic		spell_net_o_matic	missing_binding
+13278	Gnomish Death Ray		spell_item_gnomish_death_ray	missing_binding
+13493	Gnomish Death Ray		spell_item_gnomish_death_ray_periodic	missing_binding
+13797	Immolation Trap Effect		spell_hunter_stinging_nettle_fire_trap	missing_binding
+13810	Frost Trap Aura		spell_hunter_frost_trap_aura	missing_binding
+13812	Explosive Trap Effect		spell_hunter_stinging_nettle_fire_trap	missing_binding
+13877	Blade Flurry		spell_rogue_blade_flurry	missing_binding
+14079	Improved Ambush		spell_rogue_improved_ambush	missing_binding
+14080	Improved Ambush		spell_rogue_improved_ambush	missing_binding
+14081	Improved Ambush		spell_rogue_improved_ambush	missing_binding
+14093	Vanished		spell_rogue_improved_sap_vanish	missing_binding
+14185	Preparation		spell_rogue_preparation	missing_binding
+14269	Mongoose Bite		spell_hunter_mongoose_bite	missing_binding
+14270	Mongoose Bite		spell_hunter_mongoose_bite	missing_binding
+14271	Mongoose Bite		spell_hunter_mongoose_bite	missing_binding
+14298	Immolation Trap Effect		spell_hunter_stinging_nettle_fire_trap	missing_binding
+14299	Immolation Trap Effect		spell_hunter_stinging_nettle_fire_trap	missing_binding
+14300	Immolation Trap Effect		spell_hunter_stinging_nettle_fire_trap	missing_binding
+14301	Immolation Trap Effect		spell_hunter_stinging_nettle_fire_trap	missing_binding
+14314	Explosive Trap Effect		spell_hunter_stinging_nettle_fire_trap	missing_binding
+14315	Explosive Trap Effect		spell_hunter_stinging_nettle_fire_trap	missing_binding
+14892	Inspiration		spell_priest_inspiration	missing_binding
+15058	Arcane Instability		spell_mage_arcane_instability	missing_binding
+15059	Arcane Instability		spell_mage_arcane_instability	missing_binding
+15060	Arcane Instability		spell_mage_arcane_instability	missing_binding
+15237	Holy Nova		spell_priest_holy_nova	missing_binding
+15286	Vampiric Embrace		spell_priest_vampiric_embrace	missing_binding
+15362	Inspiration		spell_priest_inspiration	missing_binding
+15363	Inspiration		spell_priest_inspiration	missing_binding
+15364	Inspiration		spell_priest_inspiration	missing_binding
+15365	Inspiration		spell_priest_inspiration	missing_binding
+15430	Holy Nova		spell_priest_holy_nova	missing_binding
+15431	Holy Nova		spell_priest_holy_nova	missing_binding
+15712	Linken's Boomerang		spell_item_linkens_boomerang	missing_binding
+15735	Arcane Missiles		spell_mage_arcane_missiles	missing_binding
+15748	Freeze Rookery Egg		spell_ubrs_freeze_rookery_egg	missing_binding
+15790	Arcane Missiles		spell_mage_arcane_missiles	missing_binding
+16028	Freeze Rookery Egg - Prototype		spell_ubrs_freeze_rookery_egg	missing_binding
+16072	Purify and Place Food		spell_purify_and_place_food	missing_binding
+16191	Mana Tide		spell_shaman_mana_tide	missing_binding
+16314	Rockbiter Weapon		spell_shaman_rockbiter_weapon	missing_binding
+16315	Rockbiter Weapon		spell_shaman_rockbiter_weapon	missing_binding
+16316	Rockbiter Weapon		spell_shaman_rockbiter_weapon	missing_binding
+16336	Haunting Phantoms		spell_haunting_phantoms	missing_binding
+16343	Flametongue Weapon Proc		spell_shaman_flametongue_proc	missing_binding
+16344	Flametongue Weapon Proc		spell_shaman_flametongue_proc	missing_binding
+16381	Summon Rockwing Gargoyles		spell_rockwing_gargoyle	missing_binding
+16389	Flametongue Totem Proc		spell_shaman_flametongue_proc	missing_binding
+16589	Noggenfogger Elixir		spell_noggenfogger_elixir	missing_binding
+17166	Release Umi's Yeti		spell_release_umis_yeti	missing_binding
+17271	Test Fetid Skull		spell_test_fetid_skull	missing_binding
+17770	Wolfshead Helm Energy		spell_item_wolfshead_helm	missing_binding
+17962	Conflagrate		spell_warlock_conflagrate	missing_binding
+18073	Pyroclasm		spell_warlock_pyroclasm	missing_binding
+18096	Pyroclasm		spell_warlock_pyroclasm	missing_binding
+18119	Aftermath		spell_warlock_consequences	missing_binding
+18120	Aftermath		spell_warlock_consequences	missing_binding
+18121	Aftermath		spell_warlock_consequences	missing_binding
+18122	Aftermath		spell_warlock_consequences	missing_binding
+18123	Aftermath		spell_warlock_consequences	missing_binding
+18137	Shadowguard		spell_priest_shadowguard	missing_binding
+18153	Kodo Kombobulator		spell_kodo_kombobulator	missing_binding
+18350	Dummy Trigger		spell_item_earthshatterer_t3	missing_binding
+18371	Soul Siphon		spell_warlock_soul_siphon	missing_binding
+18540	Ritual of Doom		spell_warlock_ritual_of_doom	missing_binding
+18562	Swiftmend		spell_druid_swiftmend	missing_binding
+18608	First Aid		spell_item_first_aid	missing_binding
+18610	First Aid		spell_item_first_aid	missing_binding
+18788	Demonic Sacrifice		spell_warlock_demonic_sacrifice	missing_binding
+18930	Conflagrate		spell_warlock_conflagrate	missing_binding
+18931	Conflagrate		spell_warlock_conflagrate	missing_binding
+18932	Conflagrate		spell_warlock_conflagrate	missing_binding
+19289	Elune's Grace		spell_priest_elunes_grace	missing_binding
+19291	Elune's Grace		spell_priest_elunes_grace	missing_binding
+19292	Elune's Grace		spell_priest_elunes_grace	missing_binding
+19293	Elune's Grace		spell_priest_elunes_grace	missing_binding
+19306	Counterattack		spell_hunter_counterattack	missing_binding
+19308	Shadowguard		spell_priest_shadowguard	missing_binding
+19309	Shadowguard		spell_priest_shadowguard	missing_binding
+19310	Shadowguard		spell_priest_shadowguard	missing_binding
+19311	Shadowguard		spell_priest_shadowguard	missing_binding
+19312	Shadowguard		spell_priest_shadowguard	missing_binding
+19505	Devour Magic		spell_warlock_devour_magic	missing_binding
+19572	Improved Mend Pet		spell_hunter_improved_mend_pet	missing_binding
+19573	Improved Mend Pet		spell_hunter_improved_mend_pet	missing_binding
+19731	Devour Magic		spell_warlock_devour_magic	missing_binding
+19734	Devour Magic		spell_warlock_devour_magic	missing_binding
+19736	Devour Magic		spell_warlock_devour_magic	missing_binding
+19750	Flash of Light		spell_paladin_flash_of_light	missing_binding
+19805	Masterwork Target Dummy		spell_target_dummy	missing_binding
+19939	Flash of Light		spell_paladin_flash_of_light	missing_binding
+19940	Flash of Light		spell_paladin_flash_of_light	missing_binding
+19941	Flash of Light		spell_paladin_flash_of_light	missing_binding
+19942	Flash of Light		spell_paladin_flash_of_light	missing_binding
+19943	Flash of Light		spell_paladin_flash_of_light	missing_binding
+20148	Shield Specialization		spell_paladin_shield_specialization	missing_binding
+20149	Shield Specialization		spell_paladin_shield_specialization	missing_binding
+20150	Shield Specialization		spell_paladin_shield_specialization	missing_binding
+20154	Seal of Righteousness		spell_paladin_seal_of_righteousness	missing_binding
+20178	Reckoning		spell_paladin_reckoning	missing_binding
+20185	Judgement of Light		spell_paladin_judgement_of_light_wisdom	missing_binding
+20186	Judgement of Wisdom		spell_paladin_judgement_of_light_wisdom	missing_binding
+20188	Judgement of the Crusader		spell_paladin_judgement_of_the_crusader	missing_binding
+20210	Illumination		spell_paladin_illumination	missing_binding
+20212	Illumination		spell_paladin_illumination	missing_binding
+20213	Illumination		spell_paladin_illumination	missing_binding
+20214	Illumination		spell_paladin_illumination	missing_binding
+20215	Illumination		spell_paladin_illumination	missing_binding
+20230	Retaliation		spell_warrior_retaliation	missing_binding
+20231	Seal of Fury		spell_paladin_seal_of_fury_proc	missing_binding
+20234	Improved Lay on Hands		spell_paladin_improved_lay_on_hands	missing_binding
+20235	Improved Lay on Hands		spell_paladin_improved_lay_on_hands	missing_binding
+20267	Judgement of Light		spell_paladin_judgement_of_light_wisdom	missing_binding
+20271	Judgement		spell_paladin_judgement	missing_binding
+20287	Seal of Righteousness		spell_paladin_seal_of_righteousness	missing_binding
+20288	Seal of Righteousness		spell_paladin_seal_of_righteousness	missing_binding
+20289	Seal of Righteousness		spell_paladin_seal_of_righteousness	missing_binding
+20290	Seal of Righteousness		spell_paladin_seal_of_righteousness	missing_binding
+20291	Seal of Righteousness		spell_paladin_seal_of_righteousness	missing_binding
+20292	Seal of Righteousness		spell_paladin_seal_of_righteousness	missing_binding
+20293	Seal of Righteousness		spell_paladin_seal_of_righteousness	missing_binding
+20300	Judgement of the Crusader		spell_paladin_judgement_of_the_crusader	missing_binding
+20301	Judgement of the Crusader		spell_paladin_judgement_of_the_crusader	missing_binding
+20302	Judgement of the Crusader		spell_paladin_judgement_of_the_crusader	missing_binding
+20303	Judgement of the Crusader		spell_paladin_judgement_of_the_crusader	missing_binding
+20341	Judgement of Light		spell_paladin_judgement_of_light_wisdom	missing_binding
+20342	Judgement of Light		spell_paladin_judgement_of_light_wisdom	missing_binding
+20343	Judgement of Light		spell_paladin_judgement_of_light_wisdom	missing_binding
+20344	Judgement of Light		spell_paladin_judgement_of_light_wisdom	missing_binding
+20345	Judgement of Light		spell_paladin_judgement_of_light_wisdom	missing_binding
+20346	Judgement of Light		spell_paladin_judgement_of_light_wisdom	missing_binding
+20354	Judgement of Wisdom		spell_paladin_judgement_of_light_wisdom	missing_binding
+20355	Judgement of Wisdom		spell_paladin_judgement_of_light_wisdom	missing_binding
+20375	Seal of Command		spell_paladin_conviction_seals	missing_binding
+20415	Seal of Fury		spell_paladin_seal_of_fury_proc	missing_binding
+20416	Seal of Fury		spell_paladin_seal_of_fury_proc	missing_binding
+20417	Seal of Fury		spell_paladin_seal_of_fury_proc	missing_binding
+20418	Seal of Fury		spell_paladin_seal_of_fury_proc	missing_binding
+20425	Judgement of Command		spell_paladin_judgement_of_command_dummy	missing_binding
+20467	Judgement of Command		spell_paladin_judgement_of_command	missing_binding
+20473	Holy Shock		spell_paladin_holy_shock	missing_binding
+20577	Cannibalize		spell_cannibalize	missing_binding
+20578	Cannibalize		spell_cannibalize_aura	missing_binding
+20580	Shadowmeld		spell_shadowmeld	missing_binding
+20594	Stoneform		spell_stoneform	missing_binding
+20647	Execute		spell_warrior_execute_trigger	missing_binding
+20658	Execute		spell_warrior_execute	missing_binding
+20660	Execute		spell_warrior_execute	missing_binding
+20661	Execute		spell_warrior_execute	missing_binding
+20662	Execute		spell_warrior_execute	missing_binding
+20803			spell_item_first_aid	missing_spell
+20865	Rockbiter Weapon Proc		spell_shaman_rockbiter_proc	missing_binding
+20866	Rockbiter Weapon Proc		spell_shaman_rockbiter_proc	missing_binding
+20867	Rockbiter Weapon Proc		spell_shaman_rockbiter_proc	missing_binding
+20868	Rockbiter Weapon Proc		spell_shaman_rockbiter_proc	missing_binding
+20870	Rockbiter Weapon Proc		spell_shaman_rockbiter_proc	missing_binding
+20871	Rockbiter Weapon Proc		spell_shaman_rockbiter_proc	missing_binding
+20909	Counterattack		spell_hunter_counterattack	missing_binding
+20910	Counterattack		spell_hunter_counterattack	missing_binding
+20915	Seal of Command		spell_paladin_conviction_seals	missing_binding
+20918	Seal of Command		spell_paladin_conviction_seals	missing_binding
+20919	Seal of Command		spell_paladin_conviction_seals	missing_binding
+20920	Seal of Command		spell_paladin_conviction_seals	missing_binding
+20929	Holy Shock		spell_paladin_holy_shock	missing_binding
+20930	Holy Shock		spell_paladin_holy_shock	missing_binding
+20961	Judgement of Command		spell_paladin_judgement_of_command_dummy	missing_binding
+20962	Judgement of Command		spell_paladin_judgement_of_command_dummy	missing_binding
+20963	Judgement of Command		spell_paladin_judgement_of_command	missing_binding
+20964	Judgement of Command		spell_paladin_judgement_of_command	missing_binding
+20965	Judgement of Command		spell_paladin_judgement_of_command	missing_binding
+20966	Judgement of Command		spell_paladin_judgement_of_command	missing_binding
+20967	Judgement of Command		spell_paladin_judgement_of_command_dummy	missing_binding
+20968	Judgement of Command		spell_paladin_judgement_of_command_dummy	missing_binding
+21050	Melodious Rapture		spell_melodious_rapture	missing_binding
+21084	Seal of Righteousness		spell_paladin_seal_of_righteousness	missing_binding
+21183	Judgement of the Crusader		spell_paladin_judgement_of_the_crusader	missing_binding
+21544	Create Shredder		spell_alterac_shredder	missing_binding
+21565	Create Shredder		spell_alterac_shredder	missing_binding
+21651	Opening		spell_battleground_banner_open	missing_binding
+21972	Thorns Explosion Chance		spell_druid_thorns_explosion	missing_binding
+21977	Warrior's Wrath		spell_warrior_warriors_wrath	missing_binding
+22272	Arcane Missiles		spell_mage_arcane_missiles	missing_binding
+22557			spell_druid_ferocious_bite	missing_spell
+22568	Ferocious Bite		spell_druid_ferocious_bite	missing_binding
+22801	Ghost Wolf Speed		spell_shaman_ghost_wolf_speed	missing_binding
+22827	Ferocious Bite		spell_druid_ferocious_bite	missing_binding
+22828	Ferocious Bite		spell_druid_ferocious_bite	missing_binding
+22829	Ferocious Bite		spell_druid_ferocious_bite	missing_binding
+22842	Frenzied Regeneration		spell_druid_frenzied_regeneration	missing_binding
+22895	Frenzied Regeneration		spell_druid_frenzied_regeneration	missing_binding
+22896	Frenzied Regeneration		spell_druid_frenzied_regeneration	missing_binding
+22999	Defibrillate		spell_goblin_jumper_cables_xl	missing_binding
+23074	Arcanite Dragonling		spell_mechanical_companion	missing_binding
+23075	Mithril Mechanical Dragonling		spell_mechanical_companion	missing_binding
+23076	Mechanical Dragonling		spell_mechanical_companion	missing_binding
+23133	Gnomish Battle Chicken		spell_mechanical_companion	missing_binding
+23134	Goblin Bomb		spell_goblin_bomb_dispenser	missing_binding
+23138	Gate of Shazzrah		spell_shazzrah_gate	missing_binding
+23206	Chain Lightning		spell_simone_seductress_chain_lightning	missing_binding
+23401	Corrupted Healing		spell_item_corrupted_healing	missing_binding
+23424	Corrupted Totems		spell_nefarian_corrupted_totems	missing_binding
+23442	Everlook Transporter		spell_item_everlook_transporter	missing_binding
+23448	Transporter Arrival		spell_gadgetzan_transporter	missing_binding
+23453	Gnomish Transporter		spell_gadgetzan_transporter	missing_binding
+23551	Lightning Shield		spell_item_ten_storms_lightning_shield	missing_binding
+23552	Lightning Shield		spell_item_ten_storms_lightning_shield	missing_binding
+23567	First Aid		spell_item_first_aid	missing_binding
+23568	First Aid		spell_item_first_aid	missing_binding
+23569	First Aid		spell_item_first_aid	missing_binding
+23572	Mana Surge		spell_item_mana_surge	missing_binding
+23582	Clean Escape		spell_rogue_clean_escape	missing_binding
+23696	First Aid		spell_item_first_aid	missing_binding
+23735	Sayge's Dark Fortune of Strength		spell_sayges_dark_fortune	missing_binding
+23736	Sayge's Dark Fortune of Agility		spell_sayges_dark_fortune	missing_binding
+23737	Sayge's Dark Fortune of Stamina		spell_sayges_dark_fortune	missing_binding
+23738	Sayge's Dark Fortune of Spirit		spell_sayges_dark_fortune	missing_binding
+23766	Sayge's Dark Fortune of Intelligence		spell_sayges_dark_fortune	missing_binding
+23767	Sayge's Dark Fortune of Armor		spell_sayges_dark_fortune	missing_binding
+23768	Sayge's Dark Fortune of Damage		spell_sayges_dark_fortune	missing_binding
+23769	Sayge's Dark Fortune of Resistance		spell_sayges_dark_fortune	missing_binding
+23852	Jubling Cooldown		spell_item_jubling_cooldown	missing_binding
+23881	Bloodthirst		spell_warrior_bloodthirst	missing_binding
+23892	Bloodthirst		spell_warrior_bloodthirst	missing_binding
+23893	Bloodthirst		spell_warrior_bloodthirst	missing_binding
+23894	Bloodthirst		spell_warrior_bloodthirst	missing_binding
+23922	Shield Slam		spell_warrior_shield_slam	missing_binding
+23923	Shield Slam		spell_warrior_shield_slam	missing_binding
+23924	Shield Slam		spell_warrior_shield_slam	missing_binding
+23925	Shield Slam		spell_warrior_shield_slam	missing_binding
+23989	Readiness		spell_hunter_readiness	missing_binding
+24187	Claw		spell_druid_open_wounds	missing_binding
+24239	Hammer of Wrath		spell_paladin_hammer_of_wrath	missing_binding
+24274	Hammer of Wrath		spell_paladin_hammer_of_wrath	missing_binding
+24275	Hammer of Wrath		spell_paladin_hammer_of_wrath	missing_binding
+24340	Meteor		spell_meteor	missing_binding
+24412	First Aid		spell_item_first_aid	missing_binding
+24413	First Aid		spell_item_first_aid	missing_binding
+24414	First Aid		spell_item_first_aid	missing_binding
+24531	Refocus		spell_hunter_refocus	missing_binding
+24590	Brittle Armor		spell_item_brittle_armor_remove_stack	missing_binding
+24670	Inferno		spell_warlock_inferno	missing_binding
+24714	Trick		spell_item_trick	missing_binding
+24717	Pirate Costume		spell_item_hallowed_wand	missing_binding
+24718	Ninja Costume		spell_item_hallowed_wand	missing_binding
+24719	Leper Gnome Costume		spell_item_hallowed_wand	missing_binding
+24720	Random Costume		spell_item_hallowed_wand	missing_binding
+24731	Fire Cannon		spell_item_cannon_fire	missing_binding
+24737	Ghost Costume		spell_item_hallowed_wand	missing_binding
+24742	Magic Wings		spell_item_magic_wings	missing_binding
+24751	Trick or Treat		spell_item_trick_or_treat	missing_binding
+24781	Dream Fog		spell_emerald_dragons_dream_fog	missing_binding
+24933	Cannon		spell_darkmoon_steam_tonk_cannon	missing_binding
+24937	Using Control Console		spell_controlling_steam_tonk	missing_binding
+25026	Activate MG Turret		spell_activate_mg_turret	missing_binding
+25027	Flamethrower		spell_flamethrower	missing_binding
+25345	Arcane Missiles		spell_mage_arcane_missiles	missing_binding
+25599	Thundercrash		spell_rajaxx_thundercrash	missing_binding
+25676	Drain Mana		spell_aq20_drain_mana	missing_binding
+25677	Snowball		spell_snowball_knockback	missing_binding
+25713	Seal of Righteousness		spell_paladin_seal_of_righteousness	missing_binding
+25715	 Seal of Righteousness		spell_paladin_seal_of_righteousness	missing_binding
+25720	Place Loot		spell_decoy_place_loot	missing_binding
+25727	 Seal of Righteousness		spell_paladin_seal_of_righteousness	missing_binding
+25728	 Seal of Righteousness		spell_paladin_seal_of_righteousness	missing_binding
+25729	 Seal of Righteousness		spell_paladin_seal_of_righteousness	missing_binding
+25730	 Seal of Righteousness		spell_paladin_seal_of_righteousness	missing_binding
+25731	 Seal of Righteousness		spell_paladin_seal_of_righteousness	missing_binding
+25732	 Seal of Righteousness		spell_paladin_seal_of_righteousness	missing_binding
+25733	 Seal of Righteousness		spell_paladin_seal_of_righteousness	missing_binding
+25734	 Seal of Righteousness		spell_paladin_seal_of_righteousness	missing_binding
+25735	Seal of Righteousness		spell_paladin_seal_of_righteousness	missing_binding
+25736	Seal of Righteousness		spell_paladin_seal_of_righteousness	missing_binding
+25737	Seal of Righteousness		spell_paladin_seal_of_righteousness	missing_binding
+25738	Seal of Righteousness		spell_paladin_seal_of_righteousness	missing_binding
+25739	Seal of Righteousness		spell_paladin_seal_of_righteousness	missing_binding
+25740	Seal of Righteousness		spell_paladin_seal_of_righteousness	missing_binding
+25741	Seal of Righteousness		spell_paladin_seal_of_righteousness	missing_binding
+25742	Seal of Righteousness		spell_paladin_seal_of_righteousness	missing_binding
+25754	Drain Mana		spell_aq20_drain_mana	missing_binding
+25860	Reindeer Transformation		spell_reindeer_transformation	missing_binding
+25863	Black Qiraji Battle Tank		spell_item_aq40_battle_tank	missing_binding
+25953	Blue Qiraji Battle Tank		spell_item_aq40_battle_tank	missing_binding
+25988	Eye for an Eye		spell_paladin_eye_for_an_eye	missing_binding
+26052	Poison Bolt		spell_huhuran_poison_bolt_volley	missing_binding
+26054	Red Qiraji Battle Tank		spell_item_aq40_battle_tank	missing_binding
+26055	Yellow Qiraji Battle Tank		spell_item_aq40_battle_tank	missing_binding
+26056	Green Qiraji Battle Tank		spell_item_aq40_battle_tank	missing_binding
+26169	Oracle Healing Bonus		spell_item_oracle_healing_bonus	missing_binding
+26180	Wyvern Sting		spell_hunter_wyvern_sting	missing_binding
+26374	Elune's Candle		spell_item_elunes_candle	missing_binding
+26391	Tentacle Call		spell_vanquished_tentacle_of_cthun	missing_binding
+26457	Drain Mana		spell_aq40_drain_mana	missing_binding
+26465	Mercurial Shield		spell_item_mercurial_shield_remove_stack	missing_binding
+26467	Persistent Shield		spell_item_persistent_shield	missing_binding
+26558	Meteor		spell_meteor	missing_binding
+26559	Drain Mana		spell_aq40_drain_mana	missing_binding
+26656	Black Qiraji Battle Tank		spell_summon_black_qiraji_battle_tank	missing_binding
+26789	Shard of the Fallen Star		spell_meteor	missing_binding
+27230			spell_warlock_create_healthstone	missing_spell
+27433	Ectoplasmic Distiller		spell_forbidden_capital_restriction	missing_binding
+27557	Ferocious Bite		spell_druid_ferocious_bite	missing_binding
+27607	Power Word: Shield		spell_priest_power_word_shield	missing_binding
+27617	Vanish		spell_rogue_vanish	missing_binding
+27799	Holy Nova		spell_priest_holy_nova	missing_binding
+27800	Holy Nova		spell_priest_holy_nova	missing_binding
+27801	Holy Nova		spell_priest_holy_nova	missing_binding
+27811	Blessed Recovery		spell_priest_blessed_recovery	missing_binding
+27812	Void Blast		spell_kelthuzad_void_blast	missing_binding
+27815	Blessed Recovery		spell_priest_blessed_recovery	missing_binding
+27816	Blessed Recovery		spell_priest_blessed_recovery	missing_binding
+27831	Shadow Bolt Volley		spell_unrelenting_rider_shadow_bolt_volley	missing_binding
+27850	Devotion Armor Increased		spell_paladin_improved_devotion_aura	missing_binding
+28059	Positive Charge		spell_thaddius_positive_charge_aura	missing_binding
+28062	Positive Charge		spell_thaddius_positive_charge	missing_binding
+28084	Negative Charge		spell_thaddius_negative_charge_aura	missing_binding
+28085	Negative Charge		spell_thaddius_negative_charge	missing_binding
+28169	Mutating Injection		spell_mutating_injection	missing_binding
+28206	Mutagen Explosion		spell_grobbulus_mutagen_explosion	missing_binding
+28241	Poison		spell_grobbulus_cloud_poison	missing_binding
+28282	Ashbringer		spell_ashbringer	missing_binding
+28337	Magnetic Pull		spell_thaddius_magnetic_pull	missing_binding
+28375	Decimate		spell_gluth_decimate	missing_binding
+28434	Spider Web		spell_maexxna_spider_web	missing_binding
+28535	Summon Ice Block		spell_sapphiron_ice_block	missing_binding
+28542	Life Drain		spell_sapphiron_life_drain	missing_binding
+28598	Touch of Weakness		spell_priest_touch_of_weakness_trigger	missing_binding
+28716	Rejuvenation		spell_item_dreamwalker_rejuvenation	missing_binding
+28719	Healing Touch		spell_item_dreamwalker_healing_touch	missing_binding
+28744	Regrowth		spell_item_dreamwalker_regrowth	missing_binding
+28789	Holy Power		spell_item_holy_power	missing_binding
+28796	Poison Bolt Volley		spell_faerlina_poison_bolt_volley	missing_binding
+28809	Greater Heal		spell_item_greater_heal_t3	missing_binding
+28820	Lightning Shield		spell_item_earthshatterer_t3_aura	missing_binding
+28823	Totemic Power		spell_item_totemic_power	missing_binding
+28845	Cheat Death		spell_warlock_cheat_death	missing_binding
+28847	Healing Touch Refund		spell_item_healing_touch_refund	missing_binding
+28849	Lesser Healing Wave		spell_item_lesser_healing_wave_relic	missing_binding
+28884	Meteor		spell_meteor	missing_binding
+29074	Master of Elements		spell_mage_master_of_elements	missing_binding
+29075	Master of Elements		spell_mage_master_of_elements	missing_binding
+29076	Master of Elements		spell_mage_master_of_elements	missing_binding
+29153	Gargoyle Stoneform Visual		spell_gargoyle_stoneform	missing_binding
+29201	Corrupted Mind		spell_loatheb_corrupted_mind	missing_binding
+29213	Curse of the Plaguebringer		spell_noth_curse_of_the_plaguebringer	missing_binding
+29284	Brittle Armor		spell_item_brittle_armor	missing_binding
+29286	Mercurial Shield		spell_item_mercurial_shield	missing_binding
+29310	Mana Burn		spell_heigan_mana_burn	missing_binding
+29441	Magic Absorption		spell_mage_magic_absorption	missing_binding
+29444	Magic Absorption		spell_mage_magic_absorption	missing_binding
+29445	Magic Absorption		spell_mage_magic_absorption	missing_binding
+29446	Magic Absorption		spell_mage_magic_absorption	missing_binding
+29447	Magic Absorption		spell_mage_magic_absorption	missing_binding
+29484	Web Spray		spell_maexxna_web_spray	missing_binding
+29519	Silithyst		spell_silithyst	missing_binding
+29999	Goblin Radio KABOOM-Box X23B76		spell_item_jukebox	missing_binding
+30020	First Aid		spell_item_first_aid	missing_binding
+30146	Summon Felguard		spell_warlock_summon_felguard	missing_binding
+31016	Eviscerate		spell_rogue_eviscerate	missing_binding
+31018	Ferocious Bite		spell_druid_ferocious_bite	missing_binding
+31960	Illusion: Blood Elf		spell_item_illusion	missing_binding
+31961	Illusion: Goblin		spell_item_illusion	missing_binding
+31962	Illusion: Harpy		spell_item_illusion	missing_binding
+31963	Illusion: Dryad		spell_item_illusion	missing_binding
+31964	Illusion: Worgen		spell_item_illusion	missing_binding
+31965	Illusion: High Elf		spell_item_illusion	missing_binding
+31966	Illusion: Ghost		spell_item_illusion	missing_binding
+31967	Illusion: Banshee		spell_item_illusion	missing_binding
+31968	Illusion: Serpent Lord		spell_item_illusion	missing_binding
+31969	Illusion: Succubus		spell_item_illusion	missing_binding
+31970	Illusion: Wraith		spell_item_illusion	missing_binding
+31971	Illusion: Flamewaker		spell_item_illusion	missing_binding
+31972	Illusion: Bone Serpent		spell_item_illusion	missing_binding
+31973	Illusion: Furbolg		spell_item_illusion	missing_binding
+31974	Illusion: Rat		spell_item_illusion	missing_binding
+31975	Illusion: Two-headed Ogre		spell_item_illusion	missing_binding
+31976	Illusion: Tiny Murloc		spell_item_illusion	missing_binding
+31977	Illusion: Scourge Warrior		spell_item_illusion	missing_binding
+31978	Illusion: Gnoll		spell_item_illusion	missing_binding
+31979	Illusion: Pandaren		spell_item_illusion	missing_binding
+31980	Illusion: Dreadlord		spell_item_illusion	missing_binding
+31981	Illusion: Smolderthorn Berserker		spell_item_illusion	missing_binding
+31982	Illusion: Naga Explorer		spell_item_illusion	missing_binding
+31983	Illusion: Naga Siren		spell_item_illusion	missing_binding
+31984	Illusion: Chromie		spell_item_illusion	missing_binding
+31985	Illusion: Satyr		spell_item_illusion	missing_binding
+31986	Illusion: Green Dragonkin		spell_item_illusion	missing_binding
+31987	Illusion: Tiny Celestial Dragon		spell_item_illusion	missing_binding
+36600	Blazing Forge Kit		spell_item_summon_utility_object	missing_binding
+42036			spell_incindis_quaking_stomp	missing_spell
+44000	Tame Stonetusk Boar		spell_turtle_taming_quest_credit	missing_binding
+44002	Tame Prowler		spell_turtle_taming_quest_credit	missing_binding
+44004	Tame Young Forest Bear		spell_turtle_taming_quest_credit	missing_binding
+44006	Tame Decrepit Darkhound		spell_turtle_taming_quest_credit	missing_binding
+44008	Tame Greater Duskbat		spell_turtle_taming_quest_credit	missing_binding
+44010	Tame Tirisfal Plagued Bear		spell_turtle_taming_quest_credit	missing_binding
+44012	Tame Dire Mottled Boar		spell_turtle_taming_quest_credit	missing_binding
+44014	Tame Surf Crawler		spell_turtle_taming_quest_credit	missing_binding
+44016	Tame Armored Scorpid		spell_turtle_taming_quest_credit	missing_binding
+44018	Tame Large Crag Boar		spell_turtle_taming_quest_credit	missing_binding
+44020	Tame Snow Leopard		spell_turtle_taming_quest_credit	missing_binding
+44022	Tame Ice Claw Bear		spell_turtle_taming_quest_credit	missing_binding
+44025	Inactive Tracker		spell_inactive_tracker	missing_binding
+44053			spell_drazares_embrace	missing_spell
+45407	Ritual of Refreshment		spell_item_ritual_table	missing_binding
+45408	Brilliance Aura		spell_mage_brilliance_aura	missing_binding
+45417	Potent Venom		spell_item_vial_of_potent_venoms	missing_binding
+45420	Vampirism 1		spell_vampirism	missing_binding
+45421	Vampirism 2		spell_vampirism	missing_binding
+45422	Vampirism 3		spell_vampirism	missing_binding
+45423	Vampirism 4		spell_vampirism	missing_binding
+45424	Vampirism 5		spell_vampirism	missing_binding
+45505	Feral Spirit		spell_shaman_feral_spirit	missing_binding
+45508	Thunderhead		spell_shaman_thunderhead	missing_binding
+45513	Totemic Recall		spell_shaman_totemic_recall	missing_binding
+45514	Feral Spirit		spell_shaman_feral_spirit	missing_binding
+45541	Elemental Focus		spell_shaman_elemental_focus	missing_binding
+45555	Pain Spike		spell_priest_pain_spike	missing_binding
+45563	Champion's Grace		spell_champion_buff	missing_binding
+45564	Champion's Bond		spell_champion_buff	missing_binding
+45565	Empower Champion		spell_champion_buff	missing_binding
+45566	Summon Champion		spell_champion_buff	missing_binding
+45567	Revive Champion		spell_champion_buff	missing_binding
+45568	Holy Champion		spell_proclaim_champion	missing_binding
+45569	Champion's Resolve		spell_champion_buff	missing_binding
+45707	Tree of Life Aura		spell_druid_tree_of_life_aura	missing_binding
+45708	Berserk		spell_druid_berserk	missing_binding
+45709	Berserk		spell_druid_berserk_form_swap	missing_binding
+45710	Berserk		spell_druid_berserk_form_swap	missing_binding
+45719	Primal Fury		spell_druid_primal_fury	missing_binding
+45720	Primal Fury		spell_druid_primal_fury	missing_binding
+45840	Toy Train Set		spell_item_toy_train_set	missing_binding
+45842	Bonus Healing		spell_item_bonus_healing	missing_binding
+45850	Lightning Speed		spell_shaman_lightning_speed	missing_binding
+45851	Moonclaw		spell_druid_moonclaw	missing_binding
+45872	Superconducting Magnet		spell_superconducting_magnet	missing_binding
+45873	Summon Spider		spell_item_sunnyglade_spider	missing_binding
+45908	Demon Portal		spell_warlock_ritual_of_doom	missing_binding
+45920	Ritual of Souls		spell_item_ritual_table	missing_binding
+45951	Spirit Armor		spell_spirit_armor	missing_binding
+45952	Spirit Armor		spell_spirit_armor	missing_binding
+45953	Spirit Armor		spell_spirit_armor	missing_binding
+45954	Sanctified Command		spell_paladin_sanctified_command	missing_binding
+45955	Sanctified Command		spell_paladin_sanctified_command	missing_binding
+45986	Deadly Throw Interrupt		spell_rogue_deadly_throw_poison	missing_binding
+46001	MOLL-E Terminal	spell_item_summon_utility_object	spell_item_summon_utility_object	matched
+46002	Goblin Brainwashing Device		spell_item_summon_utility_object	missing_binding
+46003	Add Illusion to Collection		spell_turtle_toy_collection	missing_binding
+46010	Teleport to Guild House		spell_item_guild_house_teleport	missing_binding
+46012	Portable Wormhole Generator		spell_item_portable_wormhole	missing_binding
+46028	Teleport to GM Island		spell_item_teleport_to_gm_island	missing_binding
+46035	City Protector's Teleport		spell_item_city_protector_teleport	missing_binding
+46058	Traveler's Tent		spell_item_travelers_tent	missing_binding
+46060	Fishing Boat		spell_item_travelers_boat	missing_binding
+46062	Simple Wooden Planter		spell_item_simple_wooden_planter	missing_binding
+46090	Tame Elder Crimson Lynx		spell_turtle_taming_quest_credit	missing_binding
+46092	Tame Ivory Hawkstrider		spell_turtle_taming_quest_credit	missing_binding
+46094	Tame Lavender Mana Wyrm		spell_turtle_taming_quest_credit	missing_binding
+46096	Add Toy to Collection	spell_turtle_toy_collection	spell_turtle_toy_collection	matched
+46231	Sun's Embrace		spell_item_self_target_learn_spell	missing_binding
+46431	Thorns Explosion Chance		spell_druid_thorns_explosion	missing_binding
+46432	Tied Up		spell_turtle_av_tied_up	missing_binding
+46433	Tied Up		spell_turtle_av_tied_up	missing_binding
+46434	Burning Blood Visual		spell_burning_blood_visual	missing_binding
+46436	Winterax Ritual Suicide		spell_winterax_ritual_suicide	missing_binding
+46498	Add Companion to Collection		spell_turtle_companion_collection	missing_binding
+46499	Add Mount to Collection		spell_turtle_mount_collection	missing_binding
+46700	Tame Blackvenom Scorpid		spell_turtle_taming_quest_credit	missing_binding
+46702	Tame Muckreef Crawler		spell_turtle_taming_quest_credit	missing_binding
+46704	Tame Ashfeather Swooper		spell_turtle_taming_quest_credit	missing_binding
+47350	Legion Strike		spell_special_split_weapon_damage	missing_binding
+47357	Calming River		spell_shaman_calming_river	missing_binding
+47379			spell_druid_reshift	missing_spell
+48304	Teresa's Copper Coin		spell_item_teresas_copper_coin	missing_binding
+48305	Bromley's Dispelling Scroll		spell_item_spitelash_shrine_offering	missing_binding
+50029	War Mode		spell_item_war_mode	missing_binding
+50060	Baxxil Dummy		spell_baxxil_dummy	missing_binding
+50100	Dummy Spell		spell_item_lunar_lantern	missing_binding
+50910	Illusion: Felguard		spell_item_illusion	missing_binding
+50911	Illusion: Prismatic Dragonkin		spell_item_illusion	missing_binding
+50912	Illusion: Chromatic Dragonkin		spell_item_illusion	missing_binding
+50913	Illusion: Infinite Dragonkin		spell_item_illusion	missing_binding
+50914	Illusion: Bronze Dragonkin		spell_item_illusion	missing_binding
+50915	Illusion: Blue Dragonkin		spell_item_illusion	missing_binding
+50916	Illusion: Murloc		spell_item_illusion	missing_binding
+50917	Illusion: Gilnean Worgen		spell_item_illusion	missing_binding
+50918	Illusion: Zombie		spell_item_illusion	missing_binding
+50919	Illusion: Ghoul		spell_item_illusion	missing_binding
+50920	Illusion: Scourge Mage		spell_item_illusion	missing_binding
+50921	Illusion: Incubus		spell_item_illusion	missing_binding
+51001	Vampirism 5		spell_vampirism	missing_binding
+51003	Spell Momentum Passive		spell_spell_momentum_passive	missing_binding
+51012	Jewel of Wild Magics		spell_jewel_of_wild_magics	missing_binding
+51022	Loop of Infused Renewal		spell_loop_of_infused_renewal	missing_binding
+51068	Hunter's Sweep		spell_adrift_strikes	missing_binding
+51083	Flock of Ravens		spell_flock_of_ravens	missing_binding
+51086	Lunar Shift		spell_lunar_shift	missing_binding
+51087	Owl Gaze		spell_owl_gaze	missing_binding
+51099	Arcane Bomb		spell_arcane_bomb	missing_binding
+51100	Arcane Overload		spell_arcane_overload	missing_binding
+51164	Remorseless Strikes		spell_special_split_weapon_damage	missing_binding
+51166	Mark of the Highlord		spell_mark_of_the_highlord	missing_binding
+51170	Call from the Twisting Nether		spell_kruul_call_from_twisting_nether	missing_binding
+51184	Arcane Missiles		spell_mage_arcane_missiles	missing_binding
+51185	Ley-Line Disturbance		spell_ley_line_disturbance	missing_binding
+51199	Form Rift Elemental		spell_form_rift_elemental	missing_binding
+51203	Overflowing Hatred Effect		spell_overflowing_hatred	missing_binding
+51205	Rift Feedback		spell_rift_feedback	missing_binding
+51210	Pawn�s Advance		spell_pawns_advance	missing_binding
+51216	Redemption		spell_restore_creature_to_life	missing_binding
+51233	Crustaceous Claws		spell_crustaceous_claws	missing_binding
+51238	Harrowing Nets		spell_harrowing_nets	missing_binding
+51262	Resonance Cascade		spell_mage_resonance_cascade	missing_binding
+51271	Wisdom of the Mak'aru		spell_wisdom_of_the_makaru	missing_binding
+51276	Freezing Cold Passive		spell_freezing_cold_passive	missing_binding
+51280	Frostfire		spell_frostfire	missing_binding
+51289	Throw Boulder		spell_special_summon_at_target	missing_binding
+51296	Throw Rock		spell_special_summon_at_target	missing_binding
+51317			spell_paladin_blessed_strikes	missing_spell
+51318			spell_paladin_blessed_strikes	missing_spell
+51319			spell_paladin_blessed_strikes	missing_spell
+51320			spell_paladin_blessed_strikes	missing_spell
+51321			spell_paladin_blessed_strikes	missing_spell
+51328			spell_paladin_righteous_defense	missing_spell
+51329			spell_paladin_righteous_defense	missing_spell
+51330			spell_paladin_righteous_defense	missing_spell
+51475			spell_priest_enlighten	missing_spell
+51476			spell_priest_enlighten_link	missing_spell
+51743			spell_paladin_flash_of_light	missing_spell
+51933			spell_mage_clear_resist_state	missing_spell
+51934			spell_mage_clear_resist_state	missing_spell
+51935			spell_mage_clear_resist_state	missing_spell
+51936			spell_mage_clear_resist_state	missing_spell
+51949			spell_mage_arcane_rupture	missing_spell
+51950			spell_mage_arcane_rupture	missing_spell
+51951			spell_mage_arcane_rupture	missing_spell
+51952			spell_mage_arcane_rupture	missing_spell
+51953			spell_mage_arcane_rupture	missing_spell
+51954			spell_mage_arcane_rupture	missing_spell
+51987			spell_mage_resonance_cascade	missing_spell
+51988			spell_mage_resonance_cascade	missing_spell
+51989			spell_mage_resonance_cascade	missing_spell
+51990			spell_mage_resonance_cascade	missing_spell
+52315			spell_warrior_shield_slam	missing_spell
+52502			spell_mage_arcane_rupture_buff	missing_spell
+52503			spell_dust_of_disappearance	missing_spell
+52511			spell_rogue_surprise_attack	missing_spell
+52512			spell_rogue_honor_among_thieves	missing_spell
+52514			spell_rogue_honor_among_thieves	missing_spell
+52567			spell_druid_aessinas_bloom	missing_spell
+52630			spell_warlock_consequences	missing_spell
+52633			spell_warlock_consequences	missing_spell
+53023	Glyph of the Moon		spell_druid_glyph_of_the_moon	missing_binding
+56043	Debug: Next DisplayID		spell_item_display_debug	missing_binding
+56044	Debug: Previous DisplayID		spell_item_display_debug	missing_binding
+56045	Debug: Reset DisplayID		spell_item_display_debug	missing_binding
+56046	Toggle GM Flight Mode		spell_item_gm_flight_mode	missing_binding
+56047	Toggle GM Visiblity		spell_item_toggle_gm_invisibility	missing_binding
+56053	Change Appearance		spell_item_skin_change_token	missing_binding
+56067	Picnic Basket		spell_item_picnic_basket	missing_binding
+56508	Emerald Rot		spell_hateforge_dispel_counterpart	missing_binding
+56510	Bane of Eranikus		spell_hateforge_dispel_counterpart	missing_binding
+56512	Sanctum Mind Decay		spell_hateforge_dispel_counterpart	missing_binding
+56514	Dreamfever		spell_hateforge_dispel_counterpart	missing_binding
+56516	Emerald Instability		spell_hateforge_dispel_counterpart	missing_binding
+57531	Jukebox: Winds of Kamio		spell_item_jukebox_music	missing_binding
+57532	Jukebox: Emerald Dream		spell_item_jukebox_music	missing_binding
+57533	Jukebox: Bells of the Dawn		spell_item_jukebox_music	missing_binding
+57534	Jukebox: Hourglass of Eternity		spell_item_jukebox_music	missing_binding
+57535	Jukebox: Hyjal Summit		spell_item_jukebox_music	missing_binding
+57536	Jukebox: Jaguero Isle		spell_item_jukebox_music	missing_binding
+57537	Jukebox: Stratholme's Best Days		spell_item_jukebox_music	missing_binding
+57538	Jukebox: Titanic Mystery		spell_item_jukebox_music	missing_binding
+57539	Jukebox: Aerie Peak		spell_item_jukebox_music	missing_binding
+57540	Jukebox: Hateforge Quarry		spell_item_jukebox_music	missing_binding
+57541	Jukebox: Bastion		spell_item_jukebox_music	missing_binding
+57542	Jukebox: ?ntraworld ?mmortality		spell_item_jukebox_music	missing_binding
+57543	Jukebox: Sparkwater Port		spell_item_jukebox_music	missing_binding
+57544	Jukebox: Stormwind Vault		spell_item_jukebox_music	missing_binding
+57545	Jukebox: Dun Argath		spell_item_jukebox_music	missing_binding
+57546	Jukebox: Snowing in the Vale		spell_item_jukebox_music	missing_binding
