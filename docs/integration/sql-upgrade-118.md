@@ -18,7 +18,7 @@
 
 执行与校验记录：`/root/turtle-wow-db-upgrade-20260906/`、`/root/turtle-wow-startup-check/`。
 
-后续 17–23 补齐及验证见 [merge-completion-20260906.md](merge-completion-20260906.md)：策略 value 已扩容为 varchar(4000)，法术和辅助依赖已增量补入。仍保留的范围限制：32 张世界内容差异表没有整表覆盖；用户要求只改前缀，因此机器人代码中的临时角色/空账号清理逻辑未修改，关闭删除开关并不能禁止所有运行时清理。
+后续 17–23 补齐及验证见 [merge-completion-20260906.md](merge-completion-20260906.md)：策略 value 已扩容为 varchar(4000)，法术和辅助依赖已增量补入。仍保留的范围限制：32 张世界内容差异表没有整表覆盖；当时未修改的临时角色/空账号启动清理现已补上开关保护，排队删除也不能绕过 DeleteRandomBotAccounts=0，见 [本轮合并审阅](merge-review-task-20260906.md)。这不等于禁用正常游戏存档或所有管理员删除命令。
 
 ## 2026-09-06 幻化对话修复（已审阅并执行）
 

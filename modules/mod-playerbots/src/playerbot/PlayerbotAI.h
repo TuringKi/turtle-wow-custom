@@ -1,4 +1,5 @@
 #pragma once
+#include "BotSession.h"
 #include "PlayerbotMgr.h"
 #include "PlayerbotAIBase.h"
 #include "strategy/AiObjectContext.h"
@@ -623,27 +624,15 @@ public:
     // tick. -1 means "uninitialized" so the first observation always logs.
     int scboteLastCombatLogged = -1;
 
-    //Checks if the bot is really a player. Players always have themselves as master.
-    //
-    // Sentinel comparison: bot sessions are tagged as either "disconnected/bot"
-    // (the historical cmangos sentinel — what we pass to the WorldSession ctor)
-    // or "<BOT>" (what `WorldSession::WorldSession` actually overwrites the
-    // address to when sock==null at line 101 of WorldSession.cpp, regardless
-    // of what remote_ip we pass). We must check BOTH because the ctor's
-    // null-socket branch ignores the remote_ip parameter. Without the second
-    // check, every bot was misclassified as a real player → HandleTeleportAck
-    // early-return → cross-map far-teleport never completes → bot stuck mid-
-    // teleport forever (every a bot / cross-continent bot). See     // 2026-05-07 root-cause investigation.
+    // Use the same session classification as login and movement handling.
     bool IsRealPlayer()
     {
-        std::string const& addr = bot->GetSession()->GetRemoteAddress();
-        return addr != "disconnected/bot" && addr != "<BOT>";
+        return !IsBotSessionAddress(bot->GetSession()->GetRemoteAddress());
     }
     bool IsRealPlayer(Unit* unit)
     {
         if (!unit->IsPlayer()) return false;
-        std::string const& addr = ((Player*)unit)->GetSession()->GetRemoteAddress();
-        return addr != "disconnected/bot" && addr != "<BOT>";
+        return !IsBotSessionAddress(((Player*)unit)->GetSession()->GetRemoteAddress());
     }
     bool IsSelfMaster() { return master ? (master == bot) : false; }
     //Bot has a master that is a player.

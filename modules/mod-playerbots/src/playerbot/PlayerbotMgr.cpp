@@ -199,18 +199,8 @@ void PlayerbotHolder::HandlePlayerBotLoginCallback(QueryResult* /*dummy*/, SqlQu
     // Allocate the bot's dedicated WorldSession. NOT added to sWorld.m_sessions — this session
     // exists only to own the bot Player and route its packets (which the null-socket guard drops).
     //
-    // CRITICAL: remote_ip MUST be "disconnected/bot", not "".
-    // PlayerbotAI::IsRealPlayer() uses this exact string as the bot-vs-real-player discriminator:
-    //   bool IsRealPlayer() { return bot->GetSession()->GetRemoteAddress() != "disconnected/bot"; }
-    // If we pass "", `"" != "disconnected/bot"` is TRUE so IsRealPlayer() returns TRUE for our bots.
-    // PlayerbotAI::HandleTeleportAck has an early return guarded by `IsRealPlayer() && IsBeingTeleportedFar()`,
-    // so cross-map far teleports for bots never get their synthetic worldport ACK — the bot stays in
-    // IsBeingTeleportedFar=true limbo forever, eventually goes ghost when its session times out, and
-    // subsequent .bot add for the same guid produces "[CRASH] Trying to login already ingame".
-    // First bot worked only because its auto-teleport was skipped (dist<200, already with master).
-    // Second bot on a different continent hit the broken path. Diagnosed via SC_LOG instrumentation
-    // showing UpdateSessions calling HandleTeleportAck thousands of times with no worldport-ack
-    // ever firing.
+    // This core replaces remote_ip with <PBOT> for a null socket. Session
+    // classification must recognize that marker as well as historical ones.
     WorldSession* botSession = new WorldSession(lqh->GetAccountId(), /*sock*/ nullptr, SEC_PLAYER,
                                                 /*mute_time*/ 0, LOCALE_enUS, /*remote_ip*/ "disconnected/bot",
                                                 /*binaryIp*/ 0);
@@ -2499,8 +2489,7 @@ void PlayerbotHolder::CreateBot(Player* master, const std::string param, std::li
         name = RandomPlayerbotFactory::CreateRandomBotName(raceAndGender);
     }
 
-    // remote_ip MUST be "disconnected/bot" — see comment in HandlePlayerBotLoginCallback above.
-    // Empty string makes PlayerbotAI::IsRealPlayer() return TRUE, breaking HandleTeleportAck.
+    // The null-socket core constructor sets the shared bot-session marker.
     WorldSession* botSession = new WorldSession(accountId, NULL, SEC_PLAYER,
 #ifdef MANGOSBOT_TWO
         2,

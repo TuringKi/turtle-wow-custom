@@ -360,8 +360,7 @@ bool RandomPlayerbotFactory::CreateRandomBot(uint8 cls, uint8 inputRace)
 #endif
 	//TODO vector crash on cmangos TWO when creating one of the first bot characters, need a fix
 
-	// remote_ip MUST be "disconnected/bot" — see comment in PlayerbotMgr::HandlePlayerBotLoginCallback.
-	// Empty string makes PlayerbotAI::IsRealPlayer() return TRUE, breaking HandleTeleportAck.
+    // The null-socket core constructor sets the shared bot-session marker.
 	WorldSession* session = new WorldSession(accountId, NULL, SEC_PLAYER,
 
 #ifdef MANGOSBOT_TWO
@@ -551,15 +550,12 @@ void RandomPlayerbotFactory::CreateRandomBots()
     LoadCharSectionsDbc(sWorld.GetDataPath());
 
     // check if scheduled for delete
-    bool delAccs = false;
     bool delFriends = false;
     auto values = CharacterDatabase.Query(
         "select value from ai_playerbot_random_bots where event = 'bot_delete'");
 
     if (values)
     {
-        delAccs = true;
-
         Field* fields = values->Fetch();
         uint32 deleteType = fields[0].GetUInt32();
 
@@ -568,7 +564,9 @@ void RandomPlayerbotFactory::CreateRandomBots()
 
     }
 
-    if (sPlayerbotAIConfig.deleteRandomBotAccounts || delAccs)
+    // A queued delete request must not override the administrator's disabled
+    // account-deletion setting. The same opt-in covers temporary cleanup.
+    if (sPlayerbotAIConfig.deleteRandomBotAccounts)
     {
         std::list<uint32> botAccounts;
         std::list<uint32> botFriends;
@@ -685,49 +683,53 @@ void RandomPlayerbotFactory::CreateRandomBots()
         sLog.outString("Random bot characters deleted");
     }
 
-    //Delete temporary bots.
-
-    auto temporarybots = CharacterDatabase.Query("SELECT characters.guid, characters.account FROM ai_playerbot_random_bots JOIN characters ON (characters.guid = ai_playerbot_random_bots.bot AND characters.name = ai_playerbot_random_bots.data) WHERE ai_playerbot_random_bots.event = 'temporary'");
-
-    if (temporarybots)
+    if (sPlayerbotAIConfig.deleteRandomBotAccounts)
     {
-        sLog.outString("Deleting temporary bots");
+        //Delete temporary bots.
 
-        do
+        auto temporarybots = CharacterDatabase.Query("SELECT characters.guid, characters.account FROM ai_playerbot_random_bots JOIN characters ON (characters.guid = ai_playerbot_random_bots.bot AND characters.name = ai_playerbot_random_bots.data) WHERE ai_playerbot_random_bots.event = 'temporary'");
+
+        if (temporarybots)
         {
-            Field* fields = temporarybots->Fetch();
-            uint32 guid = fields[0].GetUInt32();
-            uint32 accountId = fields[1].GetUInt32();
+            sLog.outString("Deleting temporary bots");
 
-            CharacterDatabase.PExecute("DELETE FROM ai_playerbot_random_bots WHERE bot = %d", guid);
-            Player::DeleteFromDB(ObjectGuid(HIGHGUID_PLAYER, guid), accountId, true, true);
-
-            if (sAccountMgr.GetCharactersCount(accountId) == 0)
+            do
             {
-                sAccountMgr.DeleteAccount(accountId);
-            }
-        } while (temporarybots->NextRow());
-    }
+                Field* fields = temporarybots->Fetch();
+                uint32 guid = fields[0].GetUInt32();
+                uint32 accountId = fields[1].GetUInt32();
 
-    CharacterDatabase.PExecute("DELETE FROM ai_playerbot_random_bots WHERE ai_playerbot_random_bots.event = 'temporary'");
+                CharacterDatabase.PExecute("DELETE FROM ai_playerbot_random_bots WHERE bot = %d", guid);
+                Player::DeleteFromDB(ObjectGuid(HIGHGUID_PLAYER, guid), accountId, true, true);
 
-    //Loop over randombot accounts that have no characters and delete them as well, to clean up after temporary bots.
-    auto temporaryAccounts = LoginDatabase.PQuery("SELECT id FROM account WHERE username like '%s%%' and id >= %u", sPlayerbotAIConfig.randomBotAccountPrefix.c_str(), sPlayerbotAIConfig.randomBotAccountCount);
+                if (sAccountMgr.GetCharactersCount(accountId) == 0)
+                {
+                    sAccountMgr.DeleteAccount(accountId);
+                }
+            } while (temporarybots->NextRow());
+        }
 
-    if (temporaryAccounts)
-    {
-        sLog.outString("Deleting temporary empty bot accounts");
-        do
+        CharacterDatabase.PExecute("DELETE FROM ai_playerbot_random_bots WHERE ai_playerbot_random_bots.event = 'temporary'");
+
+        //Loop over randombot accounts that have no characters and delete them as well, to clean up after temporary bots.
+        auto temporaryAccounts = LoginDatabase.PQuery("SELECT id FROM account WHERE username like '%s%%' and id >= %u", sPlayerbotAIConfig.randomBotAccountPrefix.c_str(), sPlayerbotAIConfig.randomBotAccountCount);
+
+        if (temporaryAccounts)
         {
-            Field* fields = temporaryAccounts->Fetch();
-            uint32 accountId = fields[0].GetUInt32();
-            sAccountMgr.GetCharactersCount(accountId);
-
-            if (sAccountMgr.GetCharactersCount(accountId) == 0)
+            sLog.outString("Deleting temporary empty bot accounts");
+            do
             {
-                sAccountMgr.DeleteAccount(accountId);
-            }
-        } while (temporaryAccounts->NextRow());
+                Field* fields = temporaryAccounts->Fetch();
+                uint32 accountId = fields[0].GetUInt32();
+                sAccountMgr.GetCharactersCount(accountId);
+
+                if (sAccountMgr.GetCharactersCount(accountId) == 0)
+                {
+                    sAccountMgr.DeleteAccount(accountId);
+                }
+            } while (temporaryAccounts->NextRow());
+        }
+
     }
 
     if (!sPlayerbotAIConfig.randomBotAutoCreate)

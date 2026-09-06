@@ -24,6 +24,7 @@
 #include "WorldPacket.h"
 #include "SharedDefines.h"
 #include "WorldSession.h"
+#include "BotSession.h"
 #include "Opcodes.h"
 #include "Log.h"
 #include "World.h"
@@ -1004,7 +1005,7 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder *holder)
 
     SqlStatement stmt = CharacterDatabase.CreateStatement(updChars, "UPDATE characters SET online = 1 WHERE guid = ?");
     stmt.PExecute(pCurrChar->GetGUIDLow());
-    if (pCurrChar->GetSession()->GetRemoteAddress() != "<PBOT>")
+    if (!IsBotSessionAddress(pCurrChar->GetSession()->GetRemoteAddress()))
     {
         stmt = LoginDatabase.CreateStatement(updAccount, "UPDATE account SET current_realm = ?, online = 1 WHERE id = ?");
         stmt.PExecute(realmID, GetAccountId());
@@ -1062,7 +1063,7 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder *holder)
     // Bot sessions must never go through challenge setup — they predate TurtleWoW's hardcore
     // system and have no concept of it. Skip and clear any stale mask so it doesn't re-fire.
     const std::string& remoteAddr = pCurrChar->GetSession()->GetRemoteAddress();
-    const bool isBotSession = (remoteAddr == "disconnected/bot" || remoteAddr == "<BOT>");
+    const bool isBotSession = IsBotSessionAddress(remoteAddr);
     if (isBotSession)
     {
         if (maskVar)

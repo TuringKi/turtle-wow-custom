@@ -1,3 +1,4 @@
+#include "BotSession.h"
 // Module-side hook implementations for the vendored playerbots tree.
 //
 // Everything the host used to reach through a free function or a Player::
@@ -204,7 +205,7 @@ class PlayerbotPlayerScript : public PlayerScript
         // HandlePlayerLogin returns - so asking whether the character has one
         // tells us nothing, and the old call site handed a controller to every
         // bot as well. The session address does tell us: a bot session carries
-        // "disconnected/bot" or "<BOT>". Same marker the core already uses to
+        // a synthetic-session marker. Use the same classifier as the core to
         // keep bots out of challenge setup.
         void OnLogin(Player* player) override
         {
@@ -212,7 +213,7 @@ class PlayerbotPlayerScript : public PlayerScript
                 return;
 
             std::string const& addr = player->GetSession()->GetRemoteAddress();
-            if (addr == "disconnected/bot" || addr == "<BOT>")
+            if (IsBotSessionAddress(addr))
                 return;
 
             CreateBotMgr(player);

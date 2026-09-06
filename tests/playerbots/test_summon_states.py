@@ -5,6 +5,7 @@ Covers command decisions, not a real map transfer or client protocol exchange.
 """
 from pathlib import Path
 import subprocess
+import re
 import tempfile
 
 repo = Path(__file__).resolve().parents[2]
@@ -12,14 +13,21 @@ source = (repo / 'modules/mod-playerbots/src/playerbot/PlayerbotMgr.cpp').read_t
 start = source.index('std::string PlayerbotHolder::HandleBotSummon(')
 end = source.index('std::string PlayerbotHolder::HandleBotRemoveLogout(', start)
 handler = source[start:end]
+ai_source = (repo / 'modules/mod-playerbots/src/playerbot/PlayerbotAI.h').read_text()
+identity = re.search(r'    bool IsRealPlayer\(\)\s*\{([^}]+)\}', ai_source).group(1)
+core_source = (repo / 'src/game/WorldSession.cpp').read_text()
+marker = re.search(r'else\s+m_Address = ("[^"\n]+")', core_source).group(1)
 preamble = r'''
 #include <cassert>
 #include <cstdint>
 #include <string>
+#include "BotSession.h"
 using uint32 = uint32_t;
 #define SC_LOG(...) ((void)0)
 struct Map { bool instance=false; bool Instanceable() const {return instance;} } world, instance;
 struct Session {
+    std::string address=CORE_BOT_MARKER;
+    const std::string& GetRemoteAddress() const {return address;}
     uint32 account=1; bool loading=false, logout=false;
     uint32 GetAccountId() const {return account;}
     bool PlayerLoading() const {return loading;}
@@ -28,8 +36,8 @@ struct Session {
 struct Player;
 struct PlayerbotAI {
     Player* bot=nullptr; Player* master=nullptr;
-    bool real=false, ackWorks=true; int acks=0;
-    bool IsRealPlayer() const;
+    bool ackWorks=true; int acks=0;
+    bool IsRealPlayer();
     Player* GetMaster() const {return master;}
     void HandleTeleportAck();
 };
@@ -55,9 +63,10 @@ struct Player {
     float GetOrientation() const {return 0;}
     bool TeleportTo(uint32,float,float,float,float) {++teleports;return teleportWorks;}
 };
-bool PlayerbotAI::IsRealPlayer() const {assert(bot->hasSession);return real;}
+bool PlayerbotAI::IsRealPlayer() { IDENTITY_BODY }
 void PlayerbotAI::HandleTeleportAck() {
     ++acks;
+    if(IsRealPlayer()) return;
     if(ackWorks) {bot->teleporting=false;bot->inWorld=true;}
 }
 PlayerbotAI* GetBotAI(Player* p) {return p->hasAI?&p->ai:nullptr;}
@@ -67,6 +76,12 @@ struct PlayerbotHolder {std::string HandleBotSummon(Player*,Player*,const std::s
 '''
 cases = r'''
 int main() {
+    for (const char* address : {"<PBOT>", "<BOT>", "disconnected/bot"}) {
+        Player b;b.session.address=address;assert(!b.ai.IsRealPlayer());
+    }
+    for (const char* address : {"192.0.2.1", ""}) {
+        Player b;b.session.address=address;assert(b.ai.IsRealPlayer());
+    }
     PlayerbotHolder holder; Player master; master.guid=1; instance.instance=true;
     assert(holder.HandleBotSummon(nullptr,&master,"").find("offline")!=std::string::npos);
     {Player b; auto r=holder.HandleBotSummon(&b,&master,"");assert(r.find("ok") == 0 && b.teleports==1);}
@@ -79,7 +94,7 @@ int main() {
     {Player b;b.hasSession=false;auto r=holder.HandleBotSummon(&b,&master,"");
      assert(r.find("logging")!=std::string::npos && b.teleports==0);}
     {Player b;b.session.loading=true;holder.HandleBotSummon(&b,&master,"");assert(b.ai.acks==0 && b.teleports==0);}
-    {Player b;b.ai.real=true;holder.HandleBotSummon(&b,&master,"");assert(b.ai.acks==0 && b.teleports==0);}
+    {Player b;b.session.address="192.0.2.1";holder.HandleBotSummon(&b,&master,"");assert(b.ai.acks==0 && b.teleports==0);}
     {Player b;b.teleporting=true;b.inWorld=false;sPlayerbotAIConfig.random=false;
      holder.HandleBotSummon(&b,&master,"");assert(b.ai.acks==0 && b.teleports==0);sPlayerbotAIConfig.random=true;}
     {Player b;b.teleportWorks=false;auto r=holder.HandleBotSummon(&b,&master,"");assert(r.find("rejected")!=std::string::npos);}
@@ -91,7 +106,7 @@ int main() {
 with tempfile.TemporaryDirectory(prefix='bot-summon-test-') as directory:
     cpp = Path(directory) / 'test.cpp'
     binary = Path(directory) / 'test'
-    cpp.write_text(preamble + handler + cases)
-    subprocess.run(['g++', '-std=c++17', '-Wall', '-Wextra', '-Wno-unused-parameter', str(cpp), '-o', str(binary)], check=True)
+    cpp.write_text(preamble.replace("CORE_BOT_MARKER", marker).replace("IDENTITY_BODY", identity) + handler + cases)
+    subprocess.run(['g++', '-std=c++17', '-Wall', '-Wextra', '-Wno-unused-parameter', '-I', str(repo / 'src/shared'), str(cpp), '-o', str(binary)], check=True)
     subprocess.run([str(binary)], check=True)
-print('PASS: 13 summon state and restriction cases')
+print('PASS: 5 session identities and 13 summon state/restriction cases (core constructor marker)')

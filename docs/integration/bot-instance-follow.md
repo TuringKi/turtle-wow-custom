@@ -2,6 +2,10 @@
 
 Reported behavior: bots created by `.rndbot group` remain displayed at the dungeon entrance, are absent inside, and `.bot summon *` reports `Bot is offline`.
 
+## Follow-up merge audit
+
+The first patch (`43b7b32`) did not correct the core/module session-marker mismatch: the merged core sets `<PBOT>`, while modern `IsRealPlayer` only recognized `<BOT>` and `disconnected/bot`. Consequently real synthetic bot sessions skipped far-teleport acknowledgement and summon rejected them as human-controlled. The follow-up introduces a shared classifier for both AI overloads, login and movement handling. Tests now read the actual core constructor marker and AI predicate; the old predicate fails the updated test. See [merge review task](merge-review-task-20260906.md) for current validation and deployment status.
+
 ## Findings and changes
 
 - The default `ObjectMgr::GetPlayer` lookup excludes players temporarily removed from the world during a far teleport. Summon/recall/come now also consult bot holders and the unfiltered player registry. A real session undergoing transfer is no longer automatically classified as offline.
@@ -11,7 +15,7 @@ Reported behavior: bots created by `.rndbot group` remain displayed at the dunge
 
 A map marker and the saved database map/online fields do not establish the bot's live map, instance, or teleport state. These are confirmed code defects consistent with the symptoms, not an end-to-end reproduction of the user's dungeon failure.
 
-## Validation
+## Original patch validation (`43b7b32`)
 
 - Release build with modern playerbots and Eluna: passed.
 - `python3 tests/playerbots/test_summon_states.py`: 13 cases passed. It compiles the production summon handler against stateful doubles and checks transfer recovery and restrictions. It does not exercise real networking, map admission, or portal navigation.

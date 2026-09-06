@@ -39,6 +39,7 @@
 #include "Anticheat/Movement/Movement.hpp"
 #include "SuspiciousStatisticMgr.h"
 #include "ScriptObjects.h"
+#include "BotSession.h"
 
 // Bot diagnostic logging — flag-gated via AiPlayerbot.EnableActionLog. We
 // can't #include "BotDiagnostics.h" here because the playerbot/ dir isn't
@@ -62,8 +63,8 @@ static bool _scIsBotSession(WorldSession const* sess)
     if (!sess) return false;
     Player const* p = sess->GetPlayer();
     if (p && Script_IsAIControlled(p)) return true;
-    // Fall-back: free-floating bot sessions have remote address "" or "disconnected/bot".
-    return sess->GetRemoteAddress().empty() || sess->GetRemoteAddress() == "disconnected/bot";
+    // The AI may not be attached yet; recognize the core session marker too.
+    return IsBotSessionAddress(sess->GetRemoteAddress());
 }
 
 void WorldSession::HandleMoveWorldportAckOpcode(WorldPacket& /*recvData*/)
