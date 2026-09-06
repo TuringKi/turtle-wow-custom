@@ -39,6 +39,14 @@
 
 本机执行前后记录保存在 `/root/turtle-wow-startup-check/transmog-apply-20260906-125933/`，不提交私有数据库记录。数据库关联已验证；世界服需要重启加载，客户端窗口显示仍待用户实测。
 
+## 2026-09-06 移动邮箱修复（已审阅并执行）
+
+移动邮箱终端物品 50011 通过法术 46096 加入玩具收藏，`collection_toy` 将其关联到召唤法术 46001。新版将处理逻辑移到 C++ 法术脚本，而 12 阶段只新增空的 `script_name` 字段，导致两处功能没有绑定。
+
+用户确认后执行 [15_world_mobile_mailbox.sql](../../sql/custom_upgrade_118/15_world_mobile_mailbox.sql)：仅将 `spell_template` 的 46001 绑定为 `spell_item_summon_utility_object`、46096 绑定为 `spell_turtle_toy_collection`。原值均为空，执行后逐字段确认只有这两处变化。邮箱对象 144112 已存在，类型为邮箱；未修改账号库或角色库。46096 是共用收藏法术，恢复后使用相关收藏物品会按原逻辑消耗物品并学会玩具。
+
+本机前后记录位于 `/root/turtle-wow-startup-check/mailbox-apply-20260906-145833/`。需要重启世界服加载核心脚本绑定，`.reload eluna` 不适用于这项修复；数据库验证完成，实际邮箱交互待客户端测试。
+
 ## 执行边界（历史审阅记录）
 
 - **账号库、角色库：只补缺失内容，不删库、不删表、不清空表，不执行 DELETE、REPLACE 写入、清理脚本，不修改已有字段值。** 新增字段会让已有行读取到新字段的默认值；原字段保持不变。
