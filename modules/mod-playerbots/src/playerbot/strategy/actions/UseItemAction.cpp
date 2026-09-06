@@ -259,7 +259,8 @@ bool UseAction::Execute(Event& event)
         for (const ObjectGuid& goGUID : nearestGOs)
         {
             GameObject* go = ai->GetGameObject(goGUID);
-            if (go)
+            if (go && !go->IsDeleted() && go->GetGoType() != GAMEOBJECT_TYPE_GENERIC &&
+                !go->HasFlag(GAMEOBJECT_FLAGS, GO_FLAG_NO_INTERACT))
             {
                 const float distance = bot->GetDistance(go);
                 if (distance < closest)
@@ -315,18 +316,23 @@ bool UseAction::Execute(Event& event)
             targetGameObject = ai->GetGameObject(*gos.begin());
         }
 
-        float closest = 9999.0f;
-        std::list<ObjectGuid> nearestGOs = AI_VALUE(std::list<ObjectGuid>, "nearest game objects no los");
-        for (const ObjectGuid& goGUID : nearestGOs)
+        // An explicit object link or inventory item must not be replaced by a
+        // nearby object. Only fall back to a name search without either target.
+        if (!targetGameObject && !itemID)
         {
-            GameObject* go = ai->GetGameObject(goGUID);
-            if (go && std::string(go->GetName()).find(useName))
+            float closest = 9999.0f;
+            std::list<ObjectGuid> nearestGOs = AI_VALUE(std::list<ObjectGuid>, "nearest game objects no los");
+            for (const ObjectGuid& goGUID : nearestGOs)
             {
-                const float distance = bot->GetDistance(go);
-                if (distance < closest)
+                GameObject* go = ai->GetGameObject(goGUID);
+                if (go && std::string(go->GetName()).find(useName) != std::string::npos)
                 {
-                    targetGameObject = go;
-                    closest = distance;
+                    const float distance = bot->GetDistance(go);
+                    if (distance < closest)
+                    {
+                        targetGameObject = go;
+                        closest = distance;
+                    }
                 }
             }
         }

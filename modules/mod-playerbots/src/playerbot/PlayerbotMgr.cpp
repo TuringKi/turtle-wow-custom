@@ -1921,7 +1921,7 @@ std::string PlayerbotHolder::HandleBotDo(Player* bot, Player* master, const std:
     size_t i = std::string::npos;
     while (true)
     {
-        action = ai->GetAiObjectContext()->GetAction(param);
+        action = ai->GetAiObjectContext()->GetAction(actionName);
 
         if (action)
             break;

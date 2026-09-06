@@ -71,3 +71,7 @@
 | 未跟踪旧副本的 IsRealPlayer 只识别 `disconnected/bot` | src/modules/playerbots/playerbot/PlayerbotAI.h:591–592 | 当前安装构建的 Ninja 清单没有该目录；不改用户的独立副本。若未来接入，需要单独修复，单换成 `<BOT>` 仍不兼容当前核心。 |
 
 实际安装构建在 `/root/turtle-wow-merge-build`，modern ON、legacy OFF；用户当前 `.build` 是另一份旧构建缓存，不能据其目录名判断已安装版本。本次补充只改注释和审阅记录，程序行为与已验证的 `1de0ca1` 相同，无需替换数据库、账号前缀或资源。
+
+## 补充：use 命令执行链路
+
+后续确认了 use 长命令触发器无人消费、带参数 do 动作查找失败和物品/物件目标误选，已修复并通过隔离核心交互测试。问题、使用方法和安装记录见 [use 命令修复](bot-use-command.md)。
