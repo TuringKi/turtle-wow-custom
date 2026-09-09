@@ -137,6 +137,17 @@ class PlayerbotPlayerScript : public PlayerScript
                 !player->InBattleGround() && !player->InBattleGroundQueue();
         }
 
+        uint32 RequestLFTBots(Player const* waiter, uint8 role, uint32 minLevel,
+                              uint32 maxLevel, uint32 count) override
+        {
+            if (!sPlayerbotAIConfig.enabled || !sPlayerbotAIConfig.randomBotAutologin ||
+                !waiter || !count)
+                return 0;
+
+            return sRandomPlayerbotMgr.RequestLFTBots(waiter->GetTeam(), waiter->IsHardcore(),
+                role, minLevel, maxLevel, count);
+        }
+
         // BotRoles and LFT_ROLE_* share their bit values - tank 1, healer 2,
         // dps 4 - so the mask carries over unchanged.
         bool GetAllowedRoles(Player const* player, uint8& roles) override

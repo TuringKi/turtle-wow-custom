@@ -427,6 +427,10 @@ void LFTManager::FillInstanceWithBots(std::string const& instance, QueuedPlayer 
     // and 39, a level 46 group looking two levels down found exactly one healer
     // capable bot on its faction.
     uint32 const belowHealer = sWorld.getConfig(CONFIG_UINT32_LFT_BOTFILL_LEVEL_BELOW_HEALER);
+    // Damage can safely tolerate a wider level window than the tank. This also
+    // keeps a second queue viable immediately after the previous party's bots
+    // have logged out with their human master.
+    uint32 const belowDamage = sWorld.getConfig(CONFIG_UINT32_LFT_BOTFILL_LEVEL_BELOW_DAMAGE);
     uint32 const waiterLevel = waiter.level;
 
     // Fill tank first, then healer, then damage - the roles people actually
@@ -464,7 +468,8 @@ void LFTManager::FillInstanceWithBots(std::string const& instance, QueuedPlayer 
                 continue;
 
             uint32 const botLevel = bot->GetLevel();
-            uint32 const lowerBound = (wanted == LFT_ROLE_HEALER) ? belowHealer : below;
+            uint32 const lowerBound = wanted == LFT_ROLE_HEALER ? belowHealer :
+                wanted == LFT_ROLE_DAMAGE ? belowDamage : below;
             if (botLevel + lowerBound < waiterLevel || waiterLevel + above < botLevel)
                 continue;
 
@@ -487,7 +492,8 @@ void LFTManager::FillInstanceWithBots(std::string const& instance, QueuedPlayer 
         // person who is actually waiting.
         if (!chosen)
             chosen = TakeFromBotOnlyGroup(wanted, waiter,
-                (wanted == LFT_ROLE_HEALER) ? belowHealer : below, above);
+                wanted == LFT_ROLE_HEALER ? belowHealer :
+                wanted == LFT_ROLE_DAMAGE ? belowDamage : below, above);
 
         // Still nobody, and the role is one people wait for. Take a bot whose
         // class could fill it and let it respec: Script_SetForcedRole drops
@@ -496,11 +502,14 @@ void LFTManager::FillInstanceWithBots(std::string const& instance, QueuedPlayer 
         // machinery already existed and was never reached, because the search
         // above only ever looked at what a bot can do right now.
         //
-        // Damage is left out - there is never a shortage of it, and respeccing
-        // for it would only churn.
-        if (!chosen && (wanted == LFT_ROLE_TANK || wanted == LFT_ROLE_HEALER))
+        // Damage is normally plentiful, but it can become the missing role
+        // after a human logs out and the bots from the previous run leave the
+        // online pool. Let a tank/healer-capable class switch to damage rather
+        // than leaving an otherwise complete party queued forever.
+        if (!chosen)
             chosen = TakeBotAndRespecFor(wanted, waiter,
-                (wanted == LFT_ROLE_HEALER) ? belowHealer : below, above);
+                wanted == LFT_ROLE_HEALER ? belowHealer :
+                wanted == LFT_ROLE_DAMAGE ? belowDamage : below, above);
 
         // Still nothing. The slot is then counted as covered so the other
         // roles still get filled - but that leaves the group one short, and
@@ -509,6 +518,21 @@ void LFTManager::FillInstanceWithBots(std::string const& instance, QueuedPlayer 
         // without a word.
         if (!chosen)
         {
+            uint32 const missing = wanted == LFT_ROLE_TANK ? 1 - tanks :
+                wanted == LFT_ROLE_HEALER ? 1 - healers : 3 - damage;
+            uint32 const lowerBound = wanted == LFT_ROLE_HEALER ? belowHealer :
+                wanted == LFT_ROLE_DAMAGE ? belowDamage : below;
+            uint32 const minLevel = waiterLevel > lowerBound ? waiterLevel - lowerBound : 1;
+            Player* waitingPlayer = GetPlayer(waiter.guid);
+            uint32 requested = 0;
+            if (waitingPlayer && !Script_IsMachineDriven(waitingPlayer))
+                requested = Script_RequestLFTBots(waitingPlayer, wanted, minLevel,
+                    waiterLevel + above, missing);
+
+            if (requested)
+                sLog.outBasic("LFT: online pool short for %s; activating %u rndbot character(s)",
+                    waiter.name.c_str(), requested);
+
             sLog.outBasic("LFT: no %s for %s (level %u) - group stays short and cannot form",
                 RoleSuffix(wanted), waiter.name.c_str(), waiterLevel);
 

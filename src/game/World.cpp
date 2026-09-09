@@ -1585,6 +1585,7 @@ void World::LoadConfigSettingsFromFile(bool reload)
     setConfig(CONFIG_UINT32_LFT_BOTFILL_DELAY, "LFT.BotFill.DelaySeconds", 90);
     setConfig(CONFIG_UINT32_LFT_BOTFILL_LEVEL_BELOW, "LFT.BotFill.LevelRangeBelow", 2);
     setConfig(CONFIG_UINT32_LFT_BOTFILL_LEVEL_BELOW_HEALER, "LFT.BotFill.LevelRangeBelowHealer", 4);
+    setConfig(CONFIG_UINT32_LFT_BOTFILL_LEVEL_BELOW_DAMAGE, "LFT.BotFill.LevelRangeBelowDamage", 6);
     setConfig(CONFIG_UINT32_LFT_BOTFILL_LEVEL_ABOVE, "LFT.BotFill.LevelRangeAbove", 6);
 
     setConfig(CONFIG_UINT32_PERFORMANCE_REPORT_INTERVAL, "Perf.ReportInterval", 600);

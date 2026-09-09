@@ -149,6 +149,7 @@ enum PlayerHook
     PLAYERHOOK_ON_CHAT_COMMAND,
     PLAYERHOOK_CAN_USE_GROUP_CHAT,
     PLAYERHOOK_IS_LFT_BOT_CANDIDATE,
+    PLAYERHOOK_REQUEST_LFT_BOTS,
     PLAYERHOOK_END
 };
 
@@ -217,6 +218,13 @@ class PlayerScript : public ScriptObject
         // An autonomous population bot that LFT may recruit. Account ownership
         // and external run reservations belong to the population module.
         virtual bool IsLFTBotCandidate(Player const* /*player*/) { return false; }
+
+        // Ask the population module to activate offline bots for a waiting LFT
+        // role. The core supplies requirements but never assumes how accounts
+        // or simulated sessions are managed.
+        virtual uint32 RequestLFTBots(Player const* /*waiter*/, uint8 /*role*/,
+                                      uint32 /*minLevel*/, uint32 /*maxLevel*/,
+                                      uint32 /*count*/) { return 0; }
 
         // Whether this *human* player commands puppets of his own. Distinct from
         // IsAIControlled: the master is a real player, his followers are not.

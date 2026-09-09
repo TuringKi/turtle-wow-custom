@@ -3316,3 +3316,18 @@ bool Script_IsLFTBotCandidate(Player const* player)
         return script->IsLFTBotCandidate(player);
     });
 }
+
+uint32 Script_RequestLFTBots(Player const* waiter, uint8 role, uint32 minLevel,
+                             uint32 maxLevel, uint32 count)
+{
+    if (!waiter || !count)
+        return 0;
+
+    uint32 requested = 0;
+    ScriptRegistry<PlayerScript>::ForEachEnabledHook(PLAYERHOOK_REQUEST_LFT_BOTS, [&](PlayerScript* script)
+    {
+        if (requested < count)
+            requested += script->RequestLFTBots(waiter, role, minLevel, maxLevel, count - requested);
+    });
+    return std::min(requested, count);
+}

@@ -1936,6 +1936,8 @@ class Player;
 bool Script_IsAIControlled(Player const* player);
 bool Script_IsMachineDriven(Player const* player);
 bool Script_IsLFTBotCandidate(Player const* player);
+uint32 Script_RequestLFTBots(Player const* waiter, uint8 role, uint32 minLevel,
+                             uint32 maxLevel, uint32 count);
 bool Script_HasAIFollowers(Player const* player);
 uint8 Script_GetAllowedRoles(Player const* player);
 void Script_SetForcedRole(Player* player, uint8 role);

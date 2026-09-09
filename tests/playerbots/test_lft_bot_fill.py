@@ -39,10 +39,11 @@ struct ObjectGuid {
 ''' + header + r'''
 enum { CONFIG_BOOL_LFT_BOTFILL_ENABLE, CONFIG_UINT32_LFT_BOTFILL_DELAY,
  CONFIG_UINT32_LFT_BOTFILL_LEVEL_BELOW, CONFIG_UINT32_LFT_BOTFILL_LEVEL_ABOVE,
- CONFIG_UINT32_LFT_BOTFILL_LEVEL_BELOW_HEALER, CONFIG_BOOL_ALLOW_TWO_SIDE_INTERACTION_GROUP };
+ CONFIG_UINT32_LFT_BOTFILL_LEVEL_BELOW_HEALER, CONFIG_UINT32_LFT_BOTFILL_LEVEL_BELOW_DAMAGE,
+ CONFIG_BOOL_ALLOW_TWO_SIDE_INTERACTION_GROUP };
 const unsigned IN_MILLISECONDS=1000;
 struct World {
- std::map<int,unsigned> config={{0,1},{1,60},{2,2},{3,6},{4,4},{5,0}};
+ std::map<int,unsigned> config={{0,1},{1,60},{2,2},{3,6},{4,4},{5,6},{6,0}};
  unsigned getConfig(int k) {return config[k];}
  time_t GetGameTime(){return time(nullptr);}
 } sWorld;
@@ -61,8 +62,12 @@ struct Player {
 struct Accessor {std::map<ObjectGuid,Player*> players; const auto& GetPlayers(){return players;}} sObjectAccessor;
 bool Script_IsLFTBotCandidate(Player* p){return p->candidate;}
 bool Script_IsMachineDriven(Player* p){return p->machine;}
+unsigned requestedBots=0,requestedRole=0,requestedMin=0,requestedMax=0;
+uint32 Script_RequestLFTBots(Player const*,uint8 role,uint32 minLevel,uint32 maxLevel,uint32 count){
+ requestedBots+=count;requestedRole=role;requestedMin=minLevel;requestedMax=maxLevel;return count;
+}
 uint8 Script_GetAllowedRoles(Player* p){return p->roles;}
-void Script_SetForcedRole(Player* p,uint8 role){p->forced=role;}
+void Script_SetForcedRole(Player* p,uint8 role){p->forced=role;if(role)p->roles|=role;}
 unsigned completed=0;
 bool teleportAllowed=true, teleportRemovesFromWorld=false;
 struct Config {bool GetBoolDefault(const char*,bool){return false;}} sConfig;
@@ -125,6 +130,39 @@ int main(){
  // A completed party can queue again and receive a fresh pending status.
  LFTManager again;enqueue(again,0);again.SendQueueStatus(&p[0]);
  assert(p[0].messages.back().find("S2C_UPDATE_QUEUE_STATUS;queued;")==0);
+ // A second queue after logout can have a temporarily sparse online pool.
+ // Use one level-54 damage bot through the wider DPS window.
+ for(unsigned i=1;i<p.size();++i)p[i].candidate=false;
+ p[1].candidate=true;p[1].roles=p[1].allowed=1;p[1].level=60;
+ p[2].candidate=true;p[2].roles=p[2].allowed=2;p[2].level=60;
+ p[3].candidate=true;p[3].roles=p[3].allowed=4;p[3].level=60;
+ p[4].candidate=true;p[4].roles=1;p[4].allowed=5;p[4].level=60;
+ p[5].candidate=true;p[5].roles=p[5].allowed=4;p[5].level=54;
+ again.FillInstanceWithBots("Deadmines",again.m_queue.at(p[0].guid));
+ assert(again.m_queue.size()==5);
+ assert(again.m_fillBots.count(p[5].guid));
+ again.TryMakeOffers();assert(again.m_offers.size()==1);
+ // If there is no second idle damage bot at all, convert a class whose
+ // allowed roles include damage instead of leaving the party short forever.
+ p[5].candidate=false;
+ LFTManager damageRespec;enqueue(damageRespec,0);
+ damageRespec.FillInstanceWithBots("Deadmines",damageRespec.m_queue.at(p[0].guid));
+ assert(damageRespec.m_queue.size()==5);
+ assert(p[4].forced==4 && (p[4].roles&4));
+ damageRespec.TryMakeOffers();assert(damageRespec.m_offers.size()==1);
+ // An empty online pool asks the rndbot owner to activate matching offline
+ // characters. The queue remains intact while their sessions are starting.
+ for(unsigned i=1;i<p.size();++i)p[i].candidate=false;
+ requestedBots=requestedRole=requestedMin=requestedMax=0;
+ LFTManager emptyPool;enqueue(emptyPool,0);
+ emptyPool.FillInstanceWithBots("Deadmines",emptyPool.m_queue.at(p[0].guid));
+ assert(emptyPool.m_queue.size()==1 && requestedBots==4);
+ assert(requestedRole==4 && requestedMin==54 && requestedMax==66);
+ assert(emptyPool.m_queue.count(p[0].guid));
+ for(unsigned i=1;i<p.size();++i)p[i].candidate=i<5;
+ p[5].candidate=false;
+ p[1].level=p[2].level=p[3].level=p[4].level=p[5].level=60;
+ p[4].roles=p[4].allowed=4;p[4].forced=0;
  m.DropUnneededFillBots();assert(m.m_fillBots.empty());
  assert(p[1].forced==1 && p[2].forced==2); // Successful match retains tank/healer strategy.
  LFTManager disabled;enqueue(disabled,0);
@@ -178,4 +216,4 @@ with tempfile.TemporaryDirectory(prefix='lft-fill-') as tmp:
     subprocess.run(['g++', '-std=c++17', '-Wall', '-Wextra', '-Wno-unused-function',
                     '-fsanitize=address,undefined', '-fno-omit-frame-pointer', str(source), '-o', str(exe)], check=True)
     subprocess.run([str(exe)], check=True)
-print('PASS: LFT delay/disable, 1 tank + 1 healer + 3 DPS, manual human acceptance, crowded/offered queues, faction/hardcore/level, cancellation, bot party rolecheck, completion during worldport, idle status recovery (ASan/UBSan)')
+print('PASS: LFT delay/disable, 1 tank + 1 healer + 3 DPS, sparse/empty online pool recovery, rndbot activation request, manual human acceptance, crowded/offered queues, faction/hardcore/level, cancellation, bot party rolecheck, completion during worldport, idle status recovery (ASan/UBSan)')

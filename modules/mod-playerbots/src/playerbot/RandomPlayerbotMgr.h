@@ -156,6 +156,8 @@ public:
         static InventoryResult CanEquipUnseenItem(Player* player, uint8 slot, uint16& dest, uint32 item);
 
         bool AddRandomBot(uint32 bot);
+        uint32 RequestLFTBots(Team team, bool hardcore, uint8 role,
+                              uint32 minLevel, uint32 maxLevel, uint32 count);
         bool CreateRandomBot(const std::string& name, uint8 race, uint8 cls, uint32 level);
         bool DeleteRandomBot(ObjectGuid guid);
         virtual void MovePlayerBot(uint32 guid, PlayerbotHolder* newHolder) override;

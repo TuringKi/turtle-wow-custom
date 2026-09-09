@@ -2268,6 +2268,7 @@ LFT.BotFill.Enable = 0
 LFT.BotFill.DelaySeconds = 60
 LFT.BotFill.LevelRangeBelow = 2
 LFT.BotFill.LevelRangeBelowHealer = 4
+LFT.BotFill.LevelRangeBelowDamage = 6
 LFT.BotFill.LevelRangeAbove = 6
 
 # Automatically send the complete LFT party to a verified inside entrance after

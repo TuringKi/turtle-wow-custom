@@ -2282,7 +2282,8 @@ bool RandomPlayerbotMgr::AddRandomBot(uint32 bot)
         SetEventValue(bot, "login", 1, -1);
         uint32 randomTime = urand(sPlayerbotAIConfig.minRandomBotReviveTime, sPlayerbotAIConfig.maxRandomBotReviveTime);
         SetEventValue(bot, "update", 1, randomTime);
-        currentBots.push_back(bot);
+        if (std::find(currentBots.begin(), currentBots.end(), bot) == currentBots.end())
+            currentBots.push_back(bot);
         SC_LOG("AddRandomBot guid=%u — DONE, added to currentBots", bot);
         sLog.outDetail("Random bot added #%d", bot);
     }
@@ -2292,6 +2293,85 @@ bool RandomPlayerbotMgr::AddRandomBot(uint32 bot)
     }
 
     return true;
+}
+
+uint32 RandomPlayerbotMgr::RequestLFTBots(Team team, bool hardcore, uint8 role,
+                                          uint32 minLevel, uint32 maxLevel, uint32 count)
+{
+    if (!count || sPlayerbotAIConfig.randomBotAccounts.empty())
+        return 0;
+
+    // The normal population controller stops adding characters after its
+    // random target is reached. LFT needs a small demand-driven exception:
+    // activate suitable offline characters from the same configured account
+    // pool, then let the ordinary candidate checks accept them on a later tick.
+    static std::map<uint64, time_t> lastRequest;
+    uint64 const requestKey = (uint64(uint32(team)) << 32) |
+        (uint64(role) << 24) | (uint64(minLevel) << 12) | uint64(maxLevel);
+    time_t const now = time(nullptr);
+    if (lastRequest[requestKey] + 5 > now)
+        return 0;
+    lastRequest[requestKey] = now;
+
+    std::ostringstream accounts;
+    bool firstAccount = true;
+    for (uint32 account : sPlayerbotAIConfig.randomBotAccounts)
+    {
+        if (!firstAccount)
+            accounts << ',';
+        accounts << account;
+        firstAccount = false;
+    }
+
+    // A dead hardcore character cannot become an LFT candidate. Alive and
+    // level-60 hardcore states are safe; normal and immortal are non-hardcore.
+    char const* mortality = hardcore ? "1,4" : "0,2";
+    uint32 const queryLimit = std::min<uint32>(std::max<uint32>(count * 12, 24), 120);
+    std::ostringstream query;
+    query << "SELECT c.guid,c.race,c.class FROM characters c "
+          << "LEFT JOIN group_member gm ON gm.memberGuid=c.guid "
+          << "WHERE c.account IN (" << accounts.str() << ") "
+          << "AND c.deleteDate IS NULL AND c.online=0 AND gm.memberGuid IS NULL "
+          << "AND c.level BETWEEN " << minLevel << " AND " << maxLevel << ' '
+          << "AND c.mortality_status IN (" << mortality << ") "
+          << "ORDER BY RAND() LIMIT " << queryLimit;
+
+    std::unique_ptr<QueryResult> result(CharacterDatabase.Query(query.str().c_str()));
+    if (!result)
+        return 0;
+
+    auto classCanFill = [role](uint8 cls)
+    {
+        if (role == 0x01)
+            return cls == CLASS_WARRIOR || cls == CLASS_PALADIN || cls == CLASS_DRUID;
+        if (role == 0x02)
+            return cls == CLASS_PALADIN || cls == CLASS_PRIEST ||
+                cls == CLASS_SHAMAN || cls == CLASS_DRUID;
+        return role == 0x04 && (cls == CLASS_WARRIOR || cls == CLASS_PALADIN ||
+            cls == CLASS_HUNTER || cls == CLASS_ROGUE || cls == CLASS_PRIEST ||
+            cls == CLASS_SHAMAN || cls == CLASS_MAGE || cls == CLASS_WARLOCK ||
+            cls == CLASS_DRUID);
+    };
+
+    uint32 requested = 0;
+    do
+    {
+        Field* fields = result->Fetch();
+        uint32 const guid = fields[0].GetUInt32();
+        uint8 const race = fields[1].GetUInt8();
+        uint8 const cls = fields[2].GetUInt8();
+        if (Player::TeamForRace(race) != team || !classCanFill(cls) || GetPlayerBot(guid))
+            continue;
+
+        if (AddRandomBot(guid))
+            ++requested;
+    } while (requested < count && result->NextRow());
+
+    if (requested)
+        sLog.outBasic("LFT: requested %u offline rndbot character(s) for role %u, levels %u-%u",
+            requested, uint32(role), minLevel, maxLevel);
+
+    return requested;
 }
 
 void RandomPlayerbotMgr::MovePlayerBot(uint32 guid, PlayerbotHolder* newHolder)
