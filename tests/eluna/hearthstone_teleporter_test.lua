@@ -96,3 +96,45 @@ p.level = 40; open(p); choose(p,300); choose(p,3001); assert(p.destination)
 p.destination = nil
 open(p); choose(p,300); p.combat = true; choose(p,3001); assert(not p.destination)
 print('PASS: all 22 outdoor entrances, page navigation, faction rules, level threshold and combat recheck.')
+
+-- All travel pages: faction isolation, every destination, no forged cross-page selection.
+local towns, raids = {}, {}
+for _, team in ipairs({0,1}) do
+    local p = Player(team); open(p)
+    local pages = {}
+    for id in pairs(p.menu) do
+        if id >= 400 and id < 1000 then pages[#pages+1] = id end
+    end
+    assert(p.menu[400])
+    assert((p.menu[500] ~= nil) == (team == 0))
+    assert((p.menu[520] ~= nil) == (team == 1))
+    for _, page in ipairs(pages) do
+        open(p); choose(p,page)
+        local ids = {}
+        local menuCount = 0
+        for id in pairs(p.menu) do
+            menuCount = menuCount+1
+            if id >= 4000 then ids[#ids+1] = id end
+        end
+        assert(menuCount <= 14) -- at most 12 destinations and navigation
+        for _, id in ipairs(ids) do
+            p.destination = nil
+            open(p); choose(p,page); choose(p,id)
+            assert(p.destination and (p.destination[1] == 0 or p.destination[1] == 1))
+            if page == 400 then raids[id] = true else towns[id] = true end
+        end
+        open(p); choose(p,page); choose(p,0); assert(p.menu[400])
+    end
+    p.destination = nil
+    open(p); choose(p,team == 0 and 520 or 500); assert(not p.destination)
+end
+local n = 0; for _ in pairs(towns) do n=n+1 end; assert(n == 88)
+n = 0; for _ in pairs(raids) do n=n+1 end; assert(n == 11)
+local p = Player(0)
+open(p); choose(p,4001); assert(not p.destination)
+open(p); choose(p,400); choose(p,5001); assert(not p.destination)
+p.level=49; open(p); choose(p,400); choose(p,4001); assert(not p.destination)
+p.level=50; open(p); choose(p,400); choose(p,4001); assert(p.destination)
+p.destination=nil
+open(p); choose(p,500); p.combat=true; choose(p,5001); assert(not p.destination)
+print('PASS: 88 towns/outposts, 11 raid entrances, faction isolation, pagination, forged selections and level/state checks.')
