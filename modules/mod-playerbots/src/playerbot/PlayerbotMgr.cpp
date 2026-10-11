@@ -292,6 +292,7 @@ PlayerbotHolder::PlayerbotHolder() : PlayerbotAIBase()
     m_holderHandlers["rl"] = &PlayerbotHolder::HandleRaidLeader;
     m_holderHandlers["create"] = &PlayerbotHolder::HandleCreate;
     m_holderHandlers["group"] = &PlayerbotHolder::HandleGroup;
+    m_holderHandlers["region"] = &PlayerbotHolder::HandleRegion;
 #ifdef GenerateBotTests
     m_holderHandlers["runtest"] = &PlayerbotHolder::HandleRunTest;
 #endif
@@ -2663,8 +2664,33 @@ std::list<std::string> PlayerbotHolder::HandleGroup(Player* master, const std::s
         std::string key = arg.substr(0, eqPos);
         std::string value = arg.substr(eqPos + 1);
 
-        if (key == "size" && Qualified::isValidNumberString(value))
-            groupSize = stoi(value);
+        if (key == "size")
+        {
+            if (!Qualified::isValidNumberString(value))
+            {
+                messages.push_back("Invalid group size. Use a number from 2 to 40.");
+                return messages;
+            }
+
+            unsigned long requestedSize = 0;
+            try
+            {
+                requestedSize = std::stoul(value);
+            }
+            catch (...)
+            {
+                messages.push_back("Invalid group size. Use a number from 2 to 40.");
+                return messages;
+            }
+
+            if (requestedSize < 2 || requestedSize > MAX_RAID_SIZE)
+            {
+                messages.push_back("Invalid group size. Use a number from 2 to 40.");
+                return messages;
+            }
+
+            groupSize = static_cast<uint8>(requestedSize);
+        }
         else
             passThroughParam += key + "=" + value + " ";
     }
@@ -2718,23 +2744,28 @@ std::list<std::string> PlayerbotHolder::HandleGroup(Player* master, const std::s
         paramStr << "level=" << masterLevel << " class=" << ChatHelper::formatClass(cls) << " group=" << master->GetName() << " " << passThroughParam; //Passthrough will override.
 
         auto result = HandleCreate(master, paramStr.str(), security);
-        messages.splice(messages.end(), result);
-
-        if (!messages.empty())
+        bool created = false;
+        for (std::string const& message : result)
         {
-            auto lastMsg = messages.front();
-            if (lastMsg.find("Bot created:") != std::string::npos)
+            if (message.find("Bot created:") == 0)
             {
-                classesCreated[cls]++;
-                botsCreated++;
-                currentGroupSize++;
+                created = true;
+                break;
             }
         }
-    
-        allowedClassNr[0][role]--; 
-        
-        if (allowedClassNr[cls].find(role) != allowedClassNr[cls].end())
-            allowedClassNr[cls][role]--;
+        messages.splice(messages.end(), result);
+
+        if (created)
+        {
+            classesCreated[cls]++;
+            botsCreated++;
+            currentGroupSize++;
+
+            allowedClassNr[0][role]--;
+
+            if (allowedClassNr[cls].find(role) != allowedClassNr[cls].end())
+                allowedClassNr[cls][role]--;
+        }
     }
 
     std::ostringstream debugInfo;
@@ -2747,6 +2778,76 @@ std::list<std::string> PlayerbotHolder::HandleGroup(Player* master, const std::s
         debugInfo << ChatHelper::formatClass(kv.first) << "=" << kv.second << ",";
     sLog.outString("%s", debugInfo.str().c_str());
 
+    return messages;
+}
+
+std::list<std::string> PlayerbotHolder::HandleRegion(Player* master, const std::string param, AccountTypes security)
+{
+    std::list<std::string> messages;
+
+    if (!master)
+    {
+        messages.push_back("region command requires a master (in-game)");
+        return messages;
+    }
+
+    std::vector<std::string> args = Qualified::getMultiQualifiers(param, " ");
+    if (args.empty() || !Qualified::isValidNumberString(args[0]))
+    {
+        messages.push_back("Usage: .rndbot region <6-40> [create options]");
+        return messages;
+    }
+
+    unsigned long raidSize = 0;
+    try
+    {
+        raidSize = std::stoul(args[0]);
+    }
+    catch (...)
+    {
+        messages.push_back("Invalid raid size. Use a number from 6 to 40.");
+        return messages;
+    }
+
+    if (raidSize <= MAX_GROUP_SIZE || raidSize > MAX_RAID_SIZE)
+    {
+        messages.push_back("Invalid raid size. Use a number from 6 to 40.");
+        return messages;
+    }
+
+    Group* group = master->GetGroup();
+    if (group)
+    {
+        if (!group->IsLeader(master->GetObjectGuid()))
+        {
+            messages.push_back("You must be the group leader to create a bot raid.");
+            return messages;
+        }
+
+        if (group->GetMembersCount() >= raidSize)
+        {
+            messages.push_back(group->GetMembersCount() == raidSize
+                ? "Your raid already has the requested number of members."
+                : "Your current group already has more members than the requested raid size.");
+            return messages;
+        }
+
+        if (!group->IsRaidGroup())
+            group->ConvertToRaid();
+    }
+
+    std::ostringstream groupParam;
+    groupParam << "size=" << raidSize;
+    for (size_t i = 1; i < args.size(); ++i)
+    {
+        // The positional argument is authoritative for this command.
+        if (args[i].find("size=") != 0)
+            groupParam << " " << args[i];
+    }
+
+    messages.push_back("Creating a raid with a target size of " + std::to_string(raidSize) + " players (including you).");
+    std::list<std::string> groupMessages = HandleGroup(master, groupParam.str(), security);
+    messages.splice(messages.end(), groupMessages);
     return messages;
 }
 
@@ -3226,7 +3327,8 @@ std::unordered_map<std::string, std::string> PlayerbotHolder::GetCommandTexts()
         {"reload", "Reload the playerbot config (GM only).\nUsage: .(rnd)bot reload"},
         {"tweak", "Adjust the tweak value for testing (GM only).\nUsage: .(rnd)bot tweak"},
         {"self", "Enable self-bot mode for a player.\nUsage: .(rnd)bot self <playername>"},
-        {"group", "Create 4 bots with complementary classes at master's level.\nUsage: .(rnd)bot group"},
+        {"group", "Create bots with complementary classes at master's level.\nUsage: .(rnd)bot group [size=2-40]"},
+        {"region", "Create a bot raid with the requested total size (including you).\nUsage: .rndbot region <6-40> [create options]"},
         {"create", "Create a new bot character.\nUsage: .(rnd)bot create level=<n> class=<class> race=<race>"},
         {"spoof", "Spoof as another bot for command routing.\nUsage: .(rnd)bot spoof <botname>"},
         {"runtest", "Run bot tests.\nUsage: .rndbot runtest <testnamepart> [count]"},
